@@ -3732,6 +3732,7 @@ def register():
     bpy.utils.register_class(PointMatchMeshSelected)
     bpy.utils.register_class(PointMatchWholeMesh)
 
+    bpy.utils.register_class(MakeCoplanarBase)
     bpy.utils.register_class(MakeCoplanarObject)
     bpy.utils.register_class(MakeCoplanarMeshSelected)
     bpy.utils.register_class(MakeCoplanarWholeMesh)
@@ -3746,6 +3747,7 @@ def register():
     bpy.utils.register_class(AxisRotateMeshSelected)
     bpy.utils.register_class(AxisRotateWholeMesh)
 
+    bpy.utils.register_class(MakeCollinearBase)
     bpy.utils.register_class(MakeCollinearObject)
     bpy.utils.register_class(MakeCollinearMeshSelected)
     bpy.utils.register_class(MakeCollinearWholeMesh)
@@ -3773,8 +3775,6 @@ def register():
 
 def unregister():
     del bpy.types.Scene.sprig_data
-    del bpy.types.VIEW3D_MT_object_specials.specials_menu_items
-    del bpy.types.VIEW3D_MT_edit_mesh_specials.specials_menu_items
 
     # Remove custom classes from blender's bpy.types
     bpy.utils.unregister_class(SPRIGPrimitive)
@@ -3884,6 +3884,7 @@ def unregister():
     bpy.utils.unregister_class(MakeCoplanarMeshSelected)
     bpy.utils.unregister_class(MakeCoplanarWholeMesh)
 
+    bpy.utils.unregister_class(MakeCollinearBase)
     bpy.utils.unregister_class(MakeCollinearObject)
     bpy.utils.unregister_class(MakeCollinearMeshSelected)
     bpy.utils.unregister_class(MakeCollinearWholeMesh)
