@@ -26,8 +26,8 @@ bl_info = {
     "name": "SPRIG Tools Alpha",
     "description": (
         "Precisely align, arrange and transform objects "
-        "and mesh parts using measurements from your "
-        "scene."
+        "and mesh parts using real or imaginary geometry "
+        "from your scene."
     ),
     "author": "Eric Gentry",
     "version": "0, 1",
@@ -3318,7 +3318,7 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 transf_types.operator(
                     "sprig.changetransftoaxisrotate",
-                    icon='SNAP_EDGE',
+                    icon='FORCE_MAGNETIC',
                     text="Axis Rotate"
                 )
                 transf_types.operator(
