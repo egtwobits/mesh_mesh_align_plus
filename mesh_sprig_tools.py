@@ -3775,6 +3775,8 @@ def register():
 
 def unregister():
     del bpy.types.Scene.sprig_data
+    bpy.types.VIEW3D_MT_object_specials.remove(specials_menu_items)
+    bpy.types.VIEW3D_MT_edit_mesh_specials.remove(specials_menu_items)
 
     # Remove custom classes from blender's bpy.types
     bpy.utils.unregister_class(SPRIGPrimitive)
