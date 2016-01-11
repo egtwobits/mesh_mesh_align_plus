@@ -286,6 +286,14 @@ class SPRIGData(bpy.types.PropertyGroup):
     prim_list = bpy.props.CollectionProperty(type=SPRIGPrimitive)
     # stores index of active primitive in my UIList
     active_list_item = bpy.props.IntProperty()
+    use_experimental = bpy.props.BoolProperty(
+        description=(
+            'Mesh transformations are not currently'
+            ' supported on objects with non-uniform'
+            ' scaling. These are designated experimental'
+            ' until non-uniform scaling is supported.'
+        )
+    )
 
 
 # Basic type selector functionality, derived classes provide
@@ -1539,20 +1547,13 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     for num in bpy.context.active_object.scale
                 ]
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 # Setup matrix for mesh transforms
                 match_transf = mathutils.Matrix.Scale(
                     scale_factor,
@@ -1606,6 +1607,12 @@ class ScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
     bl_idname = "sprig.scalematchedgewholemesh"
@@ -1616,6 +1623,13 @@ class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
     )
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 class PointMatchBase(bpy.types.Operator):
@@ -1713,20 +1727,13 @@ class PointMatchBase(bpy.types.Operator):
                     raw_translation_vector
                 )
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 # Setup matrix for mesh transforms
                 match_transf = mathutils.Matrix.Translation(
                     final_translation_vector
@@ -1779,6 +1786,13 @@ class PointMatchMeshSelected(PointMatchBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
 
 class PointMatchWholeMesh(PointMatchBase):
     bl_idname = "sprig.pointmatchwholemesh"
@@ -1786,6 +1800,13 @@ class PointMatchWholeMesh(PointMatchBase):
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 class VectorSlideBase(bpy.types.Operator):
@@ -1853,20 +1874,13 @@ class VectorSlideBase(bpy.types.Operator):
                     bpy.context.active_object.location + direction
                 )
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
@@ -1922,6 +1936,13 @@ class VectorSlideMeshSelected(VectorSlideBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
 
 class VectorSlideWholeMesh(VectorSlideBase):
     bl_idname = "sprig.vectorslidewholemesh"
@@ -1929,6 +1950,13 @@ class VectorSlideWholeMesh(VectorSlideBase):
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 def scale_mat_from_vec(vec):
@@ -2039,20 +2067,13 @@ class AxisRotateBase(bpy.types.Operator):
                 bpy.context.active_object.location += new_to_old_pivot_loc
 
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 # do mesh level stuff here
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
@@ -2121,6 +2142,13 @@ class AxisRotateMeshSelected(AxisRotateBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
 
 class AxisRotateWholeMesh(AxisRotateBase):
     bl_idname = "sprig.axisrotatewholemesh"
@@ -2128,6 +2156,13 @@ class AxisRotateWholeMesh(AxisRotateBase):
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 class MakeCollinearBase(bpy.types.Operator):
@@ -2238,20 +2273,13 @@ class MakeCollinearBase(bpy.types.Operator):
                     bpy.context.active_object.location + final_translation
                 )
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
@@ -2344,6 +2372,13 @@ class MakeCollinearMeshSelected(MakeCollinearBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
 
 class MakeCollinearWholeMesh(MakeCollinearBase):
     bl_idname = "sprig.mkcollinearwholemesh"
@@ -2351,6 +2386,13 @@ class MakeCollinearWholeMesh(MakeCollinearBase):
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 class MakeCoplanarBase(bpy.types.Operator):
@@ -2479,20 +2521,13 @@ class MakeCoplanarBase(bpy.types.Operator):
                 bpy.context.scene.update()
 
             else:
-                scale_check = (
-                    bpy.context.active_object.matrix_world.decompose()[2]
-                )
-                if (scale_check[0] != scale_check[1] or
-                            scale_check[0] != scale_check[2]):
-                    self.report(
-                        {'ERROR'},
-                        ('Currently unsupported: mesh level transforms'
-                         ' cannot currently be applied to objects with'
-                         ' non-uniform scaling.'
-                        )
+                self.report(
+                    {'WARNING'},
+                    ('Warning/Experimental: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.'
                     )
-                    return {'CANCELLED'}
-
+                )
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
@@ -2614,6 +2649,13 @@ class MakeCoplanarMeshSelected(MakeCoplanarBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
 
 class MakeCoplanarWholeMesh(MakeCoplanarBase):
     bl_idname = "sprig.mkcoplanarwholemesh"
@@ -2621,6 +2663,13 @@ class MakeCoplanarWholeMesh(MakeCoplanarBase):
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        if not addon_data.use_experimental:
+            return False
+        return True
 
 
 # Custom list, for displaying combined list of all primitives (Used at top
@@ -3328,8 +3377,9 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
+                apply_buttons_header = item_info_col.row()
                 if active_item.transf_type == 'POINTMATCH':
-                    item_info_col.label('Apply Point Match to:')
+                    apply_buttons_header.label('Apply Point Match to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.pointmatchobject",
@@ -3348,7 +3398,7 @@ class SPRIGGui(bpy.types.Panel):
                         text=" Whole Mesh"
                     )
                 elif active_item.transf_type == 'VECTORSLIDE':
-                    item_info_col.label('Apply Vector Slide to:')
+                    apply_buttons_header.label('Apply Vector Slide to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.vectorslideobject",
@@ -3366,7 +3416,7 @@ class SPRIGGui(bpy.types.Panel):
                         text="Whole Mesh"
                     )
                 elif active_item.transf_type == 'SCALEMATCHEDGE':
-                    item_info_col.label('Apply Scale Match Edge to:')
+                    apply_buttons_header.label('Apply Scale Match Edge to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.scalematchedgeobject",
@@ -3384,7 +3434,7 @@ class SPRIGGui(bpy.types.Panel):
                         text="Whole Mesh"
                     )
                 elif active_item.transf_type == 'AXISROTATE':
-                    item_info_col.label('Apply Axis Rotate to:')
+                    apply_buttons_header.label('Apply Axis Rotate to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.axisrotateobject",
@@ -3402,7 +3452,7 @@ class SPRIGGui(bpy.types.Panel):
                         text="Whole Mesh"
                     )
                 elif active_item.transf_type == 'MKCOLLINEAR':
-                    item_info_col.label('Apply Make Collinear to:')
+                    apply_buttons_header.label('Apply Make Collinear to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.mkcollinearobject",
@@ -3421,7 +3471,7 @@ class SPRIGGui(bpy.types.Panel):
                         text="Whole Mesh"
                     )
                 elif active_item.transf_type == 'MKCOPLANAR':
-                    item_info_col.label('Apply Make Coplanar to:')
+                    apply_buttons_header.label('Apply Make Coplanar to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
                         "sprig.mkcoplanarobject",
@@ -3440,6 +3490,12 @@ class SPRIGGui(bpy.types.Panel):
                         text="Whole Mesh"
                     )
                 item_info_col.separator()
+                experiment_toggle= apply_buttons_header.column()
+                experiment_toggle.prop(
+                        addon_data,
+                        'use_experimental',
+                        'Enable Experimental Mesh Ops.'
+                )
 
                 active_transf = bpy.types.AnyType(active_item)
 
