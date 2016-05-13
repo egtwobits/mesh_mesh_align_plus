@@ -303,6 +303,12 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    quick_align_pts_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source point from selected geometry"
+        ),
+        default=True
+    )
     quick_align_pts_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_align_pts_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_align_pts_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
@@ -313,6 +319,12 @@ class SPRIGData(bpy.types.PropertyGroup):
             " in the quick tools panel."
         ),
         default=False
+    )
+    quick_vector_slide_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source line from selected geometry"
+        ),
+        default=True
     )
     quick_vector_slide_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_vector_slide_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
@@ -325,6 +337,12 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    quick_scale_match_edge_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source line from selected geometry"
+        ),
+        default=True
+    )
     quick_scale_match_edge_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_scale_match_edge_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_scale_match_edge_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
@@ -335,6 +353,12 @@ class SPRIGData(bpy.types.PropertyGroup):
             " in the quick tools panel."
         ),
         default=False
+    )
+    quick_make_collinear_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source line from selected geometry"
+        ),
+        default=True
     )
     quick_make_collinear_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_make_collinear_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
@@ -347,6 +371,12 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    quick_axis_rotate_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source axis from selected geometry"
+        ),
+        default=True
+    )
     quick_axis_rotate_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_axis_rotate_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
     
@@ -356,6 +386,12 @@ class SPRIGData(bpy.types.PropertyGroup):
             " in the quick tools panel."
         ),
         default=False
+    )
+    quick_make_coplanar_auto_grab_src = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source plane from selected geometry"
+        ),
+        default=True
     )
     quick_make_coplanar_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_make_coplanar_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
@@ -925,6 +961,13 @@ class QuickPointMatchGrabSrc(GrabFromGeometryBase):
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
     quick_op_target = "PMSRC"
+
+    # @classmethod
+    # def poll(cls, context):
+        # addon_data = bpy.context.scene.sprig_data
+        # if addon_data.quick_align_pts_auto_grab_src:
+            # return False
+        # return True
 
 
 class QuickPointMatchGrabDest(GrabFromGeometryBase):
@@ -1725,7 +1768,8 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
 
             if hasattr(self, "quick_op_target"):
-                bpy.ops.sprig.quickscalematchedgegrabsrc()
+                if addon_data.quick_scale_match_edge_auto_grab_src:
+                    bpy.ops.sprig.quickscalematchedgegrabsrc()
                 src_edge = (
                     mathutils.Vector(
                         addon_data.quick_scale_match_edge_src.line_end
@@ -1804,37 +1848,41 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            match_transf,
-                            filter={'TAG'}
-                        )
-                    else:
-                        src_mesh.transform(
-                            match_transf,
-                            filter={'SELECT'}
-                        )
+                    src_mesh.transform(
+                        match_transf,
+                        filter={'SELECT'}
+                    )
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # match_transf,
+                            # filter={'TAG'}
+                        # )
+                    # else:
+                        # src_mesh.transform(
+                            # match_transf,
+                            # filter={'SELECT'}
+                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(match_transf)
 
@@ -1994,7 +2042,8 @@ class PointMatchBase(bpy.types.Operator):
             # src either comes from a selected edge (for quick ops)
             # or from the primitive list (regular ops)
             if hasattr(self, 'quick_op_target'):
-                bpy.ops.sprig.quickpointmatchgrabsrc()
+                if addon_data.quick_align_pts_auto_grab_src:
+                    bpy.ops.sprig.quickpointmatchgrabsrc()
                 src_pt = mathutils.Vector(
                     (addon_data.quick_align_pts_src.point[0],
                      addon_data.quick_align_pts_src.point[1],
@@ -2099,37 +2148,41 @@ class PointMatchBase(bpy.types.Operator):
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            match_transf,
-                            filter={'TAG'}
-                        )
-                    else:
-                        src_mesh.transform(
-                            match_transf,
-                            filter={'SELECT'}
-                        )
+                    src_mesh.transform(
+                        match_transf,
+                        filter={'SELECT'}
+                    )
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # match_transf,
+                            # filter={'TAG'}
+                        # )
+                    # else:
+                        # src_mesh.transform(
+                            # match_transf,
+                            # filter={'SELECT'}
+                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(match_transf)
 
@@ -2278,6 +2331,8 @@ class VectorSlideBase(bpy.types.Operator):
             # Make the vector specifying the direction and
             # magnitude to slide in
             if hasattr(self, "quick_op_target"):
+                if addon_data.quick_vector_slide_auto_grab_src:
+                    bpy.ops.sprig.quickvectorslidegrabsrc()
                 direction = (
                     mathutils.Vector(addon_data.quick_vector_slide_src.line_end) -
                     mathutils.Vector(addon_data.quick_vector_slide_src.line_start)
@@ -2336,37 +2391,41 @@ class VectorSlideBase(bpy.types.Operator):
                 )
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            corrected_direction_transf,
-                            filter={'TAG'}
-                        )
-                    else:
-                        src_mesh.transform(
-                            corrected_direction_transf,
-                            filter={'SELECT'}
-                        )
+                    src_mesh.transform(
+                        corrected_direction_transf,
+                        filter={'SELECT'}
+                    )
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # corrected_direction_transf,
+                            # filter={'TAG'}
+                        # )
+                    # else:
+                        # src_mesh.transform(
+                            # corrected_direction_transf,
+                            # filter={'SELECT'}
+                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(corrected_direction_transf)
 
@@ -2542,6 +2601,8 @@ class AxisRotateBase(bpy.types.Operator):
                 )
 
             if hasattr(self, "quick_op_target"):
+                if addon_data.quick_axis_rotate_auto_grab_src:
+                    bpy.ops.sprig.quickaxisrotategrabsrc()
                 loc_pivot = (
                     inverse_active * mathutils.Vector(
                         addon_data.quick_axis_rotate_src.line_start
@@ -2644,41 +2705,47 @@ class AxisRotateBase(bpy.types.Operator):
                 )
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            loc_axis_rotate,
-                            filter={'TAG'}
-                        )
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(bpy.context.active_object.data)
-                    else:
-                        src_mesh.transform(
-                            loc_axis_rotate,
-                            filter={'SELECT'}
-                        )
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(bpy.context.active_object.data)
+                    src_mesh.transform(
+                        loc_axis_rotate,
+                        filter={'SELECT'}
+                    )
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(bpy.context.active_object.data)
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # loc_axis_rotate,
+                            # filter={'TAG'}
+                        # )
+                        # bpy.ops.object.mode_set(mode='OBJECT')
+                        # src_mesh.to_mesh(bpy.context.active_object.data)
+                    # else:
+                        # src_mesh.transform(
+                            # loc_axis_rotate,
+                            # filter={'SELECT'}
+                        # )
+                        # bpy.ops.object.mode_set(mode='OBJECT')
+                        # src_mesh.to_mesh(bpy.context.active_object.data)
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(loc_axis_rotate)
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -2818,7 +2885,8 @@ class MakeCollinearBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 # construct lines from the selected list items
-                bpy.ops.sprig.quickmakecollineargrabsrc()
+                if addon_data.quick_make_collinear_auto_grab_src:
+                    bpy.ops.sprig.quickmakecollineargrabsrc()
                 first_line = (
                     mathutils.Vector(addon_data.quick_make_collinear_src.line_end) -
                     mathutils.Vector(addon_data.quick_make_collinear_src.line_start)
@@ -3013,37 +3081,41 @@ class MakeCollinearBase(bpy.types.Operator):
                 )
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            loc_make_collinear,
-                            filter={'TAG'}
-                        )
-                    else:
-                        src_mesh.transform(
-                            loc_make_collinear,
-                            filter={'SELECT'}
-                        )
+                    src_mesh.transform(
+                        loc_make_collinear,
+                        filter={'SELECT'}
+                    )
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # loc_make_collinear,
+                            # filter={'TAG'}
+                        # )
+                    # else:
+                        # src_mesh.transform(
+                            # loc_make_collinear,
+                            # filter={'SELECT'}
+                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(loc_make_collinear)
 
@@ -3183,7 +3255,8 @@ class MakeCoplanarBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 # construct normal vector for first (source) plane
-                bpy.ops.sprig.quickmakecoplanargrabsrc()
+                if addon_data.quick_make_coplanar_auto_grab_src:
+                    bpy.ops.sprig.quickmakecoplanargrabsrc()
                 first_pln_ln_BA = (
                     mathutils.Vector(
                         addon_data.quick_make_coplanar_src.plane_pt_a
@@ -3480,37 +3553,41 @@ class MakeCoplanarBase(bpy.types.Operator):
                 )
 
                 if self.target == 'MESHSELECTED':
-                    if hasattr(self, "quick_op_target"):
-                        if "_sel" not in bpy.context.active_object.vertex_groups:
-                            self.report(
-                                {'ERROR'},
-                                ('Missing vertex group: A vertex group named '
-                                 '"_sel" must be present to transform'
-                                 'selected vertices with the Quick Tools.'
-                                )
-                            )
-                            return {'CANCELLED'}
-                        group_ind = (
-                            bpy.context.active_object.vertex_groups["_sel"].index
-                        )
-                        target_verts = []
-                        for vert in bpy.context.active_object.data.vertices:
-                            for vgroup in vert.groups:
-                                if vgroup.group == group_ind:
-                                    target_verts.append(vert.index)
-                        # todo, REPORT on no verts in the vert group
-                        for v in src_mesh.verts:
-                            if v.index in target_verts:
-                                v.tag = True
-                        src_mesh.transform(
-                            mesh_coplanar,
-                            filter={'TAG'}
-                        )
-                    else:
-                        src_mesh.transform(
-                            mesh_coplanar,
-                            filter={'SELECT'}
-                        )
+                    src_mesh.transform(
+                        mesh_coplanar,
+                        filter={'SELECT'}
+                    )
+                    # if hasattr(self, "quick_op_target"):
+                        # if "_sel" not in bpy.context.active_object.vertex_groups:
+                            # self.report(
+                                # {'ERROR'},
+                                # ('Missing vertex group: A vertex group named '
+                                 # '"_sel" must be present to transform'
+                                 # 'selected vertices with the Quick Tools.'
+                                # )
+                            # )
+                            # return {'CANCELLED'}
+                        # group_ind = (
+                            # bpy.context.active_object.vertex_groups["_sel"].index
+                        # )
+                        # target_verts = []
+                        # for vert in bpy.context.active_object.data.vertices:
+                            # for vgroup in vert.groups:
+                                # if vgroup.group == group_ind:
+                                    # target_verts.append(vert.index)
+                        # # todo, REPORT on no verts in the vert group
+                        # for v in src_mesh.verts:
+                            # if v.index in target_verts:
+                                # v.tag = True
+                        # src_mesh.transform(
+                            # mesh_coplanar,
+                            # filter={'TAG'}
+                        # )
+                    # else:
+                        # src_mesh.transform(
+                            # mesh_coplanar,
+                            # filter={'SELECT'}
+                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(mesh_coplanar)
 
@@ -4641,11 +4718,22 @@ class QuickTools(bpy.types.Panel):
         )
         if addon_data.quick_align_pts_show:
             # align_pts_gui.label("Destination:")
-            pm_grab_row = align_pts_gui.row()
-            pm_grab_row.operator(
-                    "sprig.quickpointmatchgrabdest",
+            pm_grab_col = align_pts_gui.column()
+            pm_grab_col.prop(
+                addon_data,
+                'quick_align_pts_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_align_pts_auto_grab_src:
+                pm_grab_col.operator(
+                    "sprig.quickpointmatchgrabsrc",
                     icon='WORLD',
-                    text="Grab Destination"
+                    text="Grab Source"
+                )
+            pm_grab_col.operator(
+                "sprig.quickpointmatchgrabdest",
+                icon='WORLD',
+                text="Grab Destination"
             )
             # align_pts_gui.prop(
                 # addon_data.quick_align_pts_dest,
@@ -4711,8 +4799,19 @@ class QuickTools(bpy.types.Panel):
         )
         if addon_data.quick_make_collinear_show:
             # make_cl_gui.label("Destination:")
-            mcl_grab_row = make_cl_gui.row()
-            mcl_grab_row.operator(
+            mcl_grab_col = make_cl_gui.column()
+            mcl_grab_col.prop(
+                addon_data,
+                'quick_make_collinear_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_make_collinear_auto_grab_src:
+                mcl_grab_col.operator(
+                        "sprig.quickmakecollineargrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            mcl_grab_col.operator(
                     "sprig.quickmakecollineargrabdest",
                     icon='WORLD',
                     text="Grab Destination"
@@ -4770,17 +4869,23 @@ class QuickTools(bpy.types.Panel):
         )
         if addon_data.quick_make_coplanar_show:
             # make_cp_gui.label("Destination:")
-            mcp_grab_row = make_cp_gui.row()
-            mcp_grab_row.operator(
+            mcp_grab_col = make_cp_gui.column()
+            mcp_grab_col.prop(
+                addon_data,
+                'quick_make_coplanar_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_make_coplanar_auto_grab_src:
+                mcp_grab_col.operator(
+                        "sprig.quickmakecoplanargrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            mcp_grab_col.operator(
                     "sprig.quickmakecoplanargrabdest",
                     icon='WORLD',
                     text="Grab Destination"
             )
-            # make_cp_gui.prop(
-                # addon_data.quick_
-                # 'point',
-                # ""
-            # )
             make_cp_gui.label("Operator settings:")
             mcp_mods = make_cp_gui.box()
             mcp_mods_row1 = mcp_mods.row()
@@ -4828,8 +4933,19 @@ class QuickTools(bpy.types.Panel):
             icon="MOD_ARRAY"
         )
         if addon_data.quick_scale_match_edge_show:
-            sme_grab_row = sme_gui.row()
-            sme_grab_row.operator(
+            sme_grab_col = sme_gui.column()
+            sme_grab_col.prop(
+                addon_data,
+                'quick_scale_match_edge_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_scale_match_edge_auto_grab_src:
+                sme_grab_col.operator(
+                        "sprig.quickscalematchedgegrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            sme_grab_col.operator(
                     "sprig.quickscalematchedgegrabdest",
                     icon='WORLD',
                     text="Grab Destination"
@@ -4881,12 +4997,18 @@ class QuickTools(bpy.types.Panel):
             icon="MOD_ARRAY"
         )
         if addon_data.quick_axis_rotate_show:
-            axr_grab_row = axr_gui.row()
-            axr_grab_row.operator(
-                    "sprig.quickaxisrotategrabsrc",
-                    icon='WORLD',
-                    text="Grab Axis"
+            axr_grab_col = axr_gui.column()
+            axr_grab_col.prop(
+                addon_data,
+                'quick_axis_rotate_auto_grab_src',
+                'Auto Grab Axis from Selected Vertices'
             )
+            if not addon_data.quick_axis_rotate_auto_grab_src:
+                axr_grab_col.operator(
+                        "sprig.quickaxisrotategrabsrc",
+                        icon='WORLD',
+                        text="Grab Axis"
+                )
             axr_gui.label("Operator settings:")
             axr_mods = axr_gui.box()
             axr_mods_row1 = axr_mods.row()
@@ -4934,12 +5056,18 @@ class QuickTools(bpy.types.Panel):
             icon="MOD_ARRAY"
         )
         if addon_data.quick_vector_slide_show:
-            vs_grab_row = vs_gui.row()
-            vs_grab_row.operator(
-                    "sprig.quickvectorslidegrabsrc",
-                    icon='WORLD',
-                    text="Grab Source"
+            vs_grab_col = vs_gui.column()
+            vs_grab_col.prop(
+                addon_data,
+                'quick_vector_slide_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
             )
+            if not addon_data.quick_vector_slide_auto_grab_src:
+                vs_grab_col.operator(
+                        "sprig.quickvectorslidegrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
             vs_gui.label("Operator settings:")
             vs_mods = vs_gui.box()
             vs_box_row1 = vs_mods.row()
