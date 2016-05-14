@@ -3789,28 +3789,29 @@ class SPRIGGui(bpy.types.Panel):
             "active_list_item",
             type='DEFAULT'
         )
-        add_remove_data_col = sprig_data_mgmt_row.column(align=True)
-        add_remove_data_col.operator(
+        add_remove_data_col = sprig_data_mgmt_row.column()
+        add_new_items = add_remove_data_col.column(align=True)
+        add_new_items.operator(
             "sprig.addnewpoint",
             icon='LAYER_ACTIVE',
             text=""
         )
-        add_remove_data_col.operator(
+        add_new_items.operator(
             "sprig.addnewline",
             icon='MAN_TRANS',
             text=""
         )
-        add_remove_data_col.operator(
+        add_new_items.operator(
             "sprig.addnewplane",
             icon='OUTLINER_OB_MESH',
             text=""
         )
-        add_remove_data_col.operator(
+        add_new_items.operator(
             "sprig.addnewcalculation",
             icon='NODETREE',
             text=""
         )
-        add_remove_data_col.operator(
+        add_new_items.operator(
             "sprig.addnewtransformation",
             icon='MANIPUL',
             text=""
@@ -5111,8 +5112,8 @@ class QuickAxisRotateGUI(bpy.types.Panel):
 
 
 class QuickVectorSlideGUI(bpy.types.Panel):
-    bl_idname = "quick_align_lines_gui"
-    bl_label = "Quick Align Lines"
+    bl_idname = "quick_vector_slide_gui"
+    bl_label = "Quick Directional Move"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "SPRIG Tools"
