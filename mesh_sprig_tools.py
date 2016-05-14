@@ -301,7 +301,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the align points operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_align_pts_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -318,7 +318,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the vector slide operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_vector_slide_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -335,7 +335,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the scale match edge operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_scale_match_edge_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -352,7 +352,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the make collinear operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_make_collinear_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -369,7 +369,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the axis rotate operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_axis_rotate_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -385,7 +385,7 @@ class SPRIGData(bpy.types.PropertyGroup):
             "Expand/collapse the make coplanar operator"
             " in the quick tools panel."
         ),
-        default=False
+        default=True
     )
     quick_make_coplanar_auto_grab_src = bpy.props.BoolProperty(
         description=(
@@ -640,13 +640,12 @@ class UniqueNameError(Exception):
     pass
 
 
-class AddListItem(bpy.types.Operator):
-    bl_idname = "sprig.addlistitem"
+class AddListItemBase(bpy.types.Operator):
+    bl_idname = "sprig.addlistitembase"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
 
-    @staticmethod
-    def add_new_named():
+    def add_new_named(self):
         addon_data = bpy.context.scene.sprig_data
         prims = addon_data.prim_list
 
@@ -681,6 +680,16 @@ class AddListItem(bpy.types.Operator):
 
         new_item = addon_data.prim_list.add()
         new_item.name = cur_item_name
+        if self.new_kind == "POINT":
+            new_item.kind = "POINT"
+        elif self.new_kind == "LINE":
+            new_item.kind = "LINE"
+        elif self.new_kind == "PLANE":
+            new_item.kind = "PLANE"
+        elif self.new_kind == "CALCULATION":
+            new_item.kind = "CALCULATION"
+        elif self.new_kind == "TRANSFORMATION":
+            new_item.kind = "TRANSFORMATION"
         return new_item
 
     def execute(self, context):
@@ -691,6 +700,41 @@ class AddListItem(bpy.types.Operator):
             return {'CANCELLED'}
 
         return {'FINISHED'}
+
+
+class AddNewPoint(AddListItemBase):
+    bl_idname = "sprig.addnewpoint"
+    bl_label = "Add a new item"
+    bl_options = {'REGISTER', 'UNDO'}
+    new_kind = "POINT"
+
+
+class AddNewLine(AddListItemBase):
+    bl_idname = "sprig.addnewline"
+    bl_label = "Add a new item"
+    bl_options = {'REGISTER', 'UNDO'}
+    new_kind = "LINE"
+
+
+class AddNewPlane(AddListItemBase):
+    bl_idname = "sprig.addnewplane"
+    bl_label = "Add a new item"
+    bl_options = {'REGISTER', 'UNDO'}
+    new_kind = "PLANE"
+
+
+class AddNewCalculation(AddListItemBase):
+    bl_idname = "sprig.addnewcalculation"
+    bl_label = "Add a new item"
+    bl_options = {'REGISTER', 'UNDO'}
+    new_kind = "CALCULATION"
+
+
+class AddNewTransformation(AddListItemBase):
+    bl_idname = "sprig.addnewtransformation"
+    bl_label = "Add a new item"
+    bl_options = {'REGISTER', 'UNDO'}
+    new_kind = "TRANSFORMATION"
 
 
 class RemoveListItem(bpy.types.Operator):
@@ -3747,13 +3791,33 @@ class SPRIGGui(bpy.types.Panel):
         )
         add_remove_data_col = sprig_data_mgmt_row.column(align=True)
         add_remove_data_col.operator(
-            "sprig.addlistitem",
-            icon='ZOOMIN',
+            "sprig.addnewpoint",
+            icon='LAYER_ACTIVE',
+            text=""
+        )
+        add_remove_data_col.operator(
+            "sprig.addnewline",
+            icon='MAN_TRANS',
+            text=""
+        )
+        add_remove_data_col.operator(
+            "sprig.addnewplane",
+            icon='OUTLINER_OB_MESH',
+            text=""
+        )
+        add_remove_data_col.operator(
+            "sprig.addnewcalculation",
+            icon='NODETREE',
+            text=""
+        )
+        add_remove_data_col.operator(
+            "sprig.addnewtransformation",
+            icon='MANIPUL',
             text=""
         )
         add_remove_data_col.operator(
             "sprig.removelistitem",
-            icon='ZOOMOUT',
+            icon='X',
             text=""
         )
 
@@ -3762,41 +3826,49 @@ class SPRIGGui(bpy.types.Panel):
         # list is not empty, it allow users to choose the type of the
         # current primitive)
         if len(prims) == 0:
-            layout.label("Click the + button to add items")
+            layout.label("Add items above")
         else:
             basic_item_attribs_col = layout.column()
-            basic_item_attribs_col.label("Item Name and Type Selectors:")
-            item_name_and_types = basic_item_attribs_col.row(align=True)
+            basic_item_attribs_col.label("Item Name and Type:")
+            item_name_and_types = basic_item_attribs_col.split(
+                align=True,
+                percentage=.67
+            )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
                 'name',
                 ""
             )
-            item_name_and_types.operator(
-                "sprig.changetypetopointprim",
-                icon='LAYER_ACTIVE',
-                text=""
+            item_name_and_types.prop(
+                bpy.types.AnyType(active_item),
+                'kind',
+                ""
             )
-            item_name_and_types.operator(
-                "sprig.changetypetolineprim",
-                icon='MAN_TRANS',
-                text=""
-            )
-            item_name_and_types.operator(
-                "sprig.changetypetoplaneprim",
-                icon='OUTLINER_OB_MESH',
-                text=""
-            )
-            item_name_and_types.operator(
-                "sprig.changetypetocalcprim",
-                icon='NODETREE',
-                text=""
-            )
-            item_name_and_types.operator(
-                "sprig.changetypetotransfprim",
-                icon='MANIPUL',
-                text=""
-            )
+            # item_name_and_types.operator(
+                # "sprig.changetypetopointprim",
+                # icon='LAYER_ACTIVE',
+                # text=""
+            # )
+            # item_name_and_types.operator(
+                # "sprig.changetypetolineprim",
+                # icon='MAN_TRANS',
+                # text=""
+            # )
+            # item_name_and_types.operator(
+                # "sprig.changetypetoplaneprim",
+                # icon='OUTLINER_OB_MESH',
+                # text=""
+            # )
+            # item_name_and_types.operator(
+                # "sprig.changetypetocalcprim",
+                # icon='NODETREE',
+                # text=""
+            # )
+            # item_name_and_types.operator(
+                # "sprig.changetypetotransfprim",
+                # icon='MANIPUL',
+                # text=""
+            # )
             basic_item_attribs_col.separator()
 
             # Item-specific UI elements (primitive-specific data like coords
@@ -4688,12 +4760,13 @@ class SPRIGGui(bpy.types.Panel):
                     )
 
 
-class QuickTools(bpy.types.Panel):
-    bl_idname = "sprig_tools_alpha_quick_panel"
-    bl_label = "Quick Transforms"
+class QuickAlignPointsGUI(bpy.types.Panel):
+    bl_idname = "quick_align_points_gui"
+    bl_label = "Quick Align Points"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
@@ -4701,413 +4774,512 @@ class QuickTools(bpy.types.Panel):
         addon_data = bpy.context.scene.sprig_data
         prims = addon_data.prim_list
 
+        apg_top = layout.row()
         align_pts_gui = layout.box()
-        apg_top = align_pts_gui.row()
-        apg_top.prop(
-            sprig_data_ptr,
-            'quick_align_pts_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_align_pts_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
-        )
         apg_top.label(
-            "Align Points" if not \
-            addon_data.quick_align_pts_show else "Align Points:",
+            "Align Points",
             icon="ROTATECOLLECTION"
         )
-        if addon_data.quick_align_pts_show:
-            # align_pts_gui.label("Destination:")
-            pm_grab_col = align_pts_gui.column()
-            pm_grab_col.prop(
-                addon_data,
-                'quick_align_pts_auto_grab_src',
-                'Auto Grab Source from Selected Vertices'
-            )
-            if not addon_data.quick_align_pts_auto_grab_src:
-                pm_grab_col.operator(
-                    "sprig.quickpointmatchgrabsrc",
-                    icon='WORLD',
-                    text="Grab Source"
-                )
-            pm_grab_col.operator(
-                "sprig.quickpointmatchgrabdest",
-                icon='WORLD',
-                text="Grab Destination"
-            )
-            # align_pts_gui.prop(
-                # addon_data.quick_align_pts_dest,
-                # 'point',
-                # ""
-            # )
-            align_pts_gui.label("Operator settings:")
-            pm_mods = align_pts_gui.box()
-            pm_box_row1 = pm_mods.row()
-            pm_box_row1.prop(
-                addon_data.quick_align_pts_transf,
-                'pm_ln_make_unit_vec',
-                'Set Length to 1'
-            )
-            pm_box_row1.prop(
-                addon_data.quick_align_pts_transf,
-                'pm_ln_flip_direction',
-                'Flip Direction'
-            )
-            pm_box_row2 = pm_mods.row()
-            pm_box_row2.prop(
-                addon_data.quick_align_pts_transf,
-                'pm_multiplier',
-                'Multiplier'
-            )
-            pm_apply_header = align_pts_gui.row()
-            pm_apply_header.label("Apply to:")
-            pm_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            pm_apply_items = align_pts_gui.split(percentage=.33)
-            pm_apply_items.operator(
-                "sprig.quickpointmatchobject",
-                text="Object"
-            )
-            pm_mesh_apply_items = pm_apply_items.row(align=True)
-            pm_mesh_apply_items.operator(
-                "sprig.quickpointmatchmeshselected",
-                text="Mesh Piece"
-            )
-            pm_mesh_apply_items.operator(
-                "sprig.quickpointmatchwholemesh",
-                text="Whole Mesh"
-            )
-        layout.separator()
-        
-        make_cl_gui = layout.box()
-        mcl_top = make_cl_gui.row()
-        mcl_top.prop(
-            sprig_data_ptr,
-            'quick_make_collinear_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_make_collinear_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
+        # apg_top = align_pts_gui.row()
+        # apg_top.prop(
+            # sprig_data_ptr,
+            # 'quick_align_pts_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_align_pts_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # apg_top.label(
+            # "Align Points" if not \
+            # addon_data.quick_align_pts_show else "Align Points:",
+            # icon="ROTATECOLLECTION"
+        # )
+        # if addon_data.quick_align_pts_show:
+        # align_pts_gui.label("Destination:")
+        pm_grab_col = align_pts_gui.column()
+        pm_grab_col.prop(
+            addon_data,
+            'quick_align_pts_auto_grab_src',
+            'Auto Grab Source from Selected Vertices'
         )
+        if not addon_data.quick_align_pts_auto_grab_src:
+            pm_grab_col.operator(
+                "sprig.quickpointmatchgrabsrc",
+                icon='WORLD',
+                text="Grab Source"
+            )
+        pm_grab_col.operator(
+            "sprig.quickpointmatchgrabdest",
+            icon='WORLD',
+            text="Grab Destination"
+        )
+        # align_pts_gui.prop(
+            # addon_data.quick_align_pts_dest,
+            # 'point',
+            # ""
+        # )
+        align_pts_gui.label("Operator settings:")
+        pm_mods = align_pts_gui.box()
+        pm_box_row1 = pm_mods.row()
+        pm_box_row1.prop(
+            addon_data.quick_align_pts_transf,
+            'pm_ln_make_unit_vec',
+            'Set Length to 1'
+        )
+        pm_box_row1.prop(
+            addon_data.quick_align_pts_transf,
+            'pm_ln_flip_direction',
+            'Flip Direction'
+        )
+        pm_box_row2 = pm_mods.row()
+        pm_box_row2.prop(
+            addon_data.quick_align_pts_transf,
+            'pm_multiplier',
+            'Multiplier'
+        )
+        pm_apply_header = align_pts_gui.row()
+        pm_apply_header.label("Apply to:")
+        pm_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
+        )
+        pm_apply_items = align_pts_gui.split(percentage=.33)
+        pm_apply_items.operator(
+            "sprig.quickpointmatchobject",
+            text="Object"
+        )
+        pm_mesh_apply_items = pm_apply_items.row(align=True)
+        pm_mesh_apply_items.operator(
+            "sprig.quickpointmatchmeshselected",
+            text="Mesh Piece"
+        )
+        pm_mesh_apply_items.operator(
+            "sprig.quickpointmatchwholemesh",
+            text="Whole Mesh"
+        )
+
+
+class QuickAlignLinesGUI(bpy.types.Panel):
+    bl_idname = "quick_align_lines_gui"
+    bl_label = "Quick Align Lines"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+
+        mcl_top = layout.row()
+        make_cl_gui = layout.box()
         mcl_top.label(
-            "Align Lines" if not \
-            addon_data.quick_make_collinear_show else "Align Lines:",
+            "Align Lines",
             icon="SNAP_EDGE"
         )
-        if addon_data.quick_make_collinear_show:
-            # make_cl_gui.label("Destination:")
-            mcl_grab_col = make_cl_gui.column()
-            mcl_grab_col.prop(
-                addon_data,
-                'quick_make_collinear_auto_grab_src',
-                'Auto Grab Source from Selected Vertices'
-            )
-            if not addon_data.quick_make_collinear_auto_grab_src:
-                mcl_grab_col.operator(
-                        "sprig.quickmakecollineargrabsrc",
-                        icon='WORLD',
-                        text="Grab Source"
-                )
+        # mcl_top = make_cl_gui.row()
+        # mcl_top.prop(
+            # sprig_data_ptr,
+            # 'quick_make_collinear_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_make_collinear_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # mcl_top.label(
+            # "Align Lines" if not \
+            # addon_data.quick_make_collinear_show else "Align Lines:",
+            # icon="SNAP_EDGE"
+        # )
+        # if addon_data.quick_make_collinear_show:
+        mcl_grab_col = make_cl_gui.column()
+        mcl_grab_col.prop(
+            addon_data,
+            'quick_make_collinear_auto_grab_src',
+            'Auto Grab Source from Selected Vertices'
+        )
+        if not addon_data.quick_make_collinear_auto_grab_src:
             mcl_grab_col.operator(
-                    "sprig.quickmakecollineargrabdest",
+                    "sprig.quickmakecollineargrabsrc",
                     icon='WORLD',
-                    text="Grab Destination"
+                    text="Grab Source"
             )
-            # make_cl_gui.prop(
-                # addon_data.quick_align_pts_dest,
-                # 'point',
-                # ""
-            # )
-            make_cl_gui.label("Operator settings:")
-            mcl_mods = make_cl_gui.box()
-            mcl_mods_row1 = mcl_mods.row()
-            mcl_mods_row1.prop(
-                addon_data.quick_make_collinear_transf,
-                'mcl_ln_flip_direction',
-                'Flip Direction'
-            )
-            mcl_apply_header = make_cl_gui.row()
-            mcl_apply_header.label("Apply to:")
-            mcl_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            mcl_apply_items = make_cl_gui.split(percentage=.33)
-            mcl_apply_items.operator(
-                "sprig.quickmakecollinearobject",
-                text="Object"
-            )
-            mcl_mesh_apply_items = mcl_apply_items.row(align=True)
-            mcl_mesh_apply_items.operator(
-                "sprig.quickmakecollinearmeshselected",
-                text="Mesh Piece"
-            )
-            mcl_mesh_apply_items.operator(
-                "sprig.quickmakecollinearwholemesh",
-                text="Whole Mesh"
-            )
-        layout.separator()
-        
-        make_cp_gui = layout.box()
-        mcp_top = make_cp_gui.row()
-        mcp_top.prop(
-            sprig_data_ptr,
-            'quick_make_coplanar_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_make_coplanar_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
+        mcl_grab_col.operator(
+                "sprig.quickmakecollineargrabdest",
+                icon='WORLD',
+                text="Grab Destination"
         )
-        mcp_top.label(
-            "Align Planes" if not \
-            addon_data.quick_make_coplanar_show else "Align Planes:",
-            icon="MOD_ARRAY"
+        # make_cl_gui.prop(
+            # addon_data.quick_align_pts_dest,
+            # 'point',
+            # ""
+        # )
+        make_cl_gui.label("Operator settings:")
+        mcl_mods = make_cl_gui.box()
+        mcl_mods_row1 = mcl_mods.row()
+        mcl_mods_row1.prop(
+            addon_data.quick_make_collinear_transf,
+            'mcl_ln_flip_direction',
+            'Flip Direction'
         )
-        if addon_data.quick_make_coplanar_show:
-            # make_cp_gui.label("Destination:")
-            mcp_grab_col = make_cp_gui.column()
-            mcp_grab_col.prop(
-                addon_data,
-                'quick_make_coplanar_auto_grab_src',
-                'Auto Grab Source from Selected Vertices'
-            )
-            if not addon_data.quick_make_coplanar_auto_grab_src:
-                mcp_grab_col.operator(
-                        "sprig.quickmakecoplanargrabsrc",
-                        icon='WORLD',
-                        text="Grab Source"
-                )
-            mcp_grab_col.operator(
-                    "sprig.quickmakecoplanargrabdest",
-                    icon='WORLD',
-                    text="Grab Destination"
-            )
-            make_cp_gui.label("Operator settings:")
-            mcp_mods = make_cp_gui.box()
-            mcp_mods_row1 = mcp_mods.row()
-            mcp_mods_row1.prop(
-                addon_data.quick_make_coplanar_transf,
-                'mcp_flip_normal',
-                'Flip Normal'
-            )
-            mcp_apply_header = make_cp_gui.row()
-            mcp_apply_header.label("Apply to:")
-            mcp_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            mcp_apply_items = make_cp_gui.split(percentage=.33)
-            mcp_apply_items.operator(
-                "sprig.quickmakecoplanarobject",
-                text="Object"
-            )
-            mcp_mesh_apply_items = mcp_apply_items.row(align=True)
-            mcp_mesh_apply_items.operator(
-                "sprig.quickmakecoplanarmeshselected",
-                text="Mesh Piece"
-            )
-            mcp_mesh_apply_items.operator(
-                "sprig.quickmakecoplanarwholemesh",
-                text="Whole Mesh"
-            )
-        layout.separator()
-        
-        sme_gui = layout.box()
-        sme_top = sme_gui.row()
-        sme_top.prop(
-            sprig_data_ptr,
-            'quick_scale_match_edge_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_scale_match_edge_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
+        mcl_apply_header = make_cl_gui.row()
+        mcl_apply_header.label("Apply to:")
+        mcl_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
         )
-        sme_top.label(
-            "Match Edge Scale" if not \
-            addon_data.quick_scale_match_edge_show else "Match Edge Scale:",
-            icon="MOD_ARRAY"
+        mcl_apply_items = make_cl_gui.split(percentage=.33)
+        mcl_apply_items.operator(
+            "sprig.quickmakecollinearobject",
+            text="Object"
         )
-        if addon_data.quick_scale_match_edge_show:
-            sme_grab_col = sme_gui.column()
-            sme_grab_col.prop(
-                addon_data,
-                'quick_scale_match_edge_auto_grab_src',
-                'Auto Grab Source from Selected Vertices'
-            )
-            if not addon_data.quick_scale_match_edge_auto_grab_src:
-                sme_grab_col.operator(
-                        "sprig.quickscalematchedgegrabsrc",
-                        icon='WORLD',
-                        text="Grab Source"
-                )
-            sme_grab_col.operator(
-                    "sprig.quickscalematchedgegrabdest",
-                    icon='WORLD',
-                    text="Grab Destination"
-            )
-            # sme_gui.label("Operator settings:")
-            # sme_mods = sme_gui.box()
-            # sme_mods_row1 = sme_mods.row()
-            # sme_mods_row1.prop(
-                # addon_data.quick_make_coplanar_transf,
-                # 'sme_',
-                # 'Flip Normal'
-            # )
-            sme_apply_header = sme_gui.row()
-            sme_apply_header.label("Apply to:")
-            sme_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            sme_apply_items = sme_gui.split(percentage=.33)
-            sme_apply_items.operator(
-                "sprig.quickscalematchedgeobject",
-                text="Object"
-            )
-            sme_mesh_apply_items = sme_apply_items.row(align=True)
-            sme_mesh_apply_items.operator(
-                "sprig.quickscalematchedgemeshselected",
-                text="Mesh Piece"
-            )
-            sme_mesh_apply_items.operator(
-                "sprig.quickscalematchedgewholemesh",
-                text="Whole Mesh"
-            )
-        layout.separator()
-        
-        axr_gui = layout.box()
-        axr_top = axr_gui.row()
-        axr_top.prop(
-            sprig_data_ptr,
-            'quick_axis_rotate_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_axis_rotate_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
+        mcl_mesh_apply_items = mcl_apply_items.row(align=True)
+        mcl_mesh_apply_items.operator(
+            "sprig.quickmakecollinearmeshselected",
+            text="Mesh Piece"
         )
-        axr_top.label(
-            "Axis Rotate" if not \
-            addon_data.quick_axis_rotate_show else "Axis Rotate:",
-            icon="MOD_ARRAY"
+        mcl_mesh_apply_items.operator(
+            "sprig.quickmakecollinearwholemesh",
+            text="Whole Mesh"
         )
-        if addon_data.quick_axis_rotate_show:
-            axr_grab_col = axr_gui.column()
-            axr_grab_col.prop(
-                addon_data,
-                'quick_axis_rotate_auto_grab_src',
-                'Auto Grab Axis from Selected Vertices'
-            )
-            if not addon_data.quick_axis_rotate_auto_grab_src:
-                axr_grab_col.operator(
-                        "sprig.quickaxisrotategrabsrc",
-                        icon='WORLD',
-                        text="Grab Axis"
-                )
-            axr_gui.label("Operator settings:")
-            axr_mods = axr_gui.box()
-            axr_mods_row1 = axr_mods.row()
-            axr_mods_row1.prop(
-                addon_data.quick_axis_rotate_transf,
-                'axr_amount',
-                'Amount'
-            )
-            axr_apply_header = axr_gui.row()
-            axr_apply_header.label("Apply to:")
-            axr_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            axr_apply_items = axr_gui.split(percentage=.33)
-            axr_apply_items.operator(
-                "sprig.quickaxisrotateobject",
-                text="Object"
-            )
-            axr_mesh_apply_items = axr_apply_items.row(align=True)
-            axr_mesh_apply_items.operator(
-                "sprig.quickaxisrotatemeshselected",
-                text="Mesh Piece"
-            )
-            axr_mesh_apply_items.operator(
-                "sprig.quickaxisrotatewholemesh",
-                text="Whole Mesh"
-            )
-        layout.separator()
 
-        vs_gui = layout.box()
-        vs_top = vs_gui.row()
-        vs_top.prop(
-            sprig_data_ptr,
-            'quick_vector_slide_show',
-            icon="TRIA_RIGHT" if not \
-            addon_data.quick_vector_slide_show else "TRIA_DOWN",
-            icon_only=True,
-            emboss=False
-        )
-        vs_top.label(
-            "Vector Slide" if not \
-            addon_data.quick_vector_slide_show else "Vector Slide:",
+
+class QuickAlignPlanesGUI(bpy.types.Panel):
+    bl_idname = "quick_align_planes_gui"
+    bl_label = "Quick Align Planes"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+    
+
+    def draw(self, context):
+        layout = self.layout
+        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+
+        mcp_top = layout.row()
+        make_cp_gui = layout.box()
+        mcp_top.label(
+            "Align Planes",
             icon="MOD_ARRAY"
         )
-        if addon_data.quick_vector_slide_show:
-            vs_grab_col = vs_gui.column()
-            vs_grab_col.prop(
-                addon_data,
-                'quick_vector_slide_auto_grab_src',
-                'Auto Grab Source from Selected Vertices'
+        # mcp_top = make_cp_gui.row()
+        # mcp_top.prop(
+            # sprig_data_ptr,
+            # 'quick_make_coplanar_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_make_coplanar_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # mcp_top.label(
+            # "Align Planes" if not \
+            # addon_data.quick_make_coplanar_show else "Align Planes:",
+            # icon="MOD_ARRAY"
+        # )
+        # if addon_data.quick_make_coplanar_show:
+        mcp_grab_col = make_cp_gui.column()
+        mcp_grab_col.prop(
+            addon_data,
+            'quick_make_coplanar_auto_grab_src',
+            'Auto Grab Source from Selected Vertices'
+        )
+        if not addon_data.quick_make_coplanar_auto_grab_src:
+            mcp_grab_col.operator(
+                    "sprig.quickmakecoplanargrabsrc",
+                    icon='WORLD',
+                    text="Grab Source"
             )
-            if not addon_data.quick_vector_slide_auto_grab_src:
-                vs_grab_col.operator(
-                        "sprig.quickvectorslidegrabsrc",
-                        icon='WORLD',
-                        text="Grab Source"
-                )
-            vs_gui.label("Operator settings:")
-            vs_mods = vs_gui.box()
-            vs_box_row1 = vs_mods.row()
-            vs_box_row1.prop(
-                addon_data.quick_vector_slide_transf,
-                'vs_ln_make_unit_vec',
-                'Set Length to 1'
+        mcp_grab_col.operator(
+                "sprig.quickmakecoplanargrabdest",
+                icon='WORLD',
+                text="Grab Destination"
+        )
+        make_cp_gui.label("Operator settings:")
+        mcp_mods = make_cp_gui.box()
+        mcp_mods_row1 = mcp_mods.row()
+        mcp_mods_row1.prop(
+            addon_data.quick_make_coplanar_transf,
+            'mcp_flip_normal',
+            'Flip Normal'
+        )
+        mcp_apply_header = make_cp_gui.row()
+        mcp_apply_header.label("Apply to:")
+        mcp_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
+        )
+        mcp_apply_items = make_cp_gui.split(percentage=.33)
+        mcp_apply_items.operator(
+            "sprig.quickmakecoplanarobject",
+            text="Object"
+        )
+        mcp_mesh_apply_items = mcp_apply_items.row(align=True)
+        mcp_mesh_apply_items.operator(
+            "sprig.quickmakecoplanarmeshselected",
+            text="Mesh Piece"
+        )
+        mcp_mesh_apply_items.operator(
+            "sprig.quickmakecoplanarwholemesh",
+            text="Whole Mesh"
+        )
+
+
+class QuickAxisRotateGUI(bpy.types.Panel):
+    bl_idname = "quick_axis_rotate_gui"
+    bl_label = "Quick Axis Rotate"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        
+        axr_top = layout.row()
+        axr_gui = layout.box()
+        axr_top.label(
+            "Axis Rotate",
+            icon="FORCE_MAGNETIC"
+        )
+        # axr_top = axr_gui.row()
+        # axr_top.prop(
+            # sprig_data_ptr,
+            # 'quick_axis_rotate_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_axis_rotate_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # axr_top.label(
+            # "Axis Rotate" if not \
+            # addon_data.quick_axis_rotate_show else "Axis Rotate:",
+            # icon="MOD_ARRAY"
+        # )
+        # if addon_data.quick_axis_rotate_show:
+        axr_grab_col = axr_gui.column()
+        axr_grab_col.prop(
+            addon_data,
+            'quick_axis_rotate_auto_grab_src',
+            'Auto Grab Axis from Selected Vertices'
+        )
+        if not addon_data.quick_axis_rotate_auto_grab_src:
+            axr_grab_col.operator(
+                    "sprig.quickaxisrotategrabsrc",
+                    icon='WORLD',
+                    text="Grab Axis"
             )
-            vs_box_row1.prop(
-                addon_data.quick_vector_slide_transf,
-                'vs_ln_flip_direction',
-                'Flip Direction'
+        axr_gui.label("Operator settings:")
+        axr_mods = axr_gui.box()
+        axr_mods_row1 = axr_mods.row()
+        axr_mods_row1.prop(
+            addon_data.quick_axis_rotate_transf,
+            'axr_amount',
+            'Amount'
+        )
+        axr_apply_header = axr_gui.row()
+        axr_apply_header.label("Apply to:")
+        axr_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
+        )
+        axr_apply_items = axr_gui.split(percentage=.33)
+        axr_apply_items.operator(
+            "sprig.quickaxisrotateobject",
+            text="Object"
+        )
+        axr_mesh_apply_items = axr_apply_items.row(align=True)
+        axr_mesh_apply_items.operator(
+            "sprig.quickaxisrotatemeshselected",
+            text="Mesh Piece"
+        )
+        axr_mesh_apply_items.operator(
+            "sprig.quickaxisrotatewholemesh",
+            text="Whole Mesh"
+        )
+
+
+class QuickVectorSlideGUI(bpy.types.Panel):
+    bl_idname = "quick_align_lines_gui"
+    bl_label = "Quick Align Lines"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+
+        vs_top = layout.row()
+        vs_gui = layout.box()
+        vs_top.label(
+            "Vector Slide",
+            icon="CURVE_PATH"
+        )
+        # vs_top = vs_gui.row()
+        # vs_top.prop(
+            # sprig_data_ptr,
+            # 'quick_vector_slide_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_vector_slide_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # vs_top.label(
+            # "Vector Slide" if not \
+            # addon_data.quick_vector_slide_show else "Vector Slide:",
+            # icon="MOD_ARRAY"
+        # )
+        # if addon_data.quick_vector_slide_show:
+        vs_grab_col = vs_gui.column()
+        vs_grab_col.prop(
+            addon_data,
+            'quick_vector_slide_auto_grab_src',
+            'Auto Grab Source from Selected Vertices'
+        )
+        if not addon_data.quick_vector_slide_auto_grab_src:
+            vs_grab_col.operator(
+                    "sprig.quickvectorslidegrabsrc",
+                    icon='WORLD',
+                    text="Grab Source"
             )
-            vs_box_row2 = vs_mods.row()
-            vs_box_row2.prop(
-                addon_data.quick_vector_slide_transf,
-                'vs_multiplier',
-                'Multiplier'
+        vs_gui.label("Operator settings:")
+        vs_mods = vs_gui.box()
+        vs_box_row1 = vs_mods.row()
+        vs_box_row1.prop(
+            addon_data.quick_vector_slide_transf,
+            'vs_ln_make_unit_vec',
+            'Set Length to 1'
+        )
+        vs_box_row1.prop(
+            addon_data.quick_vector_slide_transf,
+            'vs_ln_flip_direction',
+            'Flip Direction'
+        )
+        vs_box_row2 = vs_mods.row()
+        vs_box_row2.prop(
+            addon_data.quick_vector_slide_transf,
+            'vs_multiplier',
+            'Multiplier'
+        )
+        vs_apply_header = vs_gui.row()
+        vs_apply_header.label("Apply to:")
+        vs_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
+        )
+        vs_apply_items = vs_gui.split(percentage=.33)
+        vs_apply_items.operator(
+            "sprig.quickvectorslideobject",
+            text="Object"
+        )
+        vs_mesh_apply_items = vs_apply_items.row(align=True)
+        vs_mesh_apply_items.operator(
+            "sprig.quickvectorslidemeshselected",
+            text="Mesh Piece"
+        )
+        vs_mesh_apply_items.operator(
+            "sprig.quickvectorslidewholemesh",
+            text="Whole Mesh"
+        )
+
+
+class QuickSMEGUI(bpy.types.Panel):
+    bl_idname = "quick_sme_gui"
+    bl_label = "Quick Scale Match Edge"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "SPRIG Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+
+        sme_top = layout.row()
+        sme_gui = layout.box()
+        sme_top.label(
+            "Match Edge Scale",
+            icon="FULLSCREEN_ENTER"
+        )
+        # sme_top = sme_gui.row()
+        # sme_top.prop(
+            # sprig_data_ptr,
+            # 'quick_scale_match_edge_show',
+            # icon="TRIA_RIGHT" if not \
+            # addon_data.quick_scale_match_edge_show else "TRIA_DOWN",
+            # icon_only=True,
+            # emboss=False
+        # )
+        # sme_top.label(
+            # "Match Edge Scale" if not \
+            # addon_data.quick_scale_match_edge_show else "Match Edge Scale:",
+            # icon="MOD_ARRAY"
+        # )
+        # if addon_data.quick_scale_match_edge_show:
+        sme_grab_col = sme_gui.column()
+        sme_grab_col.prop(
+            addon_data,
+            'quick_scale_match_edge_auto_grab_src',
+            'Auto Grab Source from Selected Vertices'
+        )
+        if not addon_data.quick_scale_match_edge_auto_grab_src:
+            sme_grab_col.operator(
+                    "sprig.quickscalematchedgegrabsrc",
+                    icon='WORLD',
+                    text="Grab Source"
             )
-            vs_apply_header = vs_gui.row()
-            vs_apply_header.label("Apply to:")
-            vs_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                'Enable Experimental Mesh Ops.'
-            )
-            vs_apply_items = vs_gui.split(percentage=.33)
-            vs_apply_items.operator(
-                "sprig.quickvectorslideobject",
-                text="Object"
-            )
-            vs_mesh_apply_items = vs_apply_items.row(align=True)
-            vs_mesh_apply_items.operator(
-                "sprig.quickvectorslidemeshselected",
-                text="Mesh Piece"
-            )
-            vs_mesh_apply_items.operator(
-                "sprig.quickvectorslidewholemesh",
-                text="Whole Mesh"
-            )
+        sme_grab_col.operator(
+                "sprig.quickscalematchedgegrabdest",
+                icon='WORLD',
+                text="Grab Destination"
+        )
+        # sme_gui.label("Operator settings:")
+        # sme_mods = sme_gui.box()
+        # sme_mods_row1 = sme_mods.row()
+        # sme_mods_row1.prop(
+            # addon_data.quick_make_coplanar_transf,
+            # 'sme_',
+            # 'Flip Normal'
+        # )
+        sme_apply_header = sme_gui.row()
+        sme_apply_header.label("Apply to:")
+        sme_apply_header.prop(
+            addon_data,
+            'use_experimental',
+            'Enable Experimental Mesh Ops.'
+        )
+        sme_apply_items = sme_gui.split(percentage=.33)
+        sme_apply_items.operator(
+            "sprig.quickscalematchedgeobject",
+            text="Object"
+        )
+        sme_mesh_apply_items = sme_apply_items.row(align=True)
+        sme_mesh_apply_items.operator(
+            "sprig.quickscalematchedgemeshselected",
+            text="Mesh Piece"
+        )
+        sme_mesh_apply_items.operator(
+            "sprig.quickscalematchedgewholemesh",
+            text="Whole Mesh"
+        )
 
 
 def specials_menu_items(self, context):
