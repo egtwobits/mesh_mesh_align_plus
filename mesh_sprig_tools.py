@@ -32,10 +32,10 @@ bl_info = {
     "author": "Eric Gentry",
     "version": "0, 1",
     "blender": (2, 75, 0),
-    "location": "Properties -> Scene -> MCT Tools",
+    "location": "Properties -> Scene -> SPRIG Tools",
     "warning": "Alpha release, there may be bugs.",
     "category": "Mesh"
-}  # Todo/Fix, add more information here
+}  # Todo, add more information here
 
 
 import bpy
@@ -133,39 +133,39 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
     # Transformation primitive data/settings (several blocks)
     transf_type = bpy.props.EnumProperty(
         items=[
-            ('POINTMATCH',
-             'Point Match',
-             'Match source vert location to destination'),
-            ('VECTORSLIDE',
-             'Vector Slide',
-             'Moves a target in a direction'),
+            ('ALIGNPOINTS',
+             'Align Points',
+             'Match source vertex location to destination vertex location'),
+            ('DIRECTIONALSLIDE',
+             'Directional Slide',
+             'Move a target in a direction'),
             ('SCALEMATCHEDGE',
-             'Scale Match Edge',
-             'Matches edge lengths'),
-            ('MKCOLLINEAR',
-             'Make Collinear',
-             'Make lines parallel'),
+             'Match Edge Scale',
+             'Match source edge length to destination edge length'),
+            ('ALIGNLINES',
+             'Align Lines',
+             'Make lines collinear'),
             ('AXISROTATE',
              'Axis Rotate',
-             'Rotates around an axis'),
-            ('MKCOPLANAR',
-             'Make Coplanar',
+             'Rotate around a specified axis'),
+            ('ALIGNPLANES',
+             'Align Planes',
              'Make planes coplanar')
         ],
         name="Transf. Type",
         description="The type of transformation to perform",
-        default='POINTMATCH'
+        default='ALIGNPOINTS'
     )
 
-    # "Point match" (transformation) data/settings
-    pm_pt_one = bpy.props.IntProperty(
+    # "Align Points" (transformation) data/settings
+    apt_pt_one = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source point"
             " (this point will be 'moved' to match the destination)."
         ),
         default=0
     )
-    pm_pt_two = bpy.props.IntProperty(
+    apt_pt_two = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination point"
             " (this is a fixed reference location, where"
@@ -173,29 +173,29 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    pm_ln_make_unit_vec = bpy.props.BoolProperty(
+    apt_make_unit_vector = bpy.props.BoolProperty(
         description="Set the move distance equal to one",
         default=False
     )
-    pm_ln_flip_direction = bpy.props.BoolProperty(
+    apt_flip_direction = bpy.props.BoolProperty(
         description="Flip the move direction",
         default=False
     )
-    pm_multiplier = bpy.props.FloatProperty(
+    apt_multiplier = bpy.props.FloatProperty(
         description="Multiply the move by this amount",
         default=1.0,
         precision=6
     )
 
-    # "Make coplanar" (transformation) data/settings
-    mcp_src_plane = bpy.props.IntProperty(
+    # "Align Planes" (transformation) data/settings
+    apl_src_plane = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source plane"
             " (this plane will be 'moved' to match the destination)."
         ),
         default=0
     )
-    mcp_dest_plane = bpy.props.IntProperty(
+    apl_dest_plane = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination plane"
             " (this is a fixed reference location, where"
@@ -203,20 +203,20 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    mcp_flip_normal = bpy.props.BoolProperty(
+    apl_flip_normal = bpy.props.BoolProperty(
         description="Flips the normal of the source plane",
         default=False
     )
 
-    # "Make collinear" (transformation) data/settings
-    mcl_src_line = bpy.props.IntProperty(
+    # "Align Lines" (transformation) data/settings
+    aln_src_line = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source line"
             " (this line will be 'moved' to match the destination)."
         ),
         default=0
     )
-    mcl_dest_line = bpy.props.IntProperty(
+    aln_dest_line = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination line"
             " (this is a fixed reference location, where"
@@ -224,7 +224,7 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    mcl_ln_flip_direction = bpy.props.BoolProperty(
+    aln_flip_direction = bpy.props.BoolProperty(
         description="Flip the source line direction",
         default=False
     )
@@ -242,26 +242,26 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
         precision=6
     )
 
-    # "Vector slide" (transformation) data/settings
-    vs_direction = bpy.props.IntProperty(
+    # "Directional slide" (transformation) data/settings
+    ds_direction = bpy.props.IntProperty(
         description="The direction to move",
         default=0
     )  # This is a list item pointer
-    vs_ln_make_unit_vec = bpy.props.BoolProperty(
+    ds_make_unit_vec = bpy.props.BoolProperty(
         description="Make the line's length 1",
         default=False
     )
-    vs_ln_flip_direction = bpy.props.BoolProperty(
+    ds_flip_direction = bpy.props.BoolProperty(
         description="Flip source line direction",
         default=False
     )
-    vs_multiplier = bpy.props.FloatProperty(
+    ds_multiplier = bpy.props.FloatProperty(
         description="Multiply the source line's length by this amount",
         default=1.0,
         precision=6
     )
 
-    # "Scale match edge" (transformation) data/settings
+    # "Scale Match Edge" (transformation) data/settings
     sme_edge_one = bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source edge"
@@ -288,13 +288,14 @@ class SPRIGData(bpy.types.PropertyGroup):
     active_list_item = bpy.props.IntProperty()
     use_experimental = bpy.props.BoolProperty(
         description=(
-            'Mesh transformations are not currently'
+            'Use experimental:'
+            ' Mesh transformations are not currently'
             ' supported on objects with non-uniform'
             ' scaling. These are designated experimental'
             ' until non-uniform scaling is supported.'
         )
     )
-    
+
     # Items for the quick operators
     quick_align_pts_show = bpy.props.BoolProperty(
         description=(
@@ -313,23 +314,23 @@ class SPRIGData(bpy.types.PropertyGroup):
     quick_align_pts_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_align_pts_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
     
-    quick_vector_slide_show = bpy.props.BoolProperty(
+    quick_directional_slide_show = bpy.props.BoolProperty(
         description=(
-            "Expand/collapse the vector slide operator"
+            "Expand/collapse the directional slide operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_vector_slide_auto_grab_src = bpy.props.BoolProperty(
+    quick_directional_slide_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
         ),
         default=True
     )
-    quick_vector_slide_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_vector_slide_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_vector_slide_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    
+    quick_directional_slide_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_directional_slide_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_directional_slide_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+
     quick_scale_match_edge_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the scale match edge operator"
@@ -347,22 +348,22 @@ class SPRIGData(bpy.types.PropertyGroup):
     quick_scale_match_edge_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_scale_match_edge_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
     
-    quick_make_collinear_show = bpy.props.BoolProperty(
+    quick_align_lines_show = bpy.props.BoolProperty(
         description=(
-            "Expand/collapse the make collinear operator"
+            "Expand/collapse the align lines operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_make_collinear_auto_grab_src = bpy.props.BoolProperty(
+    quick_align_lines_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
         ),
         default=True
     )
-    quick_make_collinear_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_make_collinear_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_make_collinear_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_lines_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_lines_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_lines_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
     
     quick_axis_rotate_show = bpy.props.BoolProperty(
         description=(
@@ -380,22 +381,22 @@ class SPRIGData(bpy.types.PropertyGroup):
     quick_axis_rotate_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_axis_rotate_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
     
-    quick_make_coplanar_show = bpy.props.BoolProperty(
+    quick_align_planes_show = bpy.props.BoolProperty(
         description=(
-            "Expand/collapse the make coplanar operator"
+            "Expand/collapse the align planes operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_make_coplanar_auto_grab_src = bpy.props.BoolProperty(
+    quick_align_planes_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source plane from selected geometry"
         ),
         default=True
     )
-    quick_make_coplanar_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_make_coplanar_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_make_coplanar_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_planes_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_planes_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_planes_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
 
 
 # Basic type selector functionality, derived classes provide
@@ -527,12 +528,12 @@ class ChangeTransfBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ChangeTransfToPointMatch(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftopointmatch"
-    bl_label = "Change transformation to point match"
-    bl_description = "Change the transformation type to point match"
+class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
+    bl_idname = "sprig.changetransftoalignpoints"
+    bl_label = "Change transformation to align points"
+    bl_description = "Change the transformation type to align points"
     bl_options = {'REGISTER', 'UNDO'}
-    target_transf = 'POINTMATCH'
+    target_transf = 'ALIGNPOINTS'
 
     @classmethod
     def poll(cls, context):
@@ -545,12 +546,12 @@ class ChangeTransfToPointMatch(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToVectorSlide(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftovectorslide"
-    bl_label = "Change transformation to vector slide"
-    bl_description = "Change the transformation type to vector slide"
+class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
+    bl_idname = "sprig.changetransftodirectionalslide"
+    bl_label = "Change transformation to directional slide"
+    bl_description = "Change the transformation type to directional slide"
     bl_options = {'REGISTER', 'UNDO'}
-    target_transf = 'VECTORSLIDE'
+    target_transf = 'DIRECTIONALSLIDE'
 
     @classmethod
     def poll(cls, context):
@@ -599,12 +600,12 @@ class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToMkCollinear(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftomkcollinear"
-    bl_label = "Change transformation to make collinear"
-    bl_description = "Change the transformation type to make collinear"
+class ChangeTransfToAlignLines(ChangeTransfBaseClass):
+    bl_idname = "sprig.changetransftoalignlines"
+    bl_label = "Change transformation to align lines"
+    bl_description = "Change the transformation type to align lines"
     bl_options = {'REGISTER', 'UNDO'}
-    target_transf = 'MKCOLLINEAR'
+    target_transf = 'ALIGNLINES'
 
     @classmethod
     def poll(cls, context):
@@ -617,12 +618,12 @@ class ChangeTransfToMkCollinear(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToMkCoplanar(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftomkcoplanar"
-    bl_label = "Change transformation to make coplanar"
-    bl_description = "Change the transformation type to make coplanar"
+class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
+    bl_idname = "sprig.changetransftoalignplanes"
+    bl_label = "Change transformation to align planes"
+    bl_description = "Change the transformation type to align planes"
     bl_options = {'REGISTER', 'UNDO'}
-    target_transf = 'MKCOPLANAR'
+    target_transf = 'ALIGNPLANES'
 
     @classmethod
     def poll(cls, context):
@@ -884,31 +885,31 @@ class GrabFromGeometryBase(bpy.types.Operator):
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
-            if self.quick_op_target == "PMSRC":
+            if self.quick_op_target == "APTSRC":
                 active_item = addon_data.quick_align_pts_src
-            elif self.quick_op_target == "PMDEST":
+            elif self.quick_op_target == "APTDEST":
                 active_item = addon_data.quick_align_pts_dest
 
-            elif self.quick_op_target == "VSSRC":
-                active_item = addon_data.quick_vector_slide_src
+            elif self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
                 
             elif self.quick_op_target == "SMESRC":
                 active_item = addon_data.quick_scale_match_edge_src
             elif self.quick_op_target == "SMEDEST":
                 active_item = addon_data.quick_scale_match_edge_dest
 
-            elif self.quick_op_target == "MCLSRC":
-                active_item = addon_data.quick_make_collinear_src
-            elif self.quick_op_target == "MCLDEST":
-                active_item = addon_data.quick_make_collinear_dest
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
 
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
-            elif self.quick_op_target == "MCPSRC":
-                active_item = addon_data.quick_make_coplanar_src
-            elif self.quick_op_target == "MCPDEST":
-                active_item = addon_data.quick_make_coplanar_dest
+            elif self.quick_op_target == "APLSRC":
+                active_item = addon_data.quick_align_planes_src
+            elif self.quick_op_target == "APLDEST":
+                active_item = addon_data.quick_align_planes_dest
 
         vert_data = self.return_selected_verts()
         if vert_data is None:
@@ -995,8 +996,8 @@ class GrabPointFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickPointMatchGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickpointmatchgrabsrc"
+class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignpointsgrabsrc"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1004,7 +1005,7 @@ class QuickPointMatchGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
-    quick_op_target = "PMSRC"
+    quick_op_target = "APTSRC"
 
     # @classmethod
     # def poll(cls, context):
@@ -1014,8 +1015,8 @@ class QuickPointMatchGrabSrc(GrabFromGeometryBase):
         # return True
 
 
-class QuickPointMatchGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickpointmatchgrabdest"
+class QuickAlignPointsGrabDest(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignpointsgrabdest"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1023,7 +1024,7 @@ class QuickPointMatchGrabDest(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
-    quick_op_target = "PMDEST"
+    quick_op_target = "APTDEST"
 
 
 class SendPointToCursor(SendCoordToCursorBase):
@@ -1133,8 +1134,8 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickMakeCollinearGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickmakecollineargrabsrc"
+class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignlinesgrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1142,11 +1143,11 @@ class QuickMakeCollinearGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
-    quick_op_target = "MCLSRC"
+    quick_op_target = "ALNSRC"
 
 
-class QuickMakeCollinearGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickmakecollineargrabdest"
+class QuickAlignLinesGrabDest(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignlinesgrabdest"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1154,7 +1155,7 @@ class QuickMakeCollinearGrabDest(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
-    quick_op_target = "MCLDEST"
+    quick_op_target = "ALNDEST"
 
 
 class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
@@ -1193,8 +1194,8 @@ class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickVectorSlideGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickvectorslidegrabsrc"
+class QuickDirectionalSlideGrabSrc(GrabFromGeometryBase):
+    bl_idname = "sprig.quickdirectionalslidegrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1202,7 +1203,7 @@ class QuickVectorSlideGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
-    quick_op_target = "VSSRC"
+    quick_op_target = "DSSRC"
 
 
 class GrabPlaneAFromCursor(GrabFromCursorBase):
@@ -1341,8 +1342,8 @@ class GrabAllVertsPlaneGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickMakeCoplanarGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickmakecoplanargrabsrc"
+class QuickAlignPlanesGrabSrc(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignplanesgrabsrc"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -1350,11 +1351,11 @@ class QuickMakeCoplanarGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
     multiply_by_world_matrix = True
-    quick_op_target = "MCPSRC"
+    quick_op_target = "APLSRC"
 
 
-class QuickMakeCoplanarGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickmakecoplanargrabdest"
+class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
+    bl_idname = "sprig.quickalignplanesgrabdest"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -1362,7 +1363,7 @@ class QuickMakeCoplanarGrabDest(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
     multiply_by_world_matrix = True
-    quick_op_target = "MCPDEST"
+    quick_op_target = "APLDEST"
 
 
 # Coordinate swapper, present on all geometry primitives
@@ -2043,8 +2044,8 @@ class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
         return True
 
 
-class PointMatchBase(bpy.types.Operator):
-    bl_idname = "sprig.pointmatchbase"
+class AlignPointsBase(bpy.types.Operator):
+    bl_idname = "sprig.alignpointsbase"
     bl_label = "Point Match Base"
     bl_description = "Point match base class"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2065,8 +2066,8 @@ class PointMatchBase(bpy.types.Operator):
             # todo: use a bool check and put on all derived classes
             # instead of hasattr
             if not hasattr(self, 'quick_op_target'):
-                if (prims[active_item.pm_pt_one].kind != 'POINT' or
-                        prims[active_item.pm_pt_two].kind != 'POINT'):
+                if (prims[active_item.apt_pt_one].kind != 'POINT' or
+                        prims[active_item.apt_pt_two].kind != 'POINT'):
                     self.report(
                         {'ERROR'},
                         ('Wrong operands: point match can only operate on '
@@ -2087,7 +2088,7 @@ class PointMatchBase(bpy.types.Operator):
             # or from the primitive list (regular ops)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_pts_auto_grab_src:
-                    bpy.ops.sprig.quickpointmatchgrabsrc()
+                    bpy.ops.sprig.quickalignpointsgrabsrc()
                 src_pt = mathutils.Vector(
                     (addon_data.quick_align_pts_src.point[0],
                      addon_data.quick_align_pts_src.point[1],
@@ -2115,29 +2116,29 @@ class PointMatchBase(bpy.types.Operator):
 
             else:
                 src_pt = mathutils.Vector(
-                    (prims[active_item.pm_pt_one].point[0],
-                     prims[active_item.pm_pt_one].point[1],
-                     prims[active_item.pm_pt_one].point[2])
+                    (prims[active_item.apt_pt_one].point[0],
+                     prims[active_item.apt_pt_one].point[1],
+                     prims[active_item.apt_pt_one].point[2])
                 )
                 dest_pt = mathutils.Vector(
-                    (prims[active_item.pm_pt_two].point[0],
-                     prims[active_item.pm_pt_two].point[1],
-                     prims[active_item.pm_pt_two].point[2])
+                    (prims[active_item.apt_pt_two].point[0],
+                     prims[active_item.apt_pt_two].point[1],
+                     prims[active_item.apt_pt_two].point[2])
                 )
 
                 # Take source geometry modifiers into account
-                if prims[active_item.pm_pt_one].pt_make_unit_vec:
+                if prims[active_item.apt_pt_one].pt_make_unit_vec:
                     src_pt.normalize()
-                if prims[active_item.pm_pt_one].pt_flip_direction:
+                if prims[active_item.apt_pt_one].pt_flip_direction:
                     src_pt.negate()
-                src_pt *= prims[active_item.pm_pt_one].pt_multiplier
+                src_pt *= prims[active_item.apt_pt_one].pt_multiplier
 
                 # Take dest geometry modifiers into account
-                if prims[active_item.pm_pt_two].pt_make_unit_vec:
+                if prims[active_item.apt_pt_two].pt_make_unit_vec:
                     dest_pt.normalize()
-                if prims[active_item.pm_pt_two].pt_flip_direction:
+                if prims[active_item.apt_pt_two].pt_flip_direction:
                     dest_pt.negate()
-                dest_pt *= prims[active_item.pm_pt_two].pt_multiplier
+                dest_pt *= prims[active_item.apt_pt_two].pt_multiplier
 
             raw_translation_vector = mathutils.Vector(dest_pt - src_pt)
 
@@ -2160,14 +2161,14 @@ class PointMatchBase(bpy.types.Operator):
             )
 
             # Take transform modifiers into account
-            if active_item.pm_ln_make_unit_vec:
+            if active_item.apt_make_unit_vector:
                 final_translation_vector.normalize()
                 raw_translation_vector.normalize()
-            if active_item.pm_ln_flip_direction:
+            if active_item.apt_flip_direction:
                 final_translation_vector.negate()
                 raw_translation_vector.negate()
-            final_translation_vector *= active_item.pm_multiplier
-            raw_translation_vector *= active_item.pm_multiplier
+            final_translation_vector *= active_item.apt_multiplier
+            raw_translation_vector *= active_item.apt_multiplier
 
             if self.target == 'OBJECT':
                 bpy.context.active_object.location = (
@@ -2248,9 +2249,9 @@ class PointMatchBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class PointMatchObject(PointMatchBase):
-    bl_idname = "sprig.pointmatchobject"
-    bl_label = "Point Match Object"
+class AlignPointsObject(AlignPointsBase):
+    bl_idname = "sprig.alignpointsobject"
+    bl_label = "Align Points Object"
     bl_description = (
         "Match the location of one vertex on a mesh object to another"
     )
@@ -2258,9 +2259,9 @@ class PointMatchObject(PointMatchBase):
     target = 'OBJECT'
 
 
-class QuickPointMatchObject(PointMatchBase):
-    bl_idname = "sprig.quickpointmatchobject"
-    bl_label = "Point Match Object"
+class QuickAlignPointsObject(AlignPointsBase):
+    bl_idname = "sprig.quickalignpointsobject"
+    bl_label = "Quick Align Points Object"
     bl_description = (
         "Match the location of one vertex on a mesh object to another"
     )
@@ -2269,9 +2270,9 @@ class QuickPointMatchObject(PointMatchBase):
     quick_op_target = True
 
 
-class PointMatchMeshSelected(PointMatchBase):
-    bl_idname = "sprig.pointmatchmeshselected"
-    bl_label = "Point Match Mesh Selected"
+class AlignPointsMeshSelected(AlignPointsBase):
+    bl_idname = "sprig.alignpointsmeshselected"
+    bl_label = "Align Points Mesh Selected"
     bl_description = (
         "Match the location of one vertex on a mesh piece "
         "(the selected verts) to another"
@@ -2287,9 +2288,9 @@ class PointMatchMeshSelected(PointMatchBase):
         return True
 
 
-class QuickPointMatchMeshSelected(PointMatchBase):
-    bl_idname = "sprig.quickpointmatchmeshselected"
-    bl_label = "Point Match Mesh Selected"
+class QuickAlignPointsMeshSelected(AlignPointsBase):
+    bl_idname = "sprig.quickalignpointsmeshselected"
+    bl_label = "Quick Align Points Mesh Selected"
     bl_description = (
         "Match the location of one vertex on a mesh piece "
         "(the selected verts) to another"
@@ -2306,9 +2307,9 @@ class QuickPointMatchMeshSelected(PointMatchBase):
         return True
 
 
-class PointMatchWholeMesh(PointMatchBase):
-    bl_idname = "sprig.pointmatchwholemesh"
-    bl_label = "Point Match Mesh"
+class AlignPointsWholeMesh(AlignPointsBase):
+    bl_idname = "sprig.alignpointswholemesh"
+    bl_label = "Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -2321,9 +2322,9 @@ class PointMatchWholeMesh(PointMatchBase):
         return True
 
 
-class QuickPointMatchWholeMesh(PointMatchBase):
-    bl_idname = "sprig.quickpointmatchwholemesh"
-    bl_label = "Point Match Mesh"
+class QuickAlignPointsWholeMesh(AlignPointsBase):
+    bl_idname = "sprig.quickalignpointswholemesh"
+    bl_label = "Quick Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -2337,10 +2338,10 @@ class QuickPointMatchWholeMesh(PointMatchBase):
         return True
 
 
-class VectorSlideBase(bpy.types.Operator):
-    bl_idname = "sprig.vectorslidebase"
-    bl_label = "Vector Slide Base"
-    bl_description = "Vector slide base class"
+class DirectionalSlideBase(bpy.types.Operator):
+    bl_idname = "sprig.directionalslidebase"
+    bl_label = "Directional Slide Base"
+    bl_description = "Directional slide base class"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -2350,13 +2351,13 @@ class VectorSlideBase(bpy.types.Operator):
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
-            active_item = addon_data.quick_vector_slide_transf
+            active_item = addon_data.quick_directional_slide_transf
 
         if (bpy.context.active_object and
                 type(bpy.context.active_object.data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
-                if prims[active_item.vs_direction].kind != 'LINE':
+                if prims[active_item.ds_direction].kind != 'LINE':
                     self.report(
                         {'ERROR'},
                         'Wrong operand: vector slide can only operate on a line'
@@ -2375,32 +2376,32 @@ class VectorSlideBase(bpy.types.Operator):
             # Make the vector specifying the direction and
             # magnitude to slide in
             if hasattr(self, "quick_op_target"):
-                if addon_data.quick_vector_slide_auto_grab_src:
-                    bpy.ops.sprig.quickvectorslidegrabsrc()
+                if addon_data.quick_directional_slide_auto_grab_src:
+                    bpy.ops.sprig.quickdirectionalslidegrabsrc()
                 direction = (
-                    mathutils.Vector(addon_data.quick_vector_slide_src.line_end) -
-                    mathutils.Vector(addon_data.quick_vector_slide_src.line_start)
+                    mathutils.Vector(addon_data.quick_directional_slide_src.line_end) -
+                    mathutils.Vector(addon_data.quick_directional_slide_src.line_start)
                 )
             else:
                 direction = (
-                    mathutils.Vector(prims[active_item.vs_direction].line_end) -
-                    mathutils.Vector(prims[active_item.vs_direction].line_start)
+                    mathutils.Vector(prims[active_item.ds_direction].line_end) -
+                    mathutils.Vector(prims[active_item.ds_direction].line_start)
                 )
 
             if not hasattr(self, "quick_op_target"):
                 # Take geom modifiers into account
-                if prims[active_item.vs_direction].ln_make_unit_vec:
+                if prims[active_item.ds_direction].ln_make_unit_vec:
                     direction.normalize()
-                if prims[active_item.vs_direction].ln_flip_direction:
+                if prims[active_item.ds_direction].ln_flip_direction:
                     direction.negate()
-                direction *= prims[active_item.vs_direction].ln_multiplier
+                direction *= prims[active_item.ds_direction].ln_multiplier
 
             # Take transf modifiers into account
-            if active_item.vs_ln_make_unit_vec:
+            if active_item.ds_make_unit_vec:
                 direction.normalize()
-            if active_item.vs_ln_flip_direction:
+            if active_item.ds_flip_direction:
                 direction.negate()
-            direction *= active_item.vs_multiplier
+            direction *= active_item.ds_multiplier
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
@@ -2491,16 +2492,16 @@ class VectorSlideBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VectorSlideObject(VectorSlideBase):
-    bl_idname = "sprig.vectorslideobject"
-    bl_label = "Vector Slide Object"
+class DirectionalSlideObject(DirectionalSlideBase):
+    bl_idname = "sprig.directionalslideobject"
+    bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
 
 
-class QuickVectorSlideObject(VectorSlideBase):
-    bl_idname = "sprig.quickvectorslideobject"
+class QuickDirectionalSlideObject(DirectionalSlideBase):
+    bl_idname = "sprig.quickdirectionalslideobject"
     bl_label = "Vector Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2508,9 +2509,9 @@ class QuickVectorSlideObject(VectorSlideBase):
     quick_op_target = True
 
 
-class VectorSlideMeshSelected(VectorSlideBase):
-    bl_idname = "sprig.vectorslidemeshselected"
-    bl_label = "Vector Slide Mesh Piece"
+class DirectionalSlideMeshSelected(DirectionalSlideBase):
+    bl_idname = "sprig.directionalslidemeshselected"
+    bl_label = "Directional Slide Mesh Piece"
     bl_description = (
         "Translates a target mesh piece (moves selected verts in a direction)"
     )
@@ -2525,9 +2526,9 @@ class VectorSlideMeshSelected(VectorSlideBase):
         return True
 
 
-class VectorSlideWholeMesh(VectorSlideBase):
-    bl_idname = "sprig.vectorslidewholemesh"
-    bl_label = "Vector Slide Mesh"
+class DirectionalSlideWholeMesh(DirectionalSlideBase):
+    bl_idname = "sprig.directionalslidewholemesh"
+    bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -2540,9 +2541,9 @@ class VectorSlideWholeMesh(VectorSlideBase):
         return True
 
 
-class QuickVectorSlideMeshSelected(VectorSlideBase):
-    bl_idname = "sprig.quickvectorslidemeshselected"
-    bl_label = "Vector Slide Mesh"
+class QuickDirectionalSlideMeshSelected(DirectionalSlideBase):
+    bl_idname = "sprig.quickdirectionalslidemeshselected"
+    bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
@@ -2556,9 +2557,9 @@ class QuickVectorSlideMeshSelected(VectorSlideBase):
         return True
 
 
-class QuickVectorSlideWholeMesh(VectorSlideBase):
-    bl_idname = "sprig.quickvectorslidewholemesh"
-    bl_label = "Vector Slide Mesh"
+class QuickDirectionalSlideWholeMesh(DirectionalSlideBase):
+    bl_idname = "sprig.quickdirectionalslidewholemesh"
+    bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -2889,9 +2890,9 @@ class QuickAxisRotateWholeMesh(AxisRotateBase):
         return True
 
 
-class MakeCollinearBase(bpy.types.Operator):
-    bl_idname = "sprig.mkcollinearbase"
-    bl_label = "Make Collinear Base"
+class AlignLinesBase(bpy.types.Operator):
+    bl_idname = "sprig.alignlinesbase"
+    bl_label = "Align Lines Base"
     bl_description = "Makes collinear base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
@@ -2901,7 +2902,7 @@ class MakeCollinearBase(bpy.types.Operator):
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if hasattr(self, "quick_op_target"):
-            active_item = addon_data.quick_make_collinear_transf
+            active_item = addon_data.quick_align_lines_transf
         else:
             active_item = prims[addon_data.active_list_item]
 
@@ -2909,8 +2910,8 @@ class MakeCollinearBase(bpy.types.Operator):
                 type(bpy.context.active_object.data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
-                if (prims[active_item.mcl_src_line].kind != 'LINE' or
-                        prims[active_item.mcl_dest_line].kind != 'LINE'):
+                if (prims[active_item.aln_src_line].kind != 'LINE' or
+                        prims[active_item.aln_dest_line].kind != 'LINE'):
                     self.report(
                         {'ERROR'},
                         ('Wrong operands: make collinear can only operate on '
@@ -2929,46 +2930,46 @@ class MakeCollinearBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 # construct lines from the selected list items
-                if addon_data.quick_make_collinear_auto_grab_src:
-                    bpy.ops.sprig.quickmakecollineargrabsrc()
+                if addon_data.quick_align_lines_auto_grab_src:
+                    bpy.ops.sprig.quickalignlinesgrabsrc()
                 first_line = (
-                    mathutils.Vector(addon_data.quick_make_collinear_src.line_end) -
-                    mathutils.Vector(addon_data.quick_make_collinear_src.line_start)
+                    mathutils.Vector(addon_data.quick_align_lines_src.line_end) -
+                    mathutils.Vector(addon_data.quick_align_lines_src.line_start)
                 )
                 second_line = (
-                    mathutils.Vector(addon_data.quick_make_collinear_dest.line_end) -
-                    mathutils.Vector(addon_data.quick_make_collinear_dest.line_start)
+                    mathutils.Vector(addon_data.quick_align_lines_dest.line_end) -
+                    mathutils.Vector(addon_data.quick_align_lines_dest.line_start)
                 )
-                if active_item.mcl_ln_flip_direction:
+                if active_item.aln_flip_direction:
                     first_line.negate()
                 print("FIRSTLINE::", first_line)
                 print("SECLINE::", second_line)
             else:
                 # construct lines from the selected list items
                 first_line = (
-                    mathutils.Vector(prims[active_item.mcl_src_line].line_end) -
-                    mathutils.Vector(prims[active_item.mcl_src_line].line_start)
+                    mathutils.Vector(prims[active_item.aln_src_line].line_end) -
+                    mathutils.Vector(prims[active_item.aln_src_line].line_start)
                 )
                 second_line = (
-                    mathutils.Vector(prims[active_item.mcl_dest_line].line_end) -
-                    mathutils.Vector(prims[active_item.mcl_dest_line].line_start)
+                    mathutils.Vector(prims[active_item.aln_dest_line].line_end) -
+                    mathutils.Vector(prims[active_item.aln_dest_line].line_start)
                 )
-                if prims[addon_data.active_list_item].mcl_ln_flip_direction:
+                if prims[addon_data.active_list_item].aln_flip_direction:
                     first_line.negate()
 
                 # Take geom modifiers into account, line one
-                if prims[active_item.mcl_src_line].ln_make_unit_vec:
+                if prims[active_item.aln_src_line].ln_make_unit_vec:
                     first_line.normalize()
-                if prims[active_item.mcl_src_line].ln_flip_direction:
+                if prims[active_item.aln_src_line].ln_flip_direction:
                     first_line.negate()
-                first_line *= prims[active_item.mcl_src_line].ln_multiplier
+                first_line *= prims[active_item.aln_src_line].ln_multiplier
 
                 # Take geom modifiers into account, line two
-                if prims[active_item.mcl_dest_line].ln_make_unit_vec:
+                if prims[active_item.aln_dest_line].ln_make_unit_vec:
                     second_line.normalize()
-                if prims[active_item.mcl_dest_line].ln_flip_direction:
+                if prims[active_item.aln_dest_line].ln_flip_direction:
                     second_line.negate()
-                second_line *= prims[active_item.mcl_dest_line].ln_multiplier
+                second_line *= prims[active_item.aln_dest_line].ln_multiplier
 
             # find rotational difference between source and dest lines
             rotational_diff = first_line.rotation_difference(second_line)
@@ -2988,13 +2989,13 @@ class MakeCollinearBase(bpy.types.Operator):
             if hasattr(self, "quick_op_target"):
                 src_pivot_location_local = (
                     inverse_active * mathutils.Vector(
-                        addon_data.quick_make_collinear_src.line_start
+                        addon_data.quick_align_lines_src.line_start
                     )
                 )
             else:
                 src_pivot_location_local = (
                     inverse_active * mathutils.Vector(
-                        prims[active_item.mcl_src_line].line_start
+                        prims[active_item.aln_src_line].line_start
                     )
                 )
             if self.target == 'OBJECT':
@@ -3018,13 +3019,13 @@ class MakeCollinearBase(bpy.types.Operator):
                 if hasattr(self, "quick_op_target"):
                     final_translation = (
                         mathutils.Vector(
-                            addon_data.quick_make_collinear_dest.line_start
+                            addon_data.quick_align_lines_dest.line_start
                         ) - final_pivot_location
                     )
                 else:
                     final_translation = (
                         mathutils.Vector(
-                            prims[active_item.mcl_dest_line].line_start
+                            prims[active_item.aln_dest_line].line_start
                         ) - final_pivot_location
                     )
 
@@ -3045,11 +3046,11 @@ class MakeCollinearBase(bpy.types.Operator):
 
                 if hasattr(self, "quick_op_target"):
                     loc_src_pivot_coords = inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_src.line_start
+                            addon_data.quick_align_lines_src.line_start
                     )
                 else:
                     loc_src_pivot_coords = inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_src_line].line_start
+                            prims[active_item.aln_src_line].line_start
                     )
                 inverted_loc_src_pivot_coords = loc_src_pivot_coords.copy()
                 inverted_loc_src_pivot_coords.negate()
@@ -3061,13 +3062,13 @@ class MakeCollinearBase(bpy.types.Operator):
                 if hasattr(self, "quick_op_target"):
                     move_to_dest_pivot_translation = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_dest.line_start
+                            addon_data.quick_align_lines_dest.line_start
                         )
                     )
                 else:
                     move_to_dest_pivot_translation = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_dest_line].line_start
+                            prims[active_item.aln_dest_line].line_start
                         )
                     )
                 move_to_dest_pivot_transf = mathutils.Matrix.Translation(
@@ -3078,37 +3079,37 @@ class MakeCollinearBase(bpy.types.Operator):
                 if hasattr(self, "quick_op_target"):
                     loc_first_line = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_src.line_end
+                            addon_data.quick_align_lines_src.line_end
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_src.line_start
+                            addon_data.quick_align_lines_src.line_start
                         )
                     )
                     loc_second_line = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_dest.line_end
+                            addon_data.quick_align_lines_dest.line_end
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_collinear_dest.line_start
+                            addon_data.quick_align_lines_dest.line_start
                         )
                     )
-                    if active_item.mcl_ln_flip_direction:
+                    if active_item.aln_flip_direction:
                         loc_first_line.negate()
                 else:
                     loc_first_line = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_src_line].line_end
+                            prims[active_item.aln_src_line].line_end
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_src_line].line_start
+                            prims[active_item.aln_src_line].line_start
                         )
                     )
                     loc_second_line = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_dest_line].line_end
+                            prims[active_item.aln_dest_line].line_end
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcl_dest_line].line_start
+                            prims[active_item.aln_dest_line].line_start
                         )
                     )
                 loc_rot_diff = loc_first_line.rotation_difference(
@@ -3180,26 +3181,26 @@ class MakeCollinearBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MakeCollinearObject(MakeCollinearBase):
-    bl_idname = "sprig.mkcollinearobject"
-    bl_label = "Make Collinear"
+class AlignLinesObject(AlignLinesBase):
+    bl_idname = "sprig.alignlinesobject"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
 
 
-class QuickMakeCollinearObject(MakeCollinearBase):
-    bl_idname = "sprig.quickmakecollinearobject"
-    bl_label = "Make Collinear"
+class QuickAlignLinesObject(AlignLinesBase):
+    bl_idname = "sprig.quickalignlinesobject"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
     quick_op_target = True
 
 
-class MakeCollinearMeshSelected(MakeCollinearBase):
-    bl_idname = "sprig.mkcollinearmeshselected"
-    bl_label = "Make Collinear"
+class AlignLinesMeshSelected(AlignLinesBase):
+    bl_idname = "sprig.alignlinesmeshselected"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
@@ -3212,9 +3213,9 @@ class MakeCollinearMeshSelected(MakeCollinearBase):
         return True
 
 
-class MakeCollinearWholeMesh(MakeCollinearBase):
-    bl_idname = "sprig.mkcollinearwholemesh"
-    bl_label = "Make Collinear"
+class AlignLinesWholeMesh(AlignLinesBase):
+    bl_idname = "sprig.alignlineswholemesh"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -3228,9 +3229,9 @@ class MakeCollinearWholeMesh(MakeCollinearBase):
         return True
 
 
-class QuickMakeCollinearMeshSelected(MakeCollinearBase):
-    bl_idname = "sprig.quickmakecollinearmeshselected"
-    bl_label = "Make Collinear"
+class QuickAlignLinesMeshSelected(AlignLinesBase):
+    bl_idname = "sprig.quickalignlinesmeshselected"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
@@ -3244,9 +3245,9 @@ class QuickMakeCollinearMeshSelected(MakeCollinearBase):
         return True
 
 
-class QuickMakeCollinearWholeMesh(MakeCollinearBase):
-    bl_idname = "sprig.quickmakecollinearwholemesh"
-    bl_label = "Make Collinear"
+class QuickAlignLinesWholeMesh(AlignLinesBase):
+    bl_idname = "sprig.quickalignlineswholemesh"
+    bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -3260,10 +3261,10 @@ class QuickMakeCollinearWholeMesh(MakeCollinearBase):
         return True
 
 
-class MakeCoplanarBase(bpy.types.Operator):
-    bl_idname = "sprig.mkcoplanarbase"
-    bl_label = "Make Coplanar base"
-    bl_description = "Make coplanar base class"
+class AlignPlanesBase(bpy.types.Operator):
+    bl_idname = "sprig.alignplanesbase"
+    bl_label = "Align Planes base"
+    bl_description = "Align Planes base class"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -3273,14 +3274,14 @@ class MakeCoplanarBase(bpy.types.Operator):
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
-            active_item = addon_data.quick_make_coplanar_transf
+            active_item = addon_data.quick_align_planes_transf
 
         if (bpy.context.active_object and
                 type(bpy.context.active_object.data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
-                if (prims[active_item.mcp_src_plane].kind != 'PLANE' or
-                        prims[active_item.mcp_dest_plane].kind != 'PLANE'):
+                if (prims[active_item.apl_src_plane].kind != 'PLANE' or
+                        prims[active_item.apl_dest_plane].kind != 'PLANE'):
                     self.report(
                         {'ERROR'},
                         ('Wrong operands: make coplanar can only operate on '
@@ -3299,44 +3300,44 @@ class MakeCoplanarBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 # construct normal vector for first (source) plane
-                if addon_data.quick_make_coplanar_auto_grab_src:
-                    bpy.ops.sprig.quickmakecoplanargrabsrc()
+                if addon_data.quick_align_planes_auto_grab_src:
+                    bpy.ops.sprig.quickalignplanesgrabsrc()
                 first_pln_ln_BA = (
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_src.plane_pt_a
+                        addon_data.quick_align_planes_src.plane_pt_a
                     ) -
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_src.plane_pt_b
+                        addon_data.quick_align_planes_src.plane_pt_b
                     )
                 )
                 first_pln_ln_BC = (
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_src.plane_pt_c
+                        addon_data.quick_align_planes_src.plane_pt_c
                     ) -
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_src.plane_pt_b
+                        addon_data.quick_align_planes_src.plane_pt_b
                     )
                 )
                 first_normal = first_pln_ln_BA.cross(first_pln_ln_BC)
                 # flip first normal's direction if that option is toggled
-                if active_item.mcp_flip_normal:
+                if active_item.apl_flip_normal:
                     first_normal.negate()
 
                 # construct normal vector for second (destination) plane
                 second_pln_ln_BA = (
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_dest.plane_pt_a
+                        addon_data.quick_align_planes_dest.plane_pt_a
                     ) -
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_dest.plane_pt_b
+                        addon_data.quick_align_planes_dest.plane_pt_b
                     )
                 )
                 second_pln_ln_BC = (
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_dest.plane_pt_c
+                        addon_data.quick_align_planes_dest.plane_pt_c
                     ) -
                     mathutils.Vector(
-                        addon_data.quick_make_coplanar_dest.plane_pt_b
+                        addon_data.quick_align_planes_dest.plane_pt_b
                     )
                 )
                 second_normal = second_pln_ln_BA.cross(second_pln_ln_BC)
@@ -3344,40 +3345,40 @@ class MakeCoplanarBase(bpy.types.Operator):
                 # construct normal vector for first (source) plane
                 first_pln_ln_BA = (
                     mathutils.Vector(
-                        prims[active_item.mcp_src_plane].plane_pt_a
+                        prims[active_item.apl_src_plane].plane_pt_a
                     ) -
                     mathutils.Vector(
-                        prims[active_item.mcp_src_plane].plane_pt_b
+                        prims[active_item.apl_src_plane].plane_pt_b
                     )
                 )
                 first_pln_ln_BC = (
                     mathutils.Vector(
-                        prims[active_item.mcp_src_plane].plane_pt_c
+                        prims[active_item.apl_src_plane].plane_pt_c
                     ) -
                     mathutils.Vector(
-                        prims[active_item.mcp_src_plane].plane_pt_b
+                        prims[active_item.apl_src_plane].plane_pt_b
                     )
                 )
                 first_normal = first_pln_ln_BA.cross(first_pln_ln_BC)
                 # flip first normal's direction if that option is toggled
-                if active_item.mcp_flip_normal:
+                if active_item.apl_flip_normal:
                     first_normal.negate()
 
                 # construct normal vector for second (destination) plane
                 second_pln_ln_BA = (
                     mathutils.Vector(
-                        prims[active_item.mcp_dest_plane].plane_pt_a
+                        prims[active_item.apl_dest_plane].plane_pt_a
                     ) -
                     mathutils.Vector(
-                        prims[active_item.mcp_dest_plane].plane_pt_b
+                        prims[active_item.apl_dest_plane].plane_pt_b
                     )
                 )
                 second_pln_ln_BC = (
                     mathutils.Vector(
-                        prims[active_item.mcp_dest_plane].plane_pt_c
+                        prims[active_item.apl_dest_plane].plane_pt_c
                     ) -
                     mathutils.Vector(
-                        prims[active_item.mcp_dest_plane].plane_pt_b
+                        prims[active_item.apl_dest_plane].plane_pt_b
                     )
                 )
                 second_normal = second_pln_ln_BA.cross(second_pln_ln_BC)
@@ -3401,13 +3402,13 @@ class MakeCoplanarBase(bpy.types.Operator):
             if hasattr(self, "quick_op_target"):
                 local_src_pivot_coords = (
                     inverse_active * mathutils.Vector(
-                        addon_data.quick_make_coplanar_src.plane_pt_b
+                        addon_data.quick_align_planes_src.plane_pt_b
                     )
                 )
             else:
                 local_src_pivot_coords = (
                     inverse_active * mathutils.Vector(
-                        prims[active_item.mcp_src_plane].plane_pt_b
+                        prims[active_item.apl_src_plane].plane_pt_b
                     )
                 )
 
@@ -3432,13 +3433,13 @@ class MakeCoplanarBase(bpy.types.Operator):
                 if hasattr(self, "quick_op_target"):
                     final_translation_vector = (
                         mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_b
+                            addon_data.quick_align_planes_dest.plane_pt_b
                         ) - new_global_src_pivot_coords
                     )
                 else:
                     final_translation_vector = (
                         mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_b
+                            prims[active_item.apl_dest_plane].plane_pt_b
                         ) - new_global_src_pivot_coords
                     )
                 bpy.context.active_object.location = (
@@ -3462,18 +3463,18 @@ class MakeCoplanarBase(bpy.types.Operator):
                     # Construct planes in local obj space to get rot diff
                     loc_first_pln_ln_BA = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_src.plane_pt_a
+                            addon_data.quick_align_planes_src.plane_pt_a
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_src.plane_pt_b
+                            addon_data.quick_align_planes_src.plane_pt_b
                         )
                     )
                     loc_first_pln_ln_BC = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_src.plane_pt_c
+                            addon_data.quick_align_planes_src.plane_pt_c
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_src.plane_pt_b
+                            addon_data.quick_align_planes_src.plane_pt_b
                         )
                     )
                     loc_first_normal = loc_first_pln_ln_BA.cross(
@@ -3482,18 +3483,18 @@ class MakeCoplanarBase(bpy.types.Operator):
 
                     loc_second_pln_ln_BA = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_a
+                            addon_data.quick_align_planes_dest.plane_pt_a
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_b
+                            addon_data.quick_align_planes_dest.plane_pt_b
                         )
                     )
                     loc_second_pln_ln_BC = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_c
+                            addon_data.quick_align_planes_dest.plane_pt_c
                         ) -
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_b
+                            addon_data.quick_align_planes_dest.plane_pt_b
                         )
                     )
                     loc_second_normal = loc_second_pln_ln_BA.cross(
@@ -3502,25 +3503,25 @@ class MakeCoplanarBase(bpy.types.Operator):
 
                     local_dest_pivot_coords = (
                         inverse_active * mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_b
+                            addon_data.quick_align_planes_dest.plane_pt_b
                         )
                     )
                 else:
                     # Construct planes in local obj space to get rot diff
                     loc_first_pln_ln_BA = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_src_plane].plane_pt_a
+                            prims[active_item.apl_src_plane].plane_pt_a
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_src_plane].plane_pt_b
+                            prims[active_item.apl_src_plane].plane_pt_b
                         )
                     )
                     loc_first_pln_ln_BC = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_src_plane].plane_pt_c
+                            prims[active_item.apl_src_plane].plane_pt_c
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_src_plane].plane_pt_b
+                            prims[active_item.apl_src_plane].plane_pt_b
                         )
                     )
                     loc_first_normal = loc_first_pln_ln_BA.cross(
@@ -3529,18 +3530,18 @@ class MakeCoplanarBase(bpy.types.Operator):
 
                     loc_second_pln_ln_BA = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_a
+                            prims[active_item.apl_dest_plane].plane_pt_a
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_b
+                            prims[active_item.apl_dest_plane].plane_pt_b
                         )
                     )
                     loc_second_pln_ln_BC = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_c
+                            prims[active_item.apl_dest_plane].plane_pt_c
                         ) -
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_b
+                            prims[active_item.apl_dest_plane].plane_pt_b
                         )
                     )
                     loc_second_normal = loc_second_pln_ln_BA.cross(
@@ -3549,7 +3550,7 @@ class MakeCoplanarBase(bpy.types.Operator):
 
                     local_dest_pivot_coords = (
                         inverse_active * mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_b
+                            prims[active_item.apl_dest_plane].plane_pt_b
                         )
                     )
                     
@@ -3575,13 +3576,13 @@ class MakeCoplanarBase(bpy.types.Operator):
                 if hasattr(self, "quick_op_target"):
                     move_to_dest_pivot_translation = inverse_active * (
                         mathutils.Vector(
-                            addon_data.quick_make_coplanar_dest.plane_pt_b
+                            addon_data.quick_align_planes_dest.plane_pt_b
                         )
                     )
                 else:
                     move_to_dest_pivot_translation = inverse_active * (
                         mathutils.Vector(
-                            prims[active_item.mcp_dest_plane].plane_pt_b
+                            prims[active_item.apl_dest_plane].plane_pt_b
                         )
                     )
 
@@ -3651,26 +3652,26 @@ class MakeCoplanarBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MakeCoplanarObject(MakeCoplanarBase):
-    bl_idname = "sprig.mkcoplanarobject"
-    bl_label = "Make Coplanar"
+class AlignPlanesObject(AlignPlanesBase):
+    bl_idname = "sprig.alignplanesobject"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
 
 
-class QuickMakeCoplanarObject(MakeCoplanarBase):
-    bl_idname = "sprig.quickmakecoplanarobject"
-    bl_label = "Make Coplanar"
+class QuickAlignPlanesObject(AlignPlanesBase):
+    bl_idname = "sprig.quickalignplanesobject"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
     quick_op_target = True
 
 
-class MakeCoplanarMeshSelected(MakeCoplanarBase):
-    bl_idname = "sprig.mkcoplanarmeshselected"
-    bl_label = "Make Coplanar"
+class AlignPlanesMeshSelected(AlignPlanesBase):
+    bl_idname = "sprig.alignplanesmeshselected"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
@@ -3683,9 +3684,9 @@ class MakeCoplanarMeshSelected(MakeCoplanarBase):
         return True
 
 
-class MakeCoplanarWholeMesh(MakeCoplanarBase):
-    bl_idname = "sprig.mkcoplanarwholemesh"
-    bl_label = "Make Coplanar"
+class AlignPlanesWholeMesh(AlignPlanesBase):
+    bl_idname = "sprig.alignplaneswholemesh"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -3698,9 +3699,9 @@ class MakeCoplanarWholeMesh(MakeCoplanarBase):
         return True
 
 
-class QuickMakeCoplanarMeshSelected(MakeCoplanarBase):
-    bl_idname = "sprig.quickmakecoplanarmeshselected"
-    bl_label = "Make Coplanar"
+class QuickAlignPlanesMeshSelected(AlignPlanesBase):
+    bl_idname = "sprig.quickalignplanesmeshselected"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESHSELECTED'
@@ -3714,9 +3715,9 @@ class QuickMakeCoplanarMeshSelected(MakeCoplanarBase):
         return True
 
 
-class QuickMakeCoplanarWholeMesh(MakeCoplanarBase):
-    bl_idname = "sprig.quickmakecoplanarwholemesh"
-    bl_label = "Make Coplanar"
+class QuickAlignPlanesWholeMesh(AlignPlanesBase):
+    bl_idname = "sprig.quickalignplaneswholemesh"
+    bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
@@ -3833,7 +3834,7 @@ class SPRIGGui(bpy.types.Panel):
             basic_item_attribs_col.label("Item Name and Type:")
             item_name_and_types = basic_item_attribs_col.split(
                 align=True,
-                percentage=.67
+                percentage=.8
             )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
@@ -4433,12 +4434,12 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Transformation Type Selectors:")
                 transf_types = item_info_col.row(align=True)
                 transf_types.operator(
-                    "sprig.changetransftopointmatch",
+                    "sprig.changetransftoalignpoints",
                     icon='ROTATECOLLECTION',
                     text="Point Match"
                 )
                 transf_types.operator(
-                    "sprig.changetransftovectorslide",
+                    "sprig.changetransftodirectionalslide",
                     icon='CURVE_PATH',
                     text="Vector Slide"
                 )
@@ -4448,7 +4449,7 @@ class SPRIGGui(bpy.types.Panel):
                     text="ScaleMatchEdge"
                 )
                 transf_types.operator(
-                    "sprig.changetransftomkcollinear",
+                    "sprig.changetransftoalignlines",
                     icon='SNAP_EDGE',
                     text="Make Collinear"
                 )
@@ -4458,47 +4459,47 @@ class SPRIGGui(bpy.types.Panel):
                     text="Axis Rotate"
                 )
                 transf_types.operator(
-                    "sprig.changetransftomkcoplanar",
+                    "sprig.changetransftoalignplanes",
                     icon='MOD_ARRAY',
                     text="Make Coplanar"
                 )
                 item_info_col.separator()
 
                 apply_buttons_header = item_info_col.row()
-                if active_item.transf_type == 'POINTMATCH':
-                    apply_buttons_header.label('Apply Point Match to:')
+                if active_item.transf_type == 'ALIGNPOINTS':
+                    apply_buttons_header.label('Apply Align Points to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
-                        "sprig.pointmatchobject",
+                        "sprig.alignpointsobject",
                         icon='NONE',
                         text="Object"
                     )
                     mesh_appliers = apply_buttons.row(align=True)
                     mesh_appliers.operator(
-                        "sprig.pointmatchmeshselected",
+                        "sprig.alignpointsmeshselected",
                         icon='NONE',
                         text="Mesh Piece"
                     )
                     mesh_appliers.operator(
-                        "sprig.pointmatchwholemesh",
+                        "sprig.alignpointswholemesh",
                         icon='NONE',
                         text=" Whole Mesh"
                     )
-                elif active_item.transf_type == 'VECTORSLIDE':
-                    apply_buttons_header.label('Apply Vector Slide to:')
+                elif active_item.transf_type == 'DIRECTIONALSLIDE':
+                    apply_buttons_header.label('Apply Directional Slide to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
-                        "sprig.vectorslideobject",
+                        "sprig.directionalslideobject",
                         icon='NONE',
                         text="Object"
                     )
                     mesh_appliers = apply_buttons.row(align=True)
                     mesh_appliers.operator(
-                        "sprig.vectorslidemeshselected",
+                        "sprig.directionalslidemeshselected",
                         icon='NONE', text="Mesh Piece"
                     )
                     mesh_appliers.operator(
-                        "sprig.vectorslidewholemesh",
+                        "sprig.directionalslidewholemesh",
                         icon='NONE',
                         text="Whole Mesh"
                     )
@@ -4538,41 +4539,41 @@ class SPRIGGui(bpy.types.Panel):
                         icon='NONE',
                         text="Whole Mesh"
                     )
-                elif active_item.transf_type == 'MKCOLLINEAR':
-                    apply_buttons_header.label('Apply Make Collinear to:')
+                elif active_item.transf_type == 'ALIGNLINES':
+                    apply_buttons_header.label('Apply Align Lines to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
-                        "sprig.mkcollinearobject",
+                        "sprig.alignlinesobject",
                         icon='NONE',
                         text="Object"
                     )
                     mesh_appliers = apply_buttons.row(align=True)
                     mesh_appliers.operator(
-                        "sprig.mkcollinearmeshselected",
+                        "sprig.alignlinesmeshselected",
                         icon='NONE',
                         text="Mesh Piece"
                     )
                     mesh_appliers.operator(
-                        "sprig.mkcollinearwholemesh",
+                        "sprig.alignlineswholemesh",
                         icon='NONE',
                         text="Whole Mesh"
                     )
-                elif active_item.transf_type == 'MKCOPLANAR':
-                    apply_buttons_header.label('Apply Make Coplanar to:')
+                elif active_item.transf_type == 'ALIGNPLANES':
+                    apply_buttons_header.label('Apply Align Planes to:')
                     apply_buttons = item_info_col.split(percentage=.33)
                     apply_buttons.operator(
-                        "sprig.mkcoplanarobject",
+                        "sprig.alignplanesobject",
                         icon='NONE',
                         text="Object"
                     )
                     mesh_appliers = apply_buttons.row(align=True)
                     mesh_appliers.operator(
-                        "sprig.mkcoplanarmeshselected",
+                        "sprig.alignplanesmeshselected",
                         icon='NONE',
                         text="Mesh Piece"
                     )
                     mesh_appliers.operator(
-                        "sprig.mkcoplanarwholemesh",
+                        "sprig.alignplaneswholemesh",
                         icon='NONE',
                         text="Whole Mesh"
                     )
@@ -4593,49 +4594,49 @@ class SPRIGGui(bpy.types.Panel):
                     item_mods_box = item_info_col.box()
                     mods_row_1 = item_mods_box.row()
                     mods_row_2 = item_mods_box.row()
-                if active_item.transf_type == "POINTMATCH":
+                if active_item.transf_type == "ALIGNPOINTS":
                     mods_row_1.prop(
                         active_transf,
-                        'pm_ln_make_unit_vec',
+                        'apt_make_unit_vector',
                         'Set Length Equal to One'
                     )
                     mods_row_1.prop(
                         active_transf,
-                        'pm_ln_flip_direction',
+                        'apt_flip_direction',
                         'Flip Direction'
                     )
                     mods_row_2.prop(
                         active_transf,
-                        'pm_multiplier',
+                        'apt_multiplier',
                         'Multiplier'
                     )
-                if active_item.transf_type == "VECTORSLIDE":
+                if active_item.transf_type == "DIRECTIONALSLIDE":
                     item_info_col.label('Item Modifiers:')
                     mods_row_1.prop(
                         active_transf,
-                        'vs_ln_make_unit_vec',
+                        'ds_make_unit_vec',
                         "Set Length Equal to One"
                     )
                     mods_row_1.prop(
                         active_transf,
-                        'vs_ln_flip_direction',
+                        'ds_flip_direction',
                         "Flip Direction"
                     )
                     mods_row_2.prop(
                         active_transf,
-                        'vs_multiplier',
+                        'ds_multiplier',
                         "Multiplier"
                     )
-                if active_item.transf_type == "MKCOLLINEAR":
+                if active_item.transf_type == "ALIGNLINES":
                     mods_row_1.prop(
                         active_transf,
-                        'mcl_ln_flip_direction',
+                        'aln_flip_direction',
                         "Flip Direction"
                     )
-                if active_item.transf_type == "MKCOPLANAR":
+                if active_item.transf_type == "ALIGNPLANES":
                     mods_row_1.prop(
                         active_transf,
-                        'mcp_flip_normal',
+                        'apl_flip_normal',
                         "Flip Source Normal"
                     )
                 item_info_col.separator()
@@ -4643,29 +4644,29 @@ class SPRIGGui(bpy.types.Panel):
                 # Designate operands for the transformation by pointing to
                 # other primitive items in the main list. The indices are
                 # stored on each primitive item
-                if active_item.transf_type == "POINTMATCH":
+                if active_item.transf_type == "ALIGNPOINTS":
                     item_info_col.label("Source Point")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "pm_pt_one_list",
+                        "apt_pt_one_list",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "pm_pt_one",
+                        "apt_pt_one",
                         type='DEFAULT'
                     )
                     item_info_col.separator()
                     item_info_col.label("Destination Point")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "pm_pt_two_list",
+                        "apt_pt_two_list",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "pm_pt_two",
+                        "apt_pt_two",
                         type='DEFAULT'
                     )
-                if active_item.transf_type == "VECTORSLIDE":
+                if active_item.transf_type == "DIRECTIONALSLIDE":
                     item_info_col.label("Source Line")
                     item_info_col.template_list(
                         "SPRIGList",
@@ -4673,7 +4674,7 @@ class SPRIGGui(bpy.types.Panel):
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "vs_direction",
+                        "ds_direction",
                         type='DEFAULT'
                     )
                 if active_item.transf_type == "SCALEMATCHEDGE":
@@ -4715,48 +4716,48 @@ class SPRIGGui(bpy.types.Panel):
                         'axr_amount',
                         'Amount'
                     )
-                if active_item.transf_type == "MKCOLLINEAR":
+                if active_item.transf_type == "ALIGNLINES":
                     item_info_col.label("Source Line")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "mcl_src_linelist",
+                        "aln_src_linelist",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "mcl_src_line",
+                        "aln_src_line",
                         type='DEFAULT'
                     )
                     item_info_col.separator()
                     item_info_col.label("Destination Line")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "mcl_dest_linelist",
+                        "aln_dest_linelist",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "mcl_dest_line",
+                        "aln_dest_line",
                         type='DEFAULT'
                     )
-                if active_item.transf_type == "MKCOPLANAR":
+                if active_item.transf_type == "ALIGNPLANES":
                     item_info_col.label("Source Plane")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "mcp_src_planelist",
+                        "apl_src_planelist",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "mcp_src_plane",
+                        "apl_src_plane",
                         type='DEFAULT'
                     )
                     item_info_col.separator()
                     item_info_col.label("Destination Plane")
                     item_info_col.template_list(
                         "SPRIGList",
-                        "mcp_dest_planelist",
+                        "apl_dest_planelist",
                         sprig_data_ptr,
                         "prim_list",
                         active_transf,
-                        "mcp_dest_plane",
+                        "apl_dest_plane",
                         type='DEFAULT'
                     )
 
@@ -4797,20 +4798,20 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         # )
         # if addon_data.quick_align_pts_show:
         # align_pts_gui.label("Destination:")
-        pm_grab_col = align_pts_gui.column()
-        pm_grab_col.prop(
+        apt_grab_col = align_pts_gui.column()
+        apt_grab_col.prop(
             addon_data,
             'quick_align_pts_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
         if not addon_data.quick_align_pts_auto_grab_src:
-            pm_grab_col.operator(
-                "sprig.quickpointmatchgrabsrc",
+            apt_grab_col.operator(
+                "sprig.quickalignpointsgrabsrc",
                 icon='WORLD',
                 text="Grab Source"
             )
-        pm_grab_col.operator(
-            "sprig.quickpointmatchgrabdest",
+        apt_grab_col.operator(
+            "sprig.quickalignpointsgrabdest",
             icon='WORLD',
             text="Grab Destination"
         )
@@ -4820,43 +4821,43 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             # ""
         # )
         align_pts_gui.label("Operator settings:")
-        pm_mods = align_pts_gui.box()
-        pm_box_row1 = pm_mods.row()
-        pm_box_row1.prop(
+        apt_mods = align_pts_gui.box()
+        apt_box_row1 = apt_mods.row()
+        apt_box_row1.prop(
             addon_data.quick_align_pts_transf,
-            'pm_ln_make_unit_vec',
+            'apt_make_unit_vector',
             'Set Length to 1'
         )
-        pm_box_row1.prop(
+        apt_box_row1.prop(
             addon_data.quick_align_pts_transf,
-            'pm_ln_flip_direction',
+            'apt_flip_direction',
             'Flip Direction'
         )
-        pm_box_row2 = pm_mods.row()
-        pm_box_row2.prop(
+        apt_box_row2 = apt_mods.row()
+        apt_box_row2.prop(
             addon_data.quick_align_pts_transf,
-            'pm_multiplier',
+            'apt_multiplier',
             'Multiplier'
         )
-        pm_apply_header = align_pts_gui.row()
-        pm_apply_header.label("Apply to:")
-        pm_apply_header.prop(
+        apt_apply_header = align_pts_gui.row()
+        apt_apply_header.label("Apply to:")
+        apt_apply_header.prop(
             addon_data,
             'use_experimental',
             'Enable Experimental Mesh Ops.'
         )
-        pm_apply_items = align_pts_gui.split(percentage=.33)
-        pm_apply_items.operator(
-            "sprig.quickpointmatchobject",
+        apt_apply_items = align_pts_gui.split(percentage=.33)
+        apt_apply_items.operator(
+            "sprig.quickalignpointsobject",
             text="Object"
         )
-        pm_mesh_apply_items = pm_apply_items.row(align=True)
-        pm_mesh_apply_items.operator(
-            "sprig.quickpointmatchmeshselected",
+        apt_mesh_apply_items = apt_apply_items.row(align=True)
+        apt_mesh_apply_items.operator(
+            "sprig.quickalignpointsmeshselected",
             text="Mesh Piece"
         )
-        pm_mesh_apply_items.operator(
-            "sprig.quickpointmatchwholemesh",
+        apt_mesh_apply_items.operator(
+            "sprig.quickalignpointswholemesh",
             text="Whole Mesh"
         )
 
@@ -4875,76 +4876,76 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.sprig_data
         prims = addon_data.prim_list
 
-        mcl_top = layout.row()
-        make_cl_gui = layout.box()
-        mcl_top.label(
+        aln_top = layout.row()
+        aln_gui = layout.box()
+        aln_top.label(
             "Align Lines",
             icon="SNAP_EDGE"
         )
-        # mcl_top = make_cl_gui.row()
-        # mcl_top.prop(
+        # aln_top = aln_gui.row()
+        # aln_top.prop(
             # sprig_data_ptr,
-            # 'quick_make_collinear_show',
+            # 'quick_align_lines_show',
             # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_make_collinear_show else "TRIA_DOWN",
+            # addon_data.quick_align_lines_show else "TRIA_DOWN",
             # icon_only=True,
             # emboss=False
         # )
-        # mcl_top.label(
+        # aln_top.label(
             # "Align Lines" if not \
-            # addon_data.quick_make_collinear_show else "Align Lines:",
+            # addon_data.quick_align_lines_show else "Align Lines:",
             # icon="SNAP_EDGE"
         # )
-        # if addon_data.quick_make_collinear_show:
-        mcl_grab_col = make_cl_gui.column()
-        mcl_grab_col.prop(
+        # if addon_data.quick_align_lines_show:
+        aln_grab_col = aln_gui.column()
+        aln_grab_col.prop(
             addon_data,
-            'quick_make_collinear_auto_grab_src',
+            'quick_align_lines_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
-        if not addon_data.quick_make_collinear_auto_grab_src:
-            mcl_grab_col.operator(
-                    "sprig.quickmakecollineargrabsrc",
+        if not addon_data.quick_align_lines_auto_grab_src:
+            aln_grab_col.operator(
+                    "sprig.quickalignlinesgrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
-        mcl_grab_col.operator(
-                "sprig.quickmakecollineargrabdest",
+        aln_grab_col.operator(
+                "sprig.quickalignlinesgrabdest",
                 icon='WORLD',
                 text="Grab Destination"
         )
-        # make_cl_gui.prop(
+        # aln_gui.prop(
             # addon_data.quick_align_pts_dest,
             # 'point',
             # ""
         # )
-        make_cl_gui.label("Operator settings:")
-        mcl_mods = make_cl_gui.box()
-        mcl_mods_row1 = mcl_mods.row()
-        mcl_mods_row1.prop(
-            addon_data.quick_make_collinear_transf,
-            'mcl_ln_flip_direction',
+        aln_gui.label("Operator settings:")
+        aln_mods = aln_gui.box()
+        aln_mods_row1 = aln_mods.row()
+        aln_mods_row1.prop(
+            addon_data.quick_align_lines_transf,
+            'aln_flip_direction',
             'Flip Direction'
         )
-        mcl_apply_header = make_cl_gui.row()
-        mcl_apply_header.label("Apply to:")
-        mcl_apply_header.prop(
+        aln_apply_header = aln_gui.row()
+        aln_apply_header.label("Apply to:")
+        aln_apply_header.prop(
             addon_data,
             'use_experimental',
             'Enable Experimental Mesh Ops.'
         )
-        mcl_apply_items = make_cl_gui.split(percentage=.33)
-        mcl_apply_items.operator(
-            "sprig.quickmakecollinearobject",
+        aln_apply_items = aln_gui.split(percentage=.33)
+        aln_apply_items.operator(
+            "sprig.quickalignlinesobject",
             text="Object"
         )
-        mcl_mesh_apply_items = mcl_apply_items.row(align=True)
-        mcl_mesh_apply_items.operator(
-            "sprig.quickmakecollinearmeshselected",
+        aln_mesh_apply_items = aln_apply_items.row(align=True)
+        aln_mesh_apply_items.operator(
+            "sprig.quickalignlinesmeshselected",
             text="Mesh Piece"
         )
-        mcl_mesh_apply_items.operator(
-            "sprig.quickmakecollinearwholemesh",
+        aln_mesh_apply_items.operator(
+            "sprig.quickalignlineswholemesh",
             text="Whole Mesh"
         )
 
@@ -4964,71 +4965,71 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.sprig_data
         prims = addon_data.prim_list
 
-        mcp_top = layout.row()
-        make_cp_gui = layout.box()
-        mcp_top.label(
+        apl_top = layout.row()
+        apl_gui = layout.box()
+        apl_top.label(
             "Align Planes",
             icon="MOD_ARRAY"
         )
-        # mcp_top = make_cp_gui.row()
-        # mcp_top.prop(
+        # apl_top = apl_gui.row()
+        # apl_top.prop(
             # sprig_data_ptr,
-            # 'quick_make_coplanar_show',
+            # 'quick_align_planes_show',
             # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_make_coplanar_show else "TRIA_DOWN",
+            # addon_data.quick_align_planes_show else "TRIA_DOWN",
             # icon_only=True,
             # emboss=False
         # )
-        # mcp_top.label(
+        # apl_top.label(
             # "Align Planes" if not \
-            # addon_data.quick_make_coplanar_show else "Align Planes:",
+            # addon_data.quick_align_planes_show else "Align Planes:",
             # icon="MOD_ARRAY"
         # )
-        # if addon_data.quick_make_coplanar_show:
-        mcp_grab_col = make_cp_gui.column()
-        mcp_grab_col.prop(
+        # if addon_data.quick_align_planes_show:
+        apl_grab_col = apl_gui.column()
+        apl_grab_col.prop(
             addon_data,
-            'quick_make_coplanar_auto_grab_src',
+            'quick_align_planes_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
-        if not addon_data.quick_make_coplanar_auto_grab_src:
-            mcp_grab_col.operator(
-                    "sprig.quickmakecoplanargrabsrc",
+        if not addon_data.quick_align_planes_auto_grab_src:
+            apl_grab_col.operator(
+                    "sprig.quickalignplanesgrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
-        mcp_grab_col.operator(
-                "sprig.quickmakecoplanargrabdest",
+        apl_grab_col.operator(
+                "sprig.quickalignplanesgrabdest",
                 icon='WORLD',
                 text="Grab Destination"
         )
-        make_cp_gui.label("Operator settings:")
-        mcp_mods = make_cp_gui.box()
-        mcp_mods_row1 = mcp_mods.row()
-        mcp_mods_row1.prop(
-            addon_data.quick_make_coplanar_transf,
-            'mcp_flip_normal',
+        apl_gui.label("Operator settings:")
+        apl_mods = apl_gui.box()
+        apl_mods_row1 = apl_mods.row()
+        apl_mods_row1.prop(
+            addon_data.quick_align_planes_transf,
+            'apl_flip_normal',
             'Flip Normal'
         )
-        mcp_apply_header = make_cp_gui.row()
-        mcp_apply_header.label("Apply to:")
-        mcp_apply_header.prop(
+        apl_apply_header = apl_gui.row()
+        apl_apply_header.label("Apply to:")
+        apl_apply_header.prop(
             addon_data,
             'use_experimental',
             'Enable Experimental Mesh Ops.'
         )
-        mcp_apply_items = make_cp_gui.split(percentage=.33)
-        mcp_apply_items.operator(
-            "sprig.quickmakecoplanarobject",
+        apl_apply_items = apl_gui.split(percentage=.33)
+        apl_apply_items.operator(
+            "sprig.quickalignplanesobject",
             text="Object"
         )
-        mcp_mesh_apply_items = mcp_apply_items.row(align=True)
-        mcp_mesh_apply_items.operator(
-            "sprig.quickmakecoplanarmeshselected",
+        apl_mesh_apply_items = apl_apply_items.row(align=True)
+        apl_mesh_apply_items.operator(
+            "sprig.quickalignplanesmeshselected",
             text="Mesh Piece"
         )
-        mcp_mesh_apply_items.operator(
-            "sprig.quickmakecoplanarwholemesh",
+        apl_mesh_apply_items.operator(
+            "sprig.quickalignplaneswholemesh",
             text="Whole Mesh"
         )
 
@@ -5111,8 +5112,8 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         )
 
 
-class QuickVectorSlideGUI(bpy.types.Panel):
-    bl_idname = "quick_vector_slide_gui"
+class QuickDirectionalSlideGUI(bpy.types.Panel):
+    bl_idname = "quick_directional_slide_gui"
     bl_label = "Quick Directional Move"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -5125,77 +5126,77 @@ class QuickVectorSlideGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.sprig_data
         prims = addon_data.prim_list
 
-        vs_top = layout.row()
-        vs_gui = layout.box()
-        vs_top.label(
+        ds_top = layout.row()
+        ds_gui = layout.box()
+        ds_top.label(
             "Vector Slide",
             icon="CURVE_PATH"
         )
-        # vs_top = vs_gui.row()
-        # vs_top.prop(
+        # ds_top = ds_gui.row()
+        # ds_top.prop(
             # sprig_data_ptr,
-            # 'quick_vector_slide_show',
+            # 'quick_directional_slide_show',
             # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_vector_slide_show else "TRIA_DOWN",
+            # addon_data.quick_directional_slide_show else "TRIA_DOWN",
             # icon_only=True,
             # emboss=False
         # )
-        # vs_top.label(
+        # ds_top.label(
             # "Vector Slide" if not \
-            # addon_data.quick_vector_slide_show else "Vector Slide:",
+            # addon_data.quick_directional_slide_show else "Vector Slide:",
             # icon="MOD_ARRAY"
         # )
-        # if addon_data.quick_vector_slide_show:
-        vs_grab_col = vs_gui.column()
-        vs_grab_col.prop(
+        # if addon_data.quick_directional_slide_show:
+        ds_grab_col = ds_gui.column()
+        ds_grab_col.prop(
             addon_data,
-            'quick_vector_slide_auto_grab_src',
+            'quick_directional_slide_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
-        if not addon_data.quick_vector_slide_auto_grab_src:
-            vs_grab_col.operator(
-                    "sprig.quickvectorslidegrabsrc",
+        if not addon_data.quick_directional_slide_auto_grab_src:
+            ds_grab_col.operator(
+                    "sprig.quickdirectionalslidegrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
-        vs_gui.label("Operator settings:")
-        vs_mods = vs_gui.box()
-        vs_box_row1 = vs_mods.row()
-        vs_box_row1.prop(
-            addon_data.quick_vector_slide_transf,
-            'vs_ln_make_unit_vec',
+        ds_gui.label("Operator settings:")
+        ds_mods = ds_gui.box()
+        ds_box_row1 = ds_mods.row()
+        ds_box_row1.prop(
+            addon_data.quick_directional_slide_transf,
+            'ds_make_unit_vec',
             'Set Length to 1'
         )
-        vs_box_row1.prop(
-            addon_data.quick_vector_slide_transf,
-            'vs_ln_flip_direction',
+        ds_box_row1.prop(
+            addon_data.quick_directional_slide_transf,
+            'ds_flip_direction',
             'Flip Direction'
         )
-        vs_box_row2 = vs_mods.row()
-        vs_box_row2.prop(
-            addon_data.quick_vector_slide_transf,
-            'vs_multiplier',
+        ds_box_row2 = ds_mods.row()
+        ds_box_row2.prop(
+            addon_data.quick_directional_slide_transf,
+            'ds_multiplier',
             'Multiplier'
         )
-        vs_apply_header = vs_gui.row()
-        vs_apply_header.label("Apply to:")
-        vs_apply_header.prop(
+        ds_apply_header = ds_gui.row()
+        ds_apply_header.label("Apply to:")
+        ds_apply_header.prop(
             addon_data,
             'use_experimental',
             'Enable Experimental Mesh Ops.'
         )
-        vs_apply_items = vs_gui.split(percentage=.33)
-        vs_apply_items.operator(
-            "sprig.quickvectorslideobject",
+        ds_apply_items = ds_gui.split(percentage=.33)
+        ds_apply_items.operator(
+            "sprig.quickdirectionalslideobject",
             text="Object"
         )
-        vs_mesh_apply_items = vs_apply_items.row(align=True)
-        vs_mesh_apply_items.operator(
-            "sprig.quickvectorslidemeshselected",
+        ds_mesh_apply_items = ds_apply_items.row(align=True)
+        ds_mesh_apply_items.operator(
+            "sprig.quickdirectionalslidemeshselected",
             text="Mesh Piece"
         )
-        vs_mesh_apply_items.operator(
-            "sprig.quickvectorslidewholemesh",
+        ds_mesh_apply_items.operator(
+            "sprig.quickdirectionalslidewholemesh",
             text="Whole Mesh"
         )
 
@@ -5256,7 +5257,7 @@ class QuickSMEGUI(bpy.types.Panel):
         # sme_mods = sme_gui.box()
         # sme_mods_row1 = sme_mods.row()
         # sme_mods_row1.prop(
-            # addon_data.quick_make_coplanar_transf,
+            # addon_data.quick_align_planes_transf,
             # 'sme_',
             # 'Flip Normal'
         # )
