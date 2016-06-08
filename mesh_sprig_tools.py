@@ -150,11 +150,14 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
              'Rotate around a specified axis'),
             ('ALIGNPLANES',
              'Align Planes',
-             'Make planes coplanar')
+             'Make planes coplanar'),
+            ('UNDEFINED',
+             'Undefined',
+             'The transformation type has not been set')
         ],
         name="Transf. Type",
         description="The type of transformation to perform",
-        default='ALIGNPOINTS'
+        default='UNDEFINED'
     )
 
     # "Align Points" (transformation) data/settings
@@ -2934,8 +2937,6 @@ class AlignLinesBase(bpy.types.Operator):
                 )
                 if active_item.aln_flip_direction:
                     first_line.negate()
-                print("FIRSTLINE::", first_line)
-                print("SECLINE::", second_line)
             else:
                 # construct lines from the selected list items
                 first_line = (
@@ -4420,7 +4421,7 @@ class SPRIGGui(bpy.types.Panel):
                 )
 
             elif active_item.kind == 'CALCULATION':
-                item_info_col.label("Coming soon.")
+                item_info_col.label("Coming soon")
 
             elif active_item.kind == 'TRANSFORMATION':
                 item_info_col.label("Transformation Type Selectors:")
@@ -4457,301 +4458,304 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                apply_buttons_header = item_info_col.row()
-                if active_item.transf_type == 'ALIGNPOINTS':
-                    apply_buttons_header.label('Apply Align Points to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.alignpointsobject",
-                        icon='NONE',
-                        text="Object"
+                if active_item.transf_type == "UNDEFINED":
+                    item_info_col.label("Select a transformation above")
+                else:
+                    apply_buttons_header = item_info_col.row()
+                    if active_item.transf_type == 'ALIGNPOINTS':
+                        apply_buttons_header.label('Apply Align Points to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.alignpointsobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.alignpointsmeshselected",
+                            icon='NONE',
+                            text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.alignpointswholemesh",
+                            icon='NONE',
+                            text=" Whole Mesh"
+                        )
+                    elif active_item.transf_type == 'DIRECTIONALSLIDE':
+                        apply_buttons_header.label('Apply Directional Slide to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.directionalslideobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.directionalslidemeshselected",
+                            icon='NONE', text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.directionalslidewholemesh",
+                            icon='NONE',
+                            text="Whole Mesh"
+                        )
+                    elif active_item.transf_type == 'SCALEMATCHEDGE':
+                        apply_buttons_header.label('Apply Scale Match Edge to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.scalematchedgeobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.scalematchedgemeshselected",
+                            icon='NONE', text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.scalematchedgewholemesh",
+                            icon='NONE',
+                            text="Whole Mesh"
+                        )
+                    elif active_item.transf_type == 'AXISROTATE':
+                        apply_buttons_header.label('Apply Axis Rotate to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.axisrotateobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.axisrotatemeshselected",
+                            icon='NONE', text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.axisrotatewholemesh",
+                            icon='NONE',
+                            text="Whole Mesh"
+                        )
+                    elif active_item.transf_type == 'ALIGNLINES':
+                        apply_buttons_header.label('Apply Align Lines to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.alignlinesobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.alignlinesmeshselected",
+                            icon='NONE',
+                            text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.alignlineswholemesh",
+                            icon='NONE',
+                            text="Whole Mesh"
+                        )
+                    elif active_item.transf_type == 'ALIGNPLANES':
+                        apply_buttons_header.label('Apply Align Planes to:')
+                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons.operator(
+                            "sprig.alignplanesobject",
+                            icon='NONE',
+                            text="Object"
+                        )
+                        mesh_appliers = apply_buttons.row(align=True)
+                        mesh_appliers.operator(
+                            "sprig.alignplanesmeshselected",
+                            icon='NONE',
+                            text="Mesh Piece"
+                        )
+                        mesh_appliers.operator(
+                            "sprig.alignplaneswholemesh",
+                            icon='NONE',
+                            text="Whole Mesh"
+                        )
+                    item_info_col.separator()
+                    experiment_toggle= apply_buttons_header.column()
+                    experiment_toggle.prop(
+                            addon_data,
+                            'use_experimental',
+                            'Enable Experimental Mesh Ops.'
                     )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.alignpointsmeshselected",
-                        icon='NONE',
-                        text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.alignpointswholemesh",
-                        icon='NONE',
-                        text=" Whole Mesh"
-                    )
-                elif active_item.transf_type == 'DIRECTIONALSLIDE':
-                    apply_buttons_header.label('Apply Directional Slide to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.directionalslideobject",
-                        icon='NONE',
-                        text="Object"
-                    )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.directionalslidemeshselected",
-                        icon='NONE', text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.directionalslidewholemesh",
-                        icon='NONE',
-                        text="Whole Mesh"
-                    )
-                elif active_item.transf_type == 'SCALEMATCHEDGE':
-                    apply_buttons_header.label('Apply Scale Match Edge to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.scalematchedgeobject",
-                        icon='NONE',
-                        text="Object"
-                    )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.scalematchedgemeshselected",
-                        icon='NONE', text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.scalematchedgewholemesh",
-                        icon='NONE',
-                        text="Whole Mesh"
-                    )
-                elif active_item.transf_type == 'AXISROTATE':
-                    apply_buttons_header.label('Apply Axis Rotate to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.axisrotateobject",
-                        icon='NONE',
-                        text="Object"
-                    )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.axisrotatemeshselected",
-                        icon='NONE', text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.axisrotatewholemesh",
-                        icon='NONE',
-                        text="Whole Mesh"
-                    )
-                elif active_item.transf_type == 'ALIGNLINES':
-                    apply_buttons_header.label('Apply Align Lines to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.alignlinesobject",
-                        icon='NONE',
-                        text="Object"
-                    )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.alignlinesmeshselected",
-                        icon='NONE',
-                        text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.alignlineswholemesh",
-                        icon='NONE',
-                        text="Whole Mesh"
-                    )
-                elif active_item.transf_type == 'ALIGNPLANES':
-                    apply_buttons_header.label('Apply Align Planes to:')
-                    apply_buttons = item_info_col.split(percentage=.33)
-                    apply_buttons.operator(
-                        "sprig.alignplanesobject",
-                        icon='NONE',
-                        text="Object"
-                    )
-                    mesh_appliers = apply_buttons.row(align=True)
-                    mesh_appliers.operator(
-                        "sprig.alignplanesmeshselected",
-                        icon='NONE',
-                        text="Mesh Piece"
-                    )
-                    mesh_appliers.operator(
-                        "sprig.alignplaneswholemesh",
-                        icon='NONE',
-                        text="Whole Mesh"
-                    )
-                item_info_col.separator()
-                experiment_toggle= apply_buttons_header.column()
-                experiment_toggle.prop(
-                        addon_data,
-                        'use_experimental',
-                        'Enable Experimental Mesh Ops.'
-                )
 
-                active_transf = bpy.types.AnyType(active_item)
+                    active_transf = bpy.types.AnyType(active_item)
 
-                # Todo, add scale match edge mods
-                if (active_item.transf_type != 'SCALEMATCHEDGE' and
-                                active_item.transf_type != 'AXISROTATE'):
-                    item_info_col.label('Transformation Modifiers:')
-                    item_mods_box = item_info_col.box()
-                    mods_row_1 = item_mods_box.row()
-                    mods_row_2 = item_mods_box.row()
-                if active_item.transf_type == "ALIGNPOINTS":
-                    mods_row_1.prop(
-                        active_transf,
-                        'apt_make_unit_vector',
-                        'Set Length Equal to One'
-                    )
-                    mods_row_1.prop(
-                        active_transf,
-                        'apt_flip_direction',
-                        'Flip Direction'
-                    )
-                    mods_row_2.prop(
-                        active_transf,
-                        'apt_multiplier',
-                        'Multiplier'
-                    )
-                if active_item.transf_type == "DIRECTIONALSLIDE":
-                    item_info_col.label('Item Modifiers:')
-                    mods_row_1.prop(
-                        active_transf,
-                        'ds_make_unit_vec',
-                        "Set Length Equal to One"
-                    )
-                    mods_row_1.prop(
-                        active_transf,
-                        'ds_flip_direction',
-                        "Flip Direction"
-                    )
-                    mods_row_2.prop(
-                        active_transf,
-                        'ds_multiplier',
-                        "Multiplier"
-                    )
-                if active_item.transf_type == "ALIGNLINES":
-                    mods_row_1.prop(
-                        active_transf,
-                        'aln_flip_direction',
-                        "Flip Direction"
-                    )
-                if active_item.transf_type == "ALIGNPLANES":
-                    mods_row_1.prop(
-                        active_transf,
-                        'apl_flip_normal',
-                        "Flip Source Normal"
-                    )
-                item_info_col.separator()
+                    # Todo, add scale match edge mods
+                    if (active_item.transf_type != 'SCALEMATCHEDGE' and
+                                    active_item.transf_type != 'AXISROTATE'):
+                        item_info_col.label('Transformation Modifiers:')
+                        item_mods_box = item_info_col.box()
+                        mods_row_1 = item_mods_box.row()
+                        mods_row_2 = item_mods_box.row()
+                    if active_item.transf_type == "ALIGNPOINTS":
+                        mods_row_1.prop(
+                            active_transf,
+                            'apt_make_unit_vector',
+                            'Set Length Equal to One'
+                        )
+                        mods_row_1.prop(
+                            active_transf,
+                            'apt_flip_direction',
+                            'Flip Direction'
+                        )
+                        mods_row_2.prop(
+                            active_transf,
+                            'apt_multiplier',
+                            'Multiplier'
+                        )
+                    if active_item.transf_type == "DIRECTIONALSLIDE":
+                        item_info_col.label('Item Modifiers:')
+                        mods_row_1.prop(
+                            active_transf,
+                            'ds_make_unit_vec',
+                            "Set Length Equal to One"
+                        )
+                        mods_row_1.prop(
+                            active_transf,
+                            'ds_flip_direction',
+                            "Flip Direction"
+                        )
+                        mods_row_2.prop(
+                            active_transf,
+                            'ds_multiplier',
+                            "Multiplier"
+                        )
+                    if active_item.transf_type == "ALIGNLINES":
+                        mods_row_1.prop(
+                            active_transf,
+                            'aln_flip_direction',
+                            "Flip Direction"
+                        )
+                    if active_item.transf_type == "ALIGNPLANES":
+                        mods_row_1.prop(
+                            active_transf,
+                            'apl_flip_normal',
+                            "Flip Source Normal"
+                        )
+                    item_info_col.separator()
 
-                # Designate operands for the transformation by pointing to
-                # other primitive items in the main list. The indices are
-                # stored on each primitive item
-                if active_item.transf_type == "ALIGNPOINTS":
-                    item_info_col.label("Source Point")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "apt_pt_one_list",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "apt_pt_one",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    item_info_col.label("Destination Point")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "apt_pt_two_list",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "apt_pt_two",
-                        type='DEFAULT'
-                    )
-                if active_item.transf_type == "DIRECTIONALSLIDE":
-                    item_info_col.label("Source Line")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "vs_targetLineList",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "ds_direction",
-                        type='DEFAULT'
-                    )
-                if active_item.transf_type == "SCALEMATCHEDGE":
-                    item_info_col.label("Source Edge")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "sme_src_edgelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "sme_edge_one",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    item_info_col.label("Destination Edge")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "sme_dest_edgelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "sme_edge_two",
-                        type='DEFAULT'
-                    )
-                if active_item.transf_type == "AXISROTATE":
-                    item_info_col.label("Axis")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "axr_src_axis",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "axr_axis",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    item_info_col.prop(
-                        active_transf,
-                        'axr_amount',
-                        'Amount'
-                    )
-                if active_item.transf_type == "ALIGNLINES":
-                    item_info_col.label("Source Line")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "aln_src_linelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "aln_src_line",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    item_info_col.label("Destination Line")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "aln_dest_linelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "aln_dest_line",
-                        type='DEFAULT'
-                    )
-                if active_item.transf_type == "ALIGNPLANES":
-                    item_info_col.label("Source Plane")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "apl_src_planelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "apl_src_plane",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    item_info_col.label("Destination Plane")
-                    item_info_col.template_list(
-                        "SPRIGList",
-                        "apl_dest_planelist",
-                        sprig_data_ptr,
-                        "prim_list",
-                        active_transf,
-                        "apl_dest_plane",
-                        type='DEFAULT'
-                    )
+                    # Designate operands for the transformation by pointing to
+                    # other primitive items in the main list. The indices are
+                    # stored on each primitive item
+                    if active_item.transf_type == "ALIGNPOINTS":
+                        item_info_col.label("Source Point")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "apt_pt_one_list",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "apt_pt_one",
+                            type='DEFAULT'
+                        )
+                        item_info_col.separator()
+                        item_info_col.label("Destination Point")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "apt_pt_two_list",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "apt_pt_two",
+                            type='DEFAULT'
+                        )
+                    if active_item.transf_type == "DIRECTIONALSLIDE":
+                        item_info_col.label("Source Line")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "vs_targetLineList",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "ds_direction",
+                            type='DEFAULT'
+                        )
+                    if active_item.transf_type == "SCALEMATCHEDGE":
+                        item_info_col.label("Source Edge")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "sme_src_edgelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "sme_edge_one",
+                            type='DEFAULT'
+                        )
+                        item_info_col.separator()
+                        item_info_col.label("Destination Edge")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "sme_dest_edgelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "sme_edge_two",
+                            type='DEFAULT'
+                        )
+                    if active_item.transf_type == "AXISROTATE":
+                        item_info_col.label("Axis")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "axr_src_axis",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "axr_axis",
+                            type='DEFAULT'
+                        )
+                        item_info_col.separator()
+                        item_info_col.prop(
+                            active_transf,
+                            'axr_amount',
+                            'Amount'
+                        )
+                    if active_item.transf_type == "ALIGNLINES":
+                        item_info_col.label("Source Line")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "aln_src_linelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "aln_src_line",
+                            type='DEFAULT'
+                        )
+                        item_info_col.separator()
+                        item_info_col.label("Destination Line")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "aln_dest_linelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "aln_dest_line",
+                            type='DEFAULT'
+                        )
+                    if active_item.transf_type == "ALIGNPLANES":
+                        item_info_col.label("Source Plane")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "apl_src_planelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "apl_src_plane",
+                            type='DEFAULT'
+                        )
+                        item_info_col.separator()
+                        item_info_col.label("Destination Plane")
+                        item_info_col.template_list(
+                            "SPRIGList",
+                            "apl_dest_planelist",
+                            sprig_data_ptr,
+                            "prim_list",
+                            active_transf,
+                            "apl_dest_plane",
+                            type='DEFAULT'
+                        )
 
 
 class QuickAlignPointsGUI(bpy.types.Panel):
