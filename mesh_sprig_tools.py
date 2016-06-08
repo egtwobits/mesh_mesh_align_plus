@@ -681,16 +681,8 @@ class AddListItemBase(bpy.types.Operator):
 
         new_item = addon_data.prim_list.add()
         new_item.name = cur_item_name
-        if self.new_kind == "POINT":
-            new_item.kind = "POINT"
-        elif self.new_kind == "LINE":
-            new_item.kind = "LINE"
-        elif self.new_kind == "PLANE":
-            new_item.kind = "PLANE"
-        elif self.new_kind == "CALCULATION":
-            new_item.kind = "CALCULATION"
-        elif self.new_kind == "TRANSFORMATION":
-            new_item.kind = "TRANSFORMATION"
+        new_item.kind = self.new_kind
+        addon_data.active_list_item = len(prims) - 1
         return new_item
 
     def execute(self, context):
