@@ -2041,8 +2041,8 @@ class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
 
 class AlignPointsBase(bpy.types.Operator):
     bl_idname = "sprig.alignpointsbase"
-    bl_label = "Point Match Base"
-    bl_description = "Point match base class"
+    bl_label = "Align Points Base"
+    bl_description = "Align points base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
@@ -2065,7 +2065,7 @@ class AlignPointsBase(bpy.types.Operator):
                         prims[active_item.apt_pt_two].kind != 'POINT'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: point match can only operate on '
+                        ('Wrong operands: align points can only operate on '
                          'two points')
                     )
                     return {'CANCELLED'}
@@ -2355,7 +2355,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                 if prims[active_item.ds_direction].kind != 'LINE':
                     self.report(
                         {'ERROR'},
-                        'Wrong operand: vector slide can only operate on a line'
+                        'Wrong operand: directional slide can only operate on a line'
                     )
                     return {'CANCELLED'}
 
@@ -2497,7 +2497,7 @@ class DirectionalSlideObject(DirectionalSlideBase):
 
 class QuickDirectionalSlideObject(DirectionalSlideBase):
     bl_idname = "sprig.quickdirectionalslideobject"
-    bl_label = "Vector Slide Object"
+    bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
@@ -2888,7 +2888,7 @@ class QuickAxisRotateWholeMesh(AxisRotateBase):
 class AlignLinesBase(bpy.types.Operator):
     bl_idname = "sprig.alignlinesbase"
     bl_label = "Align Lines Base"
-    bl_description = "Makes collinear base class"
+    bl_description = "Align lines base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
@@ -2909,7 +2909,7 @@ class AlignLinesBase(bpy.types.Operator):
                         prims[active_item.aln_dest_line].kind != 'LINE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: make collinear can only operate on '
+                        ('Wrong operands: align lines can only operate on '
                          'two lines')
                     )
                     return {'CANCELLED'}
@@ -3277,7 +3277,7 @@ class AlignPlanesBase(bpy.types.Operator):
                         prims[active_item.apl_dest_plane].kind != 'PLANE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: make coplanar can only operate on '
+                        ('Wrong operands: align planes can only operate on '
                          'two planes')
                     )
                     return {'CANCELLED'}
@@ -4429,32 +4429,32 @@ class SPRIGGui(bpy.types.Panel):
                 transf_types.operator(
                     "sprig.changetransftoalignpoints",
                     icon='ROTATECOLLECTION',
-                    text="Point Match"
-                )
-                transf_types.operator(
-                    "sprig.changetransftodirectionalslide",
-                    icon='CURVE_PATH',
-                    text="Vector Slide"
-                )
-                transf_types.operator(
-                    "sprig.changetransftoscalematchedge",
-                    icon='FULLSCREEN_ENTER',
-                    text="ScaleMatchEdge"
+                    text="Align Points"
                 )
                 transf_types.operator(
                     "sprig.changetransftoalignlines",
                     icon='SNAP_EDGE',
-                    text="Make Collinear"
+                    text="Align Lines"
+                )
+                transf_types.operator(
+                    "sprig.changetransftoalignplanes",
+                    icon='MOD_ARRAY',
+                    text="Align Planes"
+                )
+                transf_types.operator(
+                    "sprig.changetransftodirectionalslide",
+                    icon='CURVE_PATH',
+                    text="Directional Slide"
+                )
+                transf_types.operator(
+                    "sprig.changetransftoscalematchedge",
+                    icon='FULLSCREEN_ENTER',
+                    text="Scale Match Edge"
                 )
                 transf_types.operator(
                     "sprig.changetransftoaxisrotate",
                     icon='FORCE_MAGNETIC',
                     text="Axis Rotate"
-                )
-                transf_types.operator(
-                    "sprig.changetransftoalignplanes",
-                    icon='MOD_ARRAY',
-                    text="Make Coplanar"
                 )
                 item_info_col.separator()
 
@@ -5125,7 +5125,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         ds_top = layout.row()
         ds_gui = layout.box()
         ds_top.label(
-            "Vector Slide",
+            "Directional Slide",
             icon="CURVE_PATH"
         )
         # ds_top = ds_gui.row()
