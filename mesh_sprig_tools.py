@@ -126,9 +126,54 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
         precision=6
     )
 
-    # Calculation primitive data/settings, FIX this placeholder value and
-    # insert real props later (todo)
-    calc = bpy.props.StringProperty(default='placeholder_fix')
+    # Calculation primitive data/settings
+    calc_type = bpy.props.EnumProperty(
+        items=[
+            ('SINGLEITEM',
+             'Single',
+             'Single item calculation'),
+            ('MULTIITEM',
+             'Multi',
+             'Multi item calculation')
+        ],
+        name="Calc. Type",
+        description="The type of calculation to perform",
+        default='MULTIITEM'
+    )
+    # active item index for the single item calc list
+    single_calc_target = bpy.props.IntProperty(
+        description=(
+            "Pointer to an item in the list, the item that"
+            " the calculation will be based on."
+        ),
+        default=0
+    )
+    # active item indices for the multi item calc lists
+    multi_calc_target_one = bpy.props.IntProperty(
+        description=(
+            "Pointer to an item in the list, the first item that"
+            " the calculation will be based on."
+        ),
+        default=0
+    )
+    multi_calc_target_two = bpy.props.IntProperty(
+        description=(
+            "Pointer to an item in the list, the second item that"
+            " the calculation will be based on."
+        ),
+        default=0
+    )
+
+    single_calc_result = bpy.props.FloatProperty(
+        description="Single Item Calc. Result",
+        default=0,
+        precision=6
+    )
+    multi_calc_result = bpy.props.FloatProperty(
+        description="Multi Item Calc. Result",
+        default=0,
+        precision=6
+    )
 
     # Transformation primitive data/settings (several blocks)
     transf_type = bpy.props.EnumProperty(
@@ -508,6 +553,59 @@ class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
+            return False
+        return True
+
+
+class ChangeCalcBaseClass(bpy.types.Operator):
+    bl_idname = "sprig.changecalcbaseclass"
+    bl_label = "Change calculation base class"
+    bl_description = "The base class for changing calc types"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_calc = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = bpy.context.scene.sprig_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+
+        active_item.calc_type = self.target_calc
+
+        return {'FINISHED'}
+
+
+class ChangeCalcToSingle(ChangeCalcBaseClass):
+    bl_idname = "sprig.changecalctosingle"
+    bl_label = "Change to single item calculation"
+    bl_description = "Change the calculation type to single item"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_calc = 'SINGLEITEM'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = bpy.context.scene.sprig_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+
+        if active_item.calc_type == cls.target_calc:
+            return False
+        return True
+
+
+class ChangeCalcToMulti(ChangeCalcBaseClass):
+    bl_idname = "sprig.changecalctomulti"
+    bl_label = "Change to multi-item calculation"
+    bl_description = "Change the calculation type to multi item"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_calc = 'MULTIITEM'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = bpy.context.scene.sprig_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+
+        if active_item.calc_type == cls.target_calc:
             return False
         return True
 
@@ -1794,7 +1892,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         prims[active_item.sme_edge_two].kind != 'LINE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: scale match edge can only operate on '
+                        ('Wrong operands: "Scale Match Edge" can only operate on '
                          'two lines')
                     )
                     return {'CANCELLED'}
@@ -2065,7 +2163,7 @@ class AlignPointsBase(bpy.types.Operator):
                         prims[active_item.apt_pt_two].kind != 'POINT'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: align points can only operate on '
+                        ('Wrong operands: "Align Points" can only operate on '
                          'two points')
                     )
                     return {'CANCELLED'}
@@ -2355,7 +2453,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                 if prims[active_item.ds_direction].kind != 'LINE':
                     self.report(
                         {'ERROR'},
-                        'Wrong operand: directional slide can only operate on a line'
+                        'Wrong operand: "Directional Slide" can only operate on a line'
                     )
                     return {'CANCELLED'}
 
@@ -2611,7 +2709,7 @@ class AxisRotateBase(bpy.types.Operator):
                 if prims[active_item.axr_axis].kind != 'LINE':
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: acis rotate can only operate on '
+                        ('Wrong operands: "Axis Rotate" can only operate on '
                          'a line')
                     )
                     return {'CANCELLED'}
@@ -2909,7 +3007,7 @@ class AlignLinesBase(bpy.types.Operator):
                         prims[active_item.aln_dest_line].kind != 'LINE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: align lines can only operate on '
+                        ('Wrong operands: "Align Lines" can only operate on '
                          'two lines')
                     )
                     return {'CANCELLED'}
@@ -3277,7 +3375,7 @@ class AlignPlanesBase(bpy.types.Operator):
                         prims[active_item.apl_dest_plane].kind != 'PLANE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: align planes can only operate on '
+                        ('Wrong operands: "Align Planes" can only operate on '
                          'two planes')
                     )
                     return {'CANCELLED'}
@@ -3722,6 +3820,297 @@ class QuickAlignPlanesWholeMesh(AlignPlanesBase):
         if not addon_data.use_experimental:
             return False
         return True
+
+
+class CalcLineLength(bpy.types.Operator):
+    bl_idname = "sprig.calclinelength"
+    bl_label = "Calculate Line Length"
+    bl_description = "Calculates the length of the targeted line item"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_item = prims[active_item.single_calc_target]
+        
+        if calc_target_item.kind != 'LINE':
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Calculate Line Length" can only operate on'
+                 ' a line')
+            )
+            return {'CANCELLED'}
+
+        active_item.single_calc_result = mathutils.Vector(
+            mathutils.Vector(
+                (
+                    calc_target_item.line_end[0],
+                    calc_target_item.line_end[1],
+                    calc_target_item.line_end[2]
+                )
+            ) -
+            mathutils.Vector(
+                (
+                    calc_target_item.line_start[0],
+                    calc_target_item.line_start[1],
+                    calc_target_item.line_start[2]
+                )
+            )
+        ).length
+
+        return {'FINISHED'}
+
+
+class ComposeNewLineFromOrigin(bpy.types.Operator):
+    bl_idname = "sprig.composenewlinefromorigin"
+    bl_label = "New Line from Origin"
+    bl_description = "Composes a new line item starting at the world origin"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_item = prims[active_item.single_calc_target]
+
+        if calc_target_item.kind != 'LINE':
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Compose New Line from Origin" can only operate on'
+                 ' a line')
+            )
+            return {'CANCELLED'}
+
+        start_loc = mathutils.Vector((0,0,0))
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = (
+            start_loc + (
+                mathutils.Vector(calc_target_item.line_end[0:3]) -
+                mathutils.Vector(calc_target_item.line_start[0:3])
+            )
+        )
+
+        return {'FINISHED'}
+
+
+class ComposeNormalFromPlane(bpy.types.Operator):
+    bl_idname = "sprig.composenormalfromplane"
+    bl_label = "Get Plane Normal"
+    bl_description = "Get the plane's normal as a new line item"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_item = prims[active_item.single_calc_target]
+
+        if not calc_target_item.kind == 'PLANE':
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Get Plane Normal" can only operate on'
+                 ' a plane')
+            )
+            return {'CANCELLED'}
+
+        line_BA = (
+            mathutils.Vector(calc_target_item.plane_pt_a[0:3]) -
+            mathutils.Vector(calc_target_item.plane_pt_b[0:3])
+        )
+        line_BC = (
+            mathutils.Vector(calc_target_item.plane_pt_c[0:3]) -
+            mathutils.Vector(calc_target_item.plane_pt_b[0:3])
+        )
+        normal = line_BA.cross(line_BC)
+        normal.normalize()
+        start_loc = mathutils.Vector(
+            calc_target_item.plane_pt_b[0:3]
+        )
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = start_loc + normal
+
+        return {'FINISHED'}
+
+
+class ComposeNewLineFromPoint(bpy.types.Operator):
+    bl_idname = "sprig.composenewlinefrompoint"
+    bl_label = "New Line from Point"
+    bl_description = (
+        "Composes a new line item from the supplied point,"
+        " starting at the world origin"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_item = prims[active_item.single_calc_target]
+
+        if calc_target_item.kind != 'POINT':
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Compose New Line from Point" can only operate on'
+                 ' a point')
+            )
+            return {'CANCELLED'}
+
+        start_loc = mathutils.Vector((0,0,0))
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = (
+            calc_target_item.point
+        )
+
+        return {'FINISHED'}
+
+
+class ComposeNewLineAtPointLocation(bpy.types.Operator):
+    bl_idname = "sprig.composenewlineatpointlocation"
+    bl_label = "New Line at Point Location"
+    bl_description = "Composes a new line item starting at the point location"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+        targets_by_kind = {
+            item.kind: item for item in [calc_target_one, calc_target_two]
+        }
+
+        if not ('POINT' in targets_by_kind and 'LINE' in targets_by_kind):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Compose New Line at Point" can only operate on'
+                 ' a line')
+            )
+            return {'CANCELLED'}
+
+        start_loc = mathutils.Vector(
+            targets_by_kind['POINT'].point[0:3]
+        )
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = (
+            start_loc + (
+                mathutils.Vector(targets_by_kind['LINE'].line_end[0:3]) -
+                mathutils.Vector(targets_by_kind['LINE'].line_start[0:3])
+            )
+        )
+
+        return {'FINISHED'}
+
+
+class CalcDistanceBetweenPoints(bpy.types.Operator):
+    bl_idname = "sprig.calcdistancebetweenpoints"
+    bl_label = "Distance Between Points"
+    bl_description = "Calculate the distance between provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+
+        if not (calc_target_one.kind == 'POINT' and calc_target_two.kind == 'POINT'):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Calculate Distance Between Points" can only operate on'
+                 ' two points')
+            )
+            return {'CANCELLED'}
+
+        active_item.multi_calc_result = (
+            mathutils.Vector(calc_target_two.point[0:3]) -
+            mathutils.Vector(calc_target_one.point[0:3])
+        ).length
+
+        return {'FINISHED'}
+
+
+class ComposeNewLineFromPoints(bpy.types.Operator):
+    bl_idname = "sprig.composenewlinefrompoints"
+    bl_label = "New Line from Points"
+    bl_description = "Composes a new line item from provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+
+        if not (calc_target_one.kind == 'POINT' and calc_target_two.kind == 'POINT'):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Compose New Line from Points" can only operate on'
+                 ' two points')
+            )
+            return {'CANCELLED'}
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = calc_target_one.point
+        new_line.line_end = calc_target_two.point
+
+        return {'FINISHED'}
+
+
+class ComposeNewLineVectorAddition(bpy.types.Operator):
+    bl_idname = "sprig.composenewlinevectoraddition"
+    bl_label = "Add Lines"
+    bl_description = "Composes a new line item by vector-adding provided lines"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+
+        if not (calc_target_one.kind == 'LINE' and calc_target_two.kind == 'LINE'):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Add Lines" can only operate on'
+                 ' two lines')
+            )
+            return {'CANCELLED'}
+
+        start_loc = mathutils.Vector((0,0,0))
+
+        bpy.ops.sprig.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = (
+            (
+                mathutils.Vector(calc_target_one.line_end[0:3]) -
+                mathutils.Vector(calc_target_one.line_start[0:3])
+            ) +
+            (
+                mathutils.Vector(calc_target_two.line_end[0:3]) -
+                mathutils.Vector(calc_target_two.line_start[0:3])
+            )
+        )
+
+        return {'FINISHED'}
 
 
 # Custom list, for displaying combined list of all primitives (Used at top
@@ -4421,7 +4810,126 @@ class SPRIGGui(bpy.types.Panel):
                 )
 
             elif active_item.kind == 'CALCULATION':
-                item_info_col.label("Coming soon")
+                item_info_col.label("Calculation Type:")
+                calc_type_switcher = item_info_col.row()
+                calc_type_switcher.operator(
+                    "sprig.changecalctosingle",
+                    # icon='ROTATECOLLECTION',
+                    text="Single Item"
+                )
+                calc_type_switcher.operator(
+                    "sprig.changecalctomulti",
+                    # icon='ROTATECOLLECTION',
+                    text="Multi-Item"
+                )
+                item_info_col.separator()
+                if active_item.calc_type == 'SINGLEITEM':
+                    item_info_col.label("Target:")
+                    item_info_col.template_list(
+                        "SPRIGList",
+                        "single_calc_target_list",
+                        sprig_data_ptr,
+                        "prim_list",
+                        active_item,
+                        "single_calc_target",
+                        type='DEFAULT'
+                    )
+                    item_info_col.separator()
+                    item_info_col.label("Available Calc.'s and Result:")
+                    item_info_col.prop(
+                        bpy.types.AnyType(active_item),
+                        'single_calc_result',
+                        "Result"
+                    )
+                    # Check if the target pointer is valid, since we attempt
+                    # to access that index in prims at the beginning here.
+                    if active_item.single_calc_target < len(prims):
+                        calc_target = prims[active_item.single_calc_target]
+                        if calc_target.kind == 'POINT':
+                            item_info_col.operator(
+                                "sprig.composenewlinefrompoint",
+                                icon='MAN_TRANS',
+                                text="New Line from Point"
+                            )
+                        elif calc_target.kind == 'LINE':
+                            item_info_col.operator(
+                                "sprig.calclinelength",
+                                text="Line Length"
+                            )
+                            item_info_col.operator(
+                                "sprig.composenewlinefromorigin",
+                                icon='MAN_TRANS',
+                                text="New Line from Origin"
+                            )
+                        elif calc_target.kind == 'PLANE':
+                            item_info_col.operator(
+                                "sprig.composenormalfromplane",
+                                icon='MAN_TRANS',
+                                text="Get Plane Normal (Normalized)"
+                            )
+                elif active_item.calc_type == 'MULTIITEM':
+                    
+                    item_info_col.label("Targets:")
+                    calc_targets = item_info_col.row()
+                    calc_targets.template_list(
+                        "SPRIGList",
+                        "multi_calc_target_one_list",
+                        sprig_data_ptr,
+                        "prim_list",
+                        active_item,
+                        "multi_calc_target_one",
+                        type='DEFAULT'
+                    )
+                    calc_targets.template_list(
+                        "SPRIGList",
+                        "multi_calc_target_two_list",
+                        sprig_data_ptr,
+                        "prim_list",
+                        active_item,
+                        "multi_calc_target_two",
+                        type='DEFAULT'
+                    )
+                    item_info_col.separator()
+                    item_info_col.label("Available Calc.'s and Result:")
+                    item_info_col.prop(
+                        bpy.types.AnyType(active_item),
+                        'multi_calc_result',
+                        "Result"
+                    )
+                    # Check if the target pointers are valid, since we attempt
+                    # to access those indices in prims at the beginning here.
+                    if (active_item.multi_calc_target_one < len(prims) and
+                            active_item.multi_calc_target_two < len(prims)):
+                        calc_target_one = prims[active_item.multi_calc_target_one]
+                        calc_target_two = prims[active_item.multi_calc_target_two]
+                        type_combo = {
+                            calc_target_one.kind,
+                            calc_target_two.kind
+                        }
+                        if (calc_target_one.kind == 'POINT' and
+                                calc_target_two.kind == 'POINT'):
+                            item_info_col.operator(
+                                "sprig.composenewlinefrompoints",
+                                icon='MAN_TRANS',
+                                text="New Line from Points"
+                            )
+                            item_info_col.operator(
+                                "sprig.calcdistancebetweenpoints",
+                                text="Distance Between Points"
+                            )
+                        elif (calc_target_one.kind == 'LINE' and
+                                calc_target_two.kind == 'LINE'):
+                            item_info_col.operator(
+                                "sprig.composenewlinevectoraddition",
+                                icon='MAN_TRANS',
+                                text="Add Lines"
+                            )
+                        elif 'POINT' in type_combo and 'LINE' in type_combo:
+                            item_info_col.operator(
+                                "sprig.composenewlineatpointlocation",
+                                icon='MAN_TRANS',
+                                text="New Line at Point"
+                            )
 
             elif active_item.kind == 'TRANSFORMATION':
                 item_info_col.label("Transformation Type Selectors:")
