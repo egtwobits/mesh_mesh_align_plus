@@ -1,10 +1,9 @@
 # SPRIG Tools (Blender Addon)
-The SPRIG Tools addon is designed to help artists construct 3D models from mesh pieces, and to build scenes from objects, by moving parts around with precision (often relative to other parts or implied geometry).
+The SPRIG Tools addon is designed to help artists construct 3D models from mesh pieces, and to build scenes from objects, by moving parts around with precision (using scene geometry and/or measurements as the basis for transformations).
 
-The complete manual/wiki is here currently (visit for more info, including contact information): 
-http://wiki.blender.org/index.php/User:Egtwobits
+The complete manual/wiki is here currently (visit for more info, including contact information): http://wiki.blender.org/index.php/User:Egtwobits
 
-Below are some highly simplified examples of what the addon can do:
+The simple examples below should provide a general sense of what the addon can do:
 
 <div>
 <div style="float:left"><img stlye="width:80px" src="http://wiki.blender.org/uploads/3/35/Axis_rotate_anim.gif"></div>
