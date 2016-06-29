@@ -860,7 +860,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
     bl_idname = "sprig.specialsaddfromactivebase"
     bl_label = "Specials Menu Item Base Class, Add Geometry Item From Active"
     bl_options = {'REGISTER', 'UNDO'}
-    item_kind = None
+    new_kind = None
     vert_attribs_to_set = None
     multiply_by_world_matrix = None
     message_geom_type = None
@@ -875,11 +875,11 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
         target_data = dict(zip(self.vert_attribs_to_set, vert_data))
 
         try:
-            new_item = AddListItem.add_new_named()
+            new_item = AddListItemBase.add_new_named(self)
         except UniqueNameError:
             self.report({'ERROR'}, 'Cannot add item, unique name error.')
             return {'CANCELLED'}
-        new_item.kind = self.item_kind
+        new_item.kind = self.new_kind
 
         for key, val in target_data.items():
             setattr(new_item, key, val)
@@ -898,7 +898,7 @@ class SpecialsAddPointFromActiveGlobal(SpecialsAddFromActiveBase):
     bl_idname = "sprig.specialsaddpointfromactiveglobal"
     bl_label = "Point From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
-    item_kind = 'POINT'
+    new_kind = 'POINT'
     message_geom_type = 'Point'
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
@@ -908,7 +908,7 @@ class SpecialsAddLineFromActiveGlobal(SpecialsAddFromActiveBase):
     bl_idname = "sprig.specialsaddlinefromactiveglobal"
     bl_label = "Line From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
-    item_kind = 'LINE'
+    new_kind = 'LINE'
     message_geom_type = 'Line'
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
@@ -918,7 +918,7 @@ class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
     bl_idname = "sprig.specialsaddplanefromactiveglobal"
     bl_label = "Plane From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
-    item_kind = 'PLANE'
+    new_kind = 'PLANE'
     message_geom_type = 'Plane'
     vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
     multiply_by_world_matrix = True
