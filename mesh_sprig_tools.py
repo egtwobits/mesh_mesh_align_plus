@@ -446,6 +446,14 @@ class SPRIGData(bpy.types.PropertyGroup):
     quick_align_planes_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
     quick_align_planes_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
 
+    # Calculation global settings
+    calc_result_to_clipboard = bpy.props.BoolProperty(
+        description=(
+            "Copy numeric calculations to clipboard"
+        ),
+        default=True
+    )
+
 
 # Basic type selector functionality, derived classes provide
 # the "kind" to switch to (target_type attrib)
@@ -3842,7 +3850,7 @@ class CalcLineLength(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        active_item.single_calc_result = mathutils.Vector(
+        result = mathutils.Vector(
             mathutils.Vector(
                 (
                     calc_target_item.line_end[0],
@@ -3858,6 +3866,9 @@ class CalcLineLength(bpy.types.Operator):
                 )
             )
         ).length
+        active_item.single_calc_result = result
+        if addon_data.calc_result_to_clipboard:
+            bpy.context.window_manager.clipboard = str(result)
 
         return {'FINISHED'}
 
@@ -4036,10 +4047,13 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        active_item.multi_calc_result = (
+        result = (
             mathutils.Vector(calc_target_two.point[0:3]) -
             mathutils.Vector(calc_target_one.point[0:3])
         ).length
+        active_item.multi_calc_result = result
+        if addon_data.calc_result_to_clipboard:
+            bpy.context.window_manager.clipboard = str(result)
 
         return {'FINISHED'}
 
@@ -4835,7 +4849,17 @@ class SPRIGGui(bpy.types.Panel):
                         type='DEFAULT'
                     )
                     item_info_col.separator()
-                    item_info_col.label("Available Calc.'s and Result:")
+                    calcs_and_results_header = item_info_col.row()
+                    calcs_and_results_header.label(
+                        "Available Calc.'s and Result:"
+                    )
+                    clipboard_row_right = calcs_and_results_header.row()
+                    clipboard_row_right.alignment = 'RIGHT'
+                    clipboard_row_right.prop(
+                        bpy.types.AnyType(sprig_data_ptr),
+                        'calc_result_to_clipboard',
+                        "Copy to Clipboard"
+                    )
                     item_info_col.prop(
                         bpy.types.AnyType(active_item),
                         'single_calc_result',
@@ -4890,7 +4914,17 @@ class SPRIGGui(bpy.types.Panel):
                         type='DEFAULT'
                     )
                     item_info_col.separator()
-                    item_info_col.label("Available Calc.'s and Result:")
+                    calcs_and_results_header = item_info_col.row()
+                    calcs_and_results_header.label(
+                        "Available Calc.'s and Result:"
+                    )
+                    clipboard_row_right = calcs_and_results_header.row()
+                    clipboard_row_right.alignment = 'RIGHT'
+                    clipboard_row_right.prop(
+                        bpy.types.AnyType(sprig_data_ptr),
+                        'calc_result_to_clipboard',
+                        "Copy to Clipboard"
+                    )
                     item_info_col.prop(
                         bpy.types.AnyType(active_item),
                         'multi_calc_result',
