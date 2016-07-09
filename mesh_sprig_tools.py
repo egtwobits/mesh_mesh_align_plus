@@ -1876,6 +1876,91 @@ class OneOtherPlanePointCZ(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'Z', 1)
 
 
+class ApplyGeomModifiers(bpy.types.Operator):
+    bl_idname = "sprig.applygeommodifiers"
+    bl_label = "Apply Modifiers"
+    bl_description = "Applies modifiers on the current geometry item."
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.sprig_data
+        prims = addon_data.prim_list
+        previous_mode = bpy.context.active_object.mode
+        active_item = prims[addon_data.active_list_item]
+
+        if active_item.kind == 'POINT':
+            if active_item.pt_make_unit_vec:
+                active_item.point = mathutils.Vector(
+                    active_item.point
+                ).normalized()
+                active_item.pt_make_unit_vec = False
+            if active_item.pt_flip_direction:
+                flipped = mathutils.Vector(
+                    active_item.point
+                )
+                flipped.negate()
+                active_item.point = flipped
+                active_item.pt_flip_direction = False
+            # Apply multiplier
+            active_item.point = mathutils.Vector(
+                active_item.point
+            ) * active_item.pt_multiplier
+            active_item.pt_multiplier = 1
+        elif active_item.kind == 'LINE':
+            if active_item.ln_make_unit_vec:
+                vec = (
+                    mathutils.Vector(
+                        active_item.line_end
+                    ) -
+                    mathutils.Vector(
+                        active_item.line_start
+                    )
+                )
+                active_item.line_end = (
+                    mathutils.Vector(
+                        active_item.line_start
+                    ) +
+                    vec.normalized()
+                )
+                active_item.ln_make_unit_vec = False
+            if active_item.ln_flip_direction:
+                vec = (
+                    mathutils.Vector(
+                        active_item.line_end
+                    ) -
+                    mathutils.Vector(
+                        active_item.line_start
+                    )
+                )
+                vec.negate()
+                active_item.line_end = (
+                    mathutils.Vector(
+                        active_item.line_start
+                    ) + vec
+                )
+                active_item.ln_flip_direction = False
+            # Apply multiplier
+            vec = (
+                mathutils.Vector(
+                    active_item.line_end
+                ) -
+                mathutils.Vector(
+                    active_item.line_start
+                )
+            ) * active_item.ln_multiplier
+            active_item.line_end = (
+                mathutils.Vector(
+                    active_item.line_start
+                ) + vec
+            )
+            active_item.ln_multiplier = 1
+        elif active_item.kind == 'PLANE':
+            # Apply future plane modifiers here
+            pass
+
+        return {'FINISHED'}
+
+
 class ScaleMatchEdgeBase(bpy.types.Operator):
     bl_idname = "sprig.scalematchedgebase"
     bl_label = "Scale Match Edge Base"
@@ -4274,7 +4359,14 @@ class SPRIGGui(bpy.types.Panel):
             item_info_col = layout.column()
 
             if active_item.kind == 'POINT':
-                item_info_col.label("Point Modifiers:")
+                modifier_header = item_info_col.row()
+                modifier_header.label("Point Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                apply_mods.operator(
+                    "sprig.applygeommodifiers",
+                    text="Apply Modifiers"
+                )
                 item_mods_box = item_info_col.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -4383,7 +4475,14 @@ class SPRIGGui(bpy.types.Panel):
                 )
 
             elif active_item.kind == 'LINE':
-                item_info_col.label("Line Modifiers:")
+                modifier_header = item_info_col.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                apply_mods.operator(
+                    "sprig.applygeommodifiers",
+                    text="Apply Modifiers"
+                )
                 item_mods_box = item_info_col.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
