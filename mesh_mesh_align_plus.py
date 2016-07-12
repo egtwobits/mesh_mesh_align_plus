@@ -1,6 +1,6 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
-# SPRIG Tools-Specify transformations relative to geometry in your scene.
+# Mesh Align Plus-Specify transformations relative to geometry in your scene.
 # Copyright (C) 2015 Eric Gentry
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 
 # Blender requires addons to provide this information.
 bl_info = {
-    "name": "SPRIG Tools Alpha",
+    "name": "Mesh Align Plus Alpha",
     "description": (
         "Precisely align, arrange and transform objects "
         "and mesh parts using real or imaginary geometry "
@@ -32,7 +32,7 @@ bl_info = {
     "author": "Eric Gentry",
     "version": "0, 1",
     "blender": (2, 75, 0),
-    "location": "Properties -> Scene -> SPRIG Tools",
+    "location": "3D View > Tools, and Properties -> Scene -> Mesh Align Plus",
     "warning": "Alpha release, there may be bugs.",
     "category": "Mesh"
 }  # Todo, add more information here
@@ -47,9 +47,9 @@ import collections
 
 # This is the basic data structure for the addon. The item can be a point,
 # line, plane, calc, or transf (only one at a time), chosen by the user
-# (defaults to point). A SPRIGPrimitive always has data slots for each of
+# (defaults to point). A MAPlusPrimitive always has data slots for each of
 # these types, regardless of which 'kind' the item is currently
-class SPRIGPrimitive(bpy.types.PropertyGroup):
+class MAPlusPrimitive(bpy.types.PropertyGroup):
     name = bpy.props.StringProperty(
         name="Item name",
         description="The name of this item",
@@ -330,8 +330,8 @@ class SPRIGPrimitive(bpy.types.PropertyGroup):
 
 
 # Defines one instance of the addon data (one per scene)
-class SPRIGData(bpy.types.PropertyGroup):
-    prim_list = bpy.props.CollectionProperty(type=SPRIGPrimitive)
+class MAPlusData(bpy.types.PropertyGroup):
+    prim_list = bpy.props.CollectionProperty(type=MAPlusPrimitive)
     # stores index of active primitive in my UIList
     active_list_item = bpy.props.IntProperty()
     use_experimental = bpy.props.BoolProperty(
@@ -358,9 +358,9 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_align_pts_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_pts_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_pts_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_pts_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_pts_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_pts_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
     
     quick_directional_slide_show = bpy.props.BoolProperty(
         description=(
@@ -375,9 +375,9 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_directional_slide_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_directional_slide_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_directional_slide_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_directional_slide_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_directional_slide_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_directional_slide_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
 
     quick_scale_match_edge_show = bpy.props.BoolProperty(
         description=(
@@ -392,9 +392,9 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_scale_match_edge_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_scale_match_edge_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_scale_match_edge_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_scale_match_edge_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_scale_match_edge_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_scale_match_edge_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
     
     quick_align_lines_show = bpy.props.BoolProperty(
         description=(
@@ -409,9 +409,9 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_align_lines_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_lines_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_lines_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_lines_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_lines_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_lines_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
     
     quick_axis_rotate_show = bpy.props.BoolProperty(
         description=(
@@ -426,8 +426,8 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_axis_rotate_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_axis_rotate_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_axis_rotate_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_axis_rotate_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
     
     quick_align_planes_show = bpy.props.BoolProperty(
         description=(
@@ -442,9 +442,9 @@ class SPRIGData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_align_planes_src = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_planes_dest = bpy.props.PointerProperty(type=SPRIGPrimitive)
-    quick_align_planes_transf = bpy.props.PointerProperty(type=SPRIGPrimitive)
+    quick_align_planes_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
 
     # Calculation global settings
     calc_result_to_clipboard = bpy.props.BoolProperty(
@@ -459,15 +459,15 @@ class SPRIGData(bpy.types.PropertyGroup):
 # the "kind" to switch to (target_type attrib)
 class ChangeTypeBaseClass(bpy.types.Operator):
     # Todo...add dotted groups to bl_idname's
-    bl_idname = "sprig.changetypebaseclass"
+    bl_idname = "maplus.changetypebaseclass"
     bl_label = "Change type base class"
     bl_description = "The base class for changing types"
     bl_options = {'REGISTER', 'UNDO'}
     target_type = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         active_item.kind = self.target_type
@@ -476,7 +476,7 @@ class ChangeTypeBaseClass(bpy.types.Operator):
 
 
 class ChangeTypeToPointPrim(ChangeTypeBaseClass):
-    bl_idname = "sprig.changetypetopointprim"
+    bl_idname = "maplus.changetypetopointprim"
     bl_label = "Change this to a point primitive"
     bl_description = "Makes this item a point primitive"
     bl_options = {'REGISTER', 'UNDO'}
@@ -484,8 +484,8 @@ class ChangeTypeToPointPrim(ChangeTypeBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
@@ -494,7 +494,7 @@ class ChangeTypeToPointPrim(ChangeTypeBaseClass):
 
 
 class ChangeTypeToLinePrim(ChangeTypeBaseClass):
-    bl_idname = "sprig.changetypetolineprim"
+    bl_idname = "maplus.changetypetolineprim"
     bl_label = "Change this to a line primitive"
     bl_description = "Makes this item a line primitive"
     bl_options = {'REGISTER', 'UNDO'}
@@ -502,8 +502,8 @@ class ChangeTypeToLinePrim(ChangeTypeBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
@@ -512,7 +512,7 @@ class ChangeTypeToLinePrim(ChangeTypeBaseClass):
 
 
 class ChangeTypeToPlanePrim(ChangeTypeBaseClass):
-    bl_idname = "sprig.changetypetoplaneprim"
+    bl_idname = "maplus.changetypetoplaneprim"
     bl_label = "Change this to a plane primitive"
     bl_description = "Makes this item a plane primitive"
     bl_options = {'REGISTER', 'UNDO'}
@@ -520,8 +520,8 @@ class ChangeTypeToPlanePrim(ChangeTypeBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
@@ -530,7 +530,7 @@ class ChangeTypeToPlanePrim(ChangeTypeBaseClass):
 
 
 class ChangeTypeToCalcPrim(ChangeTypeBaseClass):
-    bl_idname = "sprig.changetypetocalcprim"
+    bl_idname = "maplus.changetypetocalcprim"
     bl_label = "Change this to a calculation primitive"
     bl_description = "Makes this item a calculation primitive"
     bl_options = {'REGISTER', 'UNDO'}
@@ -538,8 +538,8 @@ class ChangeTypeToCalcPrim(ChangeTypeBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
@@ -548,7 +548,7 @@ class ChangeTypeToCalcPrim(ChangeTypeBaseClass):
 
 
 class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
-    bl_idname = "sprig.changetypetotransfprim"
+    bl_idname = "maplus.changetypetotransfprim"
     bl_label = "Change this to a transformation primitive"
     bl_description = "Makes this item a transformation primitive"
     bl_options = {'REGISTER', 'UNDO'}
@@ -556,8 +556,8 @@ class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == cls.target_type:
@@ -566,15 +566,15 @@ class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
 
 
 class ChangeCalcBaseClass(bpy.types.Operator):
-    bl_idname = "sprig.changecalcbaseclass"
+    bl_idname = "maplus.changecalcbaseclass"
     bl_label = "Change calculation base class"
     bl_description = "The base class for changing calc types"
     bl_options = {'REGISTER', 'UNDO'}
     target_calc = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         active_item.calc_type = self.target_calc
@@ -583,7 +583,7 @@ class ChangeCalcBaseClass(bpy.types.Operator):
 
 
 class ChangeCalcToSingle(ChangeCalcBaseClass):
-    bl_idname = "sprig.changecalctosingle"
+    bl_idname = "maplus.changecalctosingle"
     bl_label = "Change to single item calculation"
     bl_description = "Change the calculation type to single item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -591,8 +591,8 @@ class ChangeCalcToSingle(ChangeCalcBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.calc_type == cls.target_calc:
@@ -601,7 +601,7 @@ class ChangeCalcToSingle(ChangeCalcBaseClass):
 
 
 class ChangeCalcToMulti(ChangeCalcBaseClass):
-    bl_idname = "sprig.changecalctomulti"
+    bl_idname = "maplus.changecalctomulti"
     bl_label = "Change to multi-item calculation"
     bl_description = "Change the calculation type to multi item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -609,8 +609,8 @@ class ChangeCalcToMulti(ChangeCalcBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.calc_type == cls.target_calc:
@@ -621,15 +621,15 @@ class ChangeCalcToMulti(ChangeCalcBaseClass):
 # Basic transformation type selector functionality (a primitive sub-type),
 # derived classes provide the transf. to switch to (target_transf attrib)
 class ChangeTransfBaseClass(bpy.types.Operator):
-    bl_idname = "sprig.changetransfbaseclass"
+    bl_idname = "maplus.changetransfbaseclass"
     bl_label = "Change transformation base class"
     bl_description = "The base class for changing tranf types"
     bl_options = {'REGISTER', 'UNDO'}
     target_transf = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         active_item.transf_type = self.target_transf
@@ -638,7 +638,7 @@ class ChangeTransfBaseClass(bpy.types.Operator):
 
 
 class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftoalignpoints"
+    bl_idname = "maplus.changetransftoalignpoints"
     bl_label = "Change transformation to align points"
     bl_description = "Change the transformation type to align points"
     bl_options = {'REGISTER', 'UNDO'}
@@ -646,8 +646,8 @@ class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -656,7 +656,7 @@ class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
 
 
 class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftodirectionalslide"
+    bl_idname = "maplus.changetransftodirectionalslide"
     bl_label = "Change transformation to directional slide"
     bl_description = "Change the transformation type to directional slide"
     bl_options = {'REGISTER', 'UNDO'}
@@ -664,8 +664,8 @@ class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -674,7 +674,7 @@ class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
 
 
 class ChangeTransfToScaleMatchEdge(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftoscalematchedge"
+    bl_idname = "maplus.changetransftoscalematchedge"
     bl_label = "Change transformation to scale match edge"
     bl_description = "Change the transformation type to scale match edge"
     bl_options = {'REGISTER', 'UNDO'}
@@ -682,8 +682,8 @@ class ChangeTransfToScaleMatchEdge(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -692,7 +692,7 @@ class ChangeTransfToScaleMatchEdge(ChangeTransfBaseClass):
 
 
 class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftoaxisrotate"
+    bl_idname = "maplus.changetransftoaxisrotate"
     bl_label = "Change transformation to axis rotate"
     bl_description = "Change the transformation type to axis rotate"
     bl_options = {'REGISTER', 'UNDO'}
@@ -700,8 +700,8 @@ class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -710,7 +710,7 @@ class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
 
 
 class ChangeTransfToAlignLines(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftoalignlines"
+    bl_idname = "maplus.changetransftoalignlines"
     bl_label = "Change transformation to align lines"
     bl_description = "Change the transformation type to align lines"
     bl_options = {'REGISTER', 'UNDO'}
@@ -718,8 +718,8 @@ class ChangeTransfToAlignLines(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -728,7 +728,7 @@ class ChangeTransfToAlignLines(ChangeTransfBaseClass):
 
 
 class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
-    bl_idname = "sprig.changetransftoalignplanes"
+    bl_idname = "maplus.changetransftoalignplanes"
     bl_label = "Change transformation to align planes"
     bl_description = "Change the transformation type to align planes"
     bl_options = {'REGISTER', 'UNDO'}
@@ -736,8 +736,8 @@ class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         if active_item.transf_type == cls.target_transf:
@@ -751,12 +751,12 @@ class UniqueNameError(Exception):
 
 
 class AddListItemBase(bpy.types.Operator):
-    bl_idname = "sprig.addlistitembase"
+    bl_idname = "maplus.addlistitembase"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
 
     def add_new_named(self):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         # Add Name.001 or Name.002 (numbers at the end if the name is
@@ -805,47 +805,47 @@ class AddListItemBase(bpy.types.Operator):
 
 
 class AddNewPoint(AddListItemBase):
-    bl_idname = "sprig.addnewpoint"
+    bl_idname = "maplus.addnewpoint"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "POINT"
 
 
 class AddNewLine(AddListItemBase):
-    bl_idname = "sprig.addnewline"
+    bl_idname = "maplus.addnewline"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "LINE"
 
 
 class AddNewPlane(AddListItemBase):
-    bl_idname = "sprig.addnewplane"
+    bl_idname = "maplus.addnewplane"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "PLANE"
 
 
 class AddNewCalculation(AddListItemBase):
-    bl_idname = "sprig.addnewcalculation"
+    bl_idname = "maplus.addnewcalculation"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "CALCULATION"
 
 
 class AddNewTransformation(AddListItemBase):
-    bl_idname = "sprig.addnewtransformation"
+    bl_idname = "maplus.addnewtransformation"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "TRANSFORMATION"
 
 
 class RemoveListItem(bpy.types.Operator):
-    bl_idname = "sprig.removelistitem"
+    bl_idname = "maplus.removelistitem"
     bl_label = "Remove an item"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         if len(prims) == 0:
@@ -865,7 +865,7 @@ class RemoveListItem(bpy.types.Operator):
 
 
 class SpecialsAddFromActiveBase(bpy.types.Operator):
-    bl_idname = "sprig.specialsaddfromactivebase"
+    bl_idname = "maplus.specialsaddfromactivebase"
     bl_label = "Specials Menu Item Base Class, Add Geometry Item From Active"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = None
@@ -874,7 +874,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
     message_geom_type = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         vert_data = GrabFromGeometryBase.return_selected_verts(self)
@@ -903,7 +903,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
 
 
 class SpecialsAddPointFromActiveGlobal(SpecialsAddFromActiveBase):
-    bl_idname = "sprig.specialsaddpointfromactiveglobal"
+    bl_idname = "maplus.specialsaddpointfromactiveglobal"
     bl_label = "Point From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = 'POINT'
@@ -913,7 +913,7 @@ class SpecialsAddPointFromActiveGlobal(SpecialsAddFromActiveBase):
 
 
 class SpecialsAddLineFromActiveGlobal(SpecialsAddFromActiveBase):
-    bl_idname = "sprig.specialsaddlinefromactiveglobal"
+    bl_idname = "maplus.specialsaddlinefromactiveglobal"
     bl_label = "Line From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = 'LINE'
@@ -923,7 +923,7 @@ class SpecialsAddLineFromActiveGlobal(SpecialsAddFromActiveBase):
 
 
 class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
-    bl_idname = "sprig.specialsaddplanefromactiveglobal"
+    bl_idname = "maplus.specialsaddplanefromactiveglobal"
     bl_label = "Plane From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = 'PLANE'
@@ -935,7 +935,7 @@ class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
 # Todo, design decision: error on too many selected verts or *no*?
 class GrabFromGeometryBase(bpy.types.Operator):
-    bl_idname = "sprig.grabfromgeometrybase"
+    bl_idname = "maplus.grabfromgeometrybase"
     bl_label = "Grab From Geometry Base Class"
     bl_description = (
         "The base class for grabbing point coords from mesh verts."
@@ -943,7 +943,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     # For grabbing global coords
     multiply_by_world_matrix = None
-    # A tuple of attribute names (strings) that should be set on the sprig
+    # A tuple of attribute names (strings) that should be set on the maplus
     # primitive (point, line or plane item). The length of this tuple
     # determines how many verts will be grabbed.
     vert_attribs_to_set = None
@@ -980,7 +980,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
             return None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         # todo: maybe from_quick_op or target_quick_op, rename
         if not hasattr(self, "quick_op_target"):
@@ -1026,7 +1026,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
 
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
 class GrabFromCursorBase(bpy.types.Operator):
-    bl_idname = "sprig.grabfromcursorbase"
+    bl_idname = "maplus.grabfromcursorbase"
     bl_label = "Grab From Cursor Base Class"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1034,7 +1034,7 @@ class GrabFromCursorBase(bpy.types.Operator):
     vert_attrib_to_set = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
@@ -1048,7 +1048,7 @@ class GrabFromCursorBase(bpy.types.Operator):
 
 # Coordinate sender, present on all geometry primitives (point, line, plane)
 class SendCoordToCursorBase(bpy.types.Operator):
-    bl_idname = "sprig.sendcoordtocursorbase"
+    bl_idname = "maplus.sendcoordtocursorbase"
     bl_label = "Send Coord to Cursor Base Class"
     bl_description = "The base class for sending coordinates to the 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1056,8 +1056,8 @@ class SendCoordToCursorBase(bpy.types.Operator):
     source_coord_attrib = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
-        prims = bpy.context.scene.sprig_data.prim_list
+        addon_data = bpy.context.scene.maplus_data
+        prims = bpy.context.scene.maplus_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
         bpy.context.scene.cursor_location = getattr(
@@ -1068,7 +1068,7 @@ class SendCoordToCursorBase(bpy.types.Operator):
 
 
 class GrabPointFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grabpointfromcursor"
+    bl_idname = "maplus.grabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1076,7 +1076,7 @@ class GrabPointFromCursor(GrabFromCursorBase):
 
 
 class GrabPointFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabpointfromactivelocal"
+    bl_idname = "maplus.grabpointfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
         "Grabs local coordinates from selected vertex in edit mode"
@@ -1087,7 +1087,7 @@ class GrabPointFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabPointFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabpointfromactiveglobal"
+    bl_idname = "maplus.grabpointfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1098,7 +1098,7 @@ class GrabPointFromActiveGlobal(GrabFromGeometryBase):
 
 
 class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignpointsgrabsrc"
+    bl_idname = "maplus.quickalignpointsgrabsrc"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1110,14 +1110,14 @@ class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
 
     # @classmethod
     # def poll(cls, context):
-        # addon_data = bpy.context.scene.sprig_data
+        # addon_data = bpy.context.scene.maplus_data
         # if addon_data.quick_align_pts_auto_grab_src:
             # return False
         # return True
 
 
 class QuickAlignPointsGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignpointsgrabdest"
+    bl_idname = "maplus.quickalignpointsgrabdest"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1129,7 +1129,7 @@ class QuickAlignPointsGrabDest(GrabFromGeometryBase):
 
 
 class SendPointToCursor(SendCoordToCursorBase):
-    bl_idname = "sprig.sendpointtocursor"
+    bl_idname = "maplus.sendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1137,7 +1137,7 @@ class SendPointToCursor(SendCoordToCursorBase):
 
 
 class GrabLineStartFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grablinestartfromcursor"
+    bl_idname = "maplus.grablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1145,7 +1145,7 @@ class GrabLineStartFromCursor(GrabFromCursorBase):
 
 
 class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grablinestartfromactivelocal"
+    bl_idname = "maplus.grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
         "Grabs local coordinates for line start from selected vertex"
@@ -1158,7 +1158,7 @@ class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grablinestartfromactiveglobal"
+    bl_idname = "maplus.grablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
         "Grabs global coordinates for line start from selected vertex"
@@ -1170,7 +1170,7 @@ class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
 
 
 class SendLineStartToCursor(SendCoordToCursorBase):
-    bl_idname = "sprig.sendlinestarttocursor"
+    bl_idname = "maplus.sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1178,7 +1178,7 @@ class SendLineStartToCursor(SendCoordToCursorBase):
 
 
 class GrabLineEndFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grablineendfromcursor"
+    bl_idname = "maplus.grablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1186,7 +1186,7 @@ class GrabLineEndFromCursor(GrabFromCursorBase):
 
 
 class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grablineendfromactivelocal"
+    bl_idname = "maplus.grablineendfromactivelocal"
     bl_label = "Grab From Active Point"
     bl_description = "Grabs coordinates from selected vertex in edit mode"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1195,7 +1195,7 @@ class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grablineendfromactiveglobal"
+    bl_idname = "maplus.grablineendfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1206,7 +1206,7 @@ class GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
 
 
 class SendLineEndToCursor(SendCoordToCursorBase):
-    bl_idname = "sprig.sendlineendtocursor"
+    bl_idname = "maplus.sendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1214,7 +1214,7 @@ class SendLineEndToCursor(SendCoordToCursorBase):
 
 
 class GrabAllVertsLineLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.graballvertslinelocal"
+    bl_idname = "maplus.graballvertslinelocal"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1225,7 +1225,7 @@ class GrabAllVertsLineLocal(GrabFromGeometryBase):
 
 
 class GrabAllVertsLineGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.graballvertslineglobal"
+    bl_idname = "maplus.graballvertslineglobal"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1236,7 +1236,7 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
 
 
 class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignlinesgrabsrc"
+    bl_idname = "maplus.quickalignlinesgrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1248,7 +1248,7 @@ class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
 
 
 class QuickAlignLinesGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignlinesgrabdest"
+    bl_idname = "maplus.quickalignlinesgrabdest"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1260,7 +1260,7 @@ class QuickAlignLinesGrabDest(GrabFromGeometryBase):
 
 
 class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickscalematchedgegrabsrc"
+    bl_idname = "maplus.quickscalematchedgegrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1272,7 +1272,7 @@ class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
 
 
 class QuickScaleMatchEdgeGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickscalematchedgegrabdest"
+    bl_idname = "maplus.quickscalematchedgegrabdest"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1284,7 +1284,7 @@ class QuickScaleMatchEdgeGrabDest(GrabFromGeometryBase):
 
 
 class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickaxisrotategrabsrc"
+    bl_idname = "maplus.quickaxisrotategrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1296,7 +1296,7 @@ class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
 
 
 class QuickDirectionalSlideGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickdirectionalslidegrabsrc"
+    bl_idname = "maplus.quickdirectionalslidegrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
         "Grabs line coordinates from selected vertices in edit mode"
@@ -1308,7 +1308,7 @@ class QuickDirectionalSlideGrabSrc(GrabFromGeometryBase):
 
 
 class GrabPlaneAFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grabplaneafromcursor"
+    bl_idname = "maplus.grabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1316,7 +1316,7 @@ class GrabPlaneAFromCursor(GrabFromCursorBase):
 
 
 class GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplaneafromactivelocal"
+    bl_idname = "maplus.grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
         "Grabs local coordinates from selected vertex in edit mode"
@@ -1327,7 +1327,7 @@ class GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplaneafromactiveglobal"
+    bl_idname = "maplus.grabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1338,7 +1338,7 @@ class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
 
 
 class SendPlaneAToCursor(SendCoordToCursorBase):
-    bl_idname = "sprig.sendplaneatocursor"
+    bl_idname = "maplus.sendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1346,7 +1346,7 @@ class SendPlaneAToCursor(SendCoordToCursorBase):
 
 
 class GrabPlaneBFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grabplanebfromcursor"
+    bl_idname = "maplus.grabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1354,7 +1354,7 @@ class GrabPlaneBFromCursor(GrabFromCursorBase):
 
 
 class GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplanebfromactivelocal"
+    bl_idname = "maplus.grabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
         "Grabs local coordinates from selected vertex in edit mode"
@@ -1365,7 +1365,7 @@ class GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplanebfromactiveglobal"
+    bl_idname = "maplus.grabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1376,7 +1376,7 @@ class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
 
 
 class SendPlaneBToCursor(SendCoordToCursorBase):
-    bl_idname = "sprig.sendplanebtocursor"
+    bl_idname = "maplus.sendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1384,7 +1384,7 @@ class SendPlaneBToCursor(SendCoordToCursorBase):
 
 
 class GrabPlaneCFromCursor(GrabFromCursorBase):
-    bl_idname = "sprig.grabplanecfromcursor"
+    bl_idname = "maplus.grabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1392,7 +1392,7 @@ class GrabPlaneCFromCursor(GrabFromCursorBase):
 
 
 class GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplanecfromactivelocal"
+    bl_idname = "maplus.grabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
         "Grabs local coordinates from selected vertex in edit mode"
@@ -1403,7 +1403,7 @@ class GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
 
 
 class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.grabplanecfromactiveglobal"
+    bl_idname = "maplus.grabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
         "Grabs global coordinates from selected vertex in edit mode"
@@ -1414,7 +1414,7 @@ class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
 
 
 class SendPlaneCToCursor(bpy.types.Operator):
-    bl_idname = "sprig.sendplanectocursor"
+    bl_idname = "maplus.sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1422,7 +1422,7 @@ class SendPlaneCToCursor(bpy.types.Operator):
 
 
 class GrabAllVertsPlaneLocal(GrabFromGeometryBase):
-    bl_idname = "sprig.graballvertsplanelocal"
+    bl_idname = "maplus.graballvertsplanelocal"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane local coordinates from selected vertices in edit mode"
@@ -1433,7 +1433,7 @@ class GrabAllVertsPlaneLocal(GrabFromGeometryBase):
 
 
 class GrabAllVertsPlaneGlobal(GrabFromGeometryBase):
-    bl_idname = "sprig.graballvertsplaneglobal"
+    bl_idname = "maplus.graballvertsplaneglobal"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -1444,7 +1444,7 @@ class GrabAllVertsPlaneGlobal(GrabFromGeometryBase):
 
 
 class QuickAlignPlanesGrabSrc(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignplanesgrabsrc"
+    bl_idname = "maplus.quickalignplanesgrabsrc"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -1456,7 +1456,7 @@ class QuickAlignPlanesGrabSrc(GrabFromGeometryBase):
 
 
 class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
-    bl_idname = "sprig.quickalignplanesgrabdest"
+    bl_idname = "maplus.quickalignplanesgrabdest"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -1470,14 +1470,14 @@ class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
 # Coordinate swapper, present on all geometry primitives
 # that have multiple points (line, plane)
 class SwapPointsBase(bpy.types.Operator):
-    bl_idname = "sprig.swappointsbase"
+    bl_idname = "maplus.swappointsbase"
     bl_label = "Swap Points Base"
     bl_description = "Swap points base class"
     bl_options = {'REGISTER', 'UNDO'}
     targets = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
@@ -1508,7 +1508,7 @@ class SwapPointsBase(bpy.types.Operator):
 
 
 class SwapLinePoints(SwapPointsBase):
-    bl_idname = "sprig.swaplinepoints"
+    bl_idname = "maplus.swaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1516,7 +1516,7 @@ class SwapLinePoints(SwapPointsBase):
 
 
 class SwapPlaneAPlaneB(SwapPointsBase):
-    bl_idname = "sprig.swapplaneaplaneb"
+    bl_idname = "maplus.swapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1524,7 +1524,7 @@ class SwapPlaneAPlaneB(SwapPointsBase):
 
 
 class SwapPlaneAPlaneC(SwapPointsBase):
-    bl_idname = "sprig.swapplaneaplanec"
+    bl_idname = "maplus.swapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1532,7 +1532,7 @@ class SwapPlaneAPlaneC(SwapPointsBase):
 
 
 class SwapPlaneBPlaneC(SwapPointsBase):
-    bl_idname = "sprig.swapplanebplanec"
+    bl_idname = "maplus.swapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
     bl_options = {'REGISTER', 'UNDO'}
@@ -1542,7 +1542,7 @@ class SwapPlaneBPlaneC(SwapPointsBase):
 # Every x/y/z coordinate component has these functions on each of the
 # geometry primitives (lets users move in one direction easily, etc.)
 class SetOtherComponentsBase(bpy.types.Operator):
-    bl_idname = "sprig.setotherbase"
+    bl_idname = "maplus.setotherbase"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1553,7 +1553,7 @@ class SetOtherComponentsBase(bpy.types.Operator):
     target_info = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
 
@@ -1589,7 +1589,7 @@ class SetOtherComponentsBase(bpy.types.Operator):
 
 
 class ZeroOtherPointX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherpointx"
+    bl_idname = "maplus.zerootherpointx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1597,7 +1597,7 @@ class ZeroOtherPointX(SetOtherComponentsBase):
 
 
 class ZeroOtherPointY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherpointy"
+    bl_idname = "maplus.zerootherpointy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1605,7 +1605,7 @@ class ZeroOtherPointY(SetOtherComponentsBase):
 
 
 class ZeroOtherPointZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherpointz"
+    bl_idname = "maplus.zerootherpointz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1613,7 +1613,7 @@ class ZeroOtherPointZ(SetOtherComponentsBase):
 
 
 class ZeroOtherLineStartX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlinestartx"
+    bl_idname = "maplus.zerootherlinestartx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1621,7 +1621,7 @@ class ZeroOtherLineStartX(SetOtherComponentsBase):
 
 
 class ZeroOtherLineStartY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlinestarty"
+    bl_idname = "maplus.zerootherlinestarty"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1629,7 +1629,7 @@ class ZeroOtherLineStartY(SetOtherComponentsBase):
 
 
 class ZeroOtherLineStartZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlinestartz"
+    bl_idname = "maplus.zerootherlinestartz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1637,7 +1637,7 @@ class ZeroOtherLineStartZ(SetOtherComponentsBase):
 
 
 class ZeroOtherLineEndX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlineendx"
+    bl_idname = "maplus.zerootherlineendx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1645,7 +1645,7 @@ class ZeroOtherLineEndX(SetOtherComponentsBase):
 
 
 class ZeroOtherLineEndY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlineendy"
+    bl_idname = "maplus.zerootherlineendy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1653,7 +1653,7 @@ class ZeroOtherLineEndY(SetOtherComponentsBase):
 
 
 class ZeroOtherLineEndZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherlineendz"
+    bl_idname = "maplus.zerootherlineendz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1661,7 +1661,7 @@ class ZeroOtherLineEndZ(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointAX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointax"
+    bl_idname = "maplus.zerootherplanepointax"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1669,7 +1669,7 @@ class ZeroOtherPlanePointAX(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointAY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointay"
+    bl_idname = "maplus.zerootherplanepointay"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1677,7 +1677,7 @@ class ZeroOtherPlanePointAY(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointAZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointaz"
+    bl_idname = "maplus.zerootherplanepointaz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1685,7 +1685,7 @@ class ZeroOtherPlanePointAZ(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointBX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointbx"
+    bl_idname = "maplus.zerootherplanepointbx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1693,7 +1693,7 @@ class ZeroOtherPlanePointBX(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointBY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointby"
+    bl_idname = "maplus.zerootherplanepointby"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1701,7 +1701,7 @@ class ZeroOtherPlanePointBY(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointBZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointbz"
+    bl_idname = "maplus.zerootherplanepointbz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1709,7 +1709,7 @@ class ZeroOtherPlanePointBZ(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointCX(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointcx"
+    bl_idname = "maplus.zerootherplanepointcx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1717,7 +1717,7 @@ class ZeroOtherPlanePointCX(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointCY(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointcy"
+    bl_idname = "maplus.zerootherplanepointcy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1725,7 +1725,7 @@ class ZeroOtherPlanePointCY(SetOtherComponentsBase):
 
 
 class ZeroOtherPlanePointCZ(SetOtherComponentsBase):
-    bl_idname = "sprig.zerootherplanepointcz"
+    bl_idname = "maplus.zerootherplanepointcz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1733,7 +1733,7 @@ class ZeroOtherPlanePointCZ(SetOtherComponentsBase):
 
 
 class OneOtherPointX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherpointx"
+    bl_idname = "maplus.oneotherpointx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1741,7 +1741,7 @@ class OneOtherPointX(SetOtherComponentsBase):
 
 
 class OneOtherPointY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherpointy"
+    bl_idname = "maplus.oneotherpointy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1749,7 +1749,7 @@ class OneOtherPointY(SetOtherComponentsBase):
 
 
 class OneOtherPointZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherpointz"
+    bl_idname = "maplus.oneotherpointz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1757,7 +1757,7 @@ class OneOtherPointZ(SetOtherComponentsBase):
 
 
 class OneOtherLineStartX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlinestartx"
+    bl_idname = "maplus.oneotherlinestartx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1765,7 +1765,7 @@ class OneOtherLineStartX(SetOtherComponentsBase):
 
 
 class OneOtherLineStartY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlinestarty"
+    bl_idname = "maplus.oneotherlinestarty"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1773,7 +1773,7 @@ class OneOtherLineStartY(SetOtherComponentsBase):
 
 
 class OneOtherLineStartZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlinestartz"
+    bl_idname = "maplus.oneotherlinestartz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1781,7 +1781,7 @@ class OneOtherLineStartZ(SetOtherComponentsBase):
 
 
 class OneOtherLineEndX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlineendx"
+    bl_idname = "maplus.oneotherlineendx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1789,7 +1789,7 @@ class OneOtherLineEndX(SetOtherComponentsBase):
 
 
 class OneOtherLineEndY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlineendy"
+    bl_idname = "maplus.oneotherlineendy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1797,7 +1797,7 @@ class OneOtherLineEndY(SetOtherComponentsBase):
 
 
 class OneOtherLineEndZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherlineendz"
+    bl_idname = "maplus.oneotherlineendz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1805,7 +1805,7 @@ class OneOtherLineEndZ(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointAX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointax"
+    bl_idname = "maplus.oneotherplanepointax"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1813,7 +1813,7 @@ class OneOtherPlanePointAX(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointAY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointay"
+    bl_idname = "maplus.oneotherplanepointay"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1821,7 +1821,7 @@ class OneOtherPlanePointAY(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointAZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointaz"
+    bl_idname = "maplus.oneotherplanepointaz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1829,7 +1829,7 @@ class OneOtherPlanePointAZ(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointBX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointbx"
+    bl_idname = "maplus.oneotherplanepointbx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1837,7 +1837,7 @@ class OneOtherPlanePointBX(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointBY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointby"
+    bl_idname = "maplus.oneotherplanepointby"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1845,7 +1845,7 @@ class OneOtherPlanePointBY(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointBZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointbz"
+    bl_idname = "maplus.oneotherplanepointbz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1853,7 +1853,7 @@ class OneOtherPlanePointBZ(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointCX(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointcx"
+    bl_idname = "maplus.oneotherplanepointcx"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1861,7 +1861,7 @@ class OneOtherPlanePointCX(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointCY(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointcy"
+    bl_idname = "maplus.oneotherplanepointcy"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1869,7 +1869,7 @@ class OneOtherPlanePointCY(SetOtherComponentsBase):
 
 
 class OneOtherPlanePointCZ(SetOtherComponentsBase):
-    bl_idname = "sprig.oneotherplanepointcz"
+    bl_idname = "maplus.oneotherplanepointcz"
     bl_label = ""
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
@@ -1877,13 +1877,13 @@ class OneOtherPlanePointCZ(SetOtherComponentsBase):
 
 
 class ApplyGeomModifiers(bpy.types.Operator):
-    bl_idname = "sprig.applygeommodifiers"
+    bl_idname = "maplus.applygeommodifiers"
     bl_label = "Apply Modifiers"
     bl_description = "Applies modifiers on the current geometry item."
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         active_item = prims[addon_data.active_list_item]
@@ -1962,14 +1962,14 @@ class ApplyGeomModifiers(bpy.types.Operator):
 
 
 class ScaleMatchEdgeBase(bpy.types.Operator):
-    bl_idname = "sprig.scalematchedgebase"
+    bl_idname = "maplus.scalematchedgebase"
     bl_label = "Scale Match Edge Base"
     bl_description = "Scale match edge base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if hasattr(self, "quick_op_target"):
@@ -2000,7 +2000,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_scale_match_edge_auto_grab_src:
-                    bpy.ops.sprig.quickscalematchedgegrabsrc()
+                    bpy.ops.maplus.quickscalematchedgegrabsrc()
                 src_edge = (
                     mathutils.Vector(
                         addon_data.quick_scale_match_edge_src.line_end
@@ -2136,7 +2136,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
 
 class ScaleMatchEdgeObject(ScaleMatchEdgeBase):
-    bl_idname = "sprig.scalematchedgeobject"
+    bl_idname = "maplus.scalematchedgeobject"
     bl_label = "Scale Match Edge Object"
     bl_description = (
         "Scale source object so that source edge matches length of dest edge"
@@ -2146,7 +2146,7 @@ class ScaleMatchEdgeObject(ScaleMatchEdgeBase):
 
 
 class QuickScaleMatchEdgeObject(ScaleMatchEdgeBase):
-    bl_idname = "sprig.quickscalematchedgeobject"
+    bl_idname = "maplus.quickscalematchedgeobject"
     bl_label = "Scale Match Edge Object"
     bl_description = (
         "Scale source object so that source edge matches length of dest edge"
@@ -2157,7 +2157,7 @@ class QuickScaleMatchEdgeObject(ScaleMatchEdgeBase):
 
 
 class ScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
-    bl_idname = "sprig.scalematchedgemeshselected"
+    bl_idname = "maplus.scalematchedgemeshselected"
     bl_label = "Scale Match Edge Mesh Selected"
     bl_description = (
         "Scale source mesh piece so that source edge matches length "
@@ -2168,14 +2168,14 @@ class ScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
-    bl_idname = "sprig.quickscalematchedgemeshselected"
+    bl_idname = "maplus.quickscalematchedgemeshselected"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
         "Scale source (whole) mesh so that source edge matches length "
@@ -2187,14 +2187,14 @@ class QuickScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
-    bl_idname = "sprig.scalematchedgewholemesh"
+    bl_idname = "maplus.scalematchedgewholemesh"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
         "Scale source (whole) mesh so that source edge matches length "
@@ -2205,14 +2205,14 @@ class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
-    bl_idname = "sprig.quickscalematchedgewholemesh"
+    bl_idname = "maplus.quickscalematchedgewholemesh"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
         "Scale source (whole) mesh so that source edge matches length "
@@ -2224,21 +2224,21 @@ class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignPointsBase(bpy.types.Operator):
-    bl_idname = "sprig.alignpointsbase"
+    bl_idname = "maplus.alignpointsbase"
     bl_label = "Align Points Base"
     bl_description = "Align points base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if not hasattr(self, "quick_op_target"):
@@ -2274,7 +2274,7 @@ class AlignPointsBase(bpy.types.Operator):
             # or from the primitive list (regular ops)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_pts_auto_grab_src:
-                    bpy.ops.sprig.quickalignpointsgrabsrc()
+                    bpy.ops.maplus.quickalignpointsgrabsrc()
                 src_pt = mathutils.Vector(
                     (addon_data.quick_align_pts_src.point[0],
                      addon_data.quick_align_pts_src.point[1],
@@ -2436,7 +2436,7 @@ class AlignPointsBase(bpy.types.Operator):
 
 
 class AlignPointsObject(AlignPointsBase):
-    bl_idname = "sprig.alignpointsobject"
+    bl_idname = "maplus.alignpointsobject"
     bl_label = "Align Points Object"
     bl_description = (
         "Match the location of one vertex on a mesh object to another"
@@ -2446,7 +2446,7 @@ class AlignPointsObject(AlignPointsBase):
 
 
 class QuickAlignPointsObject(AlignPointsBase):
-    bl_idname = "sprig.quickalignpointsobject"
+    bl_idname = "maplus.quickalignpointsobject"
     bl_label = "Quick Align Points Object"
     bl_description = (
         "Match the location of one vertex on a mesh object to another"
@@ -2457,7 +2457,7 @@ class QuickAlignPointsObject(AlignPointsBase):
 
 
 class AlignPointsMeshSelected(AlignPointsBase):
-    bl_idname = "sprig.alignpointsmeshselected"
+    bl_idname = "maplus.alignpointsmeshselected"
     bl_label = "Align Points Mesh Selected"
     bl_description = (
         "Match the location of one vertex on a mesh piece "
@@ -2468,14 +2468,14 @@ class AlignPointsMeshSelected(AlignPointsBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignPointsMeshSelected(AlignPointsBase):
-    bl_idname = "sprig.quickalignpointsmeshselected"
+    bl_idname = "maplus.quickalignpointsmeshselected"
     bl_label = "Quick Align Points Mesh Selected"
     bl_description = (
         "Match the location of one vertex on a mesh piece "
@@ -2487,14 +2487,14 @@ class QuickAlignPointsMeshSelected(AlignPointsBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignPointsWholeMesh(AlignPointsBase):
-    bl_idname = "sprig.alignpointswholemesh"
+    bl_idname = "maplus.alignpointswholemesh"
     bl_label = "Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2502,14 +2502,14 @@ class AlignPointsWholeMesh(AlignPointsBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignPointsWholeMesh(AlignPointsBase):
-    bl_idname = "sprig.quickalignpointswholemesh"
+    bl_idname = "maplus.quickalignpointswholemesh"
     bl_label = "Quick Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2518,20 +2518,20 @@ class QuickAlignPointsWholeMesh(AlignPointsBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class DirectionalSlideBase(bpy.types.Operator):
-    bl_idname = "sprig.directionalslidebase"
+    bl_idname = "maplus.directionalslidebase"
     bl_label = "Directional Slide Base"
     bl_description = "Directional slide base class"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if not hasattr(self, "quick_op_target"):
@@ -2563,7 +2563,7 @@ class DirectionalSlideBase(bpy.types.Operator):
             # magnitude to slide in
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_directional_slide_auto_grab_src:
-                    bpy.ops.sprig.quickdirectionalslidegrabsrc()
+                    bpy.ops.maplus.quickdirectionalslidegrabsrc()
                 direction = (
                     mathutils.Vector(addon_data.quick_directional_slide_src.line_end) -
                     mathutils.Vector(addon_data.quick_directional_slide_src.line_start)
@@ -2679,7 +2679,7 @@ class DirectionalSlideBase(bpy.types.Operator):
 
 
 class DirectionalSlideObject(DirectionalSlideBase):
-    bl_idname = "sprig.directionalslideobject"
+    bl_idname = "maplus.directionalslideobject"
     bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2687,7 +2687,7 @@ class DirectionalSlideObject(DirectionalSlideBase):
 
 
 class QuickDirectionalSlideObject(DirectionalSlideBase):
-    bl_idname = "sprig.quickdirectionalslideobject"
+    bl_idname = "maplus.quickdirectionalslideobject"
     bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2696,7 +2696,7 @@ class QuickDirectionalSlideObject(DirectionalSlideBase):
 
 
 class DirectionalSlideMeshSelected(DirectionalSlideBase):
-    bl_idname = "sprig.directionalslidemeshselected"
+    bl_idname = "maplus.directionalslidemeshselected"
     bl_label = "Directional Slide Mesh Piece"
     bl_description = (
         "Translates a target mesh piece (moves selected verts in a direction)"
@@ -2706,14 +2706,14 @@ class DirectionalSlideMeshSelected(DirectionalSlideBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class DirectionalSlideWholeMesh(DirectionalSlideBase):
-    bl_idname = "sprig.directionalslidewholemesh"
+    bl_idname = "maplus.directionalslidewholemesh"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2721,14 +2721,14 @@ class DirectionalSlideWholeMesh(DirectionalSlideBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickDirectionalSlideMeshSelected(DirectionalSlideBase):
-    bl_idname = "sprig.quickdirectionalslidemeshselected"
+    bl_idname = "maplus.quickdirectionalslidemeshselected"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2737,14 +2737,14 @@ class QuickDirectionalSlideMeshSelected(DirectionalSlideBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickDirectionalSlideWholeMesh(DirectionalSlideBase):
-    bl_idname = "sprig.quickdirectionalslidewholemesh"
+    bl_idname = "maplus.quickdirectionalslidewholemesh"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -2753,7 +2753,7 @@ class QuickDirectionalSlideWholeMesh(DirectionalSlideBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
@@ -2780,14 +2780,14 @@ def scale_mat_from_vec(vec):
 
 
 class AxisRotateBase(bpy.types.Operator):
-    bl_idname = "sprig.axisrotatebase"
+    bl_idname = "maplus.axisrotatebase"
     bl_label = "Axis Rotate Base"
     bl_description = "Axis rotate base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if not hasattr(self, "quick_op_target"):
@@ -2833,7 +2833,7 @@ class AxisRotateBase(bpy.types.Operator):
 
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_axis_rotate_auto_grab_src:
-                    bpy.ops.sprig.quickaxisrotategrabsrc()
+                    bpy.ops.maplus.quickaxisrotategrabsrc()
                 loc_pivot = (
                     inverse_active * mathutils.Vector(
                         addon_data.quick_axis_rotate_src.line_start
@@ -2998,7 +2998,7 @@ class AxisRotateBase(bpy.types.Operator):
 
 
 class AxisRotateObject(AxisRotateBase):
-    bl_idname = "sprig.axisrotateobject"
+    bl_idname = "maplus.axisrotateobject"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3006,7 +3006,7 @@ class AxisRotateObject(AxisRotateBase):
 
 
 class QuickAxisRotateObject(AxisRotateBase):
-    bl_idname = "sprig.quickaxisrotateobject"
+    bl_idname = "maplus.quickaxisrotateobject"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3015,7 +3015,7 @@ class QuickAxisRotateObject(AxisRotateBase):
 
 
 class AxisRotateMeshSelected(AxisRotateBase):
-    bl_idname = "sprig.axisrotatemeshselected"
+    bl_idname = "maplus.axisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3023,14 +3023,14 @@ class AxisRotateMeshSelected(AxisRotateBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AxisRotateWholeMesh(AxisRotateBase):
-    bl_idname = "sprig.axisrotatewholemesh"
+    bl_idname = "maplus.axisrotatewholemesh"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3038,14 +3038,14 @@ class AxisRotateWholeMesh(AxisRotateBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAxisRotateMeshSelected(AxisRotateBase):
-    bl_idname = "sprig.quickaxisrotatemeshselected"
+    bl_idname = "maplus.quickaxisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3054,14 +3054,14 @@ class QuickAxisRotateMeshSelected(AxisRotateBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAxisRotateWholeMesh(AxisRotateBase):
-    bl_idname = "sprig.quickaxisrotatewholemesh"
+    bl_idname = "maplus.quickaxisrotatewholemesh"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3070,21 +3070,21 @@ class QuickAxisRotateWholeMesh(AxisRotateBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignLinesBase(bpy.types.Operator):
-    bl_idname = "sprig.alignlinesbase"
+    bl_idname = "maplus.alignlinesbase"
     bl_label = "Align Lines Base"
     bl_description = "Align lines base class"
     bl_options = {'REGISTER', 'UNDO'}
     target = None
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if hasattr(self, "quick_op_target"):
@@ -3117,7 +3117,7 @@ class AlignLinesBase(bpy.types.Operator):
             if hasattr(self, "quick_op_target"):
                 # construct lines from the selected list items
                 if addon_data.quick_align_lines_auto_grab_src:
-                    bpy.ops.sprig.quickalignlinesgrabsrc()
+                    bpy.ops.maplus.quickalignlinesgrabsrc()
                 first_line = (
                     mathutils.Vector(addon_data.quick_align_lines_src.line_end) -
                     mathutils.Vector(addon_data.quick_align_lines_src.line_start)
@@ -3366,7 +3366,7 @@ class AlignLinesBase(bpy.types.Operator):
 
 
 class AlignLinesObject(AlignLinesBase):
-    bl_idname = "sprig.alignlinesobject"
+    bl_idname = "maplus.alignlinesobject"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3374,7 +3374,7 @@ class AlignLinesObject(AlignLinesBase):
 
 
 class QuickAlignLinesObject(AlignLinesBase):
-    bl_idname = "sprig.quickalignlinesobject"
+    bl_idname = "maplus.quickalignlinesobject"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3383,7 +3383,7 @@ class QuickAlignLinesObject(AlignLinesBase):
 
 
 class AlignLinesMeshSelected(AlignLinesBase):
-    bl_idname = "sprig.alignlinesmeshselected"
+    bl_idname = "maplus.alignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3391,14 +3391,14 @@ class AlignLinesMeshSelected(AlignLinesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignLinesWholeMesh(AlignLinesBase):
-    bl_idname = "sprig.alignlineswholemesh"
+    bl_idname = "maplus.alignlineswholemesh"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3407,14 +3407,14 @@ class AlignLinesWholeMesh(AlignLinesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignLinesMeshSelected(AlignLinesBase):
-    bl_idname = "sprig.quickalignlinesmeshselected"
+    bl_idname = "maplus.quickalignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3423,14 +3423,14 @@ class QuickAlignLinesMeshSelected(AlignLinesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignLinesWholeMesh(AlignLinesBase):
-    bl_idname = "sprig.quickalignlineswholemesh"
+    bl_idname = "maplus.quickalignlineswholemesh"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3439,20 +3439,20 @@ class QuickAlignLinesWholeMesh(AlignLinesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignPlanesBase(bpy.types.Operator):
-    bl_idname = "sprig.alignplanesbase"
+    bl_idname = "maplus.alignplanesbase"
     bl_label = "Align Planes base"
     bl_description = "Align Planes base class"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
         if not hasattr(self, "quick_op_target"):
@@ -3485,7 +3485,7 @@ class AlignPlanesBase(bpy.types.Operator):
             if hasattr(self, "quick_op_target"):
                 # construct normal vector for first (source) plane
                 if addon_data.quick_align_planes_auto_grab_src:
-                    bpy.ops.sprig.quickalignplanesgrabsrc()
+                    bpy.ops.maplus.quickalignplanesgrabsrc()
                 first_pln_ln_BA = (
                     mathutils.Vector(
                         addon_data.quick_align_planes_src.plane_pt_a
@@ -3837,7 +3837,7 @@ class AlignPlanesBase(bpy.types.Operator):
 
 
 class AlignPlanesObject(AlignPlanesBase):
-    bl_idname = "sprig.alignplanesobject"
+    bl_idname = "maplus.alignplanesobject"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3845,7 +3845,7 @@ class AlignPlanesObject(AlignPlanesBase):
 
 
 class QuickAlignPlanesObject(AlignPlanesBase):
-    bl_idname = "sprig.quickalignplanesobject"
+    bl_idname = "maplus.quickalignplanesobject"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3854,7 +3854,7 @@ class QuickAlignPlanesObject(AlignPlanesBase):
 
 
 class AlignPlanesMeshSelected(AlignPlanesBase):
-    bl_idname = "sprig.alignplanesmeshselected"
+    bl_idname = "maplus.alignplanesmeshselected"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3862,14 +3862,14 @@ class AlignPlanesMeshSelected(AlignPlanesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class AlignPlanesWholeMesh(AlignPlanesBase):
-    bl_idname = "sprig.alignplaneswholemesh"
+    bl_idname = "maplus.alignplaneswholemesh"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3877,14 +3877,14 @@ class AlignPlanesWholeMesh(AlignPlanesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignPlanesMeshSelected(AlignPlanesBase):
-    bl_idname = "sprig.quickalignplanesmeshselected"
+    bl_idname = "maplus.quickalignplanesmeshselected"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3893,14 +3893,14 @@ class QuickAlignPlanesMeshSelected(AlignPlanesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class QuickAlignPlanesWholeMesh(AlignPlanesBase):
-    bl_idname = "sprig.quickalignplaneswholemesh"
+    bl_idname = "maplus.quickalignplaneswholemesh"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -3909,20 +3909,20 @@ class QuickAlignPlanesWholeMesh(AlignPlanesBase):
 
     @classmethod
     def poll(cls, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
         return True
 
 
 class CalcLineLength(bpy.types.Operator):
-    bl_idname = "sprig.calclinelength"
+    bl_idname = "maplus.calclinelength"
     bl_label = "Calculate Line Length"
     bl_description = "Calculates the length of the targeted line item"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_item = prims[active_item.single_calc_target]
@@ -3959,13 +3959,13 @@ class CalcLineLength(bpy.types.Operator):
 
 
 class ComposeNewLineFromOrigin(bpy.types.Operator):
-    bl_idname = "sprig.composenewlinefromorigin"
+    bl_idname = "maplus.composenewlinefromorigin"
     bl_label = "New Line from Origin"
     bl_description = "Composes a new line item starting at the world origin"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_item = prims[active_item.single_calc_target]
@@ -3980,7 +3980,7 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0,0,0))
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = (
@@ -3994,13 +3994,13 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
 
 
 class ComposeNormalFromPlane(bpy.types.Operator):
-    bl_idname = "sprig.composenormalfromplane"
+    bl_idname = "maplus.composenormalfromplane"
     bl_label = "Get Plane Normal"
     bl_description = "Get the plane's normal as a new line item"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_item = prims[active_item.single_calc_target]
@@ -4027,7 +4027,7 @@ class ComposeNormalFromPlane(bpy.types.Operator):
             calc_target_item.plane_pt_b[0:3]
         )
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = start_loc + normal
@@ -4036,7 +4036,7 @@ class ComposeNormalFromPlane(bpy.types.Operator):
 
 
 class ComposeNewLineFromPoint(bpy.types.Operator):
-    bl_idname = "sprig.composenewlinefrompoint"
+    bl_idname = "maplus.composenewlinefrompoint"
     bl_label = "New Line from Point"
     bl_description = (
         "Composes a new line item from the supplied point,"
@@ -4045,7 +4045,7 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_item = prims[active_item.single_calc_target]
@@ -4060,7 +4060,7 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0,0,0))
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = (
@@ -4071,13 +4071,13 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
 
 
 class ComposeNewLineAtPointLocation(bpy.types.Operator):
-    bl_idname = "sprig.composenewlineatpointlocation"
+    bl_idname = "maplus.composenewlineatpointlocation"
     bl_label = "New Line at Point Location"
     bl_description = "Composes a new line item starting at the point location"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_one = prims[active_item.multi_calc_target_one]
@@ -4098,7 +4098,7 @@ class ComposeNewLineAtPointLocation(bpy.types.Operator):
             targets_by_kind['POINT'].point[0:3]
         )
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = (
@@ -4112,13 +4112,13 @@ class ComposeNewLineAtPointLocation(bpy.types.Operator):
 
 
 class CalcDistanceBetweenPoints(bpy.types.Operator):
-    bl_idname = "sprig.calcdistancebetweenpoints"
+    bl_idname = "maplus.calcdistancebetweenpoints"
     bl_label = "Distance Between Points"
     bl_description = "Calculate the distance between provided point items"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_one = prims[active_item.multi_calc_target_one]
@@ -4144,13 +4144,13 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
 
 
 class ComposeNewLineFromPoints(bpy.types.Operator):
-    bl_idname = "sprig.composenewlinefrompoints"
+    bl_idname = "maplus.composenewlinefrompoints"
     bl_label = "New Line from Points"
     bl_description = "Composes a new line item from provided point items"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_one = prims[active_item.multi_calc_target_one]
@@ -4164,7 +4164,7 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = calc_target_one.point
         new_line.line_end = calc_target_two.point
@@ -4173,13 +4173,13 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
 
 
 class ComposeNewLineVectorAddition(bpy.types.Operator):
-    bl_idname = "sprig.composenewlinevectoraddition"
+    bl_idname = "maplus.composenewlinevectoraddition"
     bl_label = "Add Lines"
     bl_description = "Composes a new line item by vector-adding provided lines"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_one = prims[active_item.multi_calc_target_one]
@@ -4195,7 +4195,7 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0,0,0))
 
-        bpy.ops.sprig.addnewline()
+        bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = (
@@ -4214,7 +4214,7 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
 
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
-class SPRIGList(bpy.types.UIList):
+class MAPlusList(bpy.types.UIList):
 
     def draw_item(self,
                   context,
@@ -4225,7 +4225,7 @@ class SPRIGList(bpy.types.UIList):
                   active_data,
                   active_propname
                   ):
-        addon_data = bpy.context.scene.sprig_data
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         # Check which type of primitive, separate draw code for each
@@ -4242,17 +4242,17 @@ class SPRIGList(bpy.types.UIList):
 
 
 # Main panel containing almost all the functionality for the addon
-class SPRIGGui(bpy.types.Panel):
-    bl_idname = "sprig_tools_alpha"
-    bl_label = "SPRIG Tools Alpha"
+class MAPlusGui(bpy.types.Panel):
+    bl_idname = "maplus_tools_alpha"
+    bl_label = "MAPlus Tools Alpha"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         if len(prims) > 0:
             active_item = prims[addon_data.active_list_item]
@@ -4260,46 +4260,46 @@ class SPRIGGui(bpy.types.Panel):
         # We start with a row that holds the prim list and buttons
         # for adding/subtracting prims (the data management section
         # of the interface)
-        sprig_data_mgmt_row = layout.row()
-        sprig_items_list = sprig_data_mgmt_row.column()
-        sprig_items_list.template_list(
-            "SPRIGList",
+        maplus_data_mgmt_row = layout.row()
+        maplus_items_list = maplus_data_mgmt_row.column()
+        maplus_items_list.template_list(
+            "MAPlusList",
             "",
-            sprig_data_ptr,
+            maplus_data_ptr,
             "prim_list",
-            sprig_data_ptr,
+            maplus_data_ptr,
             "active_list_item",
             type='DEFAULT'
         )
-        add_remove_data_col = sprig_data_mgmt_row.column()
+        add_remove_data_col = maplus_data_mgmt_row.column()
         add_new_items = add_remove_data_col.column(align=True)
         add_new_items.operator(
-            "sprig.addnewpoint",
+            "maplus.addnewpoint",
             icon='LAYER_ACTIVE',
             text=""
         )
         add_new_items.operator(
-            "sprig.addnewline",
+            "maplus.addnewline",
             icon='MAN_TRANS',
             text=""
         )
         add_new_items.operator(
-            "sprig.addnewplane",
+            "maplus.addnewplane",
             icon='OUTLINER_OB_MESH',
             text=""
         )
         add_new_items.operator(
-            "sprig.addnewcalculation",
+            "maplus.addnewcalculation",
             icon='NODETREE',
             text=""
         )
         add_new_items.operator(
-            "sprig.addnewtransformation",
+            "maplus.addnewtransformation",
             icon='MANIPUL',
             text=""
         )
         add_remove_data_col.operator(
-            "sprig.removelistitem",
+            "maplus.removelistitem",
             icon='X',
             text=""
         )
@@ -4328,27 +4328,27 @@ class SPRIGGui(bpy.types.Panel):
                 ""
             )
             # item_name_and_types.operator(
-                # "sprig.changetypetopointprim",
+                # "maplus.changetypetopointprim",
                 # icon='LAYER_ACTIVE',
                 # text=""
             # )
             # item_name_and_types.operator(
-                # "sprig.changetypetolineprim",
+                # "maplus.changetypetolineprim",
                 # icon='MAN_TRANS',
                 # text=""
             # )
             # item_name_and_types.operator(
-                # "sprig.changetypetoplaneprim",
+                # "maplus.changetypetoplaneprim",
                 # icon='OUTLINER_OB_MESH',
                 # text=""
             # )
             # item_name_and_types.operator(
-                # "sprig.changetypetocalcprim",
+                # "maplus.changetypetocalcprim",
                 # icon='NODETREE',
                 # text=""
             # )
             # item_name_and_types.operator(
-                # "sprig.changetypetotransfprim",
+                # "maplus.changetypetotransfprim",
                 # icon='MANIPUL',
                 # text=""
             # )
@@ -4364,7 +4364,7 @@ class SPRIGGui(bpy.types.Panel):
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 apply_mods.operator(
-                    "sprig.applygeommodifiers",
+                    "maplus.applygeommodifiers",
                     text="Apply Modifiers"
                 )
                 item_mods_box = item_info_col.box()
@@ -4390,17 +4390,17 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Point Coordinates:")
                 pt_grab_all = item_info_col.row(align=True)
                 pt_grab_all.operator(
-                    "sprig.grabpointfromcursor",
+                    "maplus.grabpointfromcursor",
                     icon='CURSOR',
                     text="Grab Cursor"
                 )
                 pt_grab_all.operator(
-                    "sprig.grabpointfromactivelocal",
+                    "maplus.grabpointfromactivelocal",
                     icon='VERTEXSEL',
                     text="Grab All Local"
                 )
                 pt_grab_all.operator(
-                    "sprig.grabpointfromactiveglobal",
+                    "maplus.grabpointfromactiveglobal",
                     icon='WORLD',
                     text="Grab All Global"
                 )
@@ -4415,7 +4415,7 @@ class SPRIGGui(bpy.types.Panel):
                 pt_coord_uppers_leftside.alignment = 'LEFT'
                 pt_coord_uppers_leftside.label("Send:")
                 pt_coord_uppers_leftside.operator(
-                    "sprig.sendpointtocursor",
+                    "maplus.sendpointtocursor",
                     icon='CURSOR',
                     text=""
                 )
@@ -4424,17 +4424,17 @@ class SPRIGGui(bpy.types.Panel):
                 pt_coord_uppers_rightside.alignment = 'RIGHT'
                 pt_coord_uppers_rightside.label("Grab:")
                 pt_coord_uppers_rightside.operator(
-                    "sprig.grabpointfromcursor",
+                    "maplus.grabpointfromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 pt_coord_uppers_rightside.operator(
-                    "sprig.grabpointfromactivelocal",
+                    "maplus.grabpointfromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 pt_coord_uppers_rightside.operator(
-                    "sprig.grabpointfromactiveglobal",
+                    "maplus.grabpointfromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4448,29 +4448,29 @@ class SPRIGGui(bpy.types.Panel):
                 zero_components = component_changers.column(align=True)
                 zero_components.label("Set Zeroes:")
                 zero_components.operator(
-                    "sprig.zerootherpointx",
+                    "maplus.zerootherpointx",
                     text="X00"
                 )
                 zero_components.operator(
-                    "sprig.zerootherpointy",
+                    "maplus.zerootherpointy",
                     text="0Y0"
                 )
                 zero_components.operator(
-                    "sprig.zerootherpointz",
+                    "maplus.zerootherpointz",
                     text="00Z"
                 )
                 one_components = component_changers.column(align=True)
                 one_components.label("Set Ones:")
                 one_components.operator(
-                    "sprig.oneotherpointx",
+                    "maplus.oneotherpointx",
                     text="X11"
                 )
                 one_components.operator(
-                    "sprig.oneotherpointy",
+                    "maplus.oneotherpointy",
                     text="1Y1"
                 )
                 one_components.operator(
-                    "sprig.oneotherpointz",
+                    "maplus.oneotherpointz",
                     text="11Z"
                 )
 
@@ -4480,7 +4480,7 @@ class SPRIGGui(bpy.types.Panel):
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 apply_mods.operator(
-                    "sprig.applygeommodifiers",
+                    "maplus.applygeommodifiers",
                     text="Apply Modifiers"
                 )
                 item_mods_box = item_info_col.box()
@@ -4506,12 +4506,12 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Line Coordinates:")
                 ln_grab_all = item_info_col.row(align=True)
                 ln_grab_all.operator(
-                    "sprig.graballvertslinelocal",
+                    "maplus.graballvertslinelocal",
                     icon='VERTEXSEL',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
-                    "sprig.graballvertslineglobal",
+                    "maplus.graballvertslineglobal",
                     icon='WORLD',
                     text="Grab All Global"
                 )
@@ -4524,7 +4524,7 @@ class SPRIGGui(bpy.types.Panel):
                 ln_start_swap = ln_start_uppers.row(align=True)
                 ln_start_swap.label("Swap:")
                 ln_start_swap.operator(
-                    "sprig.swaplinepoints",
+                    "maplus.swaplinepoints",
                     text="End"
                 )
 
@@ -4533,24 +4533,24 @@ class SPRIGGui(bpy.types.Panel):
 
                 ln_start_uppers_rightside.label("Send:")
                 ln_start_uppers_rightside.operator(
-                    "sprig.sendlinestarttocursor",
+                    "maplus.sendlinestarttocursor",
                     icon='CURSOR',
                     text=""
                 )
 
                 ln_start_uppers_rightside.label("Grab:")
                 ln_start_uppers_rightside.operator(
-                    "sprig.grablinestartfromcursor",
+                    "maplus.grablinestartfromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 ln_start_uppers_rightside.operator(
-                    "sprig.grablinestartfromactivelocal",
+                    "maplus.grablinestartfromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 ln_start_uppers_rightside.operator(
-                    "sprig.grablinestartfromactiveglobal",
+                    "maplus.grablinestartfromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4565,29 +4565,29 @@ class SPRIGGui(bpy.types.Panel):
                 zero_components = component_changers_start.column(align=True)
                 zero_components.label("Set Zeroes:")
                 zero_components.operator(
-                    "sprig.zerootherlinestartx",
+                    "maplus.zerootherlinestartx",
                     text="X00"
                 )
                 zero_components.operator(
-                    "sprig.zerootherlinestarty",
+                    "maplus.zerootherlinestarty",
                     text="0Y0"
                 )
                 zero_components.operator(
-                    "sprig.zerootherlinestartz",
+                    "maplus.zerootherlinestartz",
                     text="00Z"
                 )
                 one_components = component_changers_start.column(align=True)
                 one_components.label("Set Ones:")
                 one_components.operator(
-                    "sprig.oneotherlinestartx",
+                    "maplus.oneotherlinestartx",
                     text="X11"
                 )
                 one_components.operator(
-                    "sprig.oneotherlinestarty",
+                    "maplus.oneotherlinestarty",
                     text="1Y1"
                 )
                 one_components.operator(
-                    "sprig.oneotherlinestartz",
+                    "maplus.oneotherlinestartz",
                     text="11Z"
                 )
 
@@ -4598,7 +4598,7 @@ class SPRIGGui(bpy.types.Panel):
                 ln_end_swap = ln_end_uppers.row(align=True)
                 ln_end_swap.label("Swap:")
                 ln_end_swap.operator(
-                    "sprig.swaplinepoints",
+                    "maplus.swaplinepoints",
                     text="Start"
                 )
 
@@ -4606,24 +4606,24 @@ class SPRIGGui(bpy.types.Panel):
                 ln_end_uppers_rightside.alignment = 'RIGHT'
                 ln_end_uppers_rightside.label("Send:")
                 ln_end_uppers_rightside.operator(
-                    "sprig.sendlineendtocursor",
+                    "maplus.sendlineendtocursor",
                     icon='CURSOR',
                     text=""
                 )
 
                 ln_end_uppers_rightside.label("Grab:")
                 ln_end_uppers_rightside.operator(
-                    "sprig.grablineendfromcursor",
+                    "maplus.grablineendfromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 ln_end_uppers_rightside.operator(
-                    "sprig.grablineendfromactivelocal",
+                    "maplus.grablineendfromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 ln_end_uppers_rightside.operator(
-                    "sprig.grablineendfromactiveglobal",
+                    "maplus.grablineendfromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4638,29 +4638,29 @@ class SPRIGGui(bpy.types.Panel):
                 zero_components = component_changers_end.column(align=True)
                 zero_components.label("Set Zeroes:")
                 zero_components.operator(
-                    "sprig.zerootherlineendx",
+                    "maplus.zerootherlineendx",
                     text="X00"
                 )
                 zero_components.operator(
-                    "sprig.zerootherlineendy",
+                    "maplus.zerootherlineendy",
                     text="0Y0"
                 )
                 zero_components.operator(
-                    "sprig.zerootherlineendz",
+                    "maplus.zerootherlineendz",
                     text="00Z"
                 )
                 one_components = component_changers_end.column(align=True)
                 one_components.label("Set Ones:")
                 one_components.operator(
-                    "sprig.oneotherlineendx",
+                    "maplus.oneotherlineendx",
                     text="X11"
                 )
                 one_components.operator(
-                    "sprig.oneotherlineendy",
+                    "maplus.oneotherlineendy",
                     text="1Y1"
                 )
                 one_components.operator(
-                    "sprig.oneotherlineendz",
+                    "maplus.oneotherlineendz",
                     text="11Z"
                 )
 
@@ -4668,12 +4668,12 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Plane Coordinates:")
                 plane_grab_all = item_info_col.row(align=True)
                 plane_grab_all.operator(
-                    "sprig.graballvertsplanelocal",
+                    "maplus.graballvertsplanelocal",
                     icon='VERTEXSEL',
                     text="Grab All Local"
                 )
                 plane_grab_all.operator(
-                    "sprig.graballvertsplaneglobal",
+                    "maplus.graballvertsplaneglobal",
                     icon='WORLD',
                     text="Grab All Global"
                 )
@@ -4687,11 +4687,11 @@ class SPRIGGui(bpy.types.Panel):
                 plane_a_swap = plane_a_uppers.row(align=True)
                 plane_a_swap.label("Swap With:")
                 plane_a_swap.operator(
-                    "sprig.swapplaneaplaneb",
+                    "maplus.swapplaneaplaneb",
                     text="B"
                 )
                 plane_a_swap.operator(
-                    "sprig.swapplaneaplanec",
+                    "maplus.swapplaneaplanec",
                     text="C"
                 )
 
@@ -4699,24 +4699,24 @@ class SPRIGGui(bpy.types.Panel):
                 plane_a_uppers_rightside.alignment = 'RIGHT'
                 plane_a_uppers_rightside.label("Send:")
                 plane_a_uppers_rightside.operator(
-                    "sprig.sendplaneatocursor",
+                    "maplus.sendplaneatocursor",
                     icon='CURSOR',
                     text=""
                 )
 
                 plane_a_uppers_rightside.label("Grab:")
                 plane_a_uppers_rightside.operator(
-                    "sprig.grabplaneafromcursor",
+                    "maplus.grabplaneafromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 plane_a_uppers_rightside.operator(
-                    "sprig.grabplaneafromactivelocal",
+                    "maplus.grabplaneafromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 plane_a_uppers_rightside.operator(
-                    "sprig.grabplaneafromactiveglobal",
+                    "maplus.grabplaneafromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4733,15 +4733,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 zero_components_plna.label("Set Zeroes:")
                 zero_components_plna.operator(
-                    "sprig.zerootherplanepointax",
+                    "maplus.zerootherplanepointax",
                     text="X00"
                 )
                 zero_components_plna.operator(
-                    "sprig.zerootherplanepointay",
+                    "maplus.zerootherplanepointay",
                     text="0Y0"
                 )
                 zero_components_plna.operator(
-                    "sprig.zerootherplanepointaz",
+                    "maplus.zerootherplanepointaz",
                     text="00Z"
                 )
                 one_components_plna = component_changers_plna.column(
@@ -4749,15 +4749,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 one_components_plna.label("Set Ones:")
                 one_components_plna.operator(
-                    "sprig.oneotherplanepointax",
+                    "maplus.oneotherplanepointax",
                     text="X11"
                 )
                 one_components_plna.operator(
-                    "sprig.oneotherplanepointay",
+                    "maplus.oneotherplanepointay",
                     text="1Y1"
                 )
                 one_components_plna.operator(
-                    "sprig.oneotherplanepointaz",
+                    "maplus.oneotherplanepointaz",
                     text="11Z"
                 )
 
@@ -4768,11 +4768,11 @@ class SPRIGGui(bpy.types.Panel):
                 plane_b_swap = plane_b_uppers.row(align=True)
                 plane_b_swap.label("Swap With:")
                 plane_b_swap.operator(
-                    "sprig.swapplaneaplaneb",
+                    "maplus.swapplaneaplaneb",
                     text="A"
                 )
                 plane_b_swap.operator(
-                    "sprig.swapplanebplanec",
+                    "maplus.swapplanebplanec",
                     text="C"
                 )
 
@@ -4780,24 +4780,24 @@ class SPRIGGui(bpy.types.Panel):
                 plane_b_uppers_rightside.alignment = 'RIGHT'
                 plane_b_uppers_rightside.label("Send:")
                 plane_b_uppers_rightside.operator(
-                    "sprig.sendplanebtocursor",
+                    "maplus.sendplanebtocursor",
                     icon='CURSOR',
                     text=""
                 )
 
                 plane_b_uppers_rightside.label("Grab:")
                 plane_b_uppers_rightside.operator(
-                    "sprig.grabplanebfromcursor",
+                    "maplus.grabplanebfromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 plane_b_uppers_rightside.operator(
-                    "sprig.grabplanebfromactivelocal",
+                    "maplus.grabplanebfromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 plane_b_uppers_rightside.operator(
-                    "sprig.grabplanebfromactiveglobal",
+                    "maplus.grabplanebfromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4814,15 +4814,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 zero_components_plnb.label("Set Zeroes:")
                 zero_components_plnb.operator(
-                    "sprig.zerootherplanepointbx",
+                    "maplus.zerootherplanepointbx",
                     text="X00"
                 )
                 zero_components_plnb.operator(
-                    "sprig.zerootherplanepointby",
+                    "maplus.zerootherplanepointby",
                     text="0Y0"
                 )
                 zero_components_plnb.operator(
-                    "sprig.zerootherplanepointbz",
+                    "maplus.zerootherplanepointbz",
                     text="00Z"
                 )
                 one_components_plnb = component_changers_plnb.column(
@@ -4830,15 +4830,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 one_components_plnb.label("Set Ones:")
                 one_components_plnb.operator(
-                    "sprig.oneotherplanepointbx",
+                    "maplus.oneotherplanepointbx",
                     text="X11"
                 )
                 one_components_plnb.operator(
-                    "sprig.oneotherplanepointby",
+                    "maplus.oneotherplanepointby",
                     text="1Y1"
                 )
                 one_components_plnb.operator(
-                    "sprig.oneotherplanepointbz",
+                    "maplus.oneotherplanepointbz",
                     text="11Z"
                 )
 
@@ -4849,11 +4849,11 @@ class SPRIGGui(bpy.types.Panel):
                 plane_c_swap = plane_c_uppers.row(align=True)
                 plane_c_swap.label("Swap With:")
                 plane_c_swap.operator(
-                    "sprig.swapplaneaplanec",
+                    "maplus.swapplaneaplanec",
                     text="A"
                 )
                 plane_c_swap.operator(
-                    "sprig.swapplanebplanec",
+                    "maplus.swapplanebplanec",
                     text="B"
                 )
 
@@ -4861,24 +4861,24 @@ class SPRIGGui(bpy.types.Panel):
                 plane_c_uppers_rightside.alignment = 'RIGHT'
                 plane_c_uppers_rightside.label("Send:")
                 plane_c_uppers_rightside.operator(
-                    "sprig.sendplanectocursor",
+                    "maplus.sendplanectocursor",
                     icon='CURSOR',
                     text=""
                 )
 
                 plane_c_uppers_rightside.label("Grab:")
                 plane_c_uppers_rightside.operator(
-                    "sprig.grabplanecfromcursor",
+                    "maplus.grabplanecfromcursor",
                     icon='CURSOR',
                     text=""
                 )
                 plane_c_uppers_rightside.operator(
-                    "sprig.grabplanecfromactivelocal",
+                    "maplus.grabplanecfromactivelocal",
                     icon='VERTEXSEL',
                     text=""
                 )
                 plane_c_uppers_rightside.operator(
-                    "sprig.grabplanecfromactiveglobal",
+                    "maplus.grabplanecfromactiveglobal",
                     icon='WORLD',
                     text=""
                 )
@@ -4894,15 +4894,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 zero_components_plnc.label("Set Zeroes:")
                 zero_components_plnc.operator(
-                    "sprig.zerootherplanepointcx",
+                    "maplus.zerootherplanepointcx",
                     text="X00"
                 )
                 zero_components_plnc.operator(
-                    "sprig.zerootherplanepointcy",
+                    "maplus.zerootherplanepointcy",
                     text="0Y0"
                 )
                 zero_components_plnc.operator(
-                    "sprig.zerootherplanepointcz",
+                    "maplus.zerootherplanepointcz",
                     text="00Z"
                 )
                 one_components_plnc = component_changers_plnc.column(
@@ -4910,15 +4910,15 @@ class SPRIGGui(bpy.types.Panel):
                 )
                 one_components_plnc.label("Set Ones:")
                 one_components_plnc.operator(
-                    "sprig.oneotherplanepointcx",
+                    "maplus.oneotherplanepointcx",
                     text="X11"
                 )
                 one_components_plnc.operator(
-                    "sprig.oneotherplanepointcy",
+                    "maplus.oneotherplanepointcy",
                     text="1Y1"
                 )
                 one_components_plnc.operator(
-                    "sprig.oneotherplanepointcz",
+                    "maplus.oneotherplanepointcz",
                     text="11Z"
                 )
 
@@ -4926,12 +4926,12 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Calculation Type:")
                 calc_type_switcher = item_info_col.row()
                 calc_type_switcher.operator(
-                    "sprig.changecalctosingle",
+                    "maplus.changecalctosingle",
                     # icon='ROTATECOLLECTION',
                     text="Single Item"
                 )
                 calc_type_switcher.operator(
-                    "sprig.changecalctomulti",
+                    "maplus.changecalctomulti",
                     # icon='ROTATECOLLECTION',
                     text="Multi-Item"
                 )
@@ -4939,9 +4939,9 @@ class SPRIGGui(bpy.types.Panel):
                 if active_item.calc_type == 'SINGLEITEM':
                     item_info_col.label("Target:")
                     item_info_col.template_list(
-                        "SPRIGList",
+                        "MAPlusList",
                         "single_calc_target_list",
-                        sprig_data_ptr,
+                        maplus_data_ptr,
                         "prim_list",
                         active_item,
                         "single_calc_target",
@@ -4955,7 +4955,7 @@ class SPRIGGui(bpy.types.Panel):
                     clipboard_row_right = calcs_and_results_header.row()
                     clipboard_row_right.alignment = 'RIGHT'
                     clipboard_row_right.prop(
-                        bpy.types.AnyType(sprig_data_ptr),
+                        bpy.types.AnyType(maplus_data_ptr),
                         'calc_result_to_clipboard',
                         "Copy to Clipboard"
                     )
@@ -4970,23 +4970,23 @@ class SPRIGGui(bpy.types.Panel):
                         calc_target = prims[active_item.single_calc_target]
                         if calc_target.kind == 'POINT':
                             item_info_col.operator(
-                                "sprig.composenewlinefrompoint",
+                                "maplus.composenewlinefrompoint",
                                 icon='MAN_TRANS',
                                 text="New Line from Point"
                             )
                         elif calc_target.kind == 'LINE':
                             item_info_col.operator(
-                                "sprig.calclinelength",
+                                "maplus.calclinelength",
                                 text="Line Length"
                             )
                             item_info_col.operator(
-                                "sprig.composenewlinefromorigin",
+                                "maplus.composenewlinefromorigin",
                                 icon='MAN_TRANS',
                                 text="New Line from Origin"
                             )
                         elif calc_target.kind == 'PLANE':
                             item_info_col.operator(
-                                "sprig.composenormalfromplane",
+                                "maplus.composenormalfromplane",
                                 icon='MAN_TRANS',
                                 text="Get Plane Normal (Normalized)"
                             )
@@ -4995,18 +4995,18 @@ class SPRIGGui(bpy.types.Panel):
                     item_info_col.label("Targets:")
                     calc_targets = item_info_col.row()
                     calc_targets.template_list(
-                        "SPRIGList",
+                        "MAPlusList",
                         "multi_calc_target_one_list",
-                        sprig_data_ptr,
+                        maplus_data_ptr,
                         "prim_list",
                         active_item,
                         "multi_calc_target_one",
                         type='DEFAULT'
                     )
                     calc_targets.template_list(
-                        "SPRIGList",
+                        "MAPlusList",
                         "multi_calc_target_two_list",
-                        sprig_data_ptr,
+                        maplus_data_ptr,
                         "prim_list",
                         active_item,
                         "multi_calc_target_two",
@@ -5020,7 +5020,7 @@ class SPRIGGui(bpy.types.Panel):
                     clipboard_row_right = calcs_and_results_header.row()
                     clipboard_row_right.alignment = 'RIGHT'
                     clipboard_row_right.prop(
-                        bpy.types.AnyType(sprig_data_ptr),
+                        bpy.types.AnyType(maplus_data_ptr),
                         'calc_result_to_clipboard',
                         "Copy to Clipboard"
                     )
@@ -5042,24 +5042,24 @@ class SPRIGGui(bpy.types.Panel):
                         if (calc_target_one.kind == 'POINT' and
                                 calc_target_two.kind == 'POINT'):
                             item_info_col.operator(
-                                "sprig.composenewlinefrompoints",
+                                "maplus.composenewlinefrompoints",
                                 icon='MAN_TRANS',
                                 text="New Line from Points"
                             )
                             item_info_col.operator(
-                                "sprig.calcdistancebetweenpoints",
+                                "maplus.calcdistancebetweenpoints",
                                 text="Distance Between Points"
                             )
                         elif (calc_target_one.kind == 'LINE' and
                                 calc_target_two.kind == 'LINE'):
                             item_info_col.operator(
-                                "sprig.composenewlinevectoraddition",
+                                "maplus.composenewlinevectoraddition",
                                 icon='MAN_TRANS',
                                 text="Add Lines"
                             )
                         elif 'POINT' in type_combo and 'LINE' in type_combo:
                             item_info_col.operator(
-                                "sprig.composenewlineatpointlocation",
+                                "maplus.composenewlineatpointlocation",
                                 icon='MAN_TRANS',
                                 text="New Line at Point"
                             )
@@ -5068,32 +5068,32 @@ class SPRIGGui(bpy.types.Panel):
                 item_info_col.label("Transformation Type Selectors:")
                 transf_types = item_info_col.row(align=True)
                 transf_types.operator(
-                    "sprig.changetransftoalignpoints",
+                    "maplus.changetransftoalignpoints",
                     icon='ROTATECOLLECTION',
                     text="Align Points"
                 )
                 transf_types.operator(
-                    "sprig.changetransftoalignlines",
+                    "maplus.changetransftoalignlines",
                     icon='SNAP_EDGE',
                     text="Align Lines"
                 )
                 transf_types.operator(
-                    "sprig.changetransftoalignplanes",
+                    "maplus.changetransftoalignplanes",
                     icon='MOD_ARRAY',
                     text="Align Planes"
                 )
                 transf_types.operator(
-                    "sprig.changetransftodirectionalslide",
+                    "maplus.changetransftodirectionalslide",
                     icon='CURVE_PATH',
                     text="Directional Slide"
                 )
                 transf_types.operator(
-                    "sprig.changetransftoscalematchedge",
+                    "maplus.changetransftoscalematchedge",
                     icon='FULLSCREEN_ENTER',
                     text="Scale Match Edge"
                 )
                 transf_types.operator(
-                    "sprig.changetransftoaxisrotate",
+                    "maplus.changetransftoaxisrotate",
                     icon='FORCE_MAGNETIC',
                     text="Axis Rotate"
                 )
@@ -5107,18 +5107,18 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Align Points to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.alignpointsobject",
+                            "maplus.alignpointsobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.alignpointsmeshselected",
+                            "maplus.alignpointsmeshselected",
                             icon='NONE',
                             text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.alignpointswholemesh",
+                            "maplus.alignpointswholemesh",
                             icon='NONE',
                             text=" Whole Mesh"
                         )
@@ -5126,17 +5126,17 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Directional Slide to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.directionalslideobject",
+                            "maplus.directionalslideobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.directionalslidemeshselected",
+                            "maplus.directionalslidemeshselected",
                             icon='NONE', text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.directionalslidewholemesh",
+                            "maplus.directionalslidewholemesh",
                             icon='NONE',
                             text="Whole Mesh"
                         )
@@ -5144,17 +5144,17 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Scale Match Edge to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.scalematchedgeobject",
+                            "maplus.scalematchedgeobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.scalematchedgemeshselected",
+                            "maplus.scalematchedgemeshselected",
                             icon='NONE', text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.scalematchedgewholemesh",
+                            "maplus.scalematchedgewholemesh",
                             icon='NONE',
                             text="Whole Mesh"
                         )
@@ -5162,17 +5162,17 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Axis Rotate to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.axisrotateobject",
+                            "maplus.axisrotateobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.axisrotatemeshselected",
+                            "maplus.axisrotatemeshselected",
                             icon='NONE', text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.axisrotatewholemesh",
+                            "maplus.axisrotatewholemesh",
                             icon='NONE',
                             text="Whole Mesh"
                         )
@@ -5180,18 +5180,18 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Align Lines to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.alignlinesobject",
+                            "maplus.alignlinesobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.alignlinesmeshselected",
+                            "maplus.alignlinesmeshselected",
                             icon='NONE',
                             text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.alignlineswholemesh",
+                            "maplus.alignlineswholemesh",
                             icon='NONE',
                             text="Whole Mesh"
                         )
@@ -5199,18 +5199,18 @@ class SPRIGGui(bpy.types.Panel):
                         apply_buttons_header.label('Apply Align Planes to:')
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
-                            "sprig.alignplanesobject",
+                            "maplus.alignplanesobject",
                             icon='NONE',
                             text="Object"
                         )
                         mesh_appliers = apply_buttons.row(align=True)
                         mesh_appliers.operator(
-                            "sprig.alignplanesmeshselected",
+                            "maplus.alignplanesmeshselected",
                             icon='NONE',
                             text="Mesh Piece"
                         )
                         mesh_appliers.operator(
-                            "sprig.alignplaneswholemesh",
+                            "maplus.alignplaneswholemesh",
                             icon='NONE',
                             text="Whole Mesh"
                         )
@@ -5284,9 +5284,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNPOINTS":
                         item_info_col.label("Source Point")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "apt_pt_one_list",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "apt_pt_one",
@@ -5295,9 +5295,9 @@ class SPRIGGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label("Destination Point")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "apt_pt_two_list",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "apt_pt_two",
@@ -5306,9 +5306,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "DIRECTIONALSLIDE":
                         item_info_col.label("Source Line")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "vs_targetLineList",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "ds_direction",
@@ -5317,9 +5317,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "SCALEMATCHEDGE":
                         item_info_col.label("Source Edge")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "sme_src_edgelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "sme_edge_one",
@@ -5328,9 +5328,9 @@ class SPRIGGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label("Destination Edge")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "sme_dest_edgelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "sme_edge_two",
@@ -5339,9 +5339,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "AXISROTATE":
                         item_info_col.label("Axis")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "axr_src_axis",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "axr_axis",
@@ -5356,9 +5356,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNLINES":
                         item_info_col.label("Source Line")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "aln_src_linelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "aln_src_line",
@@ -5367,9 +5367,9 @@ class SPRIGGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label("Destination Line")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "aln_dest_linelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "aln_dest_line",
@@ -5378,9 +5378,9 @@ class SPRIGGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNPLANES":
                         item_info_col.label("Source Plane")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "apl_src_planelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "apl_src_plane",
@@ -5389,9 +5389,9 @@ class SPRIGGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label("Destination Plane")
                         item_info_col.template_list(
-                            "SPRIGList",
+                            "MAPlusList",
                             "apl_dest_planelist",
-                            sprig_data_ptr,
+                            maplus_data_ptr,
                             "prim_list",
                             active_transf,
                             "apl_dest_plane",
@@ -5404,13 +5404,13 @@ class QuickAlignPointsGUI(bpy.types.Panel):
     bl_label = "Quick Align Points"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         apg_top = layout.row()
@@ -5421,7 +5421,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         )
         # apg_top = align_pts_gui.row()
         # apg_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_align_pts_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_align_pts_show else "TRIA_DOWN",
@@ -5443,12 +5443,12 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         )
         if not addon_data.quick_align_pts_auto_grab_src:
             apt_grab_col.operator(
-                "sprig.quickalignpointsgrabsrc",
+                "maplus.quickalignpointsgrabsrc",
                 icon='WORLD',
                 text="Grab Source"
             )
         apt_grab_col.operator(
-            "sprig.quickalignpointsgrabdest",
+            "maplus.quickalignpointsgrabdest",
             icon='WORLD',
             text="Grab Destination"
         )
@@ -5485,16 +5485,16 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         )
         apt_apply_items = align_pts_gui.split(percentage=.33)
         apt_apply_items.operator(
-            "sprig.quickalignpointsobject",
+            "maplus.quickalignpointsobject",
             text="Object"
         )
         apt_mesh_apply_items = apt_apply_items.row(align=True)
         apt_mesh_apply_items.operator(
-            "sprig.quickalignpointsmeshselected",
+            "maplus.quickalignpointsmeshselected",
             text="Mesh Piece"
         )
         apt_mesh_apply_items.operator(
-            "sprig.quickalignpointswholemesh",
+            "maplus.quickalignpointswholemesh",
             text="Whole Mesh"
         )
 
@@ -5504,13 +5504,13 @@ class QuickAlignLinesGUI(bpy.types.Panel):
     bl_label = "Quick Align Lines"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         aln_top = layout.row()
@@ -5521,7 +5521,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         )
         # aln_top = aln_gui.row()
         # aln_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_align_lines_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_align_lines_show else "TRIA_DOWN",
@@ -5542,12 +5542,12 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         )
         if not addon_data.quick_align_lines_auto_grab_src:
             aln_grab_col.operator(
-                    "sprig.quickalignlinesgrabsrc",
+                    "maplus.quickalignlinesgrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
         aln_grab_col.operator(
-                "sprig.quickalignlinesgrabdest",
+                "maplus.quickalignlinesgrabdest",
                 icon='WORLD',
                 text="Grab Destination"
         )
@@ -5573,16 +5573,16 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         )
         aln_apply_items = aln_gui.split(percentage=.33)
         aln_apply_items.operator(
-            "sprig.quickalignlinesobject",
+            "maplus.quickalignlinesobject",
             text="Object"
         )
         aln_mesh_apply_items = aln_apply_items.row(align=True)
         aln_mesh_apply_items.operator(
-            "sprig.quickalignlinesmeshselected",
+            "maplus.quickalignlinesmeshselected",
             text="Mesh Piece"
         )
         aln_mesh_apply_items.operator(
-            "sprig.quickalignlineswholemesh",
+            "maplus.quickalignlineswholemesh",
             text="Whole Mesh"
         )
 
@@ -5592,14 +5592,14 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
     bl_label = "Quick Align Planes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
     
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         apl_top = layout.row()
@@ -5610,7 +5610,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         )
         # apl_top = apl_gui.row()
         # apl_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_align_planes_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_align_planes_show else "TRIA_DOWN",
@@ -5631,12 +5631,12 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         )
         if not addon_data.quick_align_planes_auto_grab_src:
             apl_grab_col.operator(
-                    "sprig.quickalignplanesgrabsrc",
+                    "maplus.quickalignplanesgrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
         apl_grab_col.operator(
-                "sprig.quickalignplanesgrabdest",
+                "maplus.quickalignplanesgrabdest",
                 icon='WORLD',
                 text="Grab Destination"
         )
@@ -5657,16 +5657,16 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         )
         apl_apply_items = apl_gui.split(percentage=.33)
         apl_apply_items.operator(
-            "sprig.quickalignplanesobject",
+            "maplus.quickalignplanesobject",
             text="Object"
         )
         apl_mesh_apply_items = apl_apply_items.row(align=True)
         apl_mesh_apply_items.operator(
-            "sprig.quickalignplanesmeshselected",
+            "maplus.quickalignplanesmeshselected",
             text="Mesh Piece"
         )
         apl_mesh_apply_items.operator(
-            "sprig.quickalignplaneswholemesh",
+            "maplus.quickalignplaneswholemesh",
             text="Whole Mesh"
         )
 
@@ -5676,13 +5676,13 @@ class QuickAxisRotateGUI(bpy.types.Panel):
     bl_label = "Quick Axis Rotate"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         
         axr_top = layout.row()
@@ -5693,7 +5693,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         )
         # axr_top = axr_gui.row()
         # axr_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_axis_rotate_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_axis_rotate_show else "TRIA_DOWN",
@@ -5714,7 +5714,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         )
         if not addon_data.quick_axis_rotate_auto_grab_src:
             axr_grab_col.operator(
-                    "sprig.quickaxisrotategrabsrc",
+                    "maplus.quickaxisrotategrabsrc",
                     icon='WORLD',
                     text="Grab Axis"
             )
@@ -5735,16 +5735,16 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         )
         axr_apply_items = axr_gui.split(percentage=.33)
         axr_apply_items.operator(
-            "sprig.quickaxisrotateobject",
+            "maplus.quickaxisrotateobject",
             text="Object"
         )
         axr_mesh_apply_items = axr_apply_items.row(align=True)
         axr_mesh_apply_items.operator(
-            "sprig.quickaxisrotatemeshselected",
+            "maplus.quickaxisrotatemeshselected",
             text="Mesh Piece"
         )
         axr_mesh_apply_items.operator(
-            "sprig.quickaxisrotatewholemesh",
+            "maplus.quickaxisrotatewholemesh",
             text="Whole Mesh"
         )
 
@@ -5754,13 +5754,13 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_label = "Quick Directional Move"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         ds_top = layout.row()
@@ -5771,7 +5771,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         )
         # ds_top = ds_gui.row()
         # ds_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_directional_slide_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_directional_slide_show else "TRIA_DOWN",
@@ -5792,7 +5792,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         )
         if not addon_data.quick_directional_slide_auto_grab_src:
             ds_grab_col.operator(
-                    "sprig.quickdirectionalslidegrabsrc",
+                    "maplus.quickdirectionalslidegrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
@@ -5824,16 +5824,16 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         )
         ds_apply_items = ds_gui.split(percentage=.33)
         ds_apply_items.operator(
-            "sprig.quickdirectionalslideobject",
+            "maplus.quickdirectionalslideobject",
             text="Object"
         )
         ds_mesh_apply_items = ds_apply_items.row(align=True)
         ds_mesh_apply_items.operator(
-            "sprig.quickdirectionalslidemeshselected",
+            "maplus.quickdirectionalslidemeshselected",
             text="Mesh Piece"
         )
         ds_mesh_apply_items.operator(
-            "sprig.quickdirectionalslidewholemesh",
+            "maplus.quickdirectionalslidewholemesh",
             text="Whole Mesh"
         )
 
@@ -5843,13 +5843,13 @@ class QuickSMEGUI(bpy.types.Panel):
     bl_label = "Quick Scale Match Edge"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "SPRIG Tools"
+    bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
-        sprig_data_ptr = bpy.types.AnyType(bpy.context.scene.sprig_data)
-        addon_data = bpy.context.scene.sprig_data
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
         sme_top = layout.row()
@@ -5860,7 +5860,7 @@ class QuickSMEGUI(bpy.types.Panel):
         )
         # sme_top = sme_gui.row()
         # sme_top.prop(
-            # sprig_data_ptr,
+            # maplus_data_ptr,
             # 'quick_scale_match_edge_show',
             # icon="TRIA_RIGHT" if not \
             # addon_data.quick_scale_match_edge_show else "TRIA_DOWN",
@@ -5881,12 +5881,12 @@ class QuickSMEGUI(bpy.types.Panel):
         )
         if not addon_data.quick_scale_match_edge_auto_grab_src:
             sme_grab_col.operator(
-                    "sprig.quickscalematchedgegrabsrc",
+                    "maplus.quickscalematchedgegrabsrc",
                     icon='WORLD',
                     text="Grab Source"
             )
         sme_grab_col.operator(
-                "sprig.quickscalematchedgegrabdest",
+                "maplus.quickscalematchedgegrabdest",
                 icon='WORLD',
                 text="Grab Destination"
         )
@@ -5907,26 +5907,26 @@ class QuickSMEGUI(bpy.types.Panel):
         )
         sme_apply_items = sme_gui.split(percentage=.33)
         sme_apply_items.operator(
-            "sprig.quickscalematchedgeobject",
+            "maplus.quickscalematchedgeobject",
             text="Object"
         )
         sme_mesh_apply_items = sme_apply_items.row(align=True)
         sme_mesh_apply_items.operator(
-            "sprig.quickscalematchedgemeshselected",
+            "maplus.quickscalematchedgemeshselected",
             text="Mesh Piece"
         )
         sme_mesh_apply_items.operator(
-            "sprig.quickscalematchedgewholemesh",
+            "maplus.quickscalematchedgewholemesh",
             text="Whole Mesh"
         )
 
 
 def specials_menu_items(self, context):
     self.layout.separator()
-    self.layout.label('Add SPRIG items')
-    self.layout.operator('sprig.specialsaddpointfromactiveglobal')
-    self.layout.operator('sprig.specialsaddlinefromactiveglobal')
-    self.layout.operator('sprig.specialsaddplanefromactiveglobal')
+    self.layout.label('Add Mesh Align Plus items')
+    self.layout.operator('maplus.specialsaddpointfromactiveglobal')
+    self.layout.operator('maplus.specialsaddlinefromactiveglobal')
+    self.layout.operator('maplus.specialsaddplanefromactiveglobal')
     self.layout.separator()
 
 
@@ -5935,14 +5935,14 @@ def register():
     bpy.utils.register_module(__name__)
 
     # Extend the scene class here to include the addon data
-    bpy.types.Scene.sprig_data = bpy.props.PointerProperty(type=SPRIGData)
+    bpy.types.Scene.maplus_data = bpy.props.PointerProperty(type=MAPlusData)
 
     bpy.types.VIEW3D_MT_object_specials.append(specials_menu_items)
     bpy.types.VIEW3D_MT_edit_mesh_specials.append(specials_menu_items)
 
 
 def unregister():
-    del bpy.types.Scene.sprig_data
+    del bpy.types.Scene.maplus_data
     bpy.types.VIEW3D_MT_object_specials.remove(specials_menu_items)
     bpy.types.VIEW3D_MT_edit_mesh_specials.remove(specials_menu_items)
 
