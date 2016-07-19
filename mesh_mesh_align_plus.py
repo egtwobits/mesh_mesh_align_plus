@@ -4212,6 +4212,49 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class ComposeNewLineVectorSubtraction(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinevectorsubtraction"
+    bl_label = "Subtract Lines"
+    bl_description = (
+        "Composes a new line item by performing vector-subtraction"
+        " (first line minus second line)"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+
+        if not (calc_target_one.kind == 'LINE' and calc_target_two.kind == 'LINE'):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Add Lines" can only operate on'
+                 ' two lines')
+            )
+            return {'CANCELLED'}
+
+        start_loc = mathutils.Vector((0,0,0))
+
+        bpy.ops.maplus.addnewline()
+        new_line = prims[-1]
+        new_line.line_start = start_loc
+        new_line.line_end = (
+            (
+                mathutils.Vector(calc_target_one.line_end[0:3]) -
+                mathutils.Vector(calc_target_one.line_start[0:3])
+            ) -
+            (
+                mathutils.Vector(calc_target_two.line_end[0:3]) -
+                mathutils.Vector(calc_target_two.line_start[0:3])
+            )
+        )
+
+        return {'FINISHED'}
+
+
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
 class MAPlusList(bpy.types.UIList):
@@ -5056,6 +5099,11 @@ class MAPlusGui(bpy.types.Panel):
                                 "maplus.composenewlinevectoraddition",
                                 icon='MAN_TRANS',
                                 text="Add Lines"
+                            )
+                            item_info_col.operator(
+                                "maplus.composenewlinevectorsubtraction",
+                                icon='MAN_TRANS',
+                                text="Subtract Lines"
                             )
                         elif 'POINT' in type_combo and 'LINE' in type_combo:
                             item_info_col.operator(
