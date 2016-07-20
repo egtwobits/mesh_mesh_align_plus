@@ -69,6 +69,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # Point primitive data/settings
+    # DuplicateItemBase depends on a complete list of these attribs
     point = bpy.props.FloatVectorProperty(
         description="Point primitive coordinates",
         precision=6
@@ -92,6 +93,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # Line primitive data/settings
+    # DuplicateItemBase depends on a complete list of these attribs
     line_start = bpy.props.FloatVectorProperty(
         description="Line primitive, starting point coordinates",
         precision=6
@@ -113,6 +115,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # Plane primitive data
+    # DuplicateItemBase depends on a complete list of these attribs
     plane_pt_a = bpy.props.FloatVectorProperty(
         description="Plane primitive, point A coordinates",
         precision=6
@@ -837,6 +840,62 @@ class AddNewTransformation(AddListItemBase):
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "TRANSFORMATION"
+
+
+class DuplicateItemBase(bpy.types.Operator):
+    bl_idname = "maplus.duplicateitembase"
+    bl_label = "Duplicate Item"
+    bl_description = "Duplicates this item"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        self.new_kind = active_item.kind
+
+        if active_item.kind not in {'POINT', 'LINE', 'PLANE'}:
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Duplicate Item" can only operate on'
+                 ' geometry items')
+            )
+            return {'CANCELLED'}
+
+        try:
+            new_item = AddListItemBase.add_new_named(self)
+        except UniqueNameError:
+            self.report({'ERROR'}, 'Cannot add item, unique name error.')
+            return {'CANCELLED'}
+
+        new_item.kind = self.new_kind
+
+        attrib_copy = {
+            "POINT": (
+                "point",
+                "pt_make_unit_vec",
+                "pt_flip_direction",
+                "pt_multiplier"
+            ),
+            "LINE": (
+                "line_start",
+                "line_end",
+                "ln_make_unit_vec",
+                "ln_flip_direction",
+                "ln_multiplier"
+            ),
+            "PLANE": (
+                "plane_pt_a",
+                "plane_pt_b",
+                "plane_pt_c"
+            ),
+        }
+        if active_item.kind in attrib_copy:
+            for att in attrib_copy[active_item.kind]:
+                print('AAA')
+                setattr(new_item, att, getattr(active_item, att))
+
+        return {'FINISHED'}
 
 
 class RemoveListItem(bpy.types.Operator):
@@ -4516,6 +4575,11 @@ class MAPlusGui(bpy.types.Panel):
                     "maplus.oneotherpointz",
                     text="11Z"
                 )
+                item_info_col.separator()
+                item_info_col.operator(
+                   "maplus.duplicateitembase",
+                    text="Duplicate Item"
+                )
 
             elif active_item.kind == 'LINE':
                 modifier_header = item_info_col.row()
@@ -4675,7 +4739,6 @@ class MAPlusGui(bpy.types.Panel):
                     'line_end',
                     ""
                 )
-                item_info_col.separator()
 
                 component_changers_end = ln_end_items.row()
                 zero_components = component_changers_end.column(align=True)
@@ -4705,6 +4768,11 @@ class MAPlusGui(bpy.types.Panel):
                 one_components.operator(
                     "maplus.oneotherlineendz",
                     text="11Z"
+                )
+                item_info_col.separator()
+                item_info_col.operator(
+                   "maplus.duplicateitembase",
+                    text="Duplicate Item"
                 )
 
             elif active_item.kind == 'PLANE':
@@ -4963,6 +5031,11 @@ class MAPlusGui(bpy.types.Panel):
                 one_components_plnc.operator(
                     "maplus.oneotherplanepointcz",
                     text="11Z"
+                )
+                item_info_col.separator()
+                item_info_col.operator(
+                   "maplus.duplicateitembase",
+                    text="Duplicate Item"
                 )
 
             elif active_item.kind == 'CALCULATION':
