@@ -348,6 +348,35 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
 
     # Items for the quick operators
+    # The mode is for allowing a "tabbed" quick tools layout. Whichever
+    # mode is currently set, the UI will only show interface items
+    # for that transformation type (one at a time).
+    quick_tools_mode = bpy.props.EnumProperty(
+        items=[
+            ('ALIGNPOINTS',
+             'Align Points',
+             'Match source vertex location to destination vertex location'),
+            ('DIRECTIONALSLIDE',
+             'Directional Slide',
+             'Move a target in a direction'),
+            ('SCALEMATCHEDGE',
+             'Match Edge Scale',
+             'Match source edge length to destination edge length'),
+            ('ALIGNLINES',
+             'Align Lines',
+             'Make lines collinear'),
+            ('AXISROTATE',
+             'Axis Rotate',
+             'Rotate around a specified axis'),
+            ('ALIGNPLANES',
+             'Align Planes',
+             'Make planes coplanar')
+        ],
+        name="Transf. Type",
+        description="The type of transformation to perform",
+        default='ALIGNPOINTS'
+    )
+
     quick_align_pts_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align points operator"
@@ -456,6 +485,120 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+
+
+# Quick Tools mode selector functionality, derived classes provide
+# the "quick_tools_mode" to switch to (target_type attrib)
+class ChangeQuickModeBase(bpy.types.Operator):
+    # Todo...add dotted groups to bl_idname's
+    bl_idname = "maplus.changequickmodebase"
+    bl_label = "Change Quick Tools mode base class"
+    bl_description = "The base class for changing Quick Tools mode"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        addon_data.quick_tools_mode = self.target_type
+
+        return {'FINISHED'}
+
+
+class QuickModeToAPT(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetoapt"
+    bl_label = "Change mode to Align Points"
+    bl_description = "Changes the Quick Tools mode to Align Points"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'ALIGNPOINTS'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
+
+
+class QuickModeToALN(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetoaln"
+    bl_label = "Change mode to Align Lines"
+    bl_description = "Changes the Quick Tools mode to Align Lines"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'ALIGNLINES'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
+
+
+class QuickModeToAPL(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetoapl"
+    bl_label = "Change mode to Align Planes"
+    bl_description = "Changes the Quick Tools mode to Align Planes"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'ALIGNPLANES'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
+
+
+class QuickModeToAXR(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetoaxr"
+    bl_label = "Change mode to Axis Rotate"
+    bl_description = "Changes the Quick Tools mode to Axis Rotate"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'AXISROTATE'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
+
+
+class QuickModeToDS(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetods"
+    bl_label = "Change mode to Directional Slide"
+    bl_description = "Changes the Quick Tools mode to Directional Slide"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'DIRECTIONALSLIDE'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
+
+
+class QuickModeToSME(ChangeQuickModeBase):
+    bl_idname = "maplus.quickmodetosme"
+    bl_label = "Change mode to Scale Match Edge"
+    bl_description = "Changes the Quick Tools mode to Scale Match Edge"
+    bl_options = {'REGISTER', 'UNDO'}
+    target_type = 'SCALEMATCHEDGE'
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if addon_data.quick_tools_mode == cls.target_type:
+            return False
+        return True
 
 
 # Basic type selector functionality, derived classes provide
@@ -892,7 +1035,6 @@ class DuplicateItemBase(bpy.types.Operator):
         }
         if active_item.kind in attrib_copy:
             for att in attrib_copy[active_item.kind]:
-                print('AAA')
                 setattr(new_item, att, getattr(active_item, att))
 
         return {'FINISHED'}
@@ -5518,6 +5660,487 @@ class MAPlusGui(bpy.types.Panel):
                             "apl_dest_plane",
                             type='DEFAULT'
                         )
+
+
+class QuickTools(bpy.types.Panel):
+    bl_idname = "quick_tools_gui"
+    bl_label = "Quick Tools"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "Tools"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+
+        layout.label("Choose an Operation:")
+        mode_selectors = layout.row(align=True)
+        mode_selectors.operator(
+            "maplus.quickmodetoapt",
+            icon='ROTATECOLLECTION',
+            text=""
+        )
+        mode_selectors.operator(
+            "maplus.quickmodetoaln",
+            icon='SNAP_EDGE',
+            text=""
+        )
+        mode_selectors.operator(
+            "maplus.quickmodetoapl",
+            icon='MOD_ARRAY',
+            text=""
+        )
+        mode_selectors.operator(
+            "maplus.quickmodetoaxr",
+            icon='FORCE_MAGNETIC',
+            text=""
+        )
+        mode_selectors.operator(
+            "maplus.quickmodetods",
+            icon='CURVE_PATH',
+            text=""
+        )
+        mode_selectors.operator(
+            "maplus.quickmodetosme",
+            icon='FULLSCREEN_ENTER',
+            text=""
+        )
+        layout.separator()
+
+        if addon_data.quick_tools_mode == 'ALIGNPOINTS':
+            apg_top = layout.row()
+            align_pts_gui = layout.column()
+            apg_top.label(
+                "Align Points",
+                icon="ROTATECOLLECTION"
+            )
+            # apg_top = align_pts_gui.row()
+            # apg_top.prop(
+                # maplus_data_ptr,
+                # 'quick_align_pts_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_align_pts_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # apg_top.label(
+                # "Align Points" if not \
+                # addon_data.quick_align_pts_show else "Align Points:",
+                # icon="ROTATECOLLECTION"
+            # )
+            # if addon_data.quick_align_pts_show:
+            # align_pts_gui.label("Destination:")
+            apt_grab_col = align_pts_gui.column()
+            apt_grab_col.prop(
+                addon_data,
+                'quick_align_pts_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_align_pts_auto_grab_src:
+                apt_grab_col.operator(
+                    "maplus.quickalignpointsgrabsrc",
+                    icon='WORLD',
+                    text="Grab Source"
+                )
+            apt_grab_col.operator(
+                "maplus.quickalignpointsgrabdest",
+                icon='WORLD',
+                text="Grab Destination"
+            )
+            # align_pts_gui.prop(
+                # addon_data.quick_align_pts_dest,
+                # 'point',
+                # ""
+            # )
+            align_pts_gui.label("Operator settings:")
+            apt_mods = align_pts_gui.box()
+            apt_box_row1 = apt_mods.row()
+            apt_box_row1.prop(
+                addon_data.quick_align_pts_transf,
+                'apt_make_unit_vector',
+                'Set Length to 1'
+            )
+            apt_box_row1.prop(
+                addon_data.quick_align_pts_transf,
+                'apt_flip_direction',
+                'Flip Direction'
+            )
+            apt_box_row2 = apt_mods.row()
+            apt_box_row2.prop(
+                addon_data.quick_align_pts_transf,
+                'apt_multiplier',
+                'Multiplier'
+            )
+            apt_apply_header = align_pts_gui.row()
+            apt_apply_header.label("Apply to:")
+            apt_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            apt_apply_items = align_pts_gui.split(percentage=.33)
+            apt_apply_items.operator(
+                "maplus.quickalignpointsobject",
+                text="Object"
+            )
+            apt_mesh_apply_items = apt_apply_items.row(align=True)
+            apt_mesh_apply_items.operator(
+                "maplus.quickalignpointsmeshselected",
+                text="Mesh Piece"
+            )
+            apt_mesh_apply_items.operator(
+                "maplus.quickalignpointswholemesh",
+                text="Whole Mesh"
+            )
+        elif addon_data.quick_tools_mode == 'ALIGNLINES':
+            aln_top = layout.row()
+            aln_gui = layout.column()
+            aln_top.label(
+                "Align Lines",
+                icon="SNAP_EDGE"
+            )
+            # aln_top = aln_gui.row()
+            # aln_top.prop(
+                # maplus_data_ptr,
+                # 'quick_align_lines_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_align_lines_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # aln_top.label(
+                # "Align Lines" if not \
+                # addon_data.quick_align_lines_show else "Align Lines:",
+                # icon="SNAP_EDGE"
+            # )
+            # if addon_data.quick_align_lines_show:
+            aln_grab_col = aln_gui.column()
+            aln_grab_col.prop(
+                addon_data,
+                'quick_align_lines_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_align_lines_auto_grab_src:
+                aln_grab_col.operator(
+                        "maplus.quickalignlinesgrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            aln_grab_col.operator(
+                    "maplus.quickalignlinesgrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+            # aln_gui.prop(
+                # addon_data.quick_align_pts_dest,
+                # 'point',
+                # ""
+            # )
+            aln_gui.label("Operator settings:")
+            aln_mods = aln_gui.box()
+            aln_mods_row1 = aln_mods.row()
+            aln_mods_row1.prop(
+                addon_data.quick_align_lines_transf,
+                'aln_flip_direction',
+                'Flip Direction'
+            )
+            aln_apply_header = aln_gui.row()
+            aln_apply_header.label("Apply to:")
+            aln_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            aln_apply_items = aln_gui.split(percentage=.33)
+            aln_apply_items.operator(
+                "maplus.quickalignlinesobject",
+                text="Object"
+            )
+            aln_mesh_apply_items = aln_apply_items.row(align=True)
+            aln_mesh_apply_items.operator(
+                "maplus.quickalignlinesmeshselected",
+                text="Mesh Piece"
+            )
+            aln_mesh_apply_items.operator(
+                "maplus.quickalignlineswholemesh",
+                text="Whole Mesh"
+            )
+        elif addon_data.quick_tools_mode == 'ALIGNPLANES':
+            apl_top = layout.row()
+            apl_gui = layout.column()
+            apl_top.label(
+                "Align Planes",
+                icon="MOD_ARRAY"
+            )
+            # apl_top = apl_gui.row()
+            # apl_top.prop(
+                # maplus_data_ptr,
+                # 'quick_align_planes_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_align_planes_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # apl_top.label(
+                # "Align Planes" if not \
+                # addon_data.quick_align_planes_show else "Align Planes:",
+                # icon="MOD_ARRAY"
+            # )
+            # if addon_data.quick_align_planes_show:
+            apl_grab_col = apl_gui.column()
+            apl_grab_col.prop(
+                addon_data,
+                'quick_align_planes_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_align_planes_auto_grab_src:
+                apl_grab_col.operator(
+                        "maplus.quickalignplanesgrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            apl_grab_col.operator(
+                    "maplus.quickalignplanesgrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+            apl_gui.label("Operator settings:")
+            apl_mods = apl_gui.box()
+            apl_mods_row1 = apl_mods.row()
+            apl_mods_row1.prop(
+                addon_data.quick_align_planes_transf,
+                'apl_flip_normal',
+                'Flip Normal'
+            )
+            apl_apply_header = apl_gui.row()
+            apl_apply_header.label("Apply to:")
+            apl_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            apl_apply_items = apl_gui.split(percentage=.33)
+            apl_apply_items.operator(
+                "maplus.quickalignplanesobject",
+                text="Object"
+            )
+            apl_mesh_apply_items = apl_apply_items.row(align=True)
+            apl_mesh_apply_items.operator(
+                "maplus.quickalignplanesmeshselected",
+                text="Mesh Piece"
+            )
+            apl_mesh_apply_items.operator(
+                "maplus.quickalignplaneswholemesh",
+                text="Whole Mesh"
+            )
+        elif addon_data.quick_tools_mode == 'AXISROTATE':
+            axr_top = layout.row()
+            axr_gui = layout.column()
+            axr_top.label(
+                "Axis Rotate",
+                icon="FORCE_MAGNETIC"
+            )
+            # axr_top = axr_gui.row()
+            # axr_top.prop(
+                # maplus_data_ptr,
+                # 'quick_axis_rotate_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_axis_rotate_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # axr_top.label(
+                # "Axis Rotate" if not \
+                # addon_data.quick_axis_rotate_show else "Axis Rotate:",
+                # icon="MOD_ARRAY"
+            # )
+            # if addon_data.quick_axis_rotate_show:
+            axr_grab_col = axr_gui.column()
+            axr_grab_col.prop(
+                addon_data,
+                'quick_axis_rotate_auto_grab_src',
+                'Auto Grab Axis from Selected Vertices'
+            )
+            if not addon_data.quick_axis_rotate_auto_grab_src:
+                axr_grab_col.operator(
+                        "maplus.quickaxisrotategrabsrc",
+                        icon='WORLD',
+                        text="Grab Axis"
+                )
+            axr_gui.label("Operator settings:")
+            axr_mods = axr_gui.box()
+            axr_mods_row1 = axr_mods.row()
+            axr_mods_row1.prop(
+                addon_data.quick_axis_rotate_transf,
+                'axr_amount',
+                'Amount'
+            )
+            axr_apply_header = axr_gui.row()
+            axr_apply_header.label("Apply to:")
+            axr_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            axr_apply_items = axr_gui.split(percentage=.33)
+            axr_apply_items.operator(
+                "maplus.quickaxisrotateobject",
+                text="Object"
+            )
+            axr_mesh_apply_items = axr_apply_items.row(align=True)
+            axr_mesh_apply_items.operator(
+                "maplus.quickaxisrotatemeshselected",
+                text="Mesh Piece"
+            )
+            axr_mesh_apply_items.operator(
+                "maplus.quickaxisrotatewholemesh",
+                text="Whole Mesh"
+            )
+        elif addon_data.quick_tools_mode == 'DIRECTIONALSLIDE':
+            ds_top = layout.row()
+            ds_gui = layout.column()
+            ds_top.label(
+                "Directional Slide",
+                icon="CURVE_PATH"
+            )
+            # ds_top = ds_gui.row()
+            # ds_top.prop(
+                # maplus_data_ptr,
+                # 'quick_directional_slide_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_directional_slide_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # ds_top.label(
+                # "Vector Slide" if not \
+                # addon_data.quick_directional_slide_show else "Vector Slide:",
+                # icon="MOD_ARRAY"
+            # )
+            # if addon_data.quick_directional_slide_show:
+            ds_grab_col = ds_gui.column()
+            ds_grab_col.prop(
+                addon_data,
+                'quick_directional_slide_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_directional_slide_auto_grab_src:
+                ds_grab_col.operator(
+                        "maplus.quickdirectionalslidegrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            ds_gui.label("Operator settings:")
+            ds_mods = ds_gui.box()
+            ds_box_row1 = ds_mods.row()
+            ds_box_row1.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_make_unit_vec',
+                'Set Length to 1'
+            )
+            ds_box_row1.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_flip_direction',
+                'Flip Direction'
+            )
+            ds_box_row2 = ds_mods.row()
+            ds_box_row2.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_multiplier',
+                'Multiplier'
+            )
+            ds_apply_header = ds_gui.row()
+            ds_apply_header.label("Apply to:")
+            ds_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            ds_apply_items = ds_gui.split(percentage=.33)
+            ds_apply_items.operator(
+                "maplus.quickdirectionalslideobject",
+                text="Object"
+            )
+            ds_mesh_apply_items = ds_apply_items.row(align=True)
+            ds_mesh_apply_items.operator(
+                "maplus.quickdirectionalslidemeshselected",
+                text="Mesh Piece"
+            )
+            ds_mesh_apply_items.operator(
+                "maplus.quickdirectionalslidewholemesh",
+                text="Whole Mesh"
+            )
+        elif addon_data.quick_tools_mode == 'SCALEMATCHEDGE':
+            sme_top = layout.row()
+            sme_gui = layout.column()
+            sme_top.label(
+                "Match Edge Scale",
+                icon="FULLSCREEN_ENTER"
+            )
+            # sme_top = sme_gui.row()
+            # sme_top.prop(
+                # maplus_data_ptr,
+                # 'quick_scale_match_edge_show',
+                # icon="TRIA_RIGHT" if not \
+                # addon_data.quick_scale_match_edge_show else "TRIA_DOWN",
+                # icon_only=True,
+                # emboss=False
+            # )
+            # sme_top.label(
+                # "Match Edge Scale" if not \
+                # addon_data.quick_scale_match_edge_show else "Match Edge Scale:",
+                # icon="MOD_ARRAY"
+            # )
+            # if addon_data.quick_scale_match_edge_show:
+            sme_grab_col = sme_gui.column()
+            sme_grab_col.prop(
+                addon_data,
+                'quick_scale_match_edge_auto_grab_src',
+                'Auto Grab Source from Selected Vertices'
+            )
+            if not addon_data.quick_scale_match_edge_auto_grab_src:
+                sme_grab_col.operator(
+                        "maplus.quickscalematchedgegrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            sme_grab_col.operator(
+                    "maplus.quickscalematchedgegrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+            # sme_gui.label("Operator settings:")
+            # sme_mods = sme_gui.box()
+            # sme_mods_row1 = sme_mods.row()
+            # sme_mods_row1.prop(
+                # addon_data.quick_align_planes_transf,
+                # 'sme_',
+                # 'Flip Normal'
+            # )
+            sme_apply_header = sme_gui.row()
+            sme_apply_header.label("Apply to:")
+            sme_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                'Enable Experimental Mesh Ops.'
+            )
+            sme_apply_items = sme_gui.split(percentage=.33)
+            sme_apply_items.operator(
+                "maplus.quickscalematchedgeobject",
+                text="Object"
+            )
+            sme_mesh_apply_items = sme_apply_items.row(align=True)
+            sme_mesh_apply_items.operator(
+                "maplus.quickscalematchedgemeshselected",
+                text="Mesh Piece"
+            )
+            sme_mesh_apply_items.operator(
+                "maplus.quickscalematchedgewholemesh",
+                text="Whole Mesh"
+            )
 
 
 class QuickAlignPointsGUI(bpy.types.Panel):
