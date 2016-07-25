@@ -364,7 +364,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_align_pts_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_pts_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_pts_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    
+
     quick_directional_slide_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the directional slide operator"
@@ -378,9 +378,15 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_directional_slide_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_directional_slide_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_directional_slide_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_directional_slide_src = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+    quick_directional_slide_dest = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+    quick_directional_slide_transf = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
 
     quick_scale_match_edge_show = bpy.props.BoolProperty(
         description=(
@@ -395,10 +401,16 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_scale_match_edge_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_scale_match_edge_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_scale_match_edge_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    
+    quick_scale_match_edge_src = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+    quick_scale_match_edge_dest = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+    quick_scale_match_edge_transf = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+
     quick_align_lines_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align lines operator"
@@ -415,7 +427,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_align_lines_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_lines_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_lines_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    
+
     quick_axis_rotate_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the axis rotate operator"
@@ -431,7 +443,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_axis_rotate_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_axis_rotate_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    
+
     quick_align_planes_show = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align planes operator"
@@ -447,7 +459,9 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_align_planes_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_planes_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_transf = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
 
     # Calculation global settings
     calc_result_to_clipboard = bpy.props.BoolProperty(
@@ -1052,7 +1066,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
 
             elif self.quick_op_target == "DSSRC":
                 active_item = addon_data.quick_directional_slide_src
-                
+
             elif self.quick_op_target == "SMESRC":
                 active_item = addon_data.quick_scale_match_edge_src
             elif self.quick_op_target == "SMEDEST":
@@ -1166,13 +1180,6 @@ class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
     quick_op_target = "APTSRC"
-
-    # @classmethod
-    # def poll(cls, context):
-        # addon_data = bpy.context.scene.maplus_data
-        # if addon_data.quick_align_pts_auto_grab_src:
-            # return False
-        # return True
 
 
 class QuickAlignPointsGrabDest(GrabFromGeometryBase):
@@ -2044,8 +2051,8 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         prims[active_item.sme_edge_two].kind != 'LINE'):
                     self.report(
                         {'ERROR'},
-                        ('Wrong operands: "Scale Match Edge" can only operate on '
-                         'two lines')
+                        ('Wrong operands: "Scale Match Edge" can only'
+                         ' operate on two lines')
                     )
                     return {'CANCELLED'}
 
@@ -2142,37 +2149,6 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         match_transf,
                         filter={'SELECT'}
                     )
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # match_transf,
-                            # filter={'TAG'}
-                        # )
-                    # else:
-                        # src_mesh.transform(
-                            # match_transf,
-                            # filter={'SELECT'}
-                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(match_transf)
 
@@ -2442,37 +2418,6 @@ class AlignPointsBase(bpy.types.Operator):
                         match_transf,
                         filter={'SELECT'}
                     )
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # match_transf,
-                            # filter={'TAG'}
-                        # )
-                    # else:
-                        # src_mesh.transform(
-                            # match_transf,
-                            # filter={'SELECT'}
-                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(match_transf)
 
@@ -2605,7 +2550,8 @@ class DirectionalSlideBase(bpy.types.Operator):
                 if prims[active_item.ds_direction].kind != 'LINE':
                     self.report(
                         {'ERROR'},
-                        'Wrong operand: "Directional Slide" can only operate on a line'
+                        'Wrong operand: "Directional Slide" can'
+                        ' only operate on a line'
                     )
                     return {'CANCELLED'}
 
@@ -2624,13 +2570,21 @@ class DirectionalSlideBase(bpy.types.Operator):
                 if addon_data.quick_directional_slide_auto_grab_src:
                     bpy.ops.maplus.quickdirectionalslidegrabsrc()
                 direction = (
-                    mathutils.Vector(addon_data.quick_directional_slide_src.line_end) -
-                    mathutils.Vector(addon_data.quick_directional_slide_src.line_start)
+                    mathutils.Vector(
+                        addon_data.quick_directional_slide_src.line_end
+                    ) -
+                    mathutils.Vector(
+                        addon_data.quick_directional_slide_src.line_start
+                    )
                 )
             else:
                 direction = (
-                    mathutils.Vector(prims[active_item.ds_direction].line_end) -
-                    mathutils.Vector(prims[active_item.ds_direction].line_start)
+                    mathutils.Vector(
+                        prims[active_item.ds_direction].line_end
+                    ) -
+                    mathutils.Vector(
+                        prims[active_item.ds_direction].line_start
+                    )
                 )
 
             if not hasattr(self, "quick_op_target"):
@@ -2685,37 +2639,6 @@ class DirectionalSlideBase(bpy.types.Operator):
                         corrected_direction_transf,
                         filter={'SELECT'}
                     )
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # corrected_direction_transf,
-                            # filter={'TAG'}
-                        # )
-                    # else:
-                        # src_mesh.transform(
-                            # corrected_direction_transf,
-                            # filter={'SELECT'}
-                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(corrected_direction_transf)
 
@@ -3001,41 +2924,6 @@ class AxisRotateBase(bpy.types.Operator):
                     )
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(bpy.context.active_object.data)
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # loc_axis_rotate,
-                            # filter={'TAG'}
-                        # )
-                        # bpy.ops.object.mode_set(mode='OBJECT')
-                        # src_mesh.to_mesh(bpy.context.active_object.data)
-                    # else:
-                        # src_mesh.transform(
-                            # loc_axis_rotate,
-                            # filter={'SELECT'}
-                        # )
-                        # bpy.ops.object.mode_set(mode='OBJECT')
-                        # src_mesh.to_mesh(bpy.context.active_object.data)
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(loc_axis_rotate)
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -3178,24 +3066,40 @@ class AlignLinesBase(bpy.types.Operator):
                 if addon_data.quick_align_lines_auto_grab_src:
                     bpy.ops.maplus.quickalignlinesgrabsrc()
                 first_line = (
-                    mathutils.Vector(addon_data.quick_align_lines_src.line_end) -
-                    mathutils.Vector(addon_data.quick_align_lines_src.line_start)
+                    mathutils.Vector(
+                        addon_data.quick_align_lines_src.line_end
+                    ) -
+                    mathutils.Vector(
+                        addon_data.quick_align_lines_src.line_start
+                    )
                 )
                 second_line = (
-                    mathutils.Vector(addon_data.quick_align_lines_dest.line_end) -
-                    mathutils.Vector(addon_data.quick_align_lines_dest.line_start)
+                    mathutils.Vector(
+                        addon_data.quick_align_lines_dest.line_end
+                    ) -
+                    mathutils.Vector(
+                        addon_data.quick_align_lines_dest.line_start
+                    )
                 )
                 if active_item.aln_flip_direction:
                     first_line.negate()
             else:
                 # construct lines from the selected list items
                 first_line = (
-                    mathutils.Vector(prims[active_item.aln_src_line].line_end) -
-                    mathutils.Vector(prims[active_item.aln_src_line].line_start)
+                    mathutils.Vector(
+                        prims[active_item.aln_src_line].line_end
+                    ) -
+                    mathutils.Vector(
+                        prims[active_item.aln_src_line].line_start
+                    )
                 )
                 second_line = (
-                    mathutils.Vector(prims[active_item.aln_dest_line].line_end) -
-                    mathutils.Vector(prims[active_item.aln_dest_line].line_start)
+                    mathutils.Vector(
+                        prims[active_item.aln_dest_line].line_end
+                    ) -
+                    mathutils.Vector(
+                        prims[active_item.aln_dest_line].line_start
+                    )
                 )
                 if prims[addon_data.active_list_item].aln_flip_direction:
                     first_line.negate()
@@ -3373,37 +3277,6 @@ class AlignLinesBase(bpy.types.Operator):
                         loc_make_collinear,
                         filter={'SELECT'}
                     )
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # loc_make_collinear,
-                            # filter={'TAG'}
-                        # )
-                    # else:
-                        # src_mesh.transform(
-                            # loc_make_collinear,
-                            # filter={'SELECT'}
-                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(loc_make_collinear)
 
@@ -3796,7 +3669,6 @@ class AlignPlanesBase(bpy.types.Operator):
                             prims[active_item.apl_dest_plane].plane_pt_b
                         )
                     )
-                    
 
                 # Move the src pivot to the local origin, so that
                 # it's easier to move after rotating
@@ -3845,37 +3717,6 @@ class AlignPlanesBase(bpy.types.Operator):
                         mesh_coplanar,
                         filter={'SELECT'}
                     )
-                    # if hasattr(self, "quick_op_target"):
-                        # if "_sel" not in bpy.context.active_object.vertex_groups:
-                            # self.report(
-                                # {'ERROR'},
-                                # ('Missing vertex group: A vertex group named '
-                                 # '"_sel" must be present to transform'
-                                 # 'selected vertices with the Quick Tools.'
-                                # )
-                            # )
-                            # return {'CANCELLED'}
-                        # group_ind = (
-                            # bpy.context.active_object.vertex_groups["_sel"].index
-                        # )
-                        # target_verts = []
-                        # for vert in bpy.context.active_object.data.vertices:
-                            # for vgroup in vert.groups:
-                                # if vgroup.group == group_ind:
-                                    # target_verts.append(vert.index)
-                        # # todo, REPORT on no verts in the vert group
-                        # for v in src_mesh.verts:
-                            # if v.index in target_verts:
-                                # v.tag = True
-                        # src_mesh.transform(
-                            # mesh_coplanar,
-                            # filter={'TAG'}
-                        # )
-                    # else:
-                        # src_mesh.transform(
-                            # mesh_coplanar,
-                            # filter={'SELECT'}
-                        # )
                 elif self.target == 'WHOLEMESH':
                     src_mesh.transform(mesh_coplanar)
 
@@ -3985,7 +3826,7 @@ class CalcLineLength(bpy.types.Operator):
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
         calc_target_item = prims[active_item.single_calc_target]
-        
+
         if calc_target_item.kind != 'LINE':
             self.report(
                 {'ERROR'},
@@ -4032,12 +3873,12 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
         if calc_target_item.kind != 'LINE':
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Compose New Line from Origin" can only operate on'
-                 ' a line')
+                ('Wrong operand: "Compose New Line from Origin" can'
+                 ' only operate on a line')
             )
             return {'CANCELLED'}
 
-        start_loc = mathutils.Vector((0,0,0))
+        start_loc = mathutils.Vector((0, 0, 0))
 
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
@@ -4112,12 +3953,12 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
         if calc_target_item.kind != 'POINT':
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Compose New Line from Point" can only operate on'
-                 ' a point')
+                ('Wrong operand: "Compose New Line from Point" can'
+                 ' only operate on a point')
             )
             return {'CANCELLED'}
 
-        start_loc = mathutils.Vector((0,0,0))
+        start_loc = mathutils.Vector((0, 0, 0))
 
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
@@ -4148,8 +3989,8 @@ class ComposeNewLineAtPointLocation(bpy.types.Operator):
         if not ('POINT' in targets_by_kind and 'LINE' in targets_by_kind):
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Compose New Line at Point" can only operate on'
-                 ' a line')
+                ('Wrong operand: "Compose New Line at Point" can'
+                 ' only operate on a line')
             )
             return {'CANCELLED'}
 
@@ -4183,11 +4024,12 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
         calc_target_one = prims[active_item.multi_calc_target_one]
         calc_target_two = prims[active_item.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'POINT' and calc_target_two.kind == 'POINT'):
+        if not (calc_target_one.kind == 'POINT' and
+                calc_target_two.kind == 'POINT'):
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Calculate Distance Between Points" can only operate on'
-                 ' two points')
+                ('Wrong operand: "Calculate Distance Between Points" can'
+                 ' only operate on two points')
             )
             return {'CANCELLED'}
 
@@ -4215,11 +4057,12 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
         calc_target_one = prims[active_item.multi_calc_target_one]
         calc_target_two = prims[active_item.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'POINT' and calc_target_two.kind == 'POINT'):
+        if not (calc_target_one.kind == 'POINT' and
+                calc_target_two.kind == 'POINT'):
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Compose New Line from Points" can only operate on'
-                 ' two points')
+                ('Wrong operand: "Compose New Line from Points" can'
+                 ' only operate on two points')
             )
             return {'CANCELLED'}
 
@@ -4244,7 +4087,8 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
         calc_target_one = prims[active_item.multi_calc_target_one]
         calc_target_two = prims[active_item.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'LINE' and calc_target_two.kind == 'LINE'):
+        if not (calc_target_one.kind == 'LINE' and
+                calc_target_two.kind == 'LINE'):
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Add Lines" can only operate on'
@@ -4252,7 +4096,7 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        start_loc = mathutils.Vector((0,0,0))
+        start_loc = mathutils.Vector((0, 0, 0))
 
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
@@ -4287,7 +4131,8 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
         calc_target_one = prims[active_item.multi_calc_target_one]
         calc_target_two = prims[active_item.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'LINE' and calc_target_two.kind == 'LINE'):
+        if not (calc_target_one.kind == 'LINE' and
+                calc_target_two.kind == 'LINE'):
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Add Lines" can only operate on'
@@ -4295,7 +4140,7 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        start_loc = mathutils.Vector((0,0,0))
+        start_loc = mathutils.Vector((0, 0, 0))
 
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
@@ -4429,31 +4274,6 @@ class MAPlusGui(bpy.types.Panel):
                 'kind',
                 ""
             )
-            # item_name_and_types.operator(
-                # "maplus.changetypetopointprim",
-                # icon='LAYER_ACTIVE',
-                # text=""
-            # )
-            # item_name_and_types.operator(
-                # "maplus.changetypetolineprim",
-                # icon='MAN_TRANS',
-                # text=""
-            # )
-            # item_name_and_types.operator(
-                # "maplus.changetypetoplaneprim",
-                # icon='OUTLINER_OB_MESH',
-                # text=""
-            # )
-            # item_name_and_types.operator(
-                # "maplus.changetypetocalcprim",
-                # icon='NODETREE',
-                # text=""
-            # )
-            # item_name_and_types.operator(
-                # "maplus.changetypetotransfprim",
-                # icon='MANIPUL',
-                # text=""
-            # )
             basic_item_attribs_col.separator()
 
             # Item-specific UI elements (primitive-specific data like coords
@@ -4577,7 +4397,7 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
                 item_info_col.operator(
-                   "maplus.duplicateitembase",
+                    "maplus.duplicateitembase",
                     text="Duplicate Item"
                 )
 
@@ -4771,7 +4591,7 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
                 item_info_col.operator(
-                   "maplus.duplicateitembase",
+                    "maplus.duplicateitembase",
                     text="Duplicate Item"
                 )
 
@@ -5034,7 +4854,7 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
                 item_info_col.operator(
-                   "maplus.duplicateitembase",
+                    "maplus.duplicateitembase",
                     text="Duplicate Item"
                 )
 
@@ -5107,7 +4927,7 @@ class MAPlusGui(bpy.types.Panel):
                                 text="Get Plane Normal (Normalized)"
                             )
                 elif active_item.calc_type == 'MULTIITEM':
-                    
+
                     item_info_col.label("Targets:")
                     calc_targets = item_info_col.row()
                     calc_targets.template_list(
@@ -5149,8 +4969,12 @@ class MAPlusGui(bpy.types.Panel):
                     # to access those indices in prims at the beginning here.
                     if (active_item.multi_calc_target_one < len(prims) and
                             active_item.multi_calc_target_two < len(prims)):
-                        calc_target_one = prims[active_item.multi_calc_target_one]
-                        calc_target_two = prims[active_item.multi_calc_target_two]
+                        calc_target_one = prims[
+                            active_item.multi_calc_target_one
+                        ]
+                        calc_target_two = prims[
+                            active_item.multi_calc_target_two
+                        ]
                         type_combo = {
                             calc_target_one.kind,
                             calc_target_two.kind
@@ -5244,7 +5068,9 @@ class MAPlusGui(bpy.types.Panel):
                             text=" Whole Mesh"
                         )
                     elif active_item.transf_type == 'DIRECTIONALSLIDE':
-                        apply_buttons_header.label('Apply Directional Slide to:')
+                        apply_buttons_header.label(
+                            'Apply Directional Slide to:'
+                        )
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
                             "maplus.directionalslideobject",
@@ -5262,7 +5088,9 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     elif active_item.transf_type == 'SCALEMATCHEDGE':
-                        apply_buttons_header.label('Apply Scale Match Edge to:')
+                        apply_buttons_header.label(
+                            'Apply Scale Match Edge to:'
+                        )
                         apply_buttons = item_info_col.split(percentage=.33)
                         apply_buttons.operator(
                             "maplus.scalematchedgeobject",
@@ -5336,7 +5164,7 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     item_info_col.separator()
-                    experiment_toggle= apply_buttons_header.column()
+                    experiment_toggle = apply_buttons_header.column()
                     experiment_toggle.prop(
                             addon_data,
                             'use_experimental',
@@ -5347,7 +5175,7 @@ class MAPlusGui(bpy.types.Panel):
 
                     # Todo, add scale match edge mods
                     if (active_item.transf_type != 'SCALEMATCHEDGE' and
-                                    active_item.transf_type != 'AXISROTATE'):
+                            active_item.transf_type != 'AXISROTATE'):
                         item_info_col.label('Transformation Modifiers:')
                         item_mods_box = item_info_col.box()
                         mods_row_1 = item_mods_box.row()
@@ -5540,22 +5368,6 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             "Align Points",
             icon="ROTATECOLLECTION"
         )
-        # apg_top = align_pts_gui.row()
-        # apg_top.prop(
-            # maplus_data_ptr,
-            # 'quick_align_pts_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_align_pts_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # apg_top.label(
-            # "Align Points" if not \
-            # addon_data.quick_align_pts_show else "Align Points:",
-            # icon="ROTATECOLLECTION"
-        # )
-        # if addon_data.quick_align_pts_show:
-        # align_pts_gui.label("Destination:")
         apt_grab_col = align_pts_gui.column()
         apt_grab_col.prop(
             addon_data,
@@ -5573,11 +5385,6 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             icon='WORLD',
             text="Grab Destination"
         )
-        # align_pts_gui.prop(
-            # addon_data.quick_align_pts_dest,
-            # 'point',
-            # ""
-        # )
         align_pts_gui.label("Operator settings:")
         apt_mods = align_pts_gui.box()
         apt_box_row1 = apt_mods.row()
@@ -5640,21 +5447,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             "Align Lines",
             icon="SNAP_EDGE"
         )
-        # aln_top = aln_gui.row()
-        # aln_top.prop(
-            # maplus_data_ptr,
-            # 'quick_align_lines_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_align_lines_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # aln_top.label(
-            # "Align Lines" if not \
-            # addon_data.quick_align_lines_show else "Align Lines:",
-            # icon="SNAP_EDGE"
-        # )
-        # if addon_data.quick_align_lines_show:
         aln_grab_col = aln_gui.column()
         aln_grab_col.prop(
             addon_data,
@@ -5672,11 +5464,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 icon='WORLD',
                 text="Grab Destination"
         )
-        # aln_gui.prop(
-            # addon_data.quick_align_pts_dest,
-            # 'point',
-            # ""
-        # )
         aln_gui.label("Operator settings:")
         aln_mods = aln_gui.box()
         aln_mods_row1 = aln_mods.row()
@@ -5715,7 +5502,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_category = "MAPlus Tools"
     bl_options = {"DEFAULT_CLOSED"}
-    
 
     def draw(self, context):
         layout = self.layout
@@ -5729,21 +5515,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             "Align Planes",
             icon="MOD_ARRAY"
         )
-        # apl_top = apl_gui.row()
-        # apl_top.prop(
-            # maplus_data_ptr,
-            # 'quick_align_planes_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_align_planes_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # apl_top.label(
-            # "Align Planes" if not \
-            # addon_data.quick_align_planes_show else "Align Planes:",
-            # icon="MOD_ARRAY"
-        # )
-        # if addon_data.quick_align_planes_show:
         apl_grab_col = apl_gui.column()
         apl_grab_col.prop(
             addon_data,
@@ -5805,28 +5576,13 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        
+
         axr_top = layout.row()
         axr_gui = layout.box()
         axr_top.label(
             "Axis Rotate",
             icon="FORCE_MAGNETIC"
         )
-        # axr_top = axr_gui.row()
-        # axr_top.prop(
-            # maplus_data_ptr,
-            # 'quick_axis_rotate_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_axis_rotate_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # axr_top.label(
-            # "Axis Rotate" if not \
-            # addon_data.quick_axis_rotate_show else "Axis Rotate:",
-            # icon="MOD_ARRAY"
-        # )
-        # if addon_data.quick_axis_rotate_show:
         axr_grab_col = axr_gui.column()
         axr_grab_col.prop(
             addon_data,
@@ -5890,21 +5646,6 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
             "Directional Slide",
             icon="CURVE_PATH"
         )
-        # ds_top = ds_gui.row()
-        # ds_top.prop(
-            # maplus_data_ptr,
-            # 'quick_directional_slide_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_directional_slide_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # ds_top.label(
-            # "Vector Slide" if not \
-            # addon_data.quick_directional_slide_show else "Vector Slide:",
-            # icon="MOD_ARRAY"
-        # )
-        # if addon_data.quick_directional_slide_show:
         ds_grab_col = ds_gui.column()
         ds_grab_col.prop(
             addon_data,
@@ -5979,21 +5720,6 @@ class QuickSMEGUI(bpy.types.Panel):
             "Match Edge Scale",
             icon="FULLSCREEN_ENTER"
         )
-        # sme_top = sme_gui.row()
-        # sme_top.prop(
-            # maplus_data_ptr,
-            # 'quick_scale_match_edge_show',
-            # icon="TRIA_RIGHT" if not \
-            # addon_data.quick_scale_match_edge_show else "TRIA_DOWN",
-            # icon_only=True,
-            # emboss=False
-        # )
-        # sme_top.label(
-            # "Match Edge Scale" if not \
-            # addon_data.quick_scale_match_edge_show else "Match Edge Scale:",
-            # icon="MOD_ARRAY"
-        # )
-        # if addon_data.quick_scale_match_edge_show:
         sme_grab_col = sme_gui.column()
         sme_grab_col.prop(
             addon_data,
@@ -6011,14 +5737,6 @@ class QuickSMEGUI(bpy.types.Panel):
                 icon='WORLD',
                 text="Grab Destination"
         )
-        # sme_gui.label("Operator settings:")
-        # sme_mods = sme_gui.box()
-        # sme_mods_row1 = sme_mods.row()
-        # sme_mods_row1.prop(
-            # addon_data.quick_align_planes_transf,
-            # 'sme_',
-            # 'Flip Normal'
-        # )
         sme_apply_header = sme_gui.row()
         sme_apply_header.label("Apply to:")
         sme_apply_header.prop(
