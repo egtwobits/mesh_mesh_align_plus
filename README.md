@@ -1,7 +1,7 @@
 # Mesh Align Plus (Blender Addon)
 The Mesh Align Plus addon is designed to help artists construct 3D models from mesh pieces, and to build scenes from objects, by moving parts around with precision (using scene geometry and/or measurements as the basis for transformations).
 
-The complete manual/wiki is here currently (visit for more info, including contact information): http://wiki.blender.org/index.php/User:Egtwobits
+The complete manual/wiki is here currently (visit for more info, including contact information): https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Mesh_Align_Plus
 
 The simple examples below should provide a general sense of what the addon can do:
 
