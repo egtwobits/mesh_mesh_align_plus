@@ -1,6 +1,6 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
-# Mesh Align Plus-Specify transformations relative to geometry in your scene.
+# Mesh Align Plus-Build precision models using scene geometry/measurements.
 # Copyright (C) 2015 Eric Gentry
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,17 +23,26 @@
 
 # Blender requires addons to provide this information.
 bl_info = {
-    "name": "Mesh Align Plus Alpha",
+    "name": "Mesh Align Plus",
     "description": (
-        "Precisely align, arrange and transform objects "
-        "and mesh parts using real or imaginary geometry "
-        "from your scene."
+        "Precisely move mesh parts and objects around "
+        "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": "0, 1",
+    "version": (0, 1, 0),
     "blender": (2, 75, 0),
-    "location": "3D View > Tools, and Properties -> Scene -> Mesh Align Plus",
-    "warning": "Alpha release, there may be bugs.",
+    "location": (
+        "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
+    ),
+    "warning": (
+        "Operations on objects with non-uniform scaling are "
+        "not currently supported."
+    ),
+    "wiki_url": (
+        "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
+        "Scripts/Modeling/Mesh_Align_Plus"
+    ),
+    "support": "COMMUNITY",
     "category": "Mesh"
 }  # Todo, add more information here
 
