@@ -4197,10 +4197,10 @@ class MAPlusList(bpy.types.UIList):
             layout.label(item.name, icon="MANIPUL")
 
 
-# Main panel containing almost all the functionality for the addon
+# Advanced Tools panel
 class MAPlusGui(bpy.types.Panel):
-    bl_idname = "maplus_tools_alpha"
-    bl_label = "MAPlus Tools Alpha"
+    bl_idname = "maplus_advanced_tools"
+    bl_label = "Mesh Align Plus Advanced Tools"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
@@ -5362,7 +5362,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
     bl_label = "Quick Align Points"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -5441,7 +5441,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
     bl_label = "Quick Align Lines"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -5509,7 +5509,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
     bl_label = "Quick Align Planes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -5577,7 +5577,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
     bl_label = "Quick Axis Rotate"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -5640,7 +5640,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_label = "Quick Directional Move"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -5714,7 +5714,7 @@ class QuickSMEGUI(bpy.types.Panel):
     bl_label = "Quick Scale Match Edge"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MAPlus Tools"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
