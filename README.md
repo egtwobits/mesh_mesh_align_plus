@@ -11,4 +11,5 @@ See the simple demo clips below for a general sense of what the addon can do, or
 <div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/hi2Lw.gif"></div>
 <div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/dOOF8.gif"></div>
 <div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/IgMGY.gif"></div>
+<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/05uXX.gif"></div>
 </div>
