@@ -3573,6 +3573,42 @@ class AlignPlanesBase(bpy.types.Operator):
                 )
                 bpy.context.scene.update()
 
+                # Set up edge alignment (BA plane1 to BA plane2)
+                new_edge_orientation = first_pln_ln_BA.copy()
+                new_edge_orientation.rotate(rotational_diff)
+                edge_align = new_edge_orientation.rotation_difference(
+                    second_pln_ln_BA
+                )
+                bpy.context.active_object.rotation_euler.rotate(
+                    edge_align
+                )
+                bpy.context.scene.update()
+                
+                # todo, fix the adv tools op, not just quick tools
+                # again, find the new global location of the pivot
+                new_active = bpy.context.active_object.matrix_world.copy()
+                new_global_src_pivot_coords = (
+                    mathutils.Vector(
+                        addon_data.quick_align_planes_dest.plane_pt_b
+                    ) - bpy.context.active_object.location
+                )
+                new_global_src_pivot_coords.rotate(edge_align)
+                new_global_src_pivot_coords = (
+                    new_global_src_pivot_coords +
+                    bpy.context.active_object.location
+                )
+                edge_align_translation = (
+                    mathutils.Vector(
+                        addon_data.quick_align_planes_dest.plane_pt_b
+                    ) - new_global_src_pivot_coords
+                )
+                
+                bpy.context.active_object.location = (
+                    bpy.context.active_object.location +
+                    edge_align_translation
+                )
+                bpy.context.scene.update()
+
             else:
                 self.report(
                     {'WARNING'},
