@@ -1488,7 +1488,7 @@ class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class SendPlaneCToCursor(bpy.types.Operator):
+class SendPlaneCToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
