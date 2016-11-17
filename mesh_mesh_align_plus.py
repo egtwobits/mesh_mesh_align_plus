@@ -3586,66 +3586,54 @@ class AlignPlanesBase(bpy.types.Operator):
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                # Construct planes in local obj space to get rot diff
-                loc_first_pln_ln_BA = (
-                    inverse_active * first_pln_ln_BA
-                )
-                
-                loc_first_pln_ln_BC = (
-                    inverse_active * first_pln_ln_BC
-                )
-                loc_first_normal = loc_first_pln_ln_BA.cross(
-                    loc_first_pln_ln_BC
+                # Stored geom data in local coords
+                src_a_loc = inverse_active * mathutils.Vector(src_pt_a)
+                src_b_loc = inverse_active * mathutils.Vector(src_pt_b)
+                src_c_loc = inverse_active * mathutils.Vector(src_pt_c)
+
+                dest_a_loc = inverse_active * mathutils.Vector(dest_pt_a)
+                dest_b_loc = inverse_active * mathutils.Vector(dest_pt_b)
+                dest_c_loc = inverse_active * mathutils.Vector(dest_pt_c)
+
+                src_ba_loc = src_a_loc - src_b_loc
+                src_bc_loc = src_c_loc - src_b_loc
+                src_normal_loc = src_ba_loc.cross(src_bc_loc)
+
+                dest_ba_loc = dest_a_loc - dest_b_loc
+                dest_bc_loc = dest_c_loc - dest_b_loc
+                dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
+
+                loc_rot_diff = src_normal_loc.rotation_difference(
+                    dest_normal_loc
                 )
 
-                loc_second_pln_ln_BA = (
-                    inverse_active * second_pln_ln_BA
-                )
-                loc_second_pln_ln_BC = (
-                    inverse_active * second_pln_ln_BC
-                )
-                loc_second_normal = loc_second_pln_ln_BA.cross(
-                    loc_second_pln_ln_BC
+                # Get translation, move source pivot to local origin
+                src_b_inv = src_b_loc.copy()
+                src_b_inv.negate()
+                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                    src_b_inv
                 )
 
-                local_dest_pivot_coords = (
-                    inverse_active * mathutils.Vector(
-                        dest_pt_b
-                    )
-                )
+                # Get rotational diff between planes
+                parallelize_planes = loc_rot_diff.to_matrix()
+                parallelize_planes.resize_4x4()
 
-                # Move the src pivot to the local origin, so that
-                # it's easier to move after rotating
-                inverted_local_src_pivot_coords = (
-                    local_src_pivot_coords.copy()
+                # Get edge alignment rotation (align leading plane edges)
+                new_lead_edge_ornt = parallelize_planes * src_ba_loc
+                edge_rdiff = new_lead_edge_ornt.rotation_difference(
+                    dest_ba_loc
                 )
-                inverted_local_src_pivot_coords.negate()
+                parallelize_edges = edge_rdiff.to_matrix()
+                parallelize_edges.resize_4x4()
 
-                loc_rot_diff = loc_first_normal.rotation_difference(
-                    loc_second_normal
-                )
-
-                loc_transf_to_parallel_raw = loc_rot_diff.to_matrix()
-                loc_transf_to_parallel_raw.resize_4x4()
-
-                src_pivot_to_origin = mathutils.Matrix.Translation(
-                    inverted_local_src_pivot_coords
-                )
-
-                move_to_dest_pivot_translation = inverse_active * (
-                    mathutils.Vector(
-                        dest_pt_b
-                    )
-                )
-                move_to_dest_pivot_transf = mathutils.Matrix.Translation(
-                    local_dest_pivot_coords
-                )
-                move_to_dest_pivot_transf.resize_4x4()
+                # Get translation, move pivot to destination
+                pivot_to_dest = mathutils.Matrix.Translation(dest_b_loc)
 
                 mesh_coplanar = (
-                    move_to_dest_pivot_transf *
-                    loc_transf_to_parallel_raw *
-                    src_pivot_to_origin
+                    pivot_to_dest *
+                    parallelize_edges *
+                    parallelize_planes *
+                    src_pivot_to_loc_origin
                 )
 
                 if self.target == 'MESHSELECTED':
