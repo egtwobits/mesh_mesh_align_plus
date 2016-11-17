@@ -3449,66 +3449,46 @@ class AlignPlanesBase(bpy.types.Operator):
                 dest_pt_c = prims[active_item.apl_dest_plane].plane_pt_c
 
             # construct normal vector for first (source) plane
-            first_pln_ln_BA = (
-                mathutils.Vector(
-                    src_pt_a
-                ) -
-                mathutils.Vector(
-                    src_pt_b
-                )
+            src_pln_ln_BA = (
+                mathutils.Vector(src_pt_a) -
+                mathutils.Vector(src_pt_b)
             )
-            first_pln_ln_BC = (
-                mathutils.Vector(
-                    src_pt_c
-                ) -
-                mathutils.Vector(
-                    src_pt_b
-                )
+            src_pln_ln_BC = (
+                mathutils.Vector(src_pt_c) -
+                mathutils.Vector(src_pt_b)
             )
-            first_normal = first_pln_ln_BA.cross(first_pln_ln_BC)
+            src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
             # flip first normal's direction if that option is toggled
             if active_item.apl_flip_normal:
-                first_normal.negate()
+                src_normal.negate()
 
             # construct normal vector for second (destination) plane
-            second_pln_ln_BA = (
-                mathutils.Vector(
-                    dest_pt_a
-                ) -
-                mathutils.Vector(
-                    dest_pt_b
-                )
+            dest_pln_ln_BA = (
+                mathutils.Vector(dest_pt_a) -
+                mathutils.Vector(dest_pt_b)
             )
-            second_pln_ln_BC = (
-                mathutils.Vector(
-                    dest_pt_c
-                ) -
-                mathutils.Vector(
-                    dest_pt_b
-                )
+            dest_pln_ln_BC = (
+                mathutils.Vector(dest_pt_c) -
+                mathutils.Vector(dest_pt_b)
             )
-            second_normal = second_pln_ln_BA.cross(second_pln_ln_BC)
+            dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
 
             # find rotational difference between source and dest planes
-            rotational_diff = first_normal.rotation_difference(second_normal)
+            rotational_diff = src_normal.rotation_difference(dest_normal)
             transf_to_parallel_raw = rotational_diff.to_matrix()
             transf_to_parallel_raw.resize_4x4()
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
-            t, r, s, = active_obj_transf.decompose()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
-            inv_translate, inv_rot, inv_scale = inverse_active.decompose()
 
             # get local coords using active object as basis, in other words,
             # determine coords of the source pivot relative to the active
             # object's origin by reversing the active object's transf from
             # the pivot's coords
             local_src_pivot_coords = (
-                inverse_active * mathutils.Vector(
-                    src_pt_b
-                )
+                inverse_active * mathutils.Vector(src_pt_b)
             )
 
             if self.target == 'OBJECT':
@@ -3517,6 +3497,17 @@ class AlignPlanesBase(bpy.types.Operator):
                 # try to rotate the object by the rotational_diff
                 bpy.context.active_object.rotation_euler.rotate(
                     rotational_diff
+                )
+                bpy.context.scene.update()
+
+                # Set up edge alignment (BA plane1 to BA plane2)
+                new_lead_edge_orientation = src_pln_ln_BA.copy()
+                new_lead_edge_orientation.rotate(rotational_diff)
+                parallelize_edges = new_lead_edge_orientation.rotation_difference(
+                    dest_pln_ln_BA
+                )
+                bpy.context.active_object.rotation_euler.rotate(
+                    parallelize_edges
                 )
                 bpy.context.scene.update()
 
@@ -3529,49 +3520,13 @@ class AlignPlanesBase(bpy.types.Operator):
                 # vector) so that the source pivot sits on the destination
                 # pivot's location
                 # first vec is the global/absolute distance bw the two pivots
-                final_translation_vector = (
-                    mathutils.Vector(
-                        dest_pt_b
-                    ) - new_global_src_pivot_coords
+                pivot_to_dest = (
+                    mathutils.Vector(dest_pt_b) -
+                    new_global_src_pivot_coords
                 )
                 bpy.context.active_object.location = (
                     bpy.context.active_object.location +
-                    final_translation_vector
-                )
-                bpy.context.scene.update()
-
-                # Set up edge alignment (BA plane1 to BA plane2)
-                new_edge_orientation = first_pln_ln_BA.copy()
-                new_edge_orientation.rotate(rotational_diff)
-                edge_align = new_edge_orientation.rotation_difference(
-                    second_pln_ln_BA
-                )
-                bpy.context.active_object.rotation_euler.rotate(
-                    edge_align
-                )
-                bpy.context.scene.update()
-                
-                # todo, fix the adv tools op, not just quick tools
-                # again, find the new global location of the pivot
-                new_global_src_pivot_coords = (
-                    mathutils.Vector(
-                        dest_pt_b
-                    ) - bpy.context.active_object.location
-                )
-                new_global_src_pivot_coords.rotate(edge_align)
-                new_global_src_pivot_coords = (
-                    new_global_src_pivot_coords +
-                    bpy.context.active_object.location
-                )
-                edge_align_translation = (
-                    mathutils.Vector(
-                        dest_pt_b
-                    ) - new_global_src_pivot_coords
-                )
-                
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location +
-                    edge_align_translation
+                    pivot_to_dest
                 )
                 bpy.context.scene.update()
 
@@ -3598,6 +3553,8 @@ class AlignPlanesBase(bpy.types.Operator):
                 src_ba_loc = src_a_loc - src_b_loc
                 src_bc_loc = src_c_loc - src_b_loc
                 src_normal_loc = src_ba_loc.cross(src_bc_loc)
+                if active_item.apl_flip_normal:
+                    src_normal_loc.negate()
 
                 dest_ba_loc = dest_a_loc - dest_b_loc
                 dest_bc_loc = dest_c_loc - dest_b_loc
@@ -3615,24 +3572,24 @@ class AlignPlanesBase(bpy.types.Operator):
                 )
 
                 # Get rotational diff between planes
-                parallelize_planes = loc_rot_diff.to_matrix()
-                parallelize_planes.resize_4x4()
+                parallelize_planes_loc = loc_rot_diff.to_matrix()
+                parallelize_planes_loc.resize_4x4()
 
                 # Get edge alignment rotation (align leading plane edges)
-                new_lead_edge_ornt = parallelize_planes * src_ba_loc
-                edge_rdiff = new_lead_edge_ornt.rotation_difference(
+                new_lead_edge_ornt_loc = parallelize_planes_loc * src_ba_loc
+                edge_align_loc = new_lead_edge_ornt_loc.rotation_difference(
                     dest_ba_loc
                 )
-                parallelize_edges = edge_rdiff.to_matrix()
-                parallelize_edges.resize_4x4()
+                parallelize_edges_loc = edge_align_loc.to_matrix()
+                parallelize_edges_loc.resize_4x4()
 
                 # Get translation, move pivot to destination
-                pivot_to_dest = mathutils.Matrix.Translation(dest_b_loc)
+                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_b_loc)
 
                 mesh_coplanar = (
-                    pivot_to_dest *
-                    parallelize_edges *
-                    parallelize_planes *
+                    pivot_to_dest_loc *
+                    parallelize_edges_loc *
+                    parallelize_planes_loc *
                     src_pivot_to_loc_origin
                 )
 
