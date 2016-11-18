@@ -3070,90 +3070,72 @@ class AlignLinesBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
-                # construct lines from the selected list items
                 if addon_data.quick_align_lines_auto_grab_src:
                     bpy.ops.maplus.quickalignlinesgrabsrc()
-                first_line = (
-                    mathutils.Vector(
-                        addon_data.quick_align_lines_src.line_end
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_lines_src.line_start
-                    )
-                )
-                second_line = (
-                    mathutils.Vector(
-                        addon_data.quick_align_lines_dest.line_end
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_lines_dest.line_start
-                    )
-                )
-                if active_item.aln_flip_direction:
-                    first_line.negate()
-            else:
-                # construct lines from the selected list items
-                first_line = (
-                    mathutils.Vector(
-                        prims[active_item.aln_src_line].line_end
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.aln_src_line].line_start
-                    )
-                )
-                second_line = (
-                    mathutils.Vector(
-                        prims[active_item.aln_dest_line].line_end
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.aln_dest_line].line_start
-                    )
-                )
-                if prims[addon_data.active_list_item].aln_flip_direction:
-                    first_line.negate()
 
+                src_start = addon_data.quick_align_lines_src.line_start
+                src_end = addon_data.quick_align_lines_src.line_end
+
+                dest_start = addon_data.quick_align_lines_dest.line_start
+                dest_end = addon_data.quick_align_lines_dest.line_end
+
+            else:
+                src_start = prims[active_item.aln_src_line].line_start
+                src_end = prims[active_item.aln_src_line].line_end
+
+                dest_start = prims[active_item.aln_dest_line].line_start
+                dest_end = prims[active_item.aln_dest_line].line_end
+
+            # construct lines from the stored geometry
+            src_line = (
+                mathutils.Vector(src_end) -
+                mathutils.Vector(src_start)
+            )
+            dest_line = (
+                mathutils.Vector(dest_end) -
+                mathutils.Vector(dest_start)
+            )
+            if active_item.aln_flip_direction:
+                src_line.negate()
+
+            # Apply any geom modifiers if in advanced tools
+            if not hasattr(self, "quick_op_target"):
                 # Take geom modifiers into account, line one
                 if prims[active_item.aln_src_line].ln_make_unit_vec:
-                    first_line.normalize()
+                    src_line.normalize()
                 if prims[active_item.aln_src_line].ln_flip_direction:
-                    first_line.negate()
-                first_line *= prims[active_item.aln_src_line].ln_multiplier
+                    src_line.negate()
+                src_line *= prims[active_item.aln_src_line].ln_multiplier
 
                 # Take geom modifiers into account, line two
                 if prims[active_item.aln_dest_line].ln_make_unit_vec:
-                    second_line.normalize()
+                    dest_line.normalize()
                 if prims[active_item.aln_dest_line].ln_flip_direction:
-                    second_line.negate()
-                second_line *= prims[active_item.aln_dest_line].ln_multiplier
+                    dest_line.negate()
+                dest_line *= prims[active_item.aln_dest_line].ln_multiplier
 
             # find rotational difference between source and dest lines
-            rotational_diff = first_line.rotation_difference(second_line)
-            transf_to_parallel_raw = rotational_diff.to_matrix()
-            transf_to_parallel_raw.resize_4x4()
+            rotational_diff = src_line.rotation_difference(dest_line)
+            parallelize_lines = rotational_diff.to_matrix()
+            parallelize_lines.resize_4x4()
 
             # create common vars needed for object and for mesh
             # level transforms
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
-            t, r, s, = active_obj_transf.decompose()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
-            inv_translate, inv_rot, inv_scale = inverse_active.decompose()
 
             # put the original line starting point (before the ob was rotated)
             # into the local object space
-            if hasattr(self, "quick_op_target"):
-                src_pivot_location_local = (
-                    inverse_active * mathutils.Vector(
-                        addon_data.quick_align_lines_src.line_start
-                    )
-                )
-            else:
-                src_pivot_location_local = (
-                    inverse_active * mathutils.Vector(
-                        prims[active_item.aln_src_line].line_start
-                    )
-                )
+            src_pivot_location_local = (
+                inverse_active * mathutils.Vector(src_start)
+            )
+
             if self.target == 'OBJECT':
                 # Do it!
 
@@ -3166,28 +3148,20 @@ class AlignLinesBase(bpy.types.Operator):
 
                 # get final global position of pivot (source line
                 # start coords) after object rotation
-                final_pivot_location = (
+                new_global_src_pivot_coords = (
                     bpy.context.active_object.matrix_world *
                     src_pivot_location_local
                 )
-                # figure out how to translate our object so that the source
-                # line actually lies in the same line as dest
-                if hasattr(self, "quick_op_target"):
-                    final_translation = (
-                        mathutils.Vector(
-                            addon_data.quick_align_lines_dest.line_start
-                        ) - final_pivot_location
-                    )
-                else:
-                    final_translation = (
-                        mathutils.Vector(
-                            prims[active_item.aln_dest_line].line_start
-                        ) - final_pivot_location
-                    )
+                # get translation, pivot to dest
+                pivot_to_dest = (
+                    mathutils.Vector(dest_start) - new_global_src_pivot_coords
+                )
 
                 bpy.context.active_object.location = (
-                    bpy.context.active_object.location + final_translation
+                    bpy.context.active_object.location + pivot_to_dest
                 )
+                bpy.context.scene.update()
+
             else:
                 self.report(
                     {'WARNING'},
@@ -3200,85 +3174,47 @@ class AlignLinesBase(bpy.types.Operator):
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                if hasattr(self, "quick_op_target"):
-                    loc_src_pivot_coords = inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_src.line_start
-                    )
-                else:
-                    loc_src_pivot_coords = inverse_active * mathutils.Vector(
-                            prims[active_item.aln_src_line].line_start
-                    )
-                inverted_loc_src_pivot_coords = loc_src_pivot_coords.copy()
-                inverted_loc_src_pivot_coords.negate()
-                src_pivot_to_origin = mathutils.Matrix.Translation(
-                    inverted_loc_src_pivot_coords
+                # Stored geom data in local coords
+                src_start_loc = (
+                    inverse_active * mathutils.Vector(src_start)
                 )
-                src_pivot_to_origin = src_pivot_to_origin.to_4x4()
+                src_end_loc = (
+                    inverse_active * mathutils.Vector(src_end)
+                )
 
-                if hasattr(self, "quick_op_target"):
-                    move_to_dest_pivot_translation = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_dest.line_start
-                        )
-                    )
-                else:
-                    move_to_dest_pivot_translation = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.aln_dest_line].line_start
-                        )
-                    )
-                move_to_dest_pivot_transf = mathutils.Matrix.Translation(
-                    move_to_dest_pivot_translation
+                dest_start_loc = (
+                    inverse_active * mathutils.Vector(dest_start)
                 )
-                move_to_dest_pivot_transf = move_to_dest_pivot_transf.to_4x4()
+                dest_end_loc = (
+                    inverse_active * mathutils.Vector(dest_end)
+                )
 
-                if hasattr(self, "quick_op_target"):
-                    loc_first_line = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_src.line_end
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_src.line_start
-                        )
-                    )
-                    loc_second_line = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_dest.line_end
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_lines_dest.line_start
-                        )
-                    )
-                    if active_item.aln_flip_direction:
-                        loc_first_line.negate()
-                else:
-                    loc_first_line = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.aln_src_line].line_end
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.aln_src_line].line_start
-                        )
-                    )
-                    loc_second_line = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.aln_dest_line].line_end
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.aln_dest_line].line_start
-                        )
-                    )
-                loc_rot_diff = loc_first_line.rotation_difference(
-                    loc_second_line
+                loc_src_line = src_end_loc - src_start_loc
+                loc_dest_line = dest_end_loc - dest_start_loc
+                if active_item.aln_flip_direction:
+                    loc_src_line.negate()
+
+                # Get translation, move source pivot to local origin
+                src_start_inv = src_start_loc.copy()
+                src_start_inv.negate()
+                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                    src_start_inv
                 )
-                loc_parallel_linear_transf = loc_rot_diff.to_matrix()
-                loc_parallel_linear_transf = (
-                    loc_parallel_linear_transf.to_4x4()
+
+                # Get edge alignment rotation (align src to dest)
+                loc_rdiff = loc_src_line.rotation_difference(
+                    loc_dest_line
                 )
+                parallelize_lines_loc = loc_rdiff.to_matrix()
+                parallelize_lines_loc.resize_4x4()
+
+                # Get translation, move pivot to destination
+                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_start_loc)
+
                 loc_make_collinear = (
-                    move_to_dest_pivot_transf *
-                    loc_parallel_linear_transf *
-                    src_pivot_to_origin
+                    pivot_to_dest_loc *
+                    parallelize_lines_loc *
+                    src_pivot_to_loc_origin
                 )
 
                 if self.target == 'MESHSELECTED':
@@ -3344,7 +3280,6 @@ class AlignLinesWholeMesh(AlignLinesBase):
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLEMESH'
-    quick_op_target = True
 
     @classmethod
     def poll(cls, context):
