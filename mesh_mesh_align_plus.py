@@ -2573,28 +2573,31 @@ class DirectionalSlideBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Make the vector specifying the direction and
-            # magnitude to slide in
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_directional_slide_auto_grab_src:
                     bpy.ops.maplus.quickdirectionalslidegrabsrc()
-                direction = (
-                    mathutils.Vector(
-                        addon_data.quick_directional_slide_src.line_end
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_directional_slide_src.line_start
-                    )
+
+                dir_start = (
+                    addon_data.quick_directional_slide_src.line_start
                 )
+                dir_end = (
+                    addon_data.quick_directional_slide_src.line_end
+                )
+
             else:
-                direction = (
-                    mathutils.Vector(
-                        prims[active_item.ds_direction].line_end
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.ds_direction].line_start
-                    )
-                )
+                dir_start = prims[active_item.ds_direction].line_start
+                dir_end = prims[active_item.ds_direction].line_end
+
+            # Make the vector specifying the direction and
+            # magnitude to slide in
+            direction = (
+                mathutils.Vector(dir_end) -
+                mathutils.Vector(dir_start)
+            )
 
             if not hasattr(self, "quick_op_target"):
                 # Take geom modifiers into account
@@ -2604,25 +2607,21 @@ class DirectionalSlideBase(bpy.types.Operator):
                     direction.negate()
                 direction *= prims[active_item.ds_direction].ln_multiplier
 
-            # Take transf modifiers into account
-            if active_item.ds_make_unit_vec:
-                direction.normalize()
-            if active_item.ds_flip_direction:
-                direction.negate()
-            direction *= active_item.ds_multiplier
-
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
-            t, r, s, = active_obj_transf.decompose()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
-            inv_translate, inv_rot, inv_scale = inverse_active.decompose()
 
             if self.target == 'OBJECT':
-                # Do it!
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location + direction
-                )
+                # Take transf modifiers into account
+                if active_item.ds_make_unit_vec:
+                    direction.normalize()
+                if active_item.ds_flip_direction:
+                    direction.negate()
+                direction *= active_item.ds_multiplier
+
+                bpy.context.active_object.location += direction
+
             else:
                 self.report(
                     {'WARNING'},
@@ -2635,21 +2634,30 @@ class DirectionalSlideBase(bpy.types.Operator):
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                correction_matrix = (
-                    inverse_active * mathutils.Matrix.Translation(t)
+                # Stored geom data in local coords
+                dir_start_loc = inverse_active * mathutils.Vector(
+                    dir_start
                 )
-                corrected_direction = correction_matrix * direction
-                corrected_direction_transf = mathutils.Matrix.Translation(
-                    corrected_direction
+                dir_end_loc = inverse_active * mathutils.Vector(
+                    dir_end
                 )
+
+                direction_loc = dir_end_loc - dir_start_loc
+                # Take transf modifiers into account
+                if active_item.ds_make_unit_vec:
+                    direction_loc.normalize()
+                if active_item.ds_flip_direction:
+                    direction_loc.negate()
+                direction_loc *= active_item.ds_multiplier
+                dir_move = mathutils.Matrix.Translation(direction_loc)
 
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
-                        corrected_direction_transf,
+                        dir_move,
                         filter={'SELECT'}
                     )
                 elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(corrected_direction_transf)
+                    src_mesh.transform(dir_move)
 
                 # write and then release the mesh data
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -5560,7 +5568,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
 
 class QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "quick_directional_slide_gui"
-    bl_label = "Quick Directional Move"
+    bl_label = "Quick Directional Slide"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "Mesh Align Plus"
