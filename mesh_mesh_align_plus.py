@@ -2807,87 +2807,62 @@ class AxisRotateBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # create common vars needed for object and for mesh
-            # level transforms
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
-            t, r, s, = active_obj_transf.decompose()
-            inverse_active = active_obj_transf.copy()
-            inverse_active.invert()
-            inv_translate, inv_rot, inv_scale = inverse_active.decompose()
-            if (bpy.context.scene.unit_settings.system_rotation ==
-                    'RADIANS'):
-                converted_rot_amount = active_item.axr_amount
-            else:
-                converted_rot_amount = math.radians(
-                    active_item.axr_amount
-                )
-
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_axis_rotate_auto_grab_src:
                     bpy.ops.maplus.quickaxisrotategrabsrc()
-                loc_pivot = (
-                    inverse_active * mathutils.Vector(
-                        addon_data.quick_axis_rotate_src.line_start
-                    )
-                )
-                loc_axis = (
-                    inverse_active * mathutils.Vector(
-                        addon_data.quick_axis_rotate_src.line_end
-                    ) - inverse_active * mathutils.Vector(
-                        addon_data.quick_axis_rotate_src.line_start
-                    )
-                )
-                axis = mathutils.Vector(
-                    addon_data.quick_axis_rotate_src.line_end
-                ) - mathutils.Vector(
-                    addon_data.quick_axis_rotate_src.line_start
-                )
+
+                axis_start = addon_data.quick_axis_rotate_src.line_start
+                axis_end = addon_data.quick_axis_rotate_src.line_end
+
             else:
-                loc_pivot = (
-                    inverse_active * mathutils.Vector(
-                        prims[active_item.axr_axis].line_start
-                    )
-                )
-                loc_axis = (
-                    inverse_active * mathutils.Vector(
-                        prims[active_item.axr_axis].line_end
-                    ) - inverse_active * mathutils.Vector(
-                        prims[active_item.axr_axis].line_start
-                    )
-                )
-                axis = mathutils.Vector(
-                    prims[active_item.axr_axis].line_end
-                ) - mathutils.Vector(
-                    prims[active_item.axr_axis].line_start
-                )
+                axis_start = prims[active_item.axr_axis].line_start
+                axis_end = prims[active_item.axr_axis].line_end
+
+            # Get rotation in proper units
+            if (bpy.context.scene.unit_settings.system_rotation == 'RADIANS'):
+                converted_rot_amount = active_item.axr_amount
+            else:
+                converted_rot_amount = math.radians(active_item.axr_amount)
+
+            axis = (
+                mathutils.Vector(axis_end) - 
+                mathutils.Vector(axis_start)
+            )
             axis_rot = mathutils.Matrix.Rotation(
                 converted_rot_amount,
                 4,
                 axis
             )
 
+            # create common vars needed for object and for mesh
+            # level transforms
+            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            inverse_active = active_obj_transf.copy()
+            inverse_active.invert()
+
+            # put the original line starting point (before the ob was rotated)
+            # into the local object space
+            src_pivot_location_local = (
+                inverse_active * mathutils.Vector(axis_start)
+            )
+
             if self.target == 'OBJECT':
-                bpy.context.active_object.rotation_euler.rotate(
-                    axis_rot
-                )
+                bpy.context.active_object.rotation_euler.rotate(axis_rot)
                 bpy.context.scene.update()
 
                 new_pivot_loc_global = (
-                    bpy.context.active_object.matrix_world * loc_pivot
+                    bpy.context.active_object.matrix_world *
+                    src_pivot_location_local
                 )
-                if hasattr(self, "quick_op_target"):
-                    new_to_old_pivot_loc = (
-                        mathutils.Vector(
-                            addon_data.quick_axis_rotate_src.line_start
-                        ) - new_pivot_loc_global
-                    )
-                else:
-                    new_to_old_pivot_loc = (
-                        mathutils.Vector(
-                            prims[active_item.axr_axis].line_start
-                        ) - new_pivot_loc_global
-                    )
-                bpy.context.active_object.location += new_to_old_pivot_loc
+                pivot_to_dest = (
+                    mathutils.Vector(axis_start) -
+                    new_pivot_loc_global
+                )
+                bpy.context.active_object.location += pivot_to_dest
 
             else:
                 self.report(
@@ -2897,44 +2872,57 @@ class AxisRotateBase(bpy.types.Operator):
                      ' are not currently supported.'
                     )
                 )
-                # do mesh level stuff here
+                
+                # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                loc_pivot_negated = loc_pivot.copy()
-                loc_pivot_negated.negate()
-
-                loc_pivot_to_origin = mathutils.Matrix.Translation(
-                    loc_pivot_negated
+                # Stored geom data in local coords
+                axis_start_loc = inverse_active * mathutils.Vector(
+                    axis_start
                 )
-                loc_pivot_to_origin.resize_4x4()
+                axis_end_loc = inverse_active * mathutils.Vector(
+                    axis_end
+                )
 
-                loc_rotate = mathutils.Matrix.Rotation(
+                axis_loc = axis_end_loc - axis_start_loc
+
+                # Get translation, pivot to local origin
+                axis_start_inv = axis_start_loc.copy()
+                axis_start_inv.negate()
+                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                    axis_start_inv
+                )
+                src_pivot_to_loc_origin.resize_4x4()
+
+                # Get local axis rotation
+                axis_rot_at_loc_origin = mathutils.Matrix.Rotation(
                     converted_rot_amount,
                     4,
-                    loc_axis
+                    axis_loc
                 )
 
-                loc_move_back = mathutils.Matrix.Translation(
-                    loc_pivot
+                # Get translation, pivot to dest
+                pivot_to_dest = mathutils.Matrix.Translation(
+                    axis_start_loc
                 )
-                loc_move_back.resize_4x4()
+                pivot_to_dest.resize_4x4()
 
-                loc_axis_rotate = (
-                    loc_move_back *
-                    loc_rotate *
-                    loc_pivot_to_origin
+                axis_rotate_loc = (
+                    pivot_to_dest *
+                    axis_rot_at_loc_origin *
+                    src_pivot_to_loc_origin
                 )
 
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
-                        loc_axis_rotate,
+                        axis_rotate_loc,
                         filter={'SELECT'}
                     )
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(bpy.context.active_object.data)
                 elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(loc_axis_rotate)
+                    src_mesh.transform(axis_rotate_loc)
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(bpy.context.active_object.data)
 
