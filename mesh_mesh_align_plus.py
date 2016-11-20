@@ -2314,48 +2314,30 @@ class AlignPointsBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # src either comes from a selected edge (for quick ops)
-            # or from the primitive list (regular ops)
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_pts_auto_grab_src:
                     bpy.ops.maplus.quickalignpointsgrabsrc()
+
                 src_pt = mathutils.Vector(
-                    (addon_data.quick_align_pts_src.point[0],
-                     addon_data.quick_align_pts_src.point[1],
-                     addon_data.quick_align_pts_src.point[2])
+                    addon_data.quick_align_pts_src.point
                 )
                 dest_pt = mathutils.Vector(
-                    (addon_data.quick_align_pts_dest.point[0],
-                     addon_data.quick_align_pts_dest.point[1],
-                     addon_data.quick_align_pts_dest.point[2])
+                    addon_data.quick_align_pts_dest.point
                 )
-
-                # Take source geometry modifiers into account
-                if addon_data.quick_align_pts_src.pt_make_unit_vec:
-                    src_pt.normalize()
-                if addon_data.quick_align_pts_src.pt_flip_direction:
-                    src_pt.negate()
-                src_pt *= addon_data.quick_align_pts_src.pt_multiplier
-
-                # Take dest geometry modifiers into account
-                if addon_data.quick_align_pts_dest.pt_make_unit_vec:
-                    dest_pt.normalize()
-                if addon_data.quick_align_pts_dest.pt_flip_direction:
-                    dest_pt.negate()
-                dest_pt *= addon_data.quick_align_pts_dest.pt_multiplier
 
             else:
                 src_pt = mathutils.Vector(
-                    (prims[active_item.apt_pt_one].point[0],
-                     prims[active_item.apt_pt_one].point[1],
-                     prims[active_item.apt_pt_one].point[2])
+                    prims[active_item.apt_pt_one].point
                 )
                 dest_pt = mathutils.Vector(
-                    (prims[active_item.apt_pt_two].point[0],
-                     prims[active_item.apt_pt_two].point[1],
-                     prims[active_item.apt_pt_two].point[2])
+                    prims[active_item.apt_pt_two].point
                 )
 
+            if not hasattr(self, 'quick_op_target'):
                 # Take source geometry modifiers into account
                 if prims[active_item.apt_pt_one].pt_make_unit_vec:
                     src_pt.normalize()
@@ -2370,41 +2352,23 @@ class AlignPointsBase(bpy.types.Operator):
                     dest_pt.negate()
                 dest_pt *= prims[active_item.apt_pt_two].pt_multiplier
 
-            raw_translation_vector = mathutils.Vector(dest_pt - src_pt)
-
-            # Here we compensate if our active object has been transformed
-            # (which would make our translation otherwise not work)
-            active_obj_transf = bpy.context.active_object.matrix_world
-            inverse_active = active_obj_transf.copy()
-            # Undoes the transformation rep. by this matrix
-            inverse_active.invert()
-            tr, ro, sc = active_obj_transf.decompose()
-            # this gives us only the reverse rotation and scale
-            # (we don't need the translation correction)
-            correction_matrix = (
-                inverse_active * mathutils.Matrix.Translation(tr)
-            )
-
-            # corrected vector, basis of final transform
-            final_translation_vector = (
-                correction_matrix * raw_translation_vector
-            )
+            align_points = dest_pt - src_pt
 
             # Take transform modifiers into account
             if active_item.apt_make_unit_vector:
-                final_translation_vector.normalize()
-                raw_translation_vector.normalize()
+                align_points.normalize()
             if active_item.apt_flip_direction:
-                final_translation_vector.negate()
-                raw_translation_vector.negate()
-            final_translation_vector *= active_item.apt_multiplier
-            raw_translation_vector *= active_item.apt_multiplier
+                align_points.negate()
+            align_points *= active_item.apt_multiplier
+
+            # create common vars needed for object and for mesh level transfs
+            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            inverse_active = active_obj_transf.copy()
+            inverse_active.invert()
 
             if self.target == 'OBJECT':
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location +
-                    raw_translation_vector
-                )
+                bpy.context.active_object.location += align_points
+
             else:
                 self.report(
                     {'WARNING'},
@@ -2413,22 +2377,35 @@ class AlignPointsBase(bpy.types.Operator):
                      ' are not currently supported.'
                     )
                 )
-                # Setup matrix for mesh transforms
-                match_transf = mathutils.Matrix.Translation(
-                    final_translation_vector
-                )
-
                 # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
+                # Stored geom data in local coords
+                src_pt_loc = inverse_active * src_pt
+                dest_pt_loc = inverse_active * dest_pt
+
+                # Get translation vector (in local space), src to dest
+                align_points_vec = dest_pt_loc - src_pt_loc
+
+                # Take transform modifiers into account
+                if active_item.apt_make_unit_vector:
+                    align_points_vec.normalize()
+                if active_item.apt_flip_direction:
+                    align_points_vec.negate()
+                align_points_vec *= active_item.apt_multiplier
+
+                align_points_loc = mathutils.Matrix.Translation(
+                    align_points_vec
+                )
+
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
-                        match_transf,
+                        align_points_loc,
                         filter={'SELECT'}
                     )
                 elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(match_transf)
+                    src_mesh.transform(align_points_loc)
 
                 # write and then release the mesh data
                 bpy.ops.object.mode_set(mode='OBJECT')
