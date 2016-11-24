@@ -2073,43 +2073,33 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_scale_match_edge_auto_grab_src:
                     bpy.ops.maplus.quickscalematchedgegrabsrc()
-                src_edge = (
-                    mathutils.Vector(
-                        addon_data.quick_scale_match_edge_src.line_end
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_scale_match_edge_src.line_start
-                    )
-                )
-                dest_edge = (
-                    mathutils.Vector(
-                        addon_data.quick_scale_match_edge_dest.line_end
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_scale_match_edge_dest.line_start
-                    )
-                )
+
+                src_start = addon_data.quick_scale_match_edge_src.line_start
+                src_end = addon_data.quick_scale_match_edge_src.line_end
+
+                dest_start = addon_data.quick_scale_match_edge_dest.line_start
+                dest_end = addon_data.quick_scale_match_edge_dest.line_end
 
             else:
-                src_edge = (
-                    mathutils.Vector(
-                        prims[active_item.sme_edge_one].line_end
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.sme_edge_one].line_start
-                    )
-                )
-                dest_edge = (
-                    mathutils.Vector(
-                        prims[active_item.sme_edge_two].line_end
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.sme_edge_two].line_start
-                    )
-                )
+                src_start = prims[active_item.sme_edge_one].line_start
+                src_end = prims[active_item.sme_edge_one].line_end
+
+                dest_start = prims[active_item.sme_edge_two].line_start
+                dest_end = prims[active_item.sme_edge_two].line_end
+
+            src_edge = (
+                mathutils.Vector(src_end) - mathutils.Vector(src_start)
+            )
+            dest_edge = (
+                mathutils.Vector(dest_end) - mathutils.Vector(dest_start)
+            )
 
             if not hasattr(self, "quick_op_target"):
                 # Take geom modifiers into account, line one
@@ -2143,15 +2133,16 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                      ' are not currently supported.'
                     )
                 )
+
+                # Init source mesh
+                src_mesh = bmesh.new()
+                src_mesh.from_mesh(bpy.context.active_object.data)
+
                 # Setup matrix for mesh transforms
                 match_transf = mathutils.Matrix.Scale(
                     scale_factor,
                     4
                 )
-
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
 
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
