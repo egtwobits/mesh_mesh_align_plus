@@ -3321,120 +3321,74 @@ class AlignPlanesBase(bpy.types.Operator):
                 # updates, exiting and reentering forces an update
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
-
+            
+            # Grab geometry data from the proper location, either 
+            # directly from the scene data (for quick ops), or from
+            # the MAPlus primitives CollectionProperty on the
+            # scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
-                # construct normal vector for first (source) plane
                 if addon_data.quick_align_planes_auto_grab_src:
                     bpy.ops.maplus.quickalignplanesgrabsrc()
-                first_pln_ln_BA = (
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_src.plane_pt_a
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_src.plane_pt_b
-                    )
-                )
-                first_pln_ln_BC = (
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_src.plane_pt_c
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_src.plane_pt_b
-                    )
-                )
-                first_normal = first_pln_ln_BA.cross(first_pln_ln_BC)
-                # flip first normal's direction if that option is toggled
-                if active_item.apl_flip_normal:
-                    first_normal.negate()
 
-                # construct normal vector for second (destination) plane
-                second_pln_ln_BA = (
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_dest.plane_pt_a
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_dest.plane_pt_b
-                    )
-                )
-                second_pln_ln_BC = (
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_dest.plane_pt_c
-                    ) -
-                    mathutils.Vector(
-                        addon_data.quick_align_planes_dest.plane_pt_b
-                    )
-                )
-                second_normal = second_pln_ln_BA.cross(second_pln_ln_BC)
+                src_pt_a = addon_data.quick_align_planes_src.plane_pt_a
+                src_pt_b = addon_data.quick_align_planes_src.plane_pt_b
+                src_pt_c = addon_data.quick_align_planes_src.plane_pt_c
+
+                dest_pt_a = addon_data.quick_align_planes_dest.plane_pt_a
+                dest_pt_b = addon_data.quick_align_planes_dest.plane_pt_b
+                dest_pt_c = addon_data.quick_align_planes_dest.plane_pt_c
+
             else:
-                # construct normal vector for first (source) plane
-                first_pln_ln_BA = (
-                    mathutils.Vector(
-                        prims[active_item.apl_src_plane].plane_pt_a
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.apl_src_plane].plane_pt_b
-                    )
-                )
-                first_pln_ln_BC = (
-                    mathutils.Vector(
-                        prims[active_item.apl_src_plane].plane_pt_c
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.apl_src_plane].plane_pt_b
-                    )
-                )
-                first_normal = first_pln_ln_BA.cross(first_pln_ln_BC)
-                # flip first normal's direction if that option is toggled
-                if active_item.apl_flip_normal:
-                    first_normal.negate()
+                src_pt_a = prims[active_item.apl_src_plane].plane_pt_a
+                src_pt_b = prims[active_item.apl_src_plane].plane_pt_b
+                src_pt_c = prims[active_item.apl_src_plane].plane_pt_c
 
-                # construct normal vector for second (destination) plane
-                second_pln_ln_BA = (
-                    mathutils.Vector(
-                        prims[active_item.apl_dest_plane].plane_pt_a
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.apl_dest_plane].plane_pt_b
-                    )
-                )
-                second_pln_ln_BC = (
-                    mathutils.Vector(
-                        prims[active_item.apl_dest_plane].plane_pt_c
-                    ) -
-                    mathutils.Vector(
-                        prims[active_item.apl_dest_plane].plane_pt_b
-                    )
-                )
-                second_normal = second_pln_ln_BA.cross(second_pln_ln_BC)
+                dest_pt_a = prims[active_item.apl_dest_plane].plane_pt_a
+                dest_pt_b = prims[active_item.apl_dest_plane].plane_pt_b
+                dest_pt_c = prims[active_item.apl_dest_plane].plane_pt_c
+
+            # construct normal vector for first (source) plane
+            src_pln_ln_BA = (
+                mathutils.Vector(src_pt_a) -
+                mathutils.Vector(src_pt_b)
+            )
+            src_pln_ln_BC = (
+                mathutils.Vector(src_pt_c) -
+                mathutils.Vector(src_pt_b)
+            )
+            src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+            # flip first normal's direction if that option is toggled
+            if active_item.apl_flip_normal:
+                src_normal.negate()
+
+            # construct normal vector for second (destination) plane
+            dest_pln_ln_BA = (
+                mathutils.Vector(dest_pt_a) -
+                mathutils.Vector(dest_pt_b)
+            )
+            dest_pln_ln_BC = (
+                mathutils.Vector(dest_pt_c) -
+                mathutils.Vector(dest_pt_b)
+            )
+            dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
 
             # find rotational difference between source and dest planes
-            rotational_diff = first_normal.rotation_difference(second_normal)
+            rotational_diff = src_normal.rotation_difference(dest_normal)
             transf_to_parallel_raw = rotational_diff.to_matrix()
             transf_to_parallel_raw.resize_4x4()
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
-            t, r, s, = active_obj_transf.decompose()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
-            inv_translate, inv_rot, inv_scale = inverse_active.decompose()
 
             # get local coords using active object as basis, in other words,
             # determine coords of the source pivot relative to the active
             # object's origin by reversing the active object's transf from
             # the pivot's coords
-            if hasattr(self, "quick_op_target"):
-                local_src_pivot_coords = (
-                    inverse_active * mathutils.Vector(
-                        addon_data.quick_align_planes_src.plane_pt_b
-                    )
-                )
-            else:
-                local_src_pivot_coords = (
-                    inverse_active * mathutils.Vector(
-                        prims[active_item.apl_src_plane].plane_pt_b
-                    )
-                )
+            local_src_pivot_coords = (
+                inverse_active * mathutils.Vector(src_pt_b)
+            )
 
             if self.target == 'OBJECT':
                 # Do it!
@@ -3442,6 +3396,17 @@ class AlignPlanesBase(bpy.types.Operator):
                 # try to rotate the object by the rotational_diff
                 bpy.context.active_object.rotation_euler.rotate(
                     rotational_diff
+                )
+                bpy.context.scene.update()
+
+                # Set up edge alignment (BA plane1 to BA plane2)
+                new_lead_edge_orientation = src_pln_ln_BA.copy()
+                new_lead_edge_orientation.rotate(rotational_diff)
+                parallelize_edges = new_lead_edge_orientation.rotation_difference(
+                    dest_pln_ln_BA
+                )
+                bpy.context.active_object.rotation_euler.rotate(
+                    parallelize_edges
                 )
                 bpy.context.scene.update()
 
@@ -3454,21 +3419,13 @@ class AlignPlanesBase(bpy.types.Operator):
                 # vector) so that the source pivot sits on the destination
                 # pivot's location
                 # first vec is the global/absolute distance bw the two pivots
-                if hasattr(self, "quick_op_target"):
-                    final_translation_vector = (
-                        mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_b
-                        ) - new_global_src_pivot_coords
-                    )
-                else:
-                    final_translation_vector = (
-                        mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_b
-                        ) - new_global_src_pivot_coords
-                    )
+                pivot_to_dest = (
+                    mathutils.Vector(dest_pt_b) -
+                    new_global_src_pivot_coords
+                )
                 bpy.context.active_object.location = (
                     bpy.context.active_object.location +
-                    final_translation_vector
+                    pivot_to_dest
                 )
                 bpy.context.scene.update()
 
@@ -3483,141 +3440,56 @@ class AlignPlanesBase(bpy.types.Operator):
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                if hasattr(self, "quick_op_target"):
-                    # Construct planes in local obj space to get rot diff
-                    loc_first_pln_ln_BA = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_src.plane_pt_a
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_src.plane_pt_b
-                        )
-                    )
-                    loc_first_pln_ln_BC = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_src.plane_pt_c
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_src.plane_pt_b
-                        )
-                    )
-                    loc_first_normal = loc_first_pln_ln_BA.cross(
-                        loc_first_pln_ln_BC
-                    )
+                # Stored geom data in local coords
+                src_a_loc = inverse_active * mathutils.Vector(src_pt_a)
+                src_b_loc = inverse_active * mathutils.Vector(src_pt_b)
+                src_c_loc = inverse_active * mathutils.Vector(src_pt_c)
 
-                    loc_second_pln_ln_BA = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_a
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_b
-                        )
-                    )
-                    loc_second_pln_ln_BC = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_c
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_b
-                        )
-                    )
-                    loc_second_normal = loc_second_pln_ln_BA.cross(
-                        loc_second_pln_ln_BC
-                    )
+                dest_a_loc = inverse_active * mathutils.Vector(dest_pt_a)
+                dest_b_loc = inverse_active * mathutils.Vector(dest_pt_b)
+                dest_c_loc = inverse_active * mathutils.Vector(dest_pt_c)
 
-                    local_dest_pivot_coords = (
-                        inverse_active * mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_b
-                        )
-                    )
-                else:
-                    # Construct planes in local obj space to get rot diff
-                    loc_first_pln_ln_BA = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_src_plane].plane_pt_a
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_src_plane].plane_pt_b
-                        )
-                    )
-                    loc_first_pln_ln_BC = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_src_plane].plane_pt_c
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_src_plane].plane_pt_b
-                        )
-                    )
-                    loc_first_normal = loc_first_pln_ln_BA.cross(
-                        loc_first_pln_ln_BC
-                    )
+                src_ba_loc = src_a_loc - src_b_loc
+                src_bc_loc = src_c_loc - src_b_loc
+                src_normal_loc = src_ba_loc.cross(src_bc_loc)
+                if active_item.apl_flip_normal:
+                    src_normal_loc.negate()
 
-                    loc_second_pln_ln_BA = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_a
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_b
-                        )
-                    )
-                    loc_second_pln_ln_BC = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_c
-                        ) -
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_b
-                        )
-                    )
-                    loc_second_normal = loc_second_pln_ln_BA.cross(
-                        loc_second_pln_ln_BC
-                    )
+                dest_ba_loc = dest_a_loc - dest_b_loc
+                dest_bc_loc = dest_c_loc - dest_b_loc
+                dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
 
-                    local_dest_pivot_coords = (
-                        inverse_active * mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_b
-                        )
-                    )
-
-                # Move the src pivot to the local origin, so that
-                # it's easier to move after rotating
-                inverted_local_src_pivot_coords = (
-                    local_src_pivot_coords.copy()
-                )
-                inverted_local_src_pivot_coords.negate()
-
-                loc_rot_diff = loc_first_normal.rotation_difference(
-                    loc_second_normal
+                loc_rot_diff = src_normal_loc.rotation_difference(
+                    dest_normal_loc
                 )
 
-                loc_transf_to_parallel_raw = loc_rot_diff.to_matrix()
-                loc_transf_to_parallel_raw.resize_4x4()
-
-                src_pivot_to_origin = mathutils.Matrix.Translation(
-                    inverted_local_src_pivot_coords
+                # Get translation, move source pivot to local origin
+                src_b_inv = src_b_loc.copy()
+                src_b_inv.negate()
+                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                    src_b_inv
                 )
 
-                if hasattr(self, "quick_op_target"):
-                    move_to_dest_pivot_translation = inverse_active * (
-                        mathutils.Vector(
-                            addon_data.quick_align_planes_dest.plane_pt_b
-                        )
-                    )
-                else:
-                    move_to_dest_pivot_translation = inverse_active * (
-                        mathutils.Vector(
-                            prims[active_item.apl_dest_plane].plane_pt_b
-                        )
-                    )
+                # Get rotational diff between planes
+                parallelize_planes_loc = loc_rot_diff.to_matrix()
+                parallelize_planes_loc.resize_4x4()
 
-                move_to_dest_pivot_transf = mathutils.Matrix.Translation(
-                    local_dest_pivot_coords
+                # Get edge alignment rotation (align leading plane edges)
+                new_lead_edge_ornt_loc = parallelize_planes_loc * src_ba_loc
+                edge_align_loc = new_lead_edge_ornt_loc.rotation_difference(
+                    dest_ba_loc
                 )
-                move_to_dest_pivot_transf.resize_4x4()
+                parallelize_edges_loc = edge_align_loc.to_matrix()
+                parallelize_edges_loc.resize_4x4()
+
+                # Get translation, move pivot to destination
+                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_b_loc)
 
                 mesh_coplanar = (
-                    move_to_dest_pivot_transf *
-                    loc_transf_to_parallel_raw *
-                    src_pivot_to_origin
+                    pivot_to_dest_loc *
+                    parallelize_edges_loc *
+                    parallelize_planes_loc *
+                    src_pivot_to_loc_origin
                 )
 
                 if self.target == 'MESHSELECTED':
