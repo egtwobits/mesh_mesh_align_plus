@@ -915,7 +915,6 @@ class DuplicateItemBase(bpy.types.Operator):
         }
         if active_item.kind in attrib_copy:
             for att in attrib_copy[active_item.kind]:
-                print('AAA')
                 setattr(new_item, att, getattr(active_item, att))
 
         return {'FINISHED'}
@@ -1951,6 +1950,57 @@ class OneOtherPlanePointCZ(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'Z', 1)
 
 
+def get_modified_global_coords(geometry, kind):
+    '''Get global coordinates for geometry items with modifiers applied.
+
+    Arguments:
+        geometry
+            a maplus primitive
+        kind
+            the type of the geometry item, in ('POINT', 'LINE', 'PLANE')
+
+    Returns:
+        Return a list of vectors, where len(list) is in [1, 3]. If
+        the kind isn't correct, return an empty list.
+    '''
+    global_modified = []
+    if kind == 'POINT':
+        global_modified.append(mathutils.Vector(geometry.point))
+
+        if geometry.pt_make_unit_vec:
+            global_modified[0].normalize()
+        if geometry.pt_flip_direction:
+            global_modified[0].negate()
+        global_modified[0] *= geometry.pt_multiplier
+
+    elif kind == 'LINE':
+        global_modified.append(mathutils.Vector(geometry.line_start))
+        global_modified.append(mathutils.Vector(geometry.line_end))
+
+        line = mathutils.Vector(
+            global_modified[1] -
+            global_modified[0]
+        )
+        if geometry.ln_make_unit_vec:
+            line.normalize()
+        if geometry.ln_flip_direction:
+            line.negate()
+        line *= geometry.ln_multiplier
+        global_modified[1] = (
+            global_modified[0] +
+            line
+        )
+
+    elif kind == 'PLANE':
+        global_modified.append(mathutils.Vector(geometry.plane_pt_a))
+        global_modified.append(mathutils.Vector(geometry.plane_pt_b))
+        global_modified.append(mathutils.Vector(geometry.plane_pt_c))
+    else:
+        return list()
+
+    return global_modified
+
+
 class ApplyGeomModifiers(bpy.types.Operator):
     bl_idname = "maplus.applygeommodifiers"
     bl_label = "Apply Modifiers"
@@ -2073,44 +2123,45 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_scale_match_edge_auto_grab_src:
                     bpy.ops.maplus.quickscalematchedgegrabsrc()
 
-                src_start = addon_data.quick_scale_match_edge_src.line_start
-                src_end = addon_data.quick_scale_match_edge_src.line_end
-
-                dest_start = addon_data.quick_scale_match_edge_dest.line_start
-                dest_end = addon_data.quick_scale_match_edge_dest.line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_scale_match_edge_src,
+                    kind='LINE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_scale_match_edge_dest,
+                    kind='LINE'
+                )
 
             else:
-                src_start = prims[active_item.sme_edge_one].line_start
-                src_end = prims[active_item.sme_edge_one].line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.sme_edge_one],
+                    kind='LINE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.sme_edge_two],
+                    kind='LINE'
+                )
 
-                dest_start = prims[active_item.sme_edge_two].line_start
-                dest_end = prims[active_item.sme_edge_two].line_end
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            src_start = src_global_data[0]
+            src_end = src_global_data[1]
 
-            src_edge = (
-                mathutils.Vector(src_end) - mathutils.Vector(src_start)
-            )
-            dest_edge = (
-                mathutils.Vector(dest_end) - mathutils.Vector(dest_start)
-            )
+            dest_start = dest_global_data[0]
+            dest_end = dest_global_data[1]
 
-            if not hasattr(self, "quick_op_target"):
-                # Take geom modifiers into account, line one
-                if prims[active_item.sme_edge_one].ln_make_unit_vec:
-                    src_edge.normalize()
-                src_edge *= prims[active_item.sme_edge_one].ln_multiplier
-
-                # Take geom modifiers into account, line two
-                if prims[active_item.sme_edge_two].ln_make_unit_vec:
-                    dest_edge.normalize()
-                dest_edge *= prims[active_item.sme_edge_two].ln_multiplier
+            # Construct vectors for each edge from the global point coord data
+            src_edge = src_end - src_start
+            dest_edge = dest_end - dest_start
 
             if dest_edge.length == 0 or src_edge.length == 0:
                 self.report(
@@ -2121,11 +2172,15 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
             scale_factor = dest_edge.length/src_edge.length
 
             if self.target == 'OBJECT':
+                # (Note that there are no transformation modifiers for this
+                # transformation type, so that section is omitted here)
                 bpy.context.active_object.scale = [
                     scale_factor * num
                     for num in bpy.context.active_object.scale
                 ]
             else:
+                # (Note that there are no transformation modifiers for this
+                # transformation type, so that section is omitted here)
                 self.report(
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
@@ -2305,52 +2360,38 @@ class AlignPointsBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_pts_auto_grab_src:
                     bpy.ops.maplus.quickalignpointsgrabsrc()
 
-                src_pt = mathutils.Vector(
-                    addon_data.quick_align_pts_src.point
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_pts_src,
+                    kind='POINT'
                 )
-                dest_pt = mathutils.Vector(
-                    addon_data.quick_align_pts_dest.point
+                dest_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_pts_dest,
+                    kind='POINT'
                 )
 
             else:
-                src_pt = mathutils.Vector(
-                    prims[active_item.apt_pt_one].point
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.apt_pt_one],
+                    kind='POINT'
                 )
-                dest_pt = mathutils.Vector(
-                    prims[active_item.apt_pt_two].point
+                dest_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.apt_pt_two],
+                    kind='POINT'
                 )
 
-            if not hasattr(self, 'quick_op_target'):
-                # Take source geometry modifiers into account
-                if prims[active_item.apt_pt_one].pt_make_unit_vec:
-                    src_pt.normalize()
-                if prims[active_item.apt_pt_one].pt_flip_direction:
-                    src_pt.negate()
-                src_pt *= prims[active_item.apt_pt_one].pt_multiplier
-
-                # Take dest geometry modifiers into account
-                if prims[active_item.apt_pt_two].pt_make_unit_vec:
-                    dest_pt.normalize()
-                if prims[active_item.apt_pt_two].pt_flip_direction:
-                    dest_pt.negate()
-                dest_pt *= prims[active_item.apt_pt_two].pt_multiplier
-
-            align_points = dest_pt - src_pt
-
-            # Take transform modifiers into account
-            if active_item.apt_make_unit_vector:
-                align_points.normalize()
-            if active_item.apt_flip_direction:
-                align_points.negate()
-            align_points *= active_item.apt_multiplier
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            src_pt = src_global_data[0]
+            dest_pt = dest_global_data[0]
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
@@ -2358,6 +2399,16 @@ class AlignPointsBase(bpy.types.Operator):
             inverse_active.invert()
 
             if self.target == 'OBJECT':
+                align_points = dest_pt - src_pt
+
+                # Take modifiers on the transformation item into account,
+                # in global (object) space
+                if active_item.apt_make_unit_vector:
+                    align_points.normalize()
+                if active_item.apt_flip_direction:
+                    align_points.negate()
+                align_points *= active_item.apt_multiplier
+
                 bpy.context.active_object.location += align_points
 
             else:
@@ -2379,9 +2430,16 @@ class AlignPointsBase(bpy.types.Operator):
                 # Get translation vector (in local space), src to dest
                 align_points_vec = dest_pt_loc - src_pt_loc
 
-                # Take transform modifiers into account
+                # Take modifiers on the transformation item into account,
+                # in local (mesh) space
                 if active_item.apt_make_unit_vector:
+                    # There are special considerations for this modifier
+                    # since we need to achieve a global length of one,
+                    # but can only transform it in local space
+                    # (NOTE: assumes only uniform scaling on the active obj)
+                    scaling_factor = 1.0 / bpy.context.active_object.scale[0]
                     align_points_vec.normalize()
+                    align_points_vec *= scaling_factor
                 if active_item.apt_flip_direction:
                     align_points_vec.negate()
                 align_points_vec *= active_item.apt_multiplier
@@ -2541,39 +2599,30 @@ class DirectionalSlideBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
-            if hasattr(self, "quick_op_target"):
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
+            if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_directional_slide_auto_grab_src:
                     bpy.ops.maplus.quickdirectionalslidegrabsrc()
 
-                dir_start = (
-                    addon_data.quick_directional_slide_src.line_start
-                )
-                dir_end = (
-                    addon_data.quick_directional_slide_src.line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_directional_slide_src,
+                    kind='LINE'
                 )
 
             else:
-                dir_start = prims[active_item.ds_direction].line_start
-                dir_end = prims[active_item.ds_direction].line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.ds_direction],
+                    kind='LINE'
+                )
 
-            # Make the vector specifying the direction and
-            # magnitude to slide in
-            direction = (
-                mathutils.Vector(dir_end) -
-                mathutils.Vector(dir_start)
-            )
-
-            if not hasattr(self, "quick_op_target"):
-                # Take geom modifiers into account
-                if prims[active_item.ds_direction].ln_make_unit_vec:
-                    direction.normalize()
-                if prims[active_item.ds_direction].ln_flip_direction:
-                    direction.negate()
-                direction *= prims[active_item.ds_direction].ln_multiplier
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            dir_start = src_global_data[0]
+            dir_end = src_global_data[1]
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
@@ -2581,7 +2630,12 @@ class DirectionalSlideBase(bpy.types.Operator):
             inverse_active.invert()
 
             if self.target == 'OBJECT':
-                # Take transf modifiers into account
+                # Make the vector specifying the direction and
+                # magnitude to slide in
+                direction = dir_end - dir_start
+
+                # Take modifiers on the transformation item into account,
+                # in global (object) space
                 if active_item.ds_make_unit_vec:
                     direction.normalize()
                 if active_item.ds_flip_direction:
@@ -2603,29 +2657,34 @@ class DirectionalSlideBase(bpy.types.Operator):
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 # Stored geom data in local coords
-                dir_start_loc = inverse_active * mathutils.Vector(
-                    dir_start
-                )
-                dir_end_loc = inverse_active * mathutils.Vector(
-                    dir_end
-                )
+                dir_start_loc = inverse_active * dir_start
+                dir_end_loc = inverse_active * dir_end
 
+                # Get translation vector in local space
                 direction_loc = dir_end_loc - dir_start_loc
-                # Take transf modifiers into account
+
+                # Take modifiers on the transformation item into account,
+                # in local (mesh) space
                 if active_item.ds_make_unit_vec:
+                    # There are special considerations for this modifier
+                    # since we need to achieve a global length of one,
+                    # but can only transform it in local space
+                    # (NOTE: assumes only uniform scaling on the active obj)
+                    scaling_factor = 1.0 / bpy.context.active_object.scale[0]
                     direction_loc.normalize()
+                    direction_loc *= scaling_factor
                 if active_item.ds_flip_direction:
                     direction_loc.negate()
                 direction_loc *= active_item.ds_multiplier
-                dir_move = mathutils.Matrix.Translation(direction_loc)
+                dir_slide = mathutils.Matrix.Translation(direction_loc)
 
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
-                        dir_move,
+                        dir_slide,
                         filter={'SELECT'}
                     )
                 elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(dir_move)
+                    src_mesh.transform(dir_slide)
 
                 # write and then release the mesh data
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -2783,36 +2842,36 @@ class AxisRotateBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
-            if hasattr(self, "quick_op_target"):
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
+            if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_axis_rotate_auto_grab_src:
                     bpy.ops.maplus.quickaxisrotategrabsrc()
 
-                axis_start = addon_data.quick_axis_rotate_src.line_start
-                axis_end = addon_data.quick_axis_rotate_src.line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_axis_rotate_src,
+                    kind='LINE'
+                )
 
             else:
-                axis_start = prims[active_item.axr_axis].line_start
-                axis_end = prims[active_item.axr_axis].line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.axr_axis],
+                    kind='LINE'
+                )
 
-            # Get rotation in proper units
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            axis_start = src_global_data[0]
+            axis_end = src_global_data[1]
+
+            # Get rotation in proper units (radians)
             if (bpy.context.scene.unit_settings.system_rotation == 'RADIANS'):
                 converted_rot_amount = active_item.axr_amount
             else:
                 converted_rot_amount = math.radians(active_item.axr_amount)
-
-            axis = (
-                mathutils.Vector(axis_end) - 
-                mathutils.Vector(axis_start)
-            )
-            axis_rot = mathutils.Matrix.Rotation(
-                converted_rot_amount,
-                4,
-                axis
-            )
 
             # create common vars needed for object and for mesh
             # level transforms
@@ -2820,24 +2879,34 @@ class AxisRotateBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
-            # put the original line starting point (before the ob was rotated)
-            # into the local object space
-            src_pivot_location_local = (
-                inverse_active * mathutils.Vector(axis_start)
-            )
-
             if self.target == 'OBJECT':
+                # (Note that there are no transformation modifiers for this
+                # transformation type, so that section is omitted here)
+
+                # Construct the axis vector and corresponding matrix
+                axis = axis_end - axis_start
+                axis_rot = mathutils.Matrix.Rotation(
+                    converted_rot_amount,
+                    4,
+                    axis
+                )
+
+                # Perform the rotation (axis will be realigned later)
                 bpy.context.active_object.rotation_euler.rotate(axis_rot)
                 bpy.context.scene.update()
 
+                # put the original line starting point (before the ob was rotated)
+                # into the local object space
+                src_pivot_location_local = inverse_active * axis_start
+
+                # Calculate the new pivot location (after the first rotation),
+                # so that the axis can be moved back into place
                 new_pivot_loc_global = (
                     bpy.context.active_object.matrix_world *
                     src_pivot_location_local
                 )
-                pivot_to_dest = (
-                    mathutils.Vector(axis_start) -
-                    new_pivot_loc_global
-                )
+                pivot_to_dest = axis_start - new_pivot_loc_global
+
                 bpy.context.active_object.location += pivot_to_dest
 
             else:
@@ -2848,19 +2917,18 @@ class AxisRotateBase(bpy.types.Operator):
                      ' are not currently supported.'
                     )
                 )
+                # (Note that there are no transformation modifiers for this
+                # transformation type, so that section is omitted here)
                 
                 # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 # Stored geom data in local coords
-                axis_start_loc = inverse_active * mathutils.Vector(
-                    axis_start
-                )
-                axis_end_loc = inverse_active * mathutils.Vector(
-                    axis_end
-                )
+                axis_start_loc = inverse_active * axis_start
+                axis_end_loc = inverse_active * axis_end
 
+                # Get axis vector in local space
                 axis_loc = axis_end_loc - axis_start_loc
 
                 # Get translation, pivot to local origin
@@ -3034,59 +3102,41 @@ class AlignLinesBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
 
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
-            if hasattr(self, "quick_op_target"):
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
+            if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_lines_auto_grab_src:
                     bpy.ops.maplus.quickalignlinesgrabsrc()
 
-                src_start = addon_data.quick_align_lines_src.line_start
-                src_end = addon_data.quick_align_lines_src.line_end
-
-                dest_start = addon_data.quick_align_lines_dest.line_start
-                dest_end = addon_data.quick_align_lines_dest.line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_lines_src,
+                    kind='LINE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_lines_dest,
+                    kind='LINE'
+                )
 
             else:
-                src_start = prims[active_item.aln_src_line].line_start
-                src_end = prims[active_item.aln_src_line].line_end
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.aln_src_line],
+                    kind='LINE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.aln_dest_line],
+                    kind='LINE'
+                )
 
-                dest_start = prims[active_item.aln_dest_line].line_start
-                dest_end = prims[active_item.aln_dest_line].line_end
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            src_start = src_global_data[0]
+            src_end = src_global_data[1]
 
-            # construct lines from the stored geometry
-            src_line = (
-                mathutils.Vector(src_end) -
-                mathutils.Vector(src_start)
-            )
-            dest_line = (
-                mathutils.Vector(dest_end) -
-                mathutils.Vector(dest_start)
-            )
-            if active_item.aln_flip_direction:
-                src_line.negate()
-
-            # Apply any geom modifiers if in advanced tools
-            if not hasattr(self, "quick_op_target"):
-                # Take geom modifiers into account, line one
-                if prims[active_item.aln_src_line].ln_make_unit_vec:
-                    src_line.normalize()
-                if prims[active_item.aln_src_line].ln_flip_direction:
-                    src_line.negate()
-                src_line *= prims[active_item.aln_src_line].ln_multiplier
-
-                # Take geom modifiers into account, line two
-                if prims[active_item.aln_dest_line].ln_make_unit_vec:
-                    dest_line.normalize()
-                if prims[active_item.aln_dest_line].ln_flip_direction:
-                    dest_line.negate()
-                dest_line *= prims[active_item.aln_dest_line].ln_multiplier
-
-            # find rotational difference between source and dest lines
-            rotational_diff = src_line.rotation_difference(dest_line)
-            parallelize_lines = rotational_diff.to_matrix()
-            parallelize_lines.resize_4x4()
+            dest_start = dest_global_data[0]
+            dest_end = dest_global_data[1]
 
             # create common vars needed for object and for mesh
             # level transforms
@@ -3094,14 +3144,20 @@ class AlignLinesBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
-            # put the original line starting point (before the ob was rotated)
-            # into the local object space
-            src_pivot_location_local = (
-                inverse_active * mathutils.Vector(src_start)
-            )
-
             if self.target == 'OBJECT':
-                # Do it!
+                # construct lines from the stored geometry
+                src_line = src_end - src_start
+                dest_line = dest_end - dest_start
+
+                # Take modifiers on the transformation item into account,
+                # in global (object) space
+                if active_item.aln_flip_direction:
+                    src_line.negate()
+
+                # find rotational difference between source and dest lines
+                rotational_diff = src_line.rotation_difference(dest_line)
+                parallelize_lines = rotational_diff.to_matrix()
+                parallelize_lines.resize_4x4()
 
                 # rotate active object so line one is parallel linear,
                 # position will be corrected after this
@@ -3109,6 +3165,10 @@ class AlignLinesBase(bpy.types.Operator):
                     rotational_diff
                 )
                 bpy.context.scene.update()
+
+                # put the original line starting point (before the ob was rotated)
+                # into the local object space
+                src_pivot_location_local = inverse_active * src_start
 
                 # get final global position of pivot (source line
                 # start coords) after object rotation
@@ -3118,7 +3178,7 @@ class AlignLinesBase(bpy.types.Operator):
                 )
                 # get translation, pivot to dest
                 pivot_to_dest = (
-                    mathutils.Vector(dest_start) - new_global_src_pivot_coords
+                    dest_start - new_global_src_pivot_coords
                 )
 
                 bpy.context.active_object.location = (
@@ -3139,22 +3199,18 @@ class AlignLinesBase(bpy.types.Operator):
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 # Stored geom data in local coords
-                src_start_loc = (
-                    inverse_active * mathutils.Vector(src_start)
-                )
-                src_end_loc = (
-                    inverse_active * mathutils.Vector(src_end)
-                )
+                src_start_loc = inverse_active * src_start
+                src_end_loc = inverse_active * src_end
 
-                dest_start_loc = (
-                    inverse_active * mathutils.Vector(dest_start)
-                )
-                dest_end_loc = (
-                    inverse_active * mathutils.Vector(dest_end)
-                )
+                dest_start_loc = inverse_active * dest_start
+                dest_end_loc = inverse_active * dest_end
 
+                # Construct vectors for each line in local space
                 loc_src_line = src_end_loc - src_start_loc
                 loc_dest_line = dest_end_loc - dest_start_loc
+
+                # Take modifiers on the transformation item into account,
+                # in local (mesh) space
                 if active_item.aln_flip_direction:
                     loc_src_line.negate()
 
@@ -3321,77 +3377,70 @@ class AlignPlanesBase(bpy.types.Operator):
                 # updates, exiting and reentering forces an update
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.object.editmode_toggle()
-            
-            # Grab geometry data from the proper location, either 
-            # directly from the scene data (for quick ops), or from
-            # the MAPlus primitives CollectionProperty on the
-            # scene data (for advanced tools)
+
+            # Get global coordinate data for each geometry item, with
+            # modifiers applied. Grab either directly from the scene data
+            # (for quick ops), or from the MAPlus primitives
+            # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_align_planes_auto_grab_src:
                     bpy.ops.maplus.quickalignplanesgrabsrc()
 
-                src_pt_a = addon_data.quick_align_planes_src.plane_pt_a
-                src_pt_b = addon_data.quick_align_planes_src.plane_pt_b
-                src_pt_c = addon_data.quick_align_planes_src.plane_pt_c
-
-                dest_pt_a = addon_data.quick_align_planes_dest.plane_pt_a
-                dest_pt_b = addon_data.quick_align_planes_dest.plane_pt_b
-                dest_pt_c = addon_data.quick_align_planes_dest.plane_pt_c
+                src_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_planes_src,
+                    kind='PLANE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=addon_data.quick_align_planes_dest,
+                    kind='PLANE'
+                )
 
             else:
-                src_pt_a = prims[active_item.apl_src_plane].plane_pt_a
-                src_pt_b = prims[active_item.apl_src_plane].plane_pt_b
-                src_pt_c = prims[active_item.apl_src_plane].plane_pt_c
+                src_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.apl_src_plane],
+                    kind='PLANE'
+                )
+                dest_global_data = get_modified_global_coords(
+                    geometry=prims[active_item.apl_dest_plane],
+                    kind='PLANE'
+                )
 
-                dest_pt_a = prims[active_item.apl_dest_plane].plane_pt_a
-                dest_pt_b = prims[active_item.apl_dest_plane].plane_pt_b
-                dest_pt_c = prims[active_item.apl_dest_plane].plane_pt_c
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            src_pt_a = src_global_data[0]
+            src_pt_b = src_global_data[1]
+            src_pt_c = src_global_data[2]
 
-            # construct normal vector for first (source) plane
-            src_pln_ln_BA = (
-                mathutils.Vector(src_pt_a) -
-                mathutils.Vector(src_pt_b)
-            )
-            src_pln_ln_BC = (
-                mathutils.Vector(src_pt_c) -
-                mathutils.Vector(src_pt_b)
-            )
-            src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
-            # flip first normal's direction if that option is toggled
-            if active_item.apl_flip_normal:
-                src_normal.negate()
-
-            # construct normal vector for second (destination) plane
-            dest_pln_ln_BA = (
-                mathutils.Vector(dest_pt_a) -
-                mathutils.Vector(dest_pt_b)
-            )
-            dest_pln_ln_BC = (
-                mathutils.Vector(dest_pt_c) -
-                mathutils.Vector(dest_pt_b)
-            )
-            dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
-
-            # find rotational difference between source and dest planes
-            rotational_diff = src_normal.rotation_difference(dest_normal)
-            transf_to_parallel_raw = rotational_diff.to_matrix()
-            transf_to_parallel_raw.resize_4x4()
+            dest_pt_a = dest_global_data[0]
+            dest_pt_b = dest_global_data[1]
+            dest_pt_c = dest_global_data[2]
 
             # create common vars needed for object and for mesh level transfs
             active_obj_transf = bpy.context.active_object.matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
-            # get local coords using active object as basis, in other words,
-            # determine coords of the source pivot relative to the active
-            # object's origin by reversing the active object's transf from
-            # the pivot's coords
-            local_src_pivot_coords = (
-                inverse_active * mathutils.Vector(src_pt_b)
-            )
-
             if self.target == 'OBJECT':
-                # Do it!
+                # construct normal vector for first (source) plane
+                src_pln_ln_BA = src_pt_a - src_pt_b
+                src_pln_ln_BC = src_pt_c - src_pt_b
+                src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+
+                # Take modifiers on the transformation item into account,
+                # in global (object) space
+                if active_item.apl_flip_normal:
+                    src_normal.negate()
+
+                # construct normal vector for second (destination) plane
+                dest_pln_ln_BA = dest_pt_a - dest_pt_b
+                dest_pln_ln_BC = dest_pt_c - dest_pt_b
+                dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
+
+                # find rotational difference between source and dest planes
+                rotational_diff = src_normal.rotation_difference(dest_normal)
+                transf_to_parallel_raw = rotational_diff.to_matrix()
+                transf_to_parallel_raw.resize_4x4()
 
                 # try to rotate the object by the rotational_diff
                 bpy.context.active_object.rotation_euler.rotate(
@@ -3410,6 +3459,14 @@ class AlignPlanesBase(bpy.types.Operator):
                 )
                 bpy.context.scene.update()
 
+                # get local coords using active object as basis, in other words,
+                # determine coords of the source pivot relative to the active
+                # object's origin by reversing the active object's transf from
+                # the pivot's coords
+                local_src_pivot_coords = (
+                    inverse_active * src_pt_b
+                )
+
                 # find the new global location of the pivot
                 new_active = bpy.context.active_object.matrix_world.copy()
                 new_global_src_pivot_coords = (
@@ -3420,7 +3477,7 @@ class AlignPlanesBase(bpy.types.Operator):
                 # pivot's location
                 # first vec is the global/absolute distance bw the two pivots
                 pivot_to_dest = (
-                    mathutils.Vector(dest_pt_b) -
+                    dest_pt_b -
                     new_global_src_pivot_coords
                 )
                 bpy.context.active_object.location = (
@@ -3441,27 +3498,26 @@ class AlignPlanesBase(bpy.types.Operator):
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
                 # Stored geom data in local coords
-                src_a_loc = inverse_active * mathutils.Vector(src_pt_a)
-                src_b_loc = inverse_active * mathutils.Vector(src_pt_b)
-                src_c_loc = inverse_active * mathutils.Vector(src_pt_c)
+                src_a_loc = inverse_active * src_pt_a
+                src_b_loc = inverse_active * src_pt_b
+                src_c_loc = inverse_active * src_pt_c
 
-                dest_a_loc = inverse_active * mathutils.Vector(dest_pt_a)
-                dest_b_loc = inverse_active * mathutils.Vector(dest_pt_b)
-                dest_c_loc = inverse_active * mathutils.Vector(dest_pt_c)
+                dest_a_loc = inverse_active * dest_pt_a
+                dest_b_loc = inverse_active * dest_pt_b
+                dest_c_loc = inverse_active * dest_pt_c
 
                 src_ba_loc = src_a_loc - src_b_loc
                 src_bc_loc = src_c_loc - src_b_loc
                 src_normal_loc = src_ba_loc.cross(src_bc_loc)
+
+                # Take modifiers on the transformation item into account,
+                # in local (mesh) space
                 if active_item.apl_flip_normal:
                     src_normal_loc.negate()
 
                 dest_ba_loc = dest_a_loc - dest_b_loc
                 dest_bc_loc = dest_c_loc - dest_b_loc
                 dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
-
-                loc_rot_diff = src_normal_loc.rotation_difference(
-                    dest_normal_loc
-                )
 
                 # Get translation, move source pivot to local origin
                 src_b_inv = src_b_loc.copy()
@@ -3471,6 +3527,9 @@ class AlignPlanesBase(bpy.types.Operator):
                 )
 
                 # Get rotational diff between planes
+                loc_rot_diff = src_normal_loc.rotation_difference(
+                    dest_normal_loc
+                )
                 parallelize_planes_loc = loc_rot_diff.to_matrix()
                 parallelize_planes_loc.resize_4x4()
 
