@@ -3674,23 +3674,63 @@ class CalcLineLength(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        result = mathutils.Vector(
-            mathutils.Vector(
-                (
-                    calc_target_item.line_end[0],
-                    calc_target_item.line_end[1],
-                    calc_target_item.line_end[2]
-                )
-            ) -
-            mathutils.Vector(
-                (
-                    calc_target_item.line_start[0],
-                    calc_target_item.line_start[1],
-                    calc_target_item.line_start[2]
-                )
-            )
-        ).length
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_item,
+            kind='LINE'
+        )
+        src_line = src_global_data[1] - src_global_data[0]
+        result = src_line.length
         active_item.single_calc_result = result
+        if addon_data.calc_result_to_clipboard:
+            bpy.context.window_manager.clipboard = str(result)
+
+        return {'FINISHED'}
+
+
+class CalcRotationalDiff(bpy.types.Operator):
+    bl_idname = "maplus.calcrotationaldiff"
+    bl_label = "Angle of Lines"
+    bl_description = (
+        "Calculates the rotational difference between line items"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+
+        if not (calc_target_one.kind == 'LINE' and
+                calc_target_two.kind == 'LINE'):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Calculate Rotational Difference" can'
+                 ' only operate on two lines')
+            )
+            return {'CANCELLED'}
+
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_one,
+            kind='LINE'
+        )
+        dest_global_data = get_modified_global_coords(
+            geometry=calc_target_two,
+            kind='LINE'
+        )
+        src_line = src_global_data[1] - src_global_data[0]
+        dest_line = dest_global_data[1] - dest_global_data[0]
+
+        axis, angle = (
+            src_line.rotation_difference(dest_line).to_axis_angle()
+        )
+        # Get rotation in proper units (radians)
+        if (bpy.context.scene.unit_settings.system_rotation == 'RADIANS'):
+            result = angle
+        else:
+            result = math.degrees(angle)
+        active_item.multi_calc_result = result
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
 
@@ -3719,14 +3759,17 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0, 0, 0))
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_item,
+            kind='LINE'
+        )
+        src_line = src_global_data[1] - src_global_data[0]
+
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
         new_line.line_end = (
-            start_loc + (
-                mathutils.Vector(calc_target_item.line_end[0:3]) -
-                mathutils.Vector(calc_target_item.line_start[0:3])
-            )
+            start_loc + src_line
         )
 
         return {'FINISHED'}
@@ -3752,13 +3795,17 @@ class ComposeNormalFromPlane(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_item,
+            kind='PLANE'
+        )
         line_BA = (
-            mathutils.Vector(calc_target_item.plane_pt_a[0:3]) -
-            mathutils.Vector(calc_target_item.plane_pt_b[0:3])
+            src_global_data[0] -
+            src_global_data[1]
         )
         line_BC = (
-            mathutils.Vector(calc_target_item.plane_pt_c[0:3]) -
-            mathutils.Vector(calc_target_item.plane_pt_b[0:3])
+            src_global_data[2] -
+            src_global_data[1]
         )
         normal = line_BA.cross(line_BC)
         normal.normalize()
@@ -3799,12 +3846,15 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0, 0, 0))
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_item,
+            kind='POINT'
+        )
+
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
-        new_line.line_end = (
-            calc_target_item.point
-        )
+        new_line.line_end = src_global_data[0]
 
         return {'FINISHED'}
 
@@ -3833,19 +3883,21 @@ class ComposeNewLineAtPointLocation(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        start_loc = mathutils.Vector(
-            targets_by_kind['POINT'].point[0:3]
+        pt_global_data = get_modified_global_coords(
+            geometry=targets_by_kind['POINT'],
+            kind='POINT'
         )
+        line_global_data = get_modified_global_coords(
+            geometry=targets_by_kind['LINE'],
+            kind='LINE'
+        )
+        start_loc = pt_global_data[0]
+        src_line = line_global_data[1] - line_global_data[0]
 
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
-        new_line.line_end = (
-            start_loc + (
-                mathutils.Vector(targets_by_kind['LINE'].line_end[0:3]) -
-                mathutils.Vector(targets_by_kind['LINE'].line_start[0:3])
-            )
-        )
+        new_line.line_end = start_loc + src_line
 
         return {'FINISHED'}
 
@@ -3872,10 +3924,18 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        result = (
-            mathutils.Vector(calc_target_two.point[0:3]) -
-            mathutils.Vector(calc_target_one.point[0:3])
-        ).length
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_one,
+            kind='POINT'
+        )
+        dest_global_data = get_modified_global_coords(
+            geometry=calc_target_two,
+            kind='POINT'
+        )
+        src_pt = src_global_data[0]
+        dest_pt = dest_global_data[0]
+
+        result = (dest_pt - src_pt).length
         active_item.multi_calc_result = result
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
@@ -3905,10 +3965,21 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_one,
+            kind='POINT'
+        )
+        dest_global_data = get_modified_global_coords(
+            geometry=calc_target_two,
+            kind='POINT'
+        )
+        src_pt = src_global_data[0]
+        dest_pt = dest_global_data[0]
+
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
-        new_line.line_start = calc_target_one.point
-        new_line.line_end = calc_target_two.point
+        new_line.line_start = src_pt
+        new_line.line_end = dest_pt
 
         return {'FINISHED'}
 
@@ -3937,19 +4008,21 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0, 0, 0))
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_one,
+            kind='LINE'
+        )
+        dest_global_data = get_modified_global_coords(
+            geometry=calc_target_two,
+            kind='LINE'
+        )
+        src_line = src_global_data[1] - src_global_data[0]
+        dest_line = dest_global_data[1] - dest_global_data[0]
+
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
-        new_line.line_end = (
-            (
-                mathutils.Vector(calc_target_one.line_end[0:3]) -
-                mathutils.Vector(calc_target_one.line_start[0:3])
-            ) +
-            (
-                mathutils.Vector(calc_target_two.line_end[0:3]) -
-                mathutils.Vector(calc_target_two.line_start[0:3])
-            )
-        )
+        new_line.line_end = src_line + dest_line
 
         return {'FINISHED'}
 
@@ -3981,19 +4054,21 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
 
         start_loc = mathutils.Vector((0, 0, 0))
 
+        src_global_data = get_modified_global_coords(
+            geometry=calc_target_one,
+            kind='LINE'
+        )
+        dest_global_data = get_modified_global_coords(
+            geometry=calc_target_two,
+            kind='LINE'
+        )
+        src_line = src_global_data[1] - src_global_data[0]
+        dest_line = dest_global_data[1] - dest_global_data[0]
+
         bpy.ops.maplus.addnewline()
         new_line = prims[-1]
         new_line.line_start = start_loc
-        new_line.line_end = (
-            (
-                mathutils.Vector(calc_target_one.line_end[0:3]) -
-                mathutils.Vector(calc_target_one.line_start[0:3])
-            ) -
-            (
-                mathutils.Vector(calc_target_two.line_end[0:3]) -
-                mathutils.Vector(calc_target_two.line_start[0:3])
-            )
-        )
+        new_line.line_end = src_line - dest_line
 
         return {'FINISHED'}
 
@@ -4831,6 +4906,10 @@ class MAPlusGui(bpy.types.Panel):
                             )
                         elif (calc_target_one.kind == 'LINE' and
                                 calc_target_two.kind == 'LINE'):
+                            item_info_col.operator(
+                                "maplus.calcrotationaldiff",
+                                text="Angle of Lines"
+                            )
                             item_info_col.operator(
                                 "maplus.composenewlinevectoraddition",
                                 icon='MAN_TRANS',
