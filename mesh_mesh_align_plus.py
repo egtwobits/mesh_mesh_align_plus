@@ -2183,6 +2183,12 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
             dest_start = dest_global_data[0]
             dest_end = dest_global_data[1]
 
+            # create common vars needed for object and for mesh
+            # level transforms
+            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            inverse_active = active_obj_transf.copy()
+            inverse_active.invert()
+
             # Construct vectors for each edge from the global point coord data
             src_edge = src_end - src_start
             dest_edge = dest_end - dest_start
@@ -2202,6 +2208,29 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     scale_factor * num
                     for num in bpy.context.active_object.scale
                 ]
+                bpy.context.scene.update()
+
+                # put the original line starting point (before the ob was rotated)
+                # into the local object space
+                src_pivot_location_local = inverse_active * src_start
+
+                # get final global position of pivot (source line
+                # start coords) after object rotation
+                new_global_src_pivot_coords = (
+                    bpy.context.active_object.matrix_world *
+                    src_pivot_location_local
+                )
+
+                # get translation, new to old (original) pivot location
+                new_to_old_pivot = (
+                    src_start - new_global_src_pivot_coords
+                )
+
+                bpy.context.active_object.location = (
+                    bpy.context.active_object.location + new_to_old_pivot
+                )
+                bpy.context.scene.update()
+
             else:
                 # (Note that there are no transformation modifiers for this
                 # transformation type, so that section is omitted here)
@@ -2217,11 +2246,34 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
 
-                # Setup matrix for mesh transforms
-                match_transf = mathutils.Matrix.Scale(
+                # Stored geom data in local coords
+                src_start_loc = inverse_active * src_start
+                src_end_loc = inverse_active * src_end
+
+                dest_start_loc = inverse_active * dest_start
+                dest_end_loc = inverse_active * dest_end
+
+                # Construct vectors for each line in local space
+                loc_src_line = src_end_loc - src_start_loc
+                loc_dest_line = dest_end_loc - dest_start_loc
+
+                # Get the scale match matrix
+                scaling_match = mathutils.Matrix.Scale(
                     scale_factor,
                     4
                 )
+
+                # Get the new pivot location
+                new_pivot_location_loc = scaling_match * src_start_loc
+
+                # Get the translation, new to old pivot location
+                new_to_old_pivot_vec = src_start_loc - new_pivot_location_loc
+                new_to_old_pivot = mathutils.Matrix.Translation(
+                    new_to_old_pivot_vec
+                )
+
+                # Get combined scale + move
+                match_transf = new_to_old_pivot * scaling_match
 
                 if self.target == 'MESHSELECTED':
                     src_mesh.transform(
