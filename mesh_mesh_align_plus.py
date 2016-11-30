@@ -1032,22 +1032,46 @@ class GrabFromGeometryBase(bpy.types.Operator):
     def return_selected_verts(self):
         if (bpy.context.active_object and
                 type(bpy.context.active_object.data) == bpy.types.Mesh):
-            selection = []
-            verts_collected = 0
+
+            # verts_collected = 0
             # Todo, check for a better way to handle/if this is needed
             bpy.ops.object.editmode_toggle()
             bpy.ops.object.editmode_toggle()
-            for vert in bpy.context.active_object.data.vertices:
-                if verts_collected == len(self.vert_attribs_to_set):
+
+            # Init source mesh
+            src_mesh = bmesh.new()
+            src_mesh.from_mesh(bpy.context.active_object.data)
+
+            selection = []
+            vert_indices = []
+            for vert in src_mesh.select_history:
+                if len(selection) == len(self.vert_attribs_to_set):
                     break
-                if vert.select:
-                    if self.multiply_by_world_matrix:
+                if self.multiply_by_world_matrix:
+                    if not (vert.index in vert_indices):
                         selection.append(
                             bpy.context.active_object.matrix_world * vert.co
                         )
-                    else:
+                        vert_indices.append(vert.index)
+                else:
+                    if not (vert.index in vert_indices):
                         selection.append(vert.co)
-                    verts_collected += 1
+                        vert_indices.append(vert.index)
+            for vert in bpy.context.active_object.data.vertices:
+                if len(selection) == len(self.vert_attribs_to_set):
+                    break
+                if vert.select:
+                    if self.multiply_by_world_matrix:
+                        if not (vert.index in vert_indices):
+                            selection.append(
+                                bpy.context.active_object.matrix_world * vert.co
+                            )
+                            vert_indices.append(vert.index)
+                    else:
+                        if not (vert.index in vert_indices):
+                            selection.append(vert.co)
+                            vert_indices.append(vert.index)
+                    # verts_collected += 1
             if len(selection) == len(self.vert_attribs_to_set):
                 return selection
             else:
