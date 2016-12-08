@@ -267,6 +267,13 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         description="Flips the normal of the source plane",
         default=False
     )
+    apl_use_custom_orientation = bpy.props.BoolProperty(
+        description=(
+            "Switches to custom transform orientation upon applying"
+            " the operator (oriented to the destination plane)."
+        ),
+        default=False
+    )
 
     # "Align Lines" (transformation) data/settings
     aln_src_line = bpy.props.IntProperty(
@@ -3522,7 +3529,7 @@ class AlignPlanesBase(bpy.types.Operator):
             )
             bpy.ops.transform.create_orientation(
                 name='MAPlus',
-                use=False,
+                use=active_item.apl_use_custom_orientation,
                 overwrite=True
             )
             bpy.context.scene.orientations['MAPlus'].matrix = (
@@ -5243,6 +5250,11 @@ class MAPlusGui(bpy.types.Panel):
                             'apl_flip_normal',
                             "Flip Source Normal"
                         )
+                        mods_row_1.prop(
+                            active_transf,
+                            'apl_use_custom_orientation',
+                            "Use Transf. Orientation"
+                        )
                     item_info_col.separator()
 
                     # Designate operands for the transformation by pointing to
@@ -5557,6 +5569,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             addon_data.quick_align_planes_transf,
             'apl_flip_normal',
             'Flip Normal'
+        )
+        apl_mods_row1.prop(
+            addon_data.quick_align_planes_transf,
+            'apl_use_custom_orientation',
+            'Use Transf. Orientation'
         )
         apl_apply_header = apl_gui.row()
         apl_apply_header.label("Apply to:")
