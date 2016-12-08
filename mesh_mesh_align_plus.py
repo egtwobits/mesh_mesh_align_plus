@@ -3473,39 +3473,87 @@ class AlignPlanesBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
+            # We need global data for the object operation and for creation
+            # of a custom transform orientation if the user enables it.
+            # construct normal vector for first (source) plane
+            src_pln_ln_BA = src_pt_a - src_pt_b
+            src_pln_ln_BC = src_pt_c - src_pt_b
+            src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+
+            # Take modifiers on the transformation item into account,
+            # in global (object) space
+            if active_item.apl_flip_normal:
+                src_normal.negate()
+
+            # construct normal vector for second (destination) plane
+            dest_pln_ln_BA = dest_pt_a - dest_pt_b
+            dest_pln_ln_BC = dest_pt_c - dest_pt_b
+            dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
+
+            # find rotational difference between source and dest planes
+            rotational_diff = src_normal.rotation_difference(dest_normal)
+
+            # Set up edge alignment (BA plane1 to BA plane2)
+            new_lead_edge_orientation = src_pln_ln_BA.copy()
+            new_lead_edge_orientation.rotate(rotational_diff)
+            parallelize_edges = new_lead_edge_orientation.rotation_difference(
+                dest_pln_ln_BA
+            )
+
+            # Create custom transform orientation, for sliding the user's
+            # target along the destination face after it has been aligned.
+            # We do this by making a basis matrix out of the dest plane
+            # leading edge vector, the dest normal vector, and the cross
+            # of those two (each vector is normalized first)
+            vdest = dest_pln_ln_BA.copy()
+            vdest.normalize()
+            vnorm = dest_normal.copy()
+            vnorm.normalize()
+            # vnorm.negate()
+            vcross = vdest.cross(vnorm)
+            vcross.normalize()
+            vcross.negate()
+            custom_orientation = mathutils.Matrix(
+                [
+                    [vcross[0], vnorm[0], vdest[0]],
+                    [vcross[1], vnorm[1], vdest[1]],
+                    [vcross[2], vnorm[2], vdest[2]]
+                ]
+            )
+            bpy.ops.transform.create_orientation(
+                name='MAPlus',
+                use=False,
+                overwrite=True
+            )
+            bpy.context.scene.orientations['MAPlus'].matrix = (
+                custom_orientation
+            )
+
+            # # Create custom transform orientation, for sliding the user's
+            # # target along the destination face after it has been aligned
+            # custom_orientation = (
+                # mathutils.Vector((0, 0, 1)).rotation_difference(
+                    # dest_normal
+                # )
+            # )
+            # # custom_orientation.rotate()
+            # bpy.ops.transform.create_orientation(
+                # name='MAPlus',
+                # use=False,
+                # overwrite=True
+            # )
+            # bpy.context.scene.orientations['MAPlus'].matrix = (
+                # custom_orientation.to_matrix()
+            # )
+
             if self.target == 'OBJECT':
-                # construct normal vector for first (source) plane
-                src_pln_ln_BA = src_pt_a - src_pt_b
-                src_pln_ln_BC = src_pt_c - src_pt_b
-                src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
-
-                # Take modifiers on the transformation item into account,
-                # in global (object) space
-                if active_item.apl_flip_normal:
-                    src_normal.negate()
-
-                # construct normal vector for second (destination) plane
-                dest_pln_ln_BA = dest_pt_a - dest_pt_b
-                dest_pln_ln_BC = dest_pt_c - dest_pt_b
-                dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
-
-                # find rotational difference between source and dest planes
-                rotational_diff = src_normal.rotation_difference(dest_normal)
-                transf_to_parallel_raw = rotational_diff.to_matrix()
-                transf_to_parallel_raw.resize_4x4()
-
-                # try to rotate the object by the rotational_diff
+                # Try to rotate the object by the rotational_diff
                 bpy.context.active_object.rotation_euler.rotate(
                     rotational_diff
                 )
                 bpy.context.scene.update()
 
-                # Set up edge alignment (BA plane1 to BA plane2)
-                new_lead_edge_orientation = src_pln_ln_BA.copy()
-                new_lead_edge_orientation.rotate(rotational_diff)
-                parallelize_edges = new_lead_edge_orientation.rotation_difference(
-                    dest_pln_ln_BA
-                )
+                # Parallelize the leading edges
                 bpy.context.active_object.rotation_euler.rotate(
                     parallelize_edges
                 )
