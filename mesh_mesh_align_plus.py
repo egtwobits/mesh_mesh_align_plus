@@ -1041,10 +1041,26 @@ class GrabFromGeometryBase(bpy.types.Operator):
             # Init source mesh
             src_mesh = bmesh.new()
             src_mesh.from_mesh(bpy.context.active_object.data)
+            src_mesh.select_history.validate()
+
+            history_indices = []
+            history_as_verts = []
+            for element in src_mesh.select_history:
+                if len(history_as_verts) == len(self.vert_attribs_to_set):
+                    break
+                if type(element) == bmesh.types.BMVert:
+                    if not (element.index in history_indices):
+                        history_as_verts.append(element)
+                else:
+                    for item in element.verts:
+                        if len(history_as_verts) == len(self.vert_attribs_to_set):
+                            break
+                        if not (item.index in history_indices):
+                            history_as_verts.append(item)
 
             selection = []
             vert_indices = []
-            for vert in src_mesh.select_history:
+            for vert in history_as_verts:
                 if len(selection) == len(self.vert_attribs_to_set):
                     break
                 if self.multiply_by_world_matrix:
