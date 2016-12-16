@@ -1077,6 +1077,15 @@ def return_selected_verts(mesh_object, verts_to_grab, global_matrix_multiplier=N
         raise NonMeshGrabError(mesh_object)
 
 
+def set_item_coords(item, coords_to_set, coords):
+    target_data = collections.OrderedDict(
+        zip(coords_to_set, coords)
+    )
+    for key, val in target_data.items():
+        setattr(item, key, val)
+    return True
+
+
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
 # Todo, design decision: error on too many selected verts or *no*?
 class GrabFromGeometryBase(bpy.types.Operator):
@@ -1129,19 +1138,25 @@ class GrabFromGeometryBase(bpy.types.Operator):
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
             matrix_multiplier = bpy.context.active_object.matrix_world
-        vert_data = return_selected_verts(
-            bpy.context.active_object,
-            len(self.vert_attribs_to_set),
-            matrix_multiplier
-        )
+        try:
+            vert_data = return_selected_verts(
+                bpy.context.active_object,
+                len(self.vert_attribs_to_set),
+                matrix_multiplier
+            )
+        except NotEnoughVertsError:
+            self.report({'ERROR'}, 'Not enough vertices selected.')
+            return {'CANCELLED'}
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
         # Todo/fix, handle common user errors here
         # if vert_data is None:
             # return {'CANCELLED'}
-        target_data = collections.OrderedDict(
-            zip(self.vert_attribs_to_set, vert_data)
-        )
-        for key, val in target_data.items():
-            setattr(active_item, key, val)
+        set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
 
         return {'FINISHED'}
 
@@ -2170,7 +2185,28 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_scale_match_edge_auto_grab_src:
-                    bpy.ops.maplus.quickscalematchedgegrabsrc()
+                    vert_attribs_to_set = ('line_start', 'line_end')
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_scale_match_edge_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_scale_match_edge_src,
@@ -2459,7 +2495,28 @@ class AlignPointsBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_pts_auto_grab_src:
-                    bpy.ops.maplus.quickalignpointsgrabsrc()
+                    vert_attribs_to_set = ('point',)
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_align_pts_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_align_pts_src,
@@ -2698,7 +2755,28 @@ class DirectionalSlideBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_directional_slide_auto_grab_src:
-                    bpy.ops.maplus.quickdirectionalslidegrabsrc()
+                    vert_attribs_to_set = ('line_start', 'line_end')
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_directional_slide_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_directional_slide_src,
@@ -2941,7 +3019,28 @@ class AxisRotateBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_axis_rotate_auto_grab_src:
-                    bpy.ops.maplus.quickaxisrotategrabsrc()
+                    vert_attribs_to_set = ('line_start', 'line_end')
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_axis_rotate_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_axis_rotate_src,
@@ -3201,7 +3300,28 @@ class AlignLinesBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, 'quick_op_target'):
                 if addon_data.quick_align_lines_auto_grab_src:
-                    bpy.ops.maplus.quickalignlinesgrabsrc()
+                    vert_attribs_to_set = ('line_start', 'line_end')
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_align_lines_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_align_lines_src,
@@ -3477,7 +3597,28 @@ class AlignPlanesBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_align_planes_auto_grab_src:
-                    bpy.ops.maplus.quickalignplanesgrabsrc()
+                    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+                    try:
+                        vert_data = return_selected_verts(
+                            bpy.context.active_object,
+                            len(vert_attribs_to_set),
+                            bpy.context.active_object.matrix_world
+                        )
+                    except NotEnoughVertsError:
+                        self.report({'ERROR'}, 'Not enough vertices selected.')
+                        return {'CANCELLED'}
+                    except NonMeshGrabError:
+                        self.report(
+                            {'ERROR'},
+                            'Cannot grab coords: non-mesh or no active object.'
+                        )
+                        return {'CANCELLED'}
+
+                    set_item_coords(
+                        addon_data.quick_align_planes_src,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
 
                 src_global_data = get_modified_global_coords(
                     geometry=addon_data.quick_align_planes_src,
