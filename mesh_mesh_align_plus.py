@@ -1013,6 +1013,70 @@ class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
     multiply_by_world_matrix = True
 
 
+class NonMeshGrabError(Exception):
+    pass
+
+class NotEnoughVertsError(Exception):
+    pass
+
+
+def return_selected_verts(mesh_object, verts_to_grab, global_matrix_multiplier=None):
+    if type(mesh_object.data) == bpy.types.Mesh:
+
+        # Todo, check for a better way to handle/if this is needed
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        # Init source mesh
+        src_mesh = bmesh.new()
+        src_mesh.from_mesh(mesh_object.data)
+        src_mesh.select_history.validate()
+
+        history_indices = []
+        history_as_verts = []
+        for element in src_mesh.select_history:
+            if len(history_as_verts) == verts_to_grab:
+                break
+            if type(element) == bmesh.types.BMVert:
+                if not (element.index in history_indices):
+                    history_as_verts.append(element)
+            else:
+                for item in element.verts:
+                    if len(history_as_verts) == verts_to_grab:
+                        break
+                    if not (item.index in history_indices):
+                        history_as_verts.append(item)
+
+        selection = []
+        vert_indices = []
+        for vert in history_as_verts:
+            if len(selection) == verts_to_grab:
+                break
+            coords = vert.co
+            if global_matrix_multiplier:
+                coords = global_matrix_multiplier * coords
+            if not (vert.index in vert_indices):
+                vert_indices.append(vert.index)
+                selection.append(coords)
+
+        for vert in (v for v in src_mesh.verts if v.select):
+            if len(selection) == verts_to_grab:
+                break
+            coords = vert.co
+            if global_matrix_multiplier:
+                coords = global_matrix_multiplier * coords
+            if not (vert.index in vert_indices):
+                vert_indices.append(vert.index)
+                selection.append(coords)
+
+        if len(selection) == verts_to_grab:
+            return selection
+        else:
+            raise NotEnoughVertsError()
+    else:
+        raise NonMeshGrabError(mesh_object)
+
+
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
 # Todo, design decision: error on too many selected verts or *no*?
 class GrabFromGeometryBase(bpy.types.Operator):
@@ -1028,77 +1092,6 @@ class GrabFromGeometryBase(bpy.types.Operator):
     # primitive (point, line or plane item). The length of this tuple
     # determines how many verts will be grabbed.
     vert_attribs_to_set = None
-
-    def return_selected_verts(self):
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
-
-            # verts_collected = 0
-            # Todo, check for a better way to handle/if this is needed
-            bpy.ops.object.editmode_toggle()
-            bpy.ops.object.editmode_toggle()
-
-            # Init source mesh
-            src_mesh = bmesh.new()
-            src_mesh.from_mesh(bpy.context.active_object.data)
-            src_mesh.select_history.validate()
-
-            history_indices = []
-            history_as_verts = []
-            for element in src_mesh.select_history:
-                if len(history_as_verts) == len(self.vert_attribs_to_set):
-                    break
-                if type(element) == bmesh.types.BMVert:
-                    if not (element.index in history_indices):
-                        history_as_verts.append(element)
-                else:
-                    for item in element.verts:
-                        if len(history_as_verts) == len(self.vert_attribs_to_set):
-                            break
-                        if not (item.index in history_indices):
-                            history_as_verts.append(item)
-
-            selection = []
-            vert_indices = []
-            for vert in history_as_verts:
-                if len(selection) == len(self.vert_attribs_to_set):
-                    break
-                if self.multiply_by_world_matrix:
-                    if not (vert.index in vert_indices):
-                        selection.append(
-                            bpy.context.active_object.matrix_world * vert.co
-                        )
-                        vert_indices.append(vert.index)
-                else:
-                    if not (vert.index in vert_indices):
-                        selection.append(vert.co)
-                        vert_indices.append(vert.index)
-            for vert in bpy.context.active_object.data.vertices:
-                if len(selection) == len(self.vert_attribs_to_set):
-                    break
-                if vert.select:
-                    if self.multiply_by_world_matrix:
-                        if not (vert.index in vert_indices):
-                            selection.append(
-                                bpy.context.active_object.matrix_world * vert.co
-                            )
-                            vert_indices.append(vert.index)
-                    else:
-                        if not (vert.index in vert_indices):
-                            selection.append(vert.co)
-                            vert_indices.append(vert.index)
-                    # verts_collected += 1
-            if len(selection) == len(self.vert_attribs_to_set):
-                return selection
-            else:
-                self.report({'ERROR'}, 'Not enough vertices selected.')
-                return None
-        else:
-            self.report(
-                {'ERROR'},
-                'Cannot grab coords: non-mesh or no active object.'
-            )
-            return None
 
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
@@ -1133,9 +1126,17 @@ class GrabFromGeometryBase(bpy.types.Operator):
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
 
-        vert_data = self.return_selected_verts()
-        if vert_data is None:
-            return {'CANCELLED'}
+        matrix_multiplier = None
+        if self.multiply_by_world_matrix:
+            matrix_multiplier = bpy.context.active_object.matrix_world
+        vert_data = return_selected_verts(
+            bpy.context.active_object,
+            len(self.vert_attribs_to_set),
+            matrix_multiplier
+        )
+        # Todo/fix, handle common user errors here
+        # if vert_data is None:
+            # return {'CANCELLED'}
         target_data = collections.OrderedDict(
             zip(self.vert_attribs_to_set, vert_data)
         )
