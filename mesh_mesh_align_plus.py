@@ -2807,67 +2807,79 @@ class DirectionalSlideBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                # Make the vector specifying the direction and
-                # magnitude to slide in
-                direction = dir_end - dir_start
+                for item in multi_edit_targets:
+                    # Make the vector specifying the direction and
+                    # magnitude to slide in
+                    direction = dir_end - dir_start
 
-                # Take modifiers on the transformation item into account,
-                # in global (object) space
-                if active_item.ds_make_unit_vec:
-                    direction.normalize()
-                if active_item.ds_flip_direction:
-                    direction.negate()
-                direction *= active_item.ds_multiplier
+                    # Take modifiers on the transformation item into account,
+                    # in global (object) space
+                    if active_item.ds_make_unit_vec:
+                        direction.normalize()
+                    if active_item.ds_flip_direction:
+                        direction.negate()
+                    direction *= active_item.ds_multiplier
 
-                bpy.context.active_object.location += direction
+                    item.location += direction
 
             else:
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                dir_start_loc = inverse_active * dir_start
-                dir_end_loc = inverse_active * dir_end
+                    # Get the object world matrix
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
 
-                # Get translation vector in local space
-                direction_loc = dir_end_loc - dir_start_loc
+                    # Stored geom data in local coords
+                    dir_start_loc = unaltered_inverse_loc * dir_start
+                    dir_end_loc = unaltered_inverse_loc * dir_end
 
-                # Take modifiers on the transformation item into account,
-                # in local (mesh) space
-                if active_item.ds_make_unit_vec:
-                    # There are special considerations for this modifier
-                    # since we need to achieve a global length of one,
-                    # but can only transform it in local space
-                    # (NOTE: assumes only uniform scaling on the active obj)
-                    scaling_factor = 1.0 / bpy.context.active_object.scale[0]
-                    direction_loc.normalize()
-                    direction_loc *= scaling_factor
-                if active_item.ds_flip_direction:
-                    direction_loc.negate()
-                direction_loc *= active_item.ds_multiplier
-                dir_slide = mathutils.Matrix.Translation(direction_loc)
+                    # Get translation vector in local space
+                    direction_loc = dir_end_loc - dir_start_loc
 
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        dir_slide,
-                        filter={'SELECT'}
-                    )
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(dir_slide)
+                    # Take modifiers on the transformation item into account,
+                    # in local (mesh) space
+                    if active_item.ds_make_unit_vec:
+                        # There are special considerations for this modifier
+                        # since we need to achieve a global length of one,
+                        # but can only transform it in local space
+                        # (NOTE: assumes only uniform scaling on the active obj)
+                        scaling_factor = 1.0 / item.scale[0]
+                        direction_loc.normalize()
+                        direction_loc *= scaling_factor
+                    if active_item.ds_flip_direction:
+                        direction_loc.negate()
+                    direction_loc *= active_item.ds_multiplier
+                    dir_slide = mathutils.Matrix.Translation(direction_loc)
 
-                # write and then release the mesh data
-                bpy.ops.object.mode_set(mode='OBJECT')
-                src_mesh.to_mesh(bpy.context.active_object.data)
-                src_mesh.free()
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            dir_slide,
+                            filter={'SELECT'}
+                        )
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(dir_slide)
+
+                    # write and then release the mesh data
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
