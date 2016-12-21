@@ -3735,13 +3735,17 @@ class AlignPlanesBase(bpy.types.Operator):
                 # custom_orientation.to_matrix()
             # )
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                for item in [
-                    model for model in bpy.context.scene.objects if (model.select and model.type == 'MESH')
-                ]:
-                    current_item_transf = item.matrix_world.copy()
-                    current_item_inverse = current_item_transf.copy()
-                    current_item_inverse.invert()
+                for item in multi_edit_targets:
+                    # Get the object world matrix before we modify it here
+                    item_matrix_unaltered = item.matrix_world.copy()
+                    unaltered_inverse = item_matrix_unaltered.copy()
+                    unaltered_inverse.invert()
 
                     # Try to rotate the object by the rotational_diff
                     item.rotation_euler.rotate(
@@ -3760,10 +3764,12 @@ class AlignPlanesBase(bpy.types.Operator):
                     # object's origin by reversing the active object's transf from
                     # the pivot's coords
                     local_src_pivot_coords = (
-                        current_item_inverse * src_pt_b
+                        unaltered_inverse * src_pt_b
                     )
 
-                    # find the new global location of the pivot
+                    # find the new global location of the pivot (we access 
+                    # the item's matrix_world directly here since we 
+                    # changed/updated it earlier)
                     new_global_src_pivot_coords = (
                         item.matrix_world * local_src_pivot_coords
                     )
@@ -3782,80 +3788,85 @@ class AlignPlanesBase(bpy.types.Operator):
                     bpy.context.scene.update()
 
             else:
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                src_a_loc = inverse_active * src_pt_a
-                src_b_loc = inverse_active * src_pt_b
-                src_c_loc = inverse_active * src_pt_c
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
 
-                dest_a_loc = inverse_active * dest_pt_a
-                dest_b_loc = inverse_active * dest_pt_b
-                dest_c_loc = inverse_active * dest_pt_c
+                    # Stored geom data in local coords
+                    src_a_loc = unaltered_inverse_loc * src_pt_a
+                    src_b_loc = unaltered_inverse_loc * src_pt_b
+                    src_c_loc = unaltered_inverse_loc * src_pt_c
 
-                src_ba_loc = src_a_loc - src_b_loc
-                src_bc_loc = src_c_loc - src_b_loc
-                src_normal_loc = src_ba_loc.cross(src_bc_loc)
+                    dest_a_loc = unaltered_inverse_loc * dest_pt_a
+                    dest_b_loc = unaltered_inverse_loc * dest_pt_b
+                    dest_c_loc = unaltered_inverse_loc * dest_pt_c
 
-                # Take modifiers on the transformation item into account,
-                # in local (mesh) space
-                if active_item.apl_flip_normal:
-                    src_normal_loc.negate()
+                    src_ba_loc = src_a_loc - src_b_loc
+                    src_bc_loc = src_c_loc - src_b_loc
+                    src_normal_loc = src_ba_loc.cross(src_bc_loc)
 
-                dest_ba_loc = dest_a_loc - dest_b_loc
-                dest_bc_loc = dest_c_loc - dest_b_loc
-                dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
+                    # Take modifiers on the transformation item into account,
+                    # in local (mesh) space
+                    if active_item.apl_flip_normal:
+                        src_normal_loc.negate()
 
-                # Get translation, move source pivot to local origin
-                src_b_inv = src_b_loc.copy()
-                src_b_inv.negate()
-                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                    src_b_inv
-                )
+                    dest_ba_loc = dest_a_loc - dest_b_loc
+                    dest_bc_loc = dest_c_loc - dest_b_loc
+                    dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
 
-                # Get rotational diff between planes
-                loc_rot_diff = src_normal_loc.rotation_difference(
-                    dest_normal_loc
-                )
-                parallelize_planes_loc = loc_rot_diff.to_matrix()
-                parallelize_planes_loc.resize_4x4()
-
-                # Get edge alignment rotation (align leading plane edges)
-                new_lead_edge_ornt_loc = parallelize_planes_loc * src_ba_loc
-                edge_align_loc = new_lead_edge_ornt_loc.rotation_difference(
-                    dest_ba_loc
-                )
-                parallelize_edges_loc = edge_align_loc.to_matrix()
-                parallelize_edges_loc.resize_4x4()
-
-                # Get translation, move pivot to destination
-                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_b_loc)
-
-                mesh_coplanar = (
-                    pivot_to_dest_loc *
-                    parallelize_edges_loc *
-                    parallelize_planes_loc *
-                    src_pivot_to_loc_origin
-                )
-
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        mesh_coplanar,
-                        filter={'SELECT'}
+                    # Get translation, move source pivot to local origin
+                    src_b_inv = src_b_loc.copy()
+                    src_b_inv.negate()
+                    src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                        src_b_inv
                     )
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(mesh_coplanar)
 
-                bpy.ops.object.mode_set(mode='OBJECT')
-                src_mesh.to_mesh(bpy.context.active_object.data)
+                    # Get rotational diff between planes
+                    loc_rot_diff = src_normal_loc.rotation_difference(
+                        dest_normal_loc
+                    )
+                    parallelize_planes_loc = loc_rot_diff.to_matrix()
+                    parallelize_planes_loc.resize_4x4()
+
+                    # Get edge alignment rotation (align leading plane edges)
+                    new_lead_edge_ornt_loc = parallelize_planes_loc * src_ba_loc
+                    edge_align_loc = new_lead_edge_ornt_loc.rotation_difference(
+                        dest_ba_loc
+                    )
+                    parallelize_edges_loc = edge_align_loc.to_matrix()
+                    parallelize_edges_loc.resize_4x4()
+
+                    # Get translation, move pivot to destination
+                    pivot_to_dest_loc = mathutils.Matrix.Translation(dest_b_loc)
+
+                    mesh_coplanar = (
+                        pivot_to_dest_loc *
+                        parallelize_edges_loc *
+                        parallelize_planes_loc *
+                        src_pivot_to_loc_origin
+                    )
+
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            mesh_coplanar,
+                            filter={'SELECT'}
+                        )
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(mesh_coplanar)
+
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
