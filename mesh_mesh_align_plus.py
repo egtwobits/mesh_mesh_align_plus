@@ -2555,68 +2555,75 @@ class AlignPointsBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                align_points = dest_pt - src_pt
+                for item in multi_edit_targets:
+                    align_points = dest_pt - src_pt
 
-                # Take modifiers on the transformation item into account,
-                # in global (object) space
-                if active_item.apt_make_unit_vector:
-                    align_points.normalize()
-                if active_item.apt_flip_direction:
-                    align_points.negate()
-                align_points *= active_item.apt_multiplier
+                    # Take modifiers on the transformation item into account,
+                    # in global (object) space
+                    if active_item.apt_make_unit_vector:
+                        align_points.normalize()
+                    if active_item.apt_flip_direction:
+                        align_points.negate()
+                    align_points *= active_item.apt_multiplier
 
-                bpy.context.active_object.location += align_points
+                    item.location += align_points
 
             else:
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                src_pt_loc = inverse_active * src_pt
-                dest_pt_loc = inverse_active * dest_pt
+                    # Stored geom data in local coords
+                    src_pt_loc = inverse_active * src_pt
+                    dest_pt_loc = inverse_active * dest_pt
 
-                # Get translation vector (in local space), src to dest
-                align_points_vec = dest_pt_loc - src_pt_loc
+                    # Get translation vector (in local space), src to dest
+                    align_points_vec = dest_pt_loc - src_pt_loc
 
-                # Take modifiers on the transformation item into account,
-                # in local (mesh) space
-                if active_item.apt_make_unit_vector:
-                    # There are special considerations for this modifier
-                    # since we need to achieve a global length of one,
-                    # but can only transform it in local space
-                    # (NOTE: assumes only uniform scaling on the active obj)
-                    scaling_factor = 1.0 / bpy.context.active_object.scale[0]
-                    align_points_vec.normalize()
-                    align_points_vec *= scaling_factor
-                if active_item.apt_flip_direction:
-                    align_points_vec.negate()
-                align_points_vec *= active_item.apt_multiplier
+                    # Take modifiers on the transformation item into account,
+                    # in local (mesh) space
+                    if active_item.apt_make_unit_vector:
+                        # There are special considerations for this modifier
+                        # since we need to achieve a global length of one,
+                        # but can only transform it in local space
+                        # (NOTE: assumes only uniform scaling on the active obj)
+                        scaling_factor = 1.0 / item.scale[0]
+                        align_points_vec.normalize()
+                        align_points_vec *= scaling_factor
+                    if active_item.apt_flip_direction:
+                        align_points_vec.negate()
+                    align_points_vec *= active_item.apt_multiplier
 
-                align_points_loc = mathutils.Matrix.Translation(
-                    align_points_vec
-                )
-
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        align_points_loc,
-                        filter={'SELECT'}
+                    align_points_loc = mathutils.Matrix.Translation(
+                        align_points_vec
                     )
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(align_points_loc)
 
-                # write and then release the mesh data
-                bpy.ops.object.mode_set(mode='OBJECT')
-                src_mesh.to_mesh(bpy.context.active_object.data)
-                src_mesh.free()
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            align_points_loc,
+                            filter={'SELECT'}
+                        )
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(align_points_loc)
+
+                    # write and then release the mesh data
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
