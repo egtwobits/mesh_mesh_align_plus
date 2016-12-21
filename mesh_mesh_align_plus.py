@@ -3364,110 +3364,127 @@ class AlignLinesBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                # construct lines from the stored geometry
-                src_line = src_end - src_start
-                dest_line = dest_end - dest_start
+                for item in multi_edit_targets:
+                    # Get the object world matrix before we modify it here
+                    item_matrix_unaltered = item.matrix_world.copy()
+                    unaltered_inverse = item_matrix_unaltered.copy()
+                    unaltered_inverse.invert()
+                    
+                    # construct lines from the stored geometry
+                    src_line = src_end - src_start
+                    dest_line = dest_end - dest_start
 
-                # Take modifiers on the transformation item into account,
-                # in global (object) space
-                if active_item.aln_flip_direction:
-                    src_line.negate()
+                    # Take modifiers on the transformation item into account,
+                    # in global (object) space
+                    if active_item.aln_flip_direction:
+                        src_line.negate()
 
-                # find rotational difference between source and dest lines
-                rotational_diff = src_line.rotation_difference(dest_line)
-                parallelize_lines = rotational_diff.to_matrix()
-                parallelize_lines.resize_4x4()
+                    # find rotational difference between source and dest lines
+                    rotational_diff = src_line.rotation_difference(dest_line)
+                    parallelize_lines = rotational_diff.to_matrix()
+                    parallelize_lines.resize_4x4()
 
-                # rotate active object so line one is parallel linear,
-                # position will be corrected after this
-                bpy.context.active_object.rotation_euler.rotate(
-                    rotational_diff
-                )
-                bpy.context.scene.update()
+                    # rotate active object so line one is parallel linear,
+                    # position will be corrected after this
+                    item.rotation_euler.rotate(
+                        rotational_diff
+                    )
+                    bpy.context.scene.update()
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
-                src_pivot_location_local = inverse_active * src_start
+                    # put the original line starting point (before the ob was rotated)
+                    # into the local object space
+                    src_pivot_location_local = unaltered_inverse * src_start
 
-                # get final global position of pivot (source line
-                # start coords) after object rotation
-                new_global_src_pivot_coords = (
-                    bpy.context.active_object.matrix_world *
-                    src_pivot_location_local
-                )
-                # get translation, pivot to dest
-                pivot_to_dest = (
-                    dest_start - new_global_src_pivot_coords
-                )
+                    # get final global position of pivot (source line
+                    # start coords) after object rotation
+                    new_global_src_pivot_coords = (
+                        item.matrix_world *
+                        src_pivot_location_local
+                    )
+                    # get translation, pivot to dest
+                    pivot_to_dest = (
+                        dest_start - new_global_src_pivot_coords
+                    )
 
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location + pivot_to_dest
-                )
-                bpy.context.scene.update()
+                    item.location = (
+                        item.location + pivot_to_dest
+                    )
+                    bpy.context.scene.update()
 
             else:
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                src_start_loc = inverse_active * src_start
-                src_end_loc = inverse_active * src_end
+                    # Get the object world matrix
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
 
-                dest_start_loc = inverse_active * dest_start
-                dest_end_loc = inverse_active * dest_end
+                    # Stored geom data in local coords
+                    src_start_loc = unaltered_inverse_loc * src_start
+                    src_end_loc = unaltered_inverse_loc * src_end
 
-                # Construct vectors for each line in local space
-                loc_src_line = src_end_loc - src_start_loc
-                loc_dest_line = dest_end_loc - dest_start_loc
+                    dest_start_loc = unaltered_inverse_loc * dest_start
+                    dest_end_loc = unaltered_inverse_loc * dest_end
 
-                # Take modifiers on the transformation item into account,
-                # in local (mesh) space
-                if active_item.aln_flip_direction:
-                    loc_src_line.negate()
+                    # Construct vectors for each line in local space
+                    loc_src_line = src_end_loc - src_start_loc
+                    loc_dest_line = dest_end_loc - dest_start_loc
 
-                # Get translation, move source pivot to local origin
-                src_start_inv = src_start_loc.copy()
-                src_start_inv.negate()
-                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                    src_start_inv
-                )
+                    # Take modifiers on the transformation item into account,
+                    # in local (mesh) space
+                    if active_item.aln_flip_direction:
+                        loc_src_line.negate()
 
-                # Get edge alignment rotation (align src to dest)
-                loc_rdiff = loc_src_line.rotation_difference(
-                    loc_dest_line
-                )
-                parallelize_lines_loc = loc_rdiff.to_matrix()
-                parallelize_lines_loc.resize_4x4()
-
-                # Get translation, move pivot to destination
-                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_start_loc)
-
-                loc_make_collinear = (
-                    pivot_to_dest_loc *
-                    parallelize_lines_loc *
-                    src_pivot_to_loc_origin
-                )
-
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        loc_make_collinear,
-                        filter={'SELECT'}
+                    # Get translation, move source pivot to local origin
+                    src_start_inv = src_start_loc.copy()
+                    src_start_inv.negate()
+                    src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                        src_start_inv
                     )
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(loc_make_collinear)
 
-                bpy.ops.object.mode_set(mode='OBJECT')
-                src_mesh.to_mesh(bpy.context.active_object.data)
-                src_mesh.free()
+                    # Get edge alignment rotation (align src to dest)
+                    loc_rdiff = loc_src_line.rotation_difference(
+                        loc_dest_line
+                    )
+                    parallelize_lines_loc = loc_rdiff.to_matrix()
+                    parallelize_lines_loc.resize_4x4()
+
+                    # Get translation, move pivot to destination
+                    pivot_to_dest_loc = mathutils.Matrix.Translation(dest_start_loc)
+
+                    loc_make_collinear = (
+                        pivot_to_dest_loc *
+                        parallelize_lines_loc *
+                        src_pivot_to_loc_origin
+                    )
+
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            loc_make_collinear,
+                            filter={'SELECT'}
+                        )
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(loc_make_collinear)
+
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
