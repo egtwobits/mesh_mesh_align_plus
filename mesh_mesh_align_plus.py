@@ -3078,98 +3078,115 @@ class AxisRotateBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                # (Note that there are no transformation modifiers for this
-                # transformation type, so that section is omitted here)
+                for item in multi_edit_targets:
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
 
-                # Construct the axis vector and corresponding matrix
-                axis = axis_end - axis_start
-                axis_rot = mathutils.Matrix.Rotation(
-                    converted_rot_amount,
-                    4,
-                    axis
-                )
+                    # Get the object world matrix before we modify it here
+                    item_matrix_unaltered = item.matrix_world.copy()
+                    unaltered_inverse = item_matrix_unaltered.copy()
+                    unaltered_inverse.invert()
 
-                # Perform the rotation (axis will be realigned later)
-                bpy.context.active_object.rotation_euler.rotate(axis_rot)
-                bpy.context.scene.update()
+                    # Construct the axis vector and corresponding matrix
+                    axis = axis_end - axis_start
+                    axis_rot = mathutils.Matrix.Rotation(
+                        converted_rot_amount,
+                        4,
+                        axis
+                    )
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
-                src_pivot_location_local = inverse_active * axis_start
+                    # Perform the rotation (axis will be realigned later)
+                    item.rotation_euler.rotate(axis_rot)
+                    bpy.context.scene.update()
 
-                # Calculate the new pivot location (after the first rotation),
-                # so that the axis can be moved back into place
-                new_pivot_loc_global = (
-                    bpy.context.active_object.matrix_world *
-                    src_pivot_location_local
-                )
-                pivot_to_dest = axis_start - new_pivot_loc_global
+                    # put the original line starting point (before the ob was rotated)
+                    # into the local object space
+                    src_pivot_location_local = unaltered_inverse * axis_start
 
-                bpy.context.active_object.location += pivot_to_dest
+                    # Calculate the new pivot location (after the first rotation),
+                    # so that the axis can be moved back into place
+                    new_pivot_loc_global = (
+                        item.matrix_world *
+                        src_pivot_location_local
+                    )
+                    pivot_to_dest = axis_start - new_pivot_loc_global
+
+                    item.location += pivot_to_dest
 
             else:
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
-                # (Note that there are no transformation modifiers for this
-                # transformation type, so that section is omitted here)
-                
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
+                    
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                axis_start_loc = inverse_active * axis_start
-                axis_end_loc = inverse_active * axis_end
+                    # Get the object world matrix
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
 
-                # Get axis vector in local space
-                axis_loc = axis_end_loc - axis_start_loc
+                    # Stored geom data in local coords
+                    axis_start_loc = unaltered_inverse_loc * axis_start
+                    axis_end_loc = unaltered_inverse_loc * axis_end
 
-                # Get translation, pivot to local origin
-                axis_start_inv = axis_start_loc.copy()
-                axis_start_inv.negate()
-                src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                    axis_start_inv
-                )
-                src_pivot_to_loc_origin.resize_4x4()
+                    # Get axis vector in local space
+                    axis_loc = axis_end_loc - axis_start_loc
 
-                # Get local axis rotation
-                axis_rot_at_loc_origin = mathutils.Matrix.Rotation(
-                    converted_rot_amount,
-                    4,
-                    axis_loc
-                )
-
-                # Get translation, pivot to dest
-                pivot_to_dest = mathutils.Matrix.Translation(
-                    axis_start_loc
-                )
-                pivot_to_dest.resize_4x4()
-
-                axis_rotate_loc = (
-                    pivot_to_dest *
-                    axis_rot_at_loc_origin *
-                    src_pivot_to_loc_origin
-                )
-
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        axis_rotate_loc,
-                        filter={'SELECT'}
+                    # Get translation, pivot to local origin
+                    axis_start_inv = axis_start_loc.copy()
+                    axis_start_inv.negate()
+                    src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                        axis_start_inv
                     )
-                    bpy.ops.object.mode_set(mode='OBJECT')
-                    src_mesh.to_mesh(bpy.context.active_object.data)
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(axis_rotate_loc)
-                    bpy.ops.object.mode_set(mode='OBJECT')
-                    src_mesh.to_mesh(bpy.context.active_object.data)
+                    src_pivot_to_loc_origin.resize_4x4()
 
-                src_mesh.free()
+                    # Get local axis rotation
+                    axis_rot_at_loc_origin = mathutils.Matrix.Rotation(
+                        converted_rot_amount,
+                        4,
+                        axis_loc
+                    )
+
+                    # Get translation, pivot to dest
+                    pivot_to_dest = mathutils.Matrix.Translation(
+                        axis_start_loc
+                    )
+                    pivot_to_dest.resize_4x4()
+
+                    axis_rotate_loc = (
+                        pivot_to_dest *
+                        axis_rot_at_loc_origin *
+                        src_pivot_to_loc_origin
+                    )
+
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            axis_rotate_loc,
+                            filter={'SELECT'}
+                        )
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        src_mesh.to_mesh(item.data)
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(axis_rotate_loc)
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        src_mesh.to_mesh(item.data)
+
+                    src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
