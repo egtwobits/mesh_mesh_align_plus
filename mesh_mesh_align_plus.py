@@ -3736,44 +3736,50 @@ class AlignPlanesBase(bpy.types.Operator):
             # )
 
             if self.target == 'OBJECT':
-                # Try to rotate the object by the rotational_diff
-                bpy.context.active_object.rotation_euler.rotate(
-                    rotational_diff
-                )
-                bpy.context.scene.update()
+                for item in [
+                    model for model in bpy.context.scene.objects if (model.select and model.type == 'MESH')
+                ]:
+                    current_item_transf = item.matrix_world.copy()
+                    current_item_inverse = current_item_transf.copy()
+                    current_item_inverse.invert()
 
-                # Parallelize the leading edges
-                bpy.context.active_object.rotation_euler.rotate(
-                    parallelize_edges
-                )
-                bpy.context.scene.update()
+                    # Try to rotate the object by the rotational_diff
+                    item.rotation_euler.rotate(
+                        rotational_diff
+                    )
+                    bpy.context.scene.update()
 
-                # get local coords using active object as basis, in other words,
-                # determine coords of the source pivot relative to the active
-                # object's origin by reversing the active object's transf from
-                # the pivot's coords
-                local_src_pivot_coords = (
-                    inverse_active * src_pt_b
-                )
+                    # Parallelize the leading edges
+                    item.rotation_euler.rotate(
+                        parallelize_edges
+                    )
+                    bpy.context.scene.update()
 
-                # find the new global location of the pivot
-                new_active = bpy.context.active_object.matrix_world.copy()
-                new_global_src_pivot_coords = (
-                    new_active * local_src_pivot_coords
-                )
-                # figure out how to translate the object (the translation
-                # vector) so that the source pivot sits on the destination
-                # pivot's location
-                # first vec is the global/absolute distance bw the two pivots
-                pivot_to_dest = (
-                    dest_pt_b -
-                    new_global_src_pivot_coords
-                )
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location +
-                    pivot_to_dest
-                )
-                bpy.context.scene.update()
+                    # get local coords using active object as basis, in other words,
+                    # determine coords of the source pivot relative to the active
+                    # object's origin by reversing the active object's transf from
+                    # the pivot's coords
+                    local_src_pivot_coords = (
+                        current_item_inverse * src_pt_b
+                    )
+
+                    # find the new global location of the pivot
+                    new_global_src_pivot_coords = (
+                        item.matrix_world * local_src_pivot_coords
+                    )
+                    # figure out how to translate the object (the translation
+                    # vector) so that the source pivot sits on the destination
+                    # pivot's location
+                    # first vec is the global/absolute distance bw the two pivots
+                    pivot_to_dest = (
+                        dest_pt_b -
+                        new_global_src_pivot_coords
+                    )
+                    item.location = (
+                        item.location +
+                        pivot_to_dest
+                    )
+                    bpy.context.scene.update()
 
             else:
                 self.report(
