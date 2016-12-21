@@ -2261,92 +2261,108 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 return {'CANCELLED'}
             scale_factor = dest_edge.length/src_edge.length
 
+            multi_edit_targets = [
+                model for model in bpy.context.scene.objects if (
+                    model.select and model.type == 'MESH'
+                )
+            ]
             if self.target == 'OBJECT':
-                # (Note that there are no transformation modifiers for this
-                # transformation type, so that section is omitted here)
-                bpy.context.active_object.scale = [
-                    scale_factor * num
-                    for num in bpy.context.active_object.scale
-                ]
-                bpy.context.scene.update()
+                for item in multi_edit_targets:
+                    # Get the object world matrix before we modify it here
+                    item_matrix_unaltered = item.matrix_world.copy()
+                    unaltered_inverse = item_matrix_unaltered.copy()
+                    unaltered_inverse.invert()
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
-                src_pivot_location_local = inverse_active * src_start
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
+                    item.scale = [
+                        scale_factor * num
+                        for num in item.scale
+                    ]
+                    bpy.context.scene.update()
 
-                # get final global position of pivot (source line
-                # start coords) after object rotation
-                new_global_src_pivot_coords = (
-                    bpy.context.active_object.matrix_world *
-                    src_pivot_location_local
-                )
+                    # put the original line starting point (before the ob was transformed)
+                    # into the local object space
+                    src_pivot_location_local = unaltered_inverse * src_start
 
-                # get translation, new to old (original) pivot location
-                new_to_old_pivot = (
-                    src_start - new_global_src_pivot_coords
-                )
+                    # get final global position of pivot (source line
+                    # start coords) after object rotation
+                    new_global_src_pivot_coords = (
+                        item.matrix_world *
+                        src_pivot_location_local
+                    )
 
-                bpy.context.active_object.location = (
-                    bpy.context.active_object.location + new_to_old_pivot
-                )
-                bpy.context.scene.update()
+                    # get translation, new to old (original) pivot location
+                    new_to_old_pivot = (
+                        src_start - new_global_src_pivot_coords
+                    )
+
+                    item.location = (
+                       item.location + new_to_old_pivot
+                    )
+                    bpy.context.scene.update()
 
             else:
-                # (Note that there are no transformation modifiers for this
-                # transformation type, so that section is omitted here)
-                self.report(
-                    {'WARNING'},
-                    ('Warning/Experimental: mesh transforms'
-                     ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
+                for item in multi_edit_targets:
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
+                    self.report(
+                        {'WARNING'},
+                        ('Warning/Experimental: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.'
+                        )
                     )
-                )
 
-                # Init source mesh
-                src_mesh = bmesh.new()
-                src_mesh.from_mesh(bpy.context.active_object.data)
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
 
-                # Stored geom data in local coords
-                src_start_loc = inverse_active * src_start
-                src_end_loc = inverse_active * src_end
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
 
-                dest_start_loc = inverse_active * dest_start
-                dest_end_loc = inverse_active * dest_end
+                    # Stored geom data in local coords
+                    src_start_loc = unaltered_inverse_loc * src_start
+                    src_end_loc = unaltered_inverse_loc * src_end
 
-                # Construct vectors for each line in local space
-                loc_src_line = src_end_loc - src_start_loc
-                loc_dest_line = dest_end_loc - dest_start_loc
+                    dest_start_loc = unaltered_inverse_loc * dest_start
+                    dest_end_loc = unaltered_inverse_loc * dest_end
 
-                # Get the scale match matrix
-                scaling_match = mathutils.Matrix.Scale(
-                    scale_factor,
-                    4
-                )
+                    # Construct vectors for each line in local space
+                    loc_src_line = src_end_loc - src_start_loc
+                    loc_dest_line = dest_end_loc - dest_start_loc
 
-                # Get the new pivot location
-                new_pivot_location_loc = scaling_match * src_start_loc
-
-                # Get the translation, new to old pivot location
-                new_to_old_pivot_vec = src_start_loc - new_pivot_location_loc
-                new_to_old_pivot = mathutils.Matrix.Translation(
-                    new_to_old_pivot_vec
-                )
-
-                # Get combined scale + move
-                match_transf = new_to_old_pivot * scaling_match
-
-                if self.target == 'MESHSELECTED':
-                    src_mesh.transform(
-                        match_transf,
-                        filter={'SELECT'}
+                    # Get the scale match matrix
+                    scaling_match = mathutils.Matrix.Scale(
+                        scale_factor,
+                        4
                     )
-                elif self.target == 'WHOLEMESH':
-                    src_mesh.transform(match_transf)
 
-                # write and then release the mesh data
-                bpy.ops.object.mode_set(mode='OBJECT')
-                src_mesh.to_mesh(bpy.context.active_object.data)
-                src_mesh.free()
+                    # Get the new pivot location
+                    new_pivot_location_loc = scaling_match * src_start_loc
+
+                    # Get the translation, new to old pivot location
+                    new_to_old_pivot_vec = src_start_loc - new_pivot_location_loc
+                    new_to_old_pivot = mathutils.Matrix.Translation(
+                        new_to_old_pivot_vec
+                    )
+
+                    # Get combined scale + move
+                    match_transf = new_to_old_pivot * scaling_match
+
+                    if self.target == 'MESHSELECTED':
+                        src_mesh.transform(
+                            match_transf,
+                            filter={'SELECT'}
+                        )
+                    elif self.target == 'WHOLEMESH':
+                        src_mesh.transform(match_transf)
+
+                    # write and then release the mesh data
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
