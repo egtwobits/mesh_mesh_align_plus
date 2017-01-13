@@ -4401,6 +4401,65 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class ComposePointIntersectingLinePlane(bpy.types.Operator):
+    bl_idname = "maplus.composepointintersectinglineplane"
+    bl_label = "Intersect Line/Plane"
+    bl_description = (
+        "Composes a new point item by intersecting a line and a plane"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_item = prims[addon_data.active_list_item]
+        calc_target_one = prims[active_item.multi_calc_target_one]
+        calc_target_two = prims[active_item.multi_calc_target_two]
+        targets_by_kind = {
+            item.kind: item for item in [calc_target_one, calc_target_two]
+        }
+
+        if not ('LINE' in targets_by_kind and 'PLANE' in targets_by_kind):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Intersect Line/Plane" can'
+                 ' only operate on a line and a plane.')
+            )
+            return {'CANCELLED'}
+
+        line_global_data = get_modified_global_coords(
+            geometry=targets_by_kind['LINE'],
+            kind='LINE'
+        )
+        plane_global_data = get_modified_global_coords(
+            geometry=targets_by_kind['PLANE'],
+            kind='PLANE'
+        )
+
+        plane_line_ba = plane_global_data[0] - plane_global_data[1]
+        plane_line_bc = plane_global_data[2] - plane_global_data[1]
+        plane_normal = plane_line_ba.cross(plane_line_bc)
+        intersection = mathutils.geometry.intersect_line_plane(
+            line_global_data[0],
+            line_global_data[1],
+            plane_global_data[1],
+            plane_normal
+        )
+
+        if intersection:
+            bpy.ops.maplus.addnewpoint()
+            new_point = prims[-1]
+            new_point.point = intersection
+        else:
+            self.report(
+                {'ERROR'},
+                'No intersection: Selected line/plane do not intersect'
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
 class MAPlusList(bpy.types.UIList):
@@ -5253,6 +5312,12 @@ class MAPlusGui(bpy.types.Panel):
                                 "maplus.composenewlineatpointlocation",
                                 icon='MAN_TRANS',
                                 text="New Line at Point"
+                            )
+                        elif 'LINE' in type_combo and 'PLANE' in type_combo:
+                            item_info_col.operator(
+                                "maplus.composepointintersectinglineplane",
+                                icon='LAYER_ACTIVE',
+                                text="Intersect Line/Plane"
                             )
 
             elif active_item.kind == 'TRANSFORMATION':
