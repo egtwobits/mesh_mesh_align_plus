@@ -965,11 +965,23 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
-        vert_data = GrabFromGeometryBase.return_selected_verts(self)
-        if vert_data is None:
+        try:
+            vert_data = return_selected_verts(
+                bpy.context.active_object,
+                len(self.vert_attribs_to_set),
+                bpy.context.active_object.matrix_world
+            )
+        except NotEnoughVertsError:
+            self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
-        target_data = dict(zip(self.vert_attribs_to_set, vert_data))
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
 
+        target_data = dict(zip(self.vert_attribs_to_set, vert_data))
         try:
             new_item = AddListItemBase.add_new_named(self)
         except UniqueNameError:
