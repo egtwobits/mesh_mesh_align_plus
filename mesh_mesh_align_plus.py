@@ -29,7 +29,7 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 1, 0),
+    "version": (0, 2, 0),
     "blender": (2, 75, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
@@ -1035,11 +1035,14 @@ class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
 class NonMeshGrabError(Exception):
     pass
 
+
 class NotEnoughVertsError(Exception):
     pass
 
 
-def return_selected_verts(mesh_object, verts_to_grab, global_matrix_multiplier=None):
+def return_selected_verts(mesh_object,
+                          verts_to_grab,
+                          global_matrix_multiplier=None):
     if type(mesh_object.data) == bpy.types.Mesh:
 
         # Todo, check for a better way to handle/if this is needed
@@ -2282,8 +2285,8 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 ]
                 bpy.context.scene.update()
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
+                # put the original line starting point (before the object
+                # was rotated) into the local object space
                 src_pivot_location_local = inverse_active * src_start
 
                 # get final global position of pivot (source line
@@ -2310,8 +2313,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
 
                 # Init source mesh
@@ -2585,8 +2587,7 @@ class AlignPointsBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
                 # Init source mesh
                 src_mesh = bmesh.new()
@@ -2839,8 +2840,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
                 # Init source mesh
                 src_mesh = bmesh.new()
@@ -3106,8 +3106,8 @@ class AxisRotateBase(bpy.types.Operator):
                 bpy.context.active_object.rotation_euler.rotate(axis_rot)
                 bpy.context.scene.update()
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
+                # put the original line starting point (before the object
+                # was rotated) into the local object space
                 src_pivot_location_local = inverse_active * axis_start
 
                 # Calculate the new pivot location (after the first rotation),
@@ -3125,12 +3125,11 @@ class AxisRotateBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
                 # (Note that there are no transformation modifiers for this
                 # transformation type, so that section is omitted here)
-                
+
                 # Init source mesh
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
@@ -3398,8 +3397,8 @@ class AlignLinesBase(bpy.types.Operator):
                 )
                 bpy.context.scene.update()
 
-                # put the original line starting point (before the ob was rotated)
-                # into the local object space
+                # put the original line starting point (before the object
+                # was rotated) into the local object space
                 src_pivot_location_local = inverse_active * src_start
 
                 # get final global position of pivot (source line
@@ -3423,8 +3422,7 @@ class AlignLinesBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
                 # Init source mesh
                 src_mesh = bmesh.new()
@@ -3461,7 +3459,9 @@ class AlignLinesBase(bpy.types.Operator):
                 parallelize_lines_loc.resize_4x4()
 
                 # Get translation, move pivot to destination
-                pivot_to_dest_loc = mathutils.Matrix.Translation(dest_start_loc)
+                pivot_to_dest_loc = mathutils.Matrix.Translation(
+                    dest_start_loc
+                )
 
                 loc_make_collinear = (
                     pivot_to_dest_loc *
@@ -3616,7 +3616,11 @@ class AlignPlanesBase(bpy.types.Operator):
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
                 if addon_data.quick_align_planes_auto_grab_src:
-                    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+                    vert_attribs_to_set = (
+                        'plane_pt_a',
+                        'plane_pt_b',
+                        'plane_pt_c'
+                    )
                     try:
                         vert_data = return_selected_verts(
                             bpy.context.active_object,
@@ -3730,23 +3734,6 @@ class AlignPlanesBase(bpy.types.Operator):
                 custom_orientation
             )
 
-            # # Create custom transform orientation, for sliding the user's
-            # # target along the destination face after it has been aligned
-            # custom_orientation = (
-                # mathutils.Vector((0, 0, 1)).rotation_difference(
-                    # dest_normal
-                # )
-            # )
-            # # custom_orientation.rotate()
-            # bpy.ops.transform.create_orientation(
-                # name='MAPlus',
-                # use=False,
-                # overwrite=True
-            # )
-            # bpy.context.scene.orientations['MAPlus'].matrix = (
-                # custom_orientation.to_matrix()
-            # )
-
             if self.target == 'OBJECT':
                 # Try to rotate the object by the rotational_diff
                 bpy.context.active_object.rotation_euler.rotate(
@@ -3760,10 +3747,10 @@ class AlignPlanesBase(bpy.types.Operator):
                 )
                 bpy.context.scene.update()
 
-                # get local coords using active object as basis, in other words,
-                # determine coords of the source pivot relative to the active
-                # object's origin by reversing the active object's transf from
-                # the pivot's coords
+                # get local coords using active object as basis, in other
+                # words, determine coords of the source pivot relative to
+                # the active object's origin by reversing the active object's
+                # transf from the pivot's coords
                 local_src_pivot_coords = (
                     inverse_active * src_pt_b
                 )
@@ -3792,8 +3779,7 @@ class AlignPlanesBase(bpy.types.Operator):
                     {'WARNING'},
                     ('Warning/Experimental: mesh transforms'
                      ' on objects with non-uniform scaling'
-                     ' are not currently supported.'
-                    )
+                     ' are not currently supported.')
                 )
                 src_mesh = bmesh.new()
                 src_mesh.from_mesh(bpy.context.active_object.data)
