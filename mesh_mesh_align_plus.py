@@ -44,7 +44,7 @@ bl_info = {
     ),
     "support": "COMMUNITY",
     "category": "Mesh"
-}  # Todo, add more information here
+}
 
 
 import bpy
@@ -1127,7 +1127,6 @@ class GrabFromGeometryBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        # todo: maybe from_quick_op or target_quick_op, rename
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
@@ -1175,9 +1174,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
                 'Cannot grab coords: non-mesh or no active object.'
             )
             return {'CANCELLED'}
-        # Todo/fix, handle common user errors here
-        # if vert_data is None:
-            # return {'CANCELLED'}
+
         set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
 
         return {'FINISHED'}
@@ -5580,7 +5577,6 @@ class MAPlusGui(bpy.types.Panel):
 
                     active_transf = bpy.types.AnyType(active_item)
 
-                    # Todo, add scale match edge mods
                     if (active_item.transf_type != 'SCALEMATCHEDGE' and
                             active_item.transf_type != 'AXISROTATE'):
                         item_info_col.label('Transformation Modifiers:')
