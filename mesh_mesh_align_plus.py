@@ -29,7 +29,7 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 2, 0),
+    "version": (0, 3, 0),
     "blender": (2, 75, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
