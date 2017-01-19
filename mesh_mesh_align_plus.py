@@ -30,7 +30,7 @@ bl_info = {
     ),
     "author": "Eric Gentry",
     "version": (0, 3, 0),
-    "blender": (2, 75, 0),
+    "blender": (2, 69, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
     ),
