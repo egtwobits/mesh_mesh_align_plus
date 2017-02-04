@@ -29,8 +29,8 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 2, 0),
-    "blender": (2, 75, 0),
+    "version": (0, 3, 0),
+    "blender": (2, 69, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
     ),
@@ -44,7 +44,7 @@ bl_info = {
     ),
     "support": "COMMUNITY",
     "category": "Mesh"
-}  # Todo, add more information here
+}
 
 
 import bpy
@@ -1127,7 +1127,6 @@ class GrabFromGeometryBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        # todo: maybe from_quick_op or target_quick_op, rename
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
@@ -1175,9 +1174,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
                 'Cannot grab coords: non-mesh or no active object.'
             )
             return {'CANCELLED'}
-        # Todo/fix, handle common user errors here
-        # if vert_data is None:
-            # return {'CANCELLED'}
+
         set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
 
         return {'FINISHED'}
@@ -2296,8 +2293,8 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     ]
                     bpy.context.scene.update()
 
-                    # put the original line starting point (before the ob was transformed)
-                    # into the local object space
+                    # put the original line starting point (before the object
+                    # was transformed) into the local object space
                     src_pivot_location_local = unaltered_inverse * src_start
 
                     # get final global position of pivot (source line
@@ -2325,8 +2322,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
 
                     # Init source mesh
@@ -2358,7 +2354,9 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     new_pivot_location_loc = scaling_match * src_start_loc
 
                     # Get the translation, new to old pivot location
-                    new_to_old_pivot_vec = src_start_loc - new_pivot_location_loc
+                    new_to_old_pivot_vec = (
+                        src_start_loc - new_pivot_location_loc
+                    )
                     new_to_old_pivot = mathutils.Matrix.Translation(
                         new_to_old_pivot_vec
                     )
@@ -2611,8 +2609,7 @@ class AlignPointsBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
                     # Init source mesh
                     src_mesh = bmesh.new()
@@ -2629,9 +2626,10 @@ class AlignPointsBase(bpy.types.Operator):
                     # in local (mesh) space
                     if active_item.apt_make_unit_vector:
                         # There are special considerations for this modifier
-                        # since we need to achieve a global length of one,
-                        # but can only transform it in local space
-                        # (NOTE: assumes only uniform scaling on the active obj)
+                        # since we need to achieve a global length of
+                        # one, but can only transform it in local space
+                        # (NOTE: assumes only uniform scaling on the
+                        # active object)
                         scaling_factor = 1.0 / item.scale[0]
                         align_points_vec.normalize()
                         align_points_vec *= scaling_factor
@@ -2872,8 +2870,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
                     # Init source mesh
                     src_mesh = bmesh.new()
@@ -2895,9 +2892,10 @@ class DirectionalSlideBase(bpy.types.Operator):
                     # in local (mesh) space
                     if active_item.ds_make_unit_vec:
                         # There are special considerations for this modifier
-                        # since we need to achieve a global length of one,
-                        # but can only transform it in local space
-                        # (NOTE: assumes only uniform scaling on the active obj)
+                        # since we need to achieve a global length of
+                        # one, but can only transform it in local space
+                        # (NOTE: assumes only uniform scaling on the
+                        # active object)
                         scaling_factor = 1.0 / item.scale[0]
                         direction_loc.normalize()
                         direction_loc *= scaling_factor
@@ -3159,8 +3157,9 @@ class AxisRotateBase(bpy.types.Operator):
                     # was rotated) into the local object space
                     src_pivot_location_local = unaltered_inverse * axis_start
 
-                    # Calculate the new pivot location (after the first rotation),
-                    # so that the axis can be moved back into place
+                    # Calculate the new pivot location (after the
+                    # first rotation), so that the axis can be moved
+                    # back into place
                     new_pivot_loc_global = (
                         item.matrix_world *
                         src_pivot_location_local
@@ -3175,12 +3174,11 @@ class AxisRotateBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
                     # (Note that there are no transformation modifiers for this
                     # transformation type, so that section is omitted here)
-                    
+
                     # Init source mesh
                     src_mesh = bmesh.new()
                     src_mesh.from_mesh(item.data)
@@ -3442,7 +3440,7 @@ class AlignLinesBase(bpy.types.Operator):
                     item_matrix_unaltered = item.matrix_world.copy()
                     unaltered_inverse = item_matrix_unaltered.copy()
                     unaltered_inverse.invert()
-                    
+
                     # construct lines from the stored geometry
                     src_line = src_end - src_start
                     dest_line = dest_end - dest_start
@@ -3464,8 +3462,8 @@ class AlignLinesBase(bpy.types.Operator):
                     )
                     bpy.context.scene.update()
 
-                    # put the original line starting point (before the ob was rotated)
-                    # into the local object space
+                    # put the original line starting point (before the object
+                    # was rotated) into the local object space
                     src_pivot_location_local = unaltered_inverse * src_start
 
                     # get final global position of pivot (source line
@@ -3490,8 +3488,7 @@ class AlignLinesBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
                     # Init source mesh
                     src_mesh = bmesh.new()
@@ -3533,7 +3530,9 @@ class AlignLinesBase(bpy.types.Operator):
                     parallelize_lines_loc.resize_4x4()
 
                     # Get translation, move pivot to destination
-                    pivot_to_dest_loc = mathutils.Matrix.Translation(dest_start_loc)
+                    pivot_to_dest_loc = mathutils.Matrix.Translation(
+                        dest_start_loc
+                    )
 
                     loc_make_collinear = (
                         pivot_to_dest_loc *
@@ -3830,16 +3829,16 @@ class AlignPlanesBase(bpy.types.Operator):
                     )
                     bpy.context.scene.update()
 
-                    # get local coords using active object as basis, in other words,
-                    # determine coords of the source pivot relative to the active
-                    # object's origin by reversing the active object's transf from
-                    # the pivot's coords
+                    # get local coords using active object as basis, in
+                    # other words, determine coords of the source pivot
+                    # relative to the active object's origin by reversing
+                    # the active object's transf from the pivot's coords
                     local_src_pivot_coords = (
                         unaltered_inverse * src_pt_b
                     )
 
-                    # find the new global location of the pivot (we access 
-                    # the item's matrix_world directly here since we 
+                    # find the new global location of the pivot (we access
+                    # the item's matrix_world directly here since we
                     # changed/updated it earlier)
                     new_global_src_pivot_coords = (
                         item.matrix_world * local_src_pivot_coords
@@ -3847,7 +3846,8 @@ class AlignPlanesBase(bpy.types.Operator):
                     # figure out how to translate the object (the translation
                     # vector) so that the source pivot sits on the destination
                     # pivot's location
-                    # first vec is the global/absolute distance bw the two pivots
+                    # first vector is the global/absolute distance
+                    # between the two pivots
                     pivot_to_dest = (
                         dest_pt_b -
                         new_global_src_pivot_coords
@@ -3864,8 +3864,7 @@ class AlignPlanesBase(bpy.types.Operator):
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
                          ' on objects with non-uniform scaling'
-                         ' are not currently supported.'
-                        )
+                         ' are not currently supported.')
                     )
                     src_mesh = bmesh.new()
                     src_mesh.from_mesh(item.data)
@@ -3911,15 +3910,21 @@ class AlignPlanesBase(bpy.types.Operator):
                     parallelize_planes_loc.resize_4x4()
 
                     # Get edge alignment rotation (align leading plane edges)
-                    new_lead_edge_ornt_loc = parallelize_planes_loc * src_ba_loc
-                    edge_align_loc = new_lead_edge_ornt_loc.rotation_difference(
-                        dest_ba_loc
+                    new_lead_edge_ornt_loc = (
+                        parallelize_planes_loc * src_ba_loc
+                    )
+                    edge_align_loc = (
+                        new_lead_edge_ornt_loc.rotation_difference(
+                            dest_ba_loc
+                        )
                     )
                     parallelize_edges_loc = edge_align_loc.to_matrix()
                     parallelize_edges_loc.resize_4x4()
 
                     # Get translation, move pivot to destination
-                    pivot_to_dest_loc = mathutils.Matrix.Translation(dest_b_loc)
+                    pivot_to_dest_loc = mathutils.Matrix.Translation(
+                        dest_b_loc
+                    )
 
                     mesh_coplanar = (
                         pivot_to_dest_loc *
@@ -5572,7 +5577,6 @@ class MAPlusGui(bpy.types.Panel):
 
                     active_transf = bpy.types.AnyType(active_item)
 
-                    # Todo, add scale match edge mods
                     if (active_item.transf_type != 'SCALEMATCHEDGE' and
                             active_item.transf_type != 'AXISROTATE'):
                         item_info_col.label('Transformation Modifiers:')
@@ -5624,11 +5628,13 @@ class MAPlusGui(bpy.types.Panel):
                             'apl_flip_normal',
                             "Flip Source Normal"
                         )
-                        mods_row_1.prop(
-                            active_transf,
-                            'apl_use_custom_orientation',
-                            "Use Transf. Orientation"
-                        )
+                        # Todo: determine how to handle this from Adv. Tools
+                        # ('use' arg only valid from a 3d view editor/context)
+                        # mods_row_1.prop(
+                        #    active_transf,
+                        #    'apl_use_custom_orientation',
+                        #    "Use Transf. Orientation"
+                        # )
                     item_info_col.separator()
 
                     # Designate operands for the transformation by pointing to
