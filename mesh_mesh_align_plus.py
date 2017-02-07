@@ -467,6 +467,20 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    quick_apl_show_src_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the source geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
+    quick_apl_show_dest_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the destination geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
     quick_align_planes_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source plane from selected geometry"
@@ -776,6 +790,64 @@ class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
         if active_item.transf_type == cls.target_transf:
             return False
         return True
+
+
+class ShowHideQuickGeomBaseClass(bpy.types.Operator):
+    bl_idname = "maplus.showhidequickgeombaseclass"
+    bl_label = "Show/hide quick geometry base class"
+    bl_description = "The base class for showing/hiding quick geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        if self.quick_op_target == "APTSRC":
+            active_item = addon_data.quick_apt_show_src_geom
+        elif self.quick_op_target == "APTDEST":
+            active_item = addon_data.quick_apt_show_dest_geom
+
+        elif self.quick_op_target == "DSSRC":
+            active_item = addon_data.quick_ds_show_src_geom
+
+        elif self.quick_op_target == "SMESRC":
+            active_item = addon_data.quick_sme_show_src_geom
+        elif self.quick_op_target == "SMEDEST":
+            active_item = addon_data.quick_sme_show_dest_geom
+
+        elif self.quick_op_target == "ALNSRC":
+            active_item = addon_data.quick_aln_show_src_geom
+        elif self.quick_op_target == "ALNDEST":
+            active_item = addon_data.quick_aln_show_dest_geom
+
+        elif self.quick_op_target == "AXRSRC":
+            active_item = addon_data.quick_axr_show_src_geom
+
+        elif self.quick_op_target == "APLSRC":
+            addon_data.quick_apl_show_src_geom = (
+                not addon_data.quick_apl_show_src_geom
+            )
+        elif self.quick_op_target == "APLDEST":
+            addon_data.quick_apl_show_dest_geom = (
+                not addon_data.quick_apl_show_dest_geom
+            )
+
+        return {'FINISHED'}
+
+
+class ShowHideQuickAplSrcGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaplsrcgeom"
+    bl_label = "Show/hide quick align planes source geometry"
+    bl_description = "Show/hide quick align planes source geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'APLSRC'
+
+
+class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickapldestgeom"
+    bl_label = "Show/hide quick align planes destination geometry"
+    bl_description = "Show/hide quick align planes destination geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'APLDEST'
 
 
 # Exception when adding new items, if we can't get a unique name
@@ -1192,7 +1264,34 @@ class GrabFromCursorBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
+        if hasattr(self, "quick_op_target"):
+            if self.quick_op_target == "APTSRC":
+                active_item = addon_data.quick_align_pts_src
+            elif self.quick_op_target == "APTDEST":
+                active_item = addon_data.quick_align_pts_dest
+
+            elif self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
+
+            elif self.quick_op_target == "SMESRC":
+                active_item = addon_data.quick_scale_match_edge_src
+            elif self.quick_op_target == "SMEDEST":
+                active_item = addon_data.quick_scale_match_edge_dest
+
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
+
+            elif self.quick_op_target == "AXRSRC":
+                active_item = addon_data.quick_axis_rotate_src
+
+            elif self.quick_op_target == "APLSRC":
+                active_item = addon_data.quick_align_planes_src
+            elif self.quick_op_target == "APLDEST":
+                active_item = addon_data.quick_align_planes_dest
+        else:
+            active_item = prims[addon_data.active_list_item]
 
         setattr(
             active_item,
@@ -1214,7 +1313,34 @@ class SendCoordToCursorBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = bpy.context.scene.maplus_data.prim_list
-        active_item = prims[addon_data.active_list_item]
+        if hasattr(self, "quick_op_target"):
+            if self.quick_op_target == "APTSRC":
+                active_item = addon_data.quick_align_pts_src
+            elif self.quick_op_target == "APTDEST":
+                active_item = addon_data.quick_align_pts_dest
+
+            elif self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
+
+            elif self.quick_op_target == "SMESRC":
+                active_item = addon_data.quick_scale_match_edge_src
+            elif self.quick_op_target == "SMEDEST":
+                active_item = addon_data.quick_scale_match_edge_dest
+
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
+
+            elif self.quick_op_target == "AXRSRC":
+                active_item = addon_data.quick_axis_rotate_src
+
+            elif self.quick_op_target == "APLSRC":
+                active_item = addon_data.quick_align_planes_src
+            elif self.quick_op_target == "APLDEST":
+                active_item = addon_data.quick_align_planes_dest
+        else:
+            active_item = prims[addon_data.active_list_item]
 
         bpy.context.scene.cursor_location = getattr(
             active_item,
@@ -1274,6 +1400,30 @@ class QuickAlignPointsGrabDest(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
+    quick_op_target = "APTDEST"
+
+
+class QuickAlignPointsGrabSrcLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignpointsgrabsrcloc"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = False
+    quick_op_target = "APTSRC"
+
+
+class QuickAlignPointsGrabDestLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignpointsgrabdestloc"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = False
     quick_op_target = "APTDEST"
 
 
@@ -1464,6 +1614,24 @@ class GrabPlaneAFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'plane_pt_a'
 
 
+class QuickAplSrcGrabPlaneAFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsrcgrabplaneafromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_a'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneAFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickapldestgrabplaneafromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_a'
+    quick_op_target = 'APLDEST'
+
+
 class GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -1486,6 +1654,54 @@ class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAplSrcGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplaneafromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplSrcGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplaneafromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplaneafromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLDEST'
+
+
+class QuickAplDestGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplaneafromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLDEST'
+
+
 class SendPlaneAToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
@@ -1494,12 +1710,48 @@ class SendPlaneAToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'plane_pt_a'
 
 
+class QuickAplSrcSendPlaneAToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsrcsendplaneatocursor"
+    bl_label = "Sends Plane Point A to Cursor"
+    bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_a'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestSendPlaneAToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickapldestsendplaneatocursor"
+    bl_label = "Sends Plane Point A to Cursor"
+    bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_a'
+    quick_op_target = 'APLDEST'
+
+
 class GrabPlaneBFromCursor(GrabFromCursorBase):
     bl_idname = "maplus.grabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'plane_pt_b'
+
+
+class QuickAplSrcGrabPlaneBFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsrcgrabplanebfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_b'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneBFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickapldestgrabplanebfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_b'
+    quick_op_target = 'APLDEST'
 
 
 class GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
@@ -1524,6 +1776,54 @@ class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAplSrcGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplanebfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplSrcGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplanebfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplanebfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLDEST'
+
+
+class QuickAplDestGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplanebfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLDEST'
+
+
 class SendPlaneBToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
@@ -1532,12 +1832,48 @@ class SendPlaneBToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'plane_pt_b'
 
 
+class QuickAplSrcSendPlaneBToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsrcsendplanebtocursor"
+    bl_label = "Sends Plane Point B to Cursor"
+    bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_b'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestSendPlaneBToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickapldestsendplanebtocursor"
+    bl_label = "Sends Plane Point B to Cursor"
+    bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_b'
+    quick_op_target = 'APLDEST'
+
+
 class GrabPlaneCFromCursor(GrabFromCursorBase):
     bl_idname = "maplus.grabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'plane_pt_c'
+
+
+class QuickAplSrcGrabPlaneCFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsrcgrabplanecfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_c'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneCFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickapldestgrabplanecfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_c'
+    quick_op_target = 'APLDEST'
 
 
 class GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
@@ -1562,12 +1898,78 @@ class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAplSrcGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplanecfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplSrcGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsrcgrabplanecfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplanecfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APLDEST'
+
+
+class QuickAplDestGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickapldestgrabplanecfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APLDEST'
+
+
 class SendPlaneCToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'plane_pt_c'
+
+
+class QuickAplSrcSendPlaneCToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsrcsendplanectocursor"
+    bl_label = "Sends Plane Point C to Cursor"
+    bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_c'
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestSendPlaneCToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickapldestsendplanectocursor"
+    bl_label = "Sends Plane Point C to Cursor"
+    bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_c'
+    quick_op_target = 'APLDEST'
 
 
 class GrabAllVertsPlaneLocal(GrabFromGeometryBase):
@@ -1616,6 +2018,30 @@ class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
     quick_op_target = "APLDEST"
 
 
+class QuickAlignPlanesGrabSrcLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignplanesgrabsrcloc"
+    bl_label = "Grab Plane Global Coordinates from Selected Verts"
+    bl_description = (
+        "Grabs plane global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+    multiply_by_world_matrix = False
+    quick_op_target = "APLSRC"
+
+
+class QuickAlignPlanesGrabDestLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignplanesgrabdestloc"
+    bl_label = "Grab Plane Local Coordinates from Selected Verts"
+    bl_description = (
+        "Grabs plane local coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+    multiply_by_world_matrix = False
+    quick_op_target = "APLDEST"
+
+
 # Coordinate swapper, present on all geometry primitives
 # that have multiple points (line, plane)
 class SwapPointsBase(bpy.types.Operator):
@@ -1628,7 +2054,29 @@ class SwapPointsBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
+        if hasattr(self, "quick_op_target"):
+            if self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
+
+            elif self.quick_op_target == "SMESRC":
+                active_item = addon_data.quick_scale_match_edge_src
+            elif self.quick_op_target == "SMEDEST":
+                active_item = addon_data.quick_scale_match_edge_dest
+
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
+
+            elif self.quick_op_target == "AXRSRC":
+                active_item = addon_data.quick_axis_rotate_src
+
+            elif self.quick_op_target == "APLSRC":
+                active_item = addon_data.quick_align_planes_src
+            elif self.quick_op_target == "APLDEST":
+                active_item = addon_data.quick_align_planes_dest
+        else:
+            active_item = prims[addon_data.active_list_item]
 
         source = getattr(active_item, self.targets[0])
         source = mathutils.Vector(
@@ -1686,6 +2134,60 @@ class SwapPlaneBPlaneC(SwapPointsBase):
     bl_description = "Swap plane points B and C"
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('plane_pt_b', 'plane_pt_c')
+
+
+class QuickAplSrcSwapPlaneAPlaneB(SwapPointsBase):
+    bl_idname = "maplus.quickaplsrcswapplaneaplaneb"
+    bl_label = "Swap Plane Point A with Plane Point B"
+    bl_description = "Swap plane points A and B"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_b')
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplSrcSwapPlaneAPlaneC(SwapPointsBase):
+    bl_idname = "maplus.quickaplsrcswapplaneaplanec"
+    bl_label = "Swap Plane Point A with Plane Point C"
+    bl_description = "Swap plane points A and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_c')
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplSrcSwapPlaneBPlaneC(SwapPointsBase):
+    bl_idname = "maplus.quickaplsrcswapplanebplanec"
+    bl_label = "Swap Plane Point B with Plane Point C"
+    bl_description = "Swap plane points B and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_b', 'plane_pt_c')
+    quick_op_target = 'APLSRC'
+
+
+class QuickAplDestSwapPlaneAPlaneB(SwapPointsBase):
+    bl_idname = "maplus.quickapldestswapplaneaplaneb"
+    bl_label = "Swap Plane Point A with Plane Point B"
+    bl_description = "Swap plane points A and B"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_b')
+    quick_op_target = 'APLDEST'
+
+
+class QuickAplDestSwapPlaneAPlaneC(SwapPointsBase):
+    bl_idname = "maplus.quickapldestswapplaneaplanec"
+    bl_label = "Swap Plane Point A with Plane Point C"
+    bl_description = "Swap plane points A and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_c')
+    quick_op_target = 'APLDEST'
+
+
+class QuickAplDestSwapPlaneBPlaneC(SwapPointsBase):
+    bl_idname = "maplus.quickapldestswapplanebplanec"
+    bl_label = "Swap Plane Point B with Plane Point C"
+    bl_description = "Swap plane points B and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_b', 'plane_pt_c')
+    quick_op_target = 'APLDEST'
 
 
 # Every x/y/z coordinate component has these functions on each of the
@@ -5931,17 +6433,588 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             'quick_align_planes_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
+
+        apl_src_geom_top = apl_grab_col.row()
         if not addon_data.quick_align_planes_auto_grab_src:
-            apl_grab_col.operator(
+            if not addon_data.quick_apl_show_src_geom:
+                apl_src_geom_top.operator(
+                        "maplus.showhidequickaplsrcgeom",
+                        icon='TRIA_RIGHT',
+                        text="",
+                        emboss=False
+                )
+                apl_src_geom_top.operator(
+                        "maplus.quickalignplanesgrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            else:
+                apl_src_geom_top.operator(
+                        "maplus.showhidequickaplsrcgeom",
+                        icon='TRIA_DOWN',
+                        text="",
+                        emboss=False
+                )
+                apl_src_geom_top.label("Source Coordinates")
+
+                apl_src_geom_editor = apl_grab_col.box()
+                plane_grab_all = apl_src_geom_editor.row(align=True)
+                plane_grab_all.operator(
+                    "maplus.quickalignplanesgrabsrcloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                plane_grab_all.operator(
                     "maplus.quickalignplanesgrabsrc",
                     icon='WORLD',
-                    text="Grab Source"
+                    text="Grab All Global"
+                )
+
+                apl_src_geom_editor.label("Pt. A:")
+                # plane_a_items = apl_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                plane_a_items = apl_src_geom_editor.row()
+                typein_and_grab_plna = plane_a_items.column()
+                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
+
+                plane_a_swap = plane_a_uppers.row(align=True)
+                plane_a_swap.label("Swap With:")
+                plane_a_swap.operator(
+                    "maplus.quickaplsrcswapplaneaplaneb",
+                    text="B"
+                )
+                plane_a_swap.operator(
+                    "maplus.quickaplsrcswapplaneaplanec",
+                    text="C"
+                )
+
+                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
+                plane_a_uppers_rightside.alignment = 'RIGHT'
+                plane_a_uppers_rightside.label("Send:")
+                plane_a_uppers_rightside.operator(
+                    "maplus.quickaplsrcsendplaneatocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                plane_a_uppers_rightside.label("Grab:")
+                plane_a_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplaneafromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                plane_a_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplaneafromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                plane_a_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplaneafromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_plna.prop(
+                    bpy.types.AnyType(addon_data.quick_align_planes_src),
+                    'plane_pt_a',
+                    ""
+                )
+
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
+
+                apl_src_geom_editor.label("Pt. B (Pivot):")
+                # plane_b_items = apl_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                plane_b_items = apl_src_geom_editor.row()
+                typein_and_grab_plnb = plane_b_items.column()
+                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
+                plane_b_swap = plane_b_uppers.row(align=True)
+                plane_b_swap.label("Swap With:")
+                plane_b_swap.operator(
+                    "maplus.quickaplsrcswapplaneaplaneb",
+                    text="A"
+                )
+                plane_b_swap.operator(
+                    "maplus.quickaplsrcswapplanebplanec",
+                    text="C"
+                )
+
+                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
+                plane_b_uppers_rightside.alignment = 'RIGHT'
+                plane_b_uppers_rightside.label("Send:")
+                plane_b_uppers_rightside.operator(
+                    "maplus.quickaplsrcsendplanebtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                plane_b_uppers_rightside.label("Grab:")
+                plane_b_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanebfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                plane_b_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanebfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                plane_b_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanebfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_plnb.prop(
+                    bpy.types.AnyType(addon_data.quick_align_planes_src),
+                    'plane_pt_b',
+                    ""
+                )
+
+                # component_changers_plnb = plane_b_items.row()
+                # zero_components_plnb = component_changers_plnb.column(
+                    # align=True
+                # )
+                # zero_components_plnb.label("Set Zeroes:")
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointbx",
+                    # text="X00"
+                # )
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointby",
+                    # text="0Y0"
+                # )
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointbz",
+                    # text="00Z"
+                # )
+                # one_components_plnb = component_changers_plnb.column(
+                    # align=True
+                # )
+                # one_components_plnb.label("Set Ones:")
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointbx",
+                    # text="X11"
+                # )
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointby",
+                    # text="1Y1"
+                # )
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointbz",
+                    # text="11Z"
+                # )
+
+                apl_src_geom_editor.label("Pt. C:")
+                # plane_c_items = apl_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                plane_c_items = apl_src_geom_editor.row()
+                typein_and_grab_plnc = plane_c_items.column()
+                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
+                plane_c_swap = plane_c_uppers.row(align=True)
+                plane_c_swap.label("Swap With:")
+                plane_c_swap.operator(
+                    "maplus.quickaplsrcswapplaneaplanec",
+                    text="A"
+                )
+                plane_c_swap.operator(
+                    "maplus.quickaplsrcswapplanebplanec",
+                    text="B"
+                )
+
+                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
+                plane_c_uppers_rightside.alignment = 'RIGHT'
+                plane_c_uppers_rightside.label("Send:")
+                plane_c_uppers_rightside.operator(
+                    "maplus.quickaplsrcsendplanectocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                plane_c_uppers_rightside.label("Grab:")
+                plane_c_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanecfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                plane_c_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanecfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                plane_c_uppers_rightside.operator(
+                    "maplus.quickaplsrcgrabplanecfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_plnc.prop(
+                    bpy.types.AnyType(addon_data.quick_align_planes_src),
+                    'plane_pt_c',
+                    ""
+                )
+
+                # component_changers_plnc = plane_c_items.row()
+                # zero_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # zero_components_plnc.label("Set Zeroes:")
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcx",
+                    # text="X00"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcy",
+                    # text="0Y0"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcz",
+                    # text="00Z"
+                # )
+                # one_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # one_components_plnc.label("Set Ones:")
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcx",
+                    # text="X11"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcy",
+                    # text="1Y1"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcz",
+                    # text="11Z"
+                # )
+        if addon_data.quick_apl_show_src_geom:
+            apl_grab_col.separator()
+
+        # apl_dest_geom = apl_grab_col.row()
+        # apl_grab_col.operator(
+                # "maplus.quickalignplanesgrabdest",
+                # icon='WORLD',
+                # text="Grab Destination"
+        # )
+
+        apl_dest_geom_top = apl_grab_col.row()
+        if not addon_data.quick_apl_show_dest_geom:
+            apl_dest_geom_top.operator(
+                    "maplus.showhidequickapldestgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
             )
-        apl_grab_col.operator(
+            apl_dest_geom_top.operator(
+                    "maplus.quickalignplanesgrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+        else:
+            apl_dest_geom_top.operator(
+                    "maplus.showhidequickapldestgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+            )
+            apl_dest_geom_top.label("Destination Coordinates")
+
+            apl_dest_geom_editor = apl_grab_col.box()
+            plane_grab_all = apl_dest_geom_editor.row(align=True)
+            plane_grab_all.operator(
+                "maplus.quickalignplanesgrabdestloc",
+                icon='VERTEXSEL',
+                text="Grab All Local"
+            )
+            plane_grab_all.operator(
                 "maplus.quickalignplanesgrabdest",
                 icon='WORLD',
-                text="Grab Destination"
-        )
+                text="Grab All Global"
+            )
+
+            apl_dest_geom_editor.label("Pt. A:")
+            # plane_a_items = apl_dest_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            plane_a_items = apl_dest_geom_editor.row()
+            typein_and_grab_plna = plane_a_items.column()
+            plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
+
+            plane_a_swap = plane_a_uppers.row(align=True)
+            plane_a_swap.label("Swap With:")
+            plane_a_swap.operator(
+                "maplus.quickapldestswapplaneaplaneb",
+                text="B"
+            )
+            plane_a_swap.operator(
+                "maplus.quickapldestswapplaneaplanec",
+                text="C"
+            )
+
+            plane_a_uppers_rightside = plane_a_uppers.row(align=True)
+            plane_a_uppers_rightside.alignment = 'RIGHT'
+            plane_a_uppers_rightside.label("Send:")
+            plane_a_uppers_rightside.operator(
+                "maplus.quickapldestsendplaneatocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            plane_a_uppers_rightside.label("Grab:")
+            plane_a_uppers_rightside.operator(
+                "maplus.quickapldestgrabplaneafromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            plane_a_uppers_rightside.operator(
+                "maplus.quickapldestgrabplaneafromactivelocal",
+                icon='VERTEXSEL',
+                text=""
+            )
+            plane_a_uppers_rightside.operator(
+                "maplus.quickapldestgrabplaneafromactiveglobal",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_plna.prop(
+                bpy.types.AnyType(addon_data.quick_align_planes_dest),
+                'plane_pt_a',
+                ""
+            )
+
+            # component_changers_plna = plane_a_items.row()
+            # zero_components_plna = component_changers_plna.column(
+                # align=True
+            # )
+            # zero_components_plna.label("Set Zeroes:")
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointax",
+                # text="X00"
+            # )
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointay",
+                # text="0Y0"
+            # )
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointaz",
+                # text="00Z"
+            # )
+            # one_components_plna = component_changers_plna.column(
+                # align=True
+            # )
+            # one_components_plna.label("Set Ones:")
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointax",
+                # text="X11"
+            # )
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointay",
+                # text="1Y1"
+            # )
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointaz",
+                # text="11Z"
+            # )
+
+            apl_dest_geom_editor.label("Pt. B (Pivot):")
+            # plane_b_items = apl_dest_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            plane_b_items = apl_dest_geom_editor.row()
+            typein_and_grab_plnb = plane_b_items.column()
+            plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
+            plane_b_swap = plane_b_uppers.row(align=True)
+            plane_b_swap.label("Swap With:")
+            plane_b_swap.operator(
+                "maplus.quickapldestswapplaneaplaneb",
+                text="A"
+            )
+            plane_b_swap.operator(
+                "maplus.quickapldestswapplanebplanec",
+                text="C"
+            )
+
+            plane_b_uppers_rightside = plane_b_uppers.row(align=True)
+            plane_b_uppers_rightside.alignment = 'RIGHT'
+            plane_b_uppers_rightside.label("Send:")
+            plane_b_uppers_rightside.operator(
+                "maplus.quickapldestsendplanebtocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            plane_b_uppers_rightside.label("Grab:")
+            plane_b_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanebfromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            plane_b_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanebfromactivelocal",
+                icon='VERTEXSEL',
+                text=""
+            )
+            plane_b_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanebfromactiveglobal",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_plnb.prop(
+                bpy.types.AnyType(addon_data.quick_align_planes_dest),
+                'plane_pt_b',
+                ""
+            )
+
+            # component_changers_plnb = plane_b_items.row()
+            # zero_components_plnb = component_changers_plnb.column(
+                # align=True
+            # )
+            # zero_components_plnb.label("Set Zeroes:")
+            # zero_components_plnb.operator(
+                # "maplus.zerootherplanepointbx",
+                # text="X00"
+            # )
+            # zero_components_plnb.operator(
+                # "maplus.zerootherplanepointby",
+                # text="0Y0"
+            # )
+            # zero_components_plnb.operator(
+                # "maplus.zerootherplanepointbz",
+                # text="00Z"
+            # )
+            # one_components_plnb = component_changers_plnb.column(
+                # align=True
+            # )
+            # one_components_plnb.label("Set Ones:")
+            # one_components_plnb.operator(
+                # "maplus.oneotherplanepointbx",
+                # text="X11"
+            # )
+            # one_components_plnb.operator(
+                # "maplus.oneotherplanepointby",
+                # text="1Y1"
+            # )
+            # one_components_plnb.operator(
+                # "maplus.oneotherplanepointbz",
+                # text="11Z"
+            # )
+
+            apl_dest_geom_editor.label("Pt. C:")
+            # plane_c_items = apl_dest_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            plane_c_items = apl_dest_geom_editor.row()
+            typein_and_grab_plnc = plane_c_items.column()
+            plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
+            plane_c_swap = plane_c_uppers.row(align=True)
+            plane_c_swap.label("Swap With:")
+            plane_c_swap.operator(
+                "maplus.quickapldestswapplaneaplanec",
+                text="A"
+            )
+            plane_c_swap.operator(
+                "maplus.quickapldestswapplanebplanec",
+                text="B"
+            )
+
+            plane_c_uppers_rightside = plane_c_uppers.row(align=True)
+            plane_c_uppers_rightside.alignment = 'RIGHT'
+            plane_c_uppers_rightside.label("Send:")
+            plane_c_uppers_rightside.operator(
+                "maplus.quickapldestsendplanectocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            plane_c_uppers_rightside.label("Grab:")
+            plane_c_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanecfromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            plane_c_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanecfromactivelocal",
+                icon='VERTEXSEL',
+                text=""
+            )
+            plane_c_uppers_rightside.operator(
+                "maplus.quickapldestgrabplanecfromactiveglobal",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_plnc.prop(
+                bpy.types.AnyType(addon_data.quick_align_planes_dest),
+                'plane_pt_c',
+                ""
+            )
+
+            # component_changers_plnc = plane_c_items.row()
+            # zero_components_plnc = component_changers_plnc.column(
+                # align=True
+            # )
+            # zero_components_plnc.label("Set Zeroes:")
+            # zero_components_plnc.operator(
+                # "maplus.zerootherplanepointcx",
+                # text="X00"
+            # )
+            # zero_components_plnc.operator(
+                # "maplus.zerootherplanepointcy",
+                # text="0Y0"
+            # )
+            # zero_components_plnc.operator(
+                # "maplus.zerootherplanepointcz",
+                # text="00Z"
+            # )
+            # one_components_plnc = component_changers_plnc.column(
+                # align=True
+            # )
+            # one_components_plnc.label("Set Ones:")
+            # one_components_plnc.operator(
+                # "maplus.oneotherplanepointcx",
+                # text="X11"
+            # )
+            # one_components_plnc.operator(
+                # "maplus.oneotherplanepointcy",
+                # text="1Y1"
+            # )
+            # one_components_plnc.operator(
+                # "maplus.oneotherplanepointcz",
+                # text="11Z"
+            # )
+
+        ###################################
+        ###################################
+
+
+        ###################################
+        ###################################
+
         apl_gui.label("Operator settings:")
         apl_mods = apl_gui.box()
         apl_mods_row1 = apl_mods.row()
