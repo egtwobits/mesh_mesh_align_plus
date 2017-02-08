@@ -1779,6 +1779,18 @@ class QuickAlignLinesGrabDest(GrabFromGeometryBase):
     quick_op_target = "ALNDEST"
 
 
+class QuickAlignLinesGrabDestLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignlinesgrabdestloc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = False
+    quick_op_target = "ALNDEST"
+
+
 class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
     bl_idname = "maplus.quickscalematchedgegrabsrc"
     bl_label = "Grab Line from Selected Verts"
