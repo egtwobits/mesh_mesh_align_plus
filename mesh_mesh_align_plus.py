@@ -434,6 +434,20 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    quick_aln_show_src_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the source geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
+    quick_aln_show_dest_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the destination geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
     quick_align_lines_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
@@ -815,9 +829,13 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
             active_item = addon_data.quick_sme_show_dest_geom
 
         elif self.quick_op_target == "ALNSRC":
-            active_item = addon_data.quick_aln_show_src_geom
+            addon_data.quick_aln_show_src_geom = (
+                not addon_data.quick_aln_show_src_geom
+            )
         elif self.quick_op_target == "ALNDEST":
-            active_item = addon_data.quick_aln_show_dest_geom
+            addon_data.quick_aln_show_dest_geom = (
+                not addon_data.quick_aln_show_dest_geom
+            )
 
         elif self.quick_op_target == "AXRSRC":
             active_item = addon_data.quick_axr_show_src_geom
@@ -848,6 +866,22 @@ class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
     bl_description = "Show/hide quick align planes destination geometry"
     bl_options = {'REGISTER', 'UNDO'}
     quick_op_target = 'APLDEST'
+
+
+class ShowHideQuickAlnSrcGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickalnsrcgeom"
+    bl_label = "Show/hide quick align lines source geometry"
+    bl_description = "Show/hide quick align lines source geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'ALNSRC'
+
+
+class ShowHideQuickAlnDestGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickalndestgeom"
+    bl_label = "Show/hide quick align lines destination geometry"
+    bl_description = "Show/hide quick align lines destination geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'ALNDEST'
 
 
 # Exception when adding new items, if we can't get a unique name
@@ -1443,6 +1477,24 @@ class GrabLineStartFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'line_start'
 
 
+class QuickAlnSrcGrabLineStartFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickalnsrcgrablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestGrabLineStartFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickalndestgrablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'ALNDEST'
+
+
 class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
@@ -1451,7 +1503,6 @@ class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
         "in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target_point_attribute = 'line_start'
     vert_attribs_to_set = ('line_start',)
     multiply_by_world_matrix = False
 
@@ -1468,6 +1519,58 @@ class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAlnSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalnsrcgrablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalnsrcgrablinestartfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalndestgrablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'ALNDEST'
+
+
+class QuickAlnDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalndestgrablinestartfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'ALNDEST'
+
+
 class SendLineStartToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
@@ -1476,12 +1579,48 @@ class SendLineStartToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'line_start'
 
 
+class QuickAlnSrcSendLineStartToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickalnsrcsendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestSendLineStartToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickalndestsendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'ALNDEST'
+
+
 class GrabLineEndFromCursor(GrabFromCursorBase):
     bl_idname = "maplus.grablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'line_end'
+
+
+class QuickAlnSrcGrabLineEndFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickalnsrcgrablineendfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestGrabLineEndFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickalndestgrablineendfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'ALNDEST'
 
 
 class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
@@ -1504,12 +1643,82 @@ class GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAlnSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalnsrcgrablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalnsrcgrablineendfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalndestgrablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'ALNDEST'
+
+
+class QuickAlnDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalndestgrablineendfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'ALNDEST'
+
+
 class SendLineEndToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'line_end'
+
+
+class QuickAlnSrcSendLineEndToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickalnsrcsendlineendtocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestSendLineEndToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickalndestsendlineendtocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'ALNDEST'
 
 
 class GrabAllVertsLineLocal(GrabFromGeometryBase):
@@ -1543,6 +1752,18 @@ class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
+    quick_op_target = "ALNSRC"
+
+
+class QuickAlignLinesGrabSrcLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignlinesgrabsrcloc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = False
     quick_op_target = "ALNSRC"
 
 
@@ -2110,6 +2331,24 @@ class SwapLinePoints(SwapPointsBase):
     bl_description = "Swap line points"
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('line_start', 'line_end')
+
+
+class QuickAlnSrcSwapLinePoints(SwapPointsBase):
+    bl_idname = "maplus.quickalnsrcswaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAlnDestSwapLinePoints(SwapPointsBase):
+    bl_idname = "maplus.quickalndestswaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'ALNDEST'
 
 
 class SwapPlaneAPlaneB(SwapPointsBase):
@@ -6365,17 +6604,377 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             'quick_align_lines_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
+
+        aln_src_geom_top = aln_grab_col.row()
         if not addon_data.quick_align_lines_auto_grab_src:
-            aln_grab_col.operator(
+            if not addon_data.quick_aln_show_src_geom:
+                aln_src_geom_top.operator(
+                        "maplus.showhidequickalnsrcgeom",
+                        icon='TRIA_RIGHT',
+                        text="",
+                        emboss=False
+                )
+                aln_src_geom_top.operator(
+                        "maplus.quickalignlinesgrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            else:
+                aln_src_geom_top.operator(
+                        "maplus.showhidequickalnsrcgeom",
+                        icon='TRIA_DOWN',
+                        text="",
+                        emboss=False
+                )
+                aln_src_geom_top.label("Source Coordinates")
+
+                aln_src_geom_editor = aln_grab_col.box()
+                ln_grab_all = aln_src_geom_editor.row(align=True)
+                ln_grab_all.operator(
+                    "maplus.quickalignlinesgrabsrcloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                ln_grab_all.operator(
                     "maplus.quickalignlinesgrabsrc",
                     icon='WORLD',
-                    text="Grab Source"
+                    text="Grab All Global"
+                )
+
+                aln_src_geom_editor.label("Start:")
+                # plane_a_items = aln_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_start_items = aln_src_geom_editor.row()
+                typein_and_grab_start = ln_start_items.column()
+                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
+
+                ln_start_swap = ln_start_uppers.row(align=True)
+                ln_start_swap.label("Swap With:")
+                ln_start_swap.operator(
+                    "maplus.quickalnsrcswaplinepoints",
+                    text="End"
+                )
+
+                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
+                ln_start_uppers_rightside.alignment = 'RIGHT'
+                ln_start_uppers_rightside.label("Send:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickalnsrcsendlinestarttocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_start_uppers_rightside.label("Grab:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablinestartfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablinestartfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablinestartfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_start.prop(
+                    bpy.types.AnyType(addon_data.quick_align_lines_src),
+                    'line_start',
+                    ""
+                )
+
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
+                
+                
+                aln_src_geom_editor.label("End:")
+                # plane_a_items = aln_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_end_items = aln_src_geom_editor.row()
+                typein_and_grab_end = ln_end_items.column()
+                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
+
+                ln_end_swap = ln_end_uppers.row(align=True)
+                ln_end_swap.label("Swap With:")
+                ln_end_swap.operator(
+                    "maplus.quickalnsrcswaplinepoints",
+                    text="Start"
+                )
+
+                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
+                ln_end_uppers_rightside.alignment = 'RIGHT'
+                ln_end_uppers_rightside.label("Send:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickalnsrcsendlineendtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_end_uppers_rightside.label("Grab:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablineendfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablineendfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickalnsrcgrablineendfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_end.prop(
+                    bpy.types.AnyType(addon_data.quick_align_lines_src),
+                    'line_end',
+                    ""
+                )
+
+                # component_changers_plnc = plane_c_items.row()
+                # zero_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # zero_components_plnc.label("Set Zeroes:")
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcx",
+                    # text="X00"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcy",
+                    # text="0Y0"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcz",
+                    # text="00Z"
+                # )
+                # one_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # one_components_plnc.label("Set Ones:")
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcx",
+                    # text="X11"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcy",
+                    # text="1Y1"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcz",
+                    # text="11Z"
+                # )
+        if addon_data.quick_aln_show_src_geom:
+            aln_grab_col.separator()
+
+        # apl_dest_geom = apl_grab_col.row()
+        # apl_grab_col.operator(
+                # "maplus.quickalignplanesgrabdest",
+                # icon='WORLD',
+                # text="Grab Destination"
+        # )
+
+        aln_dest_geom_top = aln_grab_col.row()
+        if not addon_data.quick_aln_show_dest_geom:
+            aln_dest_geom_top.operator(
+                    "maplus.showhidequickalndestgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
             )
-        aln_grab_col.operator(
+            aln_dest_geom_top.operator(
+                    "maplus.quickalignlinesgrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+        else:
+            aln_dest_geom_top.operator(
+                    "maplus.showhidequickalndestgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+            )
+            aln_dest_geom_top.label("Destination Coordinates")
+
+            aln_dest_geom_editor = aln_grab_col.box()
+            ln_grab_all = aln_dest_geom_editor.row(align=True)
+            ln_grab_all.operator(
+                "maplus.quickalignlinesgrabdestloc",
+                icon='VERTEXSEL',
+                text="Grab All Local"
+            )
+            ln_grab_all.operator(
                 "maplus.quickalignlinesgrabdest",
                 icon='WORLD',
-                text="Grab Destination"
-        )
+                text="Grab All Global"
+            )
+
+            aln_dest_geom_editor.label("Start:")
+            # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            ln_start_items = aln_dest_geom_editor.row()
+            typein_and_grab_start = ln_start_items.column()
+            ln_start_uppers = typein_and_grab_start.split(percentage=.33)
+
+            ln_start_swap = ln_start_uppers.row(align=True)
+            ln_start_swap.label("Swap With:")
+            ln_start_swap.operator(
+                "maplus.quickalndestswaplinepoints",
+                text="End"
+            )
+
+            ln_start_uppers_rightside = ln_start_uppers.row(align=True)
+            ln_start_uppers_rightside.alignment = 'RIGHT'
+            ln_start_uppers_rightside.label("Send:")
+            ln_start_uppers_rightside.operator(
+                "maplus.quickalndestsendlinestarttocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            ln_start_uppers_rightside.label("Grab:")
+            ln_start_uppers_rightside.operator(
+                "maplus.quickalndestgrablinestartfromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            ln_start_uppers_rightside.operator(
+                "maplus.quickalndestgrablinestartfromactivelocal",
+                icon='VERTEXSEL',
+                text=""
+            )
+            ln_start_uppers_rightside.operator(
+                "maplus.quickalndestgrablinestartfromactiveglobal",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_start.prop(
+                bpy.types.AnyType(addon_data.quick_align_lines_dest),
+                'line_start',
+                ""
+            )
+
+            # component_changers_plna = plane_a_items.row()
+            # zero_components_plna = component_changers_plna.column(
+                # align=True
+            # )
+            # zero_components_plna.label("Set Zeroes:")
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointax",
+                # text="X00"
+            # )
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointay",
+                # text="0Y0"
+            # )
+            # zero_components_plna.operator(
+                # "maplus.zerootherplanepointaz",
+                # text="00Z"
+            # )
+            # one_components_plna = component_changers_plna.column(
+                # align=True
+            # )
+            # one_components_plna.label("Set Ones:")
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointax",
+                # text="X11"
+            # )
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointay",
+                # text="1Y1"
+            # )
+            # one_components_plna.operator(
+                # "maplus.oneotherplanepointaz",
+                # text="11Z"
+            # )
+
+            aln_dest_geom_editor.label("End:")
+            # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            ln_end_items = aln_dest_geom_editor.row()
+            typein_and_grab_end = ln_end_items.column()
+            ln_end_uppers = typein_and_grab_end.split(percentage=.33)
+
+            ln_end_swap = ln_end_uppers.row(align=True)
+            ln_end_swap.label("Swap With:")
+            ln_end_swap.operator(
+                "maplus.quickalndestswaplinepoints",
+                text="Start"
+            )
+
+            ln_end_uppers_rightside = ln_end_uppers.row(align=True)
+            ln_end_uppers_rightside.alignment = 'RIGHT'
+            ln_end_uppers_rightside.label("Send:")
+            ln_end_uppers_rightside.operator(
+                "maplus.quickalndestsendlineendtocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            ln_end_uppers_rightside.label("Grab:")
+            ln_end_uppers_rightside.operator(
+                "maplus.quickalndestgrablineendfromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            ln_end_uppers_rightside.operator(
+                "maplus.quickalndestgrablineendfromactivelocal",
+                icon='VERTEXSEL',
+                text=""
+            )
+            ln_end_uppers_rightside.operator(
+                "maplus.quickalndestgrablineendfromactiveglobal",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_end.prop(
+                bpy.types.AnyType(addon_data.quick_align_lines_dest),
+                'line_end',
+                ""
+            )
+
+        ###################################
+        ###################################
+
+
+        ###################################
+        ###################################
+
         aln_gui.label("Operator settings:")
         aln_mods = aln_gui.box()
         aln_mods_row1 = aln_mods.row()
