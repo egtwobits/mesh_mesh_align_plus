@@ -371,6 +371,20 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    quick_apt_show_src_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the source geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
+    quick_apt_show_dest_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the source geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
     quick_align_pts_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source point from selected geometry"
@@ -816,17 +830,26 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         if self.quick_op_target == "APTSRC":
-            active_item = addon_data.quick_apt_show_src_geom
+            addon_data.quick_apt_show_src_geom = (
+                not addon_data.quick_apt_show_src_geom
+            )
         elif self.quick_op_target == "APTDEST":
-            active_item = addon_data.quick_apt_show_dest_geom
-
+            addon_data.quick_apt_show_dest_geom = (
+                not addon_data.quick_apt_show_dest_geom
+            )
         elif self.quick_op_target == "DSSRC":
-            active_item = addon_data.quick_ds_show_src_geom
+            addon_data.quick_ds_show_src_geom = (
+                not addon_data.quick_ds_show_src_geom
+            )
 
         elif self.quick_op_target == "SMESRC":
-            active_item = addon_data.quick_sme_show_src_geom
+            addon_data.quick_sme_show_src_geom = (
+                not addon_data.quick_sme_show_src_geom
+            )
         elif self.quick_op_target == "SMEDEST":
-            active_item = addon_data.quick_sme_show_dest_geom
+            addon_data.quick_sme_show_dest_geom = (
+                not addon_data.quick_sme_show_dest_geom
+            )
 
         elif self.quick_op_target == "ALNSRC":
             addon_data.quick_aln_show_src_geom = (
@@ -838,7 +861,9 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
             )
 
         elif self.quick_op_target == "AXRSRC":
-            active_item = addon_data.quick_axr_show_src_geom
+            addon_data.quick_axr_show_src_geom = (
+                not addon_data.quick_axr_show_src_geom
+            )
 
         elif self.quick_op_target == "APLSRC":
             addon_data.quick_apl_show_src_geom = (
@@ -852,20 +877,20 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ShowHideQuickAplSrcGeom(ShowHideQuickGeomBaseClass):
-    bl_idname = "maplus.showhidequickaplsrcgeom"
-    bl_label = "Show/hide quick align planes source geometry"
-    bl_description = "Show/hide quick align planes source geometry"
+class ShowHideQuickAptSrcGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaptsrcgeom"
+    bl_label = "Show/hide quick align points source geometry"
+    bl_description = "Show/hide quick align points source geometry"
     bl_options = {'REGISTER', 'UNDO'}
-    quick_op_target = 'APLSRC'
+    quick_op_target = 'APTSRC'
 
 
-class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
-    bl_idname = "maplus.showhidequickapldestgeom"
-    bl_label = "Show/hide quick align planes destination geometry"
-    bl_description = "Show/hide quick align planes destination geometry"
+class ShowHideQuickAptDestGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaptdestgeom"
+    bl_label = "Show/hide quick align points destination geometry"
+    bl_description = "Show/hide quick align points destination geometry"
     bl_options = {'REGISTER', 'UNDO'}
-    quick_op_target = 'APLDEST'
+    quick_op_target = 'APTDEST'
 
 
 class ShowHideQuickAlnSrcGeom(ShowHideQuickGeomBaseClass):
@@ -882,6 +907,22 @@ class ShowHideQuickAlnDestGeom(ShowHideQuickGeomBaseClass):
     bl_description = "Show/hide quick align lines destination geometry"
     bl_options = {'REGISTER', 'UNDO'}
     quick_op_target = 'ALNDEST'
+
+
+class ShowHideQuickAplSrcGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaplsrcgeom"
+    bl_label = "Show/hide quick align planes source geometry"
+    bl_description = "Show/hide quick align planes source geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'APLSRC'
+
+
+class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickapldestgeom"
+    bl_label = "Show/hide quick align planes destination geometry"
+    bl_description = "Show/hide quick align planes destination geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'APLDEST'
 
 
 # Exception when adding new items, if we can't get a unique name
@@ -1391,6 +1432,24 @@ class GrabPointFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'point'
 
 
+class QuickAptSrcGrabPointFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaptsrcgrabpointfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'point'
+    quick_op_target = 'APTSRC'
+
+
+class QuickAptDestGrabPointFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaptdestgrabpointfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'point'
+    quick_op_target = 'APTDEST'
+
+
 class GrabPointFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.grabpointfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -1467,6 +1526,24 @@ class SendPointToCursor(SendCoordToCursorBase):
     bl_description = "Sends Point Coordinates to the 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'point'
+
+
+class QuickAptSrcSendPointToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaptsrcsendpointtocursor"
+    bl_label = "Sends Point to Cursor"
+    bl_description = "Sends Point Coordinates to the 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'point'
+    quick_op_target = 'APTSRC'
+
+
+class QuickAptDestSendPointToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaptdestsendpointtocursor"
+    bl_label = "Sends Point to Cursor"
+    bl_description = "Sends Point Coordinates to the 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'point'
+    quick_op_target = 'APTDEST'
 
 
 class GrabLineStartFromCursor(GrabFromCursorBase):
@@ -6537,17 +6614,196 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             'quick_align_pts_auto_grab_src',
             'Auto Grab Source from Selected Vertices'
         )
+
+        apt_src_geom_top = apt_grab_col.row()
         if not addon_data.quick_align_pts_auto_grab_src:
-            apt_grab_col.operator(
-                "maplus.quickalignpointsgrabsrc",
-                icon='WORLD',
-                text="Grab Source"
+            if not addon_data.quick_apt_show_src_geom:
+                apt_src_geom_top.operator(
+                        "maplus.showhidequickaptsrcgeom",
+                        icon='TRIA_RIGHT',
+                        text="",
+                        emboss=False
+                )
+                apt_src_geom_top.operator(
+                        "maplus.quickalignpointsgrabsrc",
+                        icon='WORLD',
+                        text="Grab Source"
+                )
+            else:
+                apt_src_geom_top.operator(
+                        "maplus.showhidequickaptsrcgeom",
+                        icon='TRIA_DOWN',
+                        text="",
+                        emboss=False
+                )
+                apt_src_geom_top.label("Source Coordinates")
+
+                apt_src_geom_editor = apt_grab_col.box()
+                pt_grab_all = apt_src_geom_editor.row(align=True)
+                pt_grab_all.operator(
+                    "maplus.quickalignpointsgrabsrcloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                pt_grab_all.operator(
+                    "maplus.quickalignpointsgrabsrc",
+                    icon='WORLD',
+                    text="Grab All Global"
+                )
+
+                apt_src_geom_editor.label("Pt. Origin:")
+                # plane_a_items = apt_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                pt_items = apt_src_geom_editor.row()
+                typein_and_grab_pt = pt_items.column()
+                pt_uppers = typein_and_grab_pt.row()
+
+                pt_uppers_leftside = pt_uppers.row(align=True)
+                pt_uppers_leftside.alignment = 'LEFT'
+                pt_uppers_leftside.label("Send:")
+                pt_uppers_leftside.operator(
+                    "maplus.quickaptsrcsendpointtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                pt_uppers_rightside = pt_uppers.row(align=True)
+                pt_uppers_rightside.alignment = 'RIGHT'
+                pt_uppers_rightside.label("Grab:")
+                pt_uppers_rightside.operator(
+                    "maplus.quickaptsrcgrabpointfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                pt_uppers_rightside.operator(
+                    "maplus.quickalignpointsgrabsrcloc",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                pt_uppers_rightside.operator(
+                    "maplus.quickalignpointsgrabsrc",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_pt.prop(
+                    bpy.types.AnyType(addon_data.quick_align_pts_src),
+                    'point',
+                    ""
+                )
+
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
+        if addon_data.quick_apt_show_src_geom:
+            apt_grab_col.separator()
+
+        apt_dest_geom_top = apt_grab_col.row()
+        if not addon_data.quick_apt_show_dest_geom:
+            apt_dest_geom_top.operator(
+                    "maplus.showhidequickaptdestgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
             )
-        apt_grab_col.operator(
-            "maplus.quickalignpointsgrabdest",
-            icon='WORLD',
-            text="Grab Destination"
-        )
+            apt_dest_geom_top.operator(
+                    "maplus.quickalignpointsgrabdest",
+                    icon='WORLD',
+                    text="Grab Destination"
+            )
+        else:
+            apt_dest_geom_top.operator(
+                    "maplus.showhidequickaptdestgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+            )
+            apt_dest_geom_top.label("Destination Coordinates")
+
+            apt_dest_geom_editor = apt_grab_col.box()
+            pt_grab_all = apt_dest_geom_editor.row(align=True)
+            pt_grab_all.operator(
+                "maplus.quickalignpointsgrabdestloc",
+                icon='VERTEXSEL',
+                text="Grab All Local"
+            )
+            pt_grab_all.operator(
+                "maplus.quickalignpointsgrabdest",
+                icon='WORLD',
+                text="Grab All Global"
+            )
+
+            apt_dest_geom_editor.label("Pt. Origin:")
+            # plane_a_items = apt_src_geom_editor.split(percentage=.75)
+            # ^ line changed to remove component changers
+            pt_items = apt_dest_geom_editor.row()
+            typein_and_grab_pt = pt_items.column()
+            pt_uppers = typein_and_grab_pt.row()
+
+            pt_uppers_leftside = pt_uppers.row(align=True)
+            pt_uppers_leftside.alignment = 'LEFT'
+            pt_uppers_leftside.label("Send:")
+            pt_uppers_leftside.operator(
+                "maplus.quickaptdestsendpointtocursor",
+                icon='CURSOR',
+                text=""
+            )
+
+            pt_uppers_rightside = pt_uppers.row(align=True)
+            pt_uppers_rightside.alignment = 'RIGHT'
+            pt_uppers_rightside.label("Grab:")
+            pt_uppers_rightside.operator(
+                "maplus.quickaptdestgrabpointfromcursor",
+                icon='CURSOR',
+                text=""
+            )
+            pt_uppers_rightside.operator(
+                "maplus.quickalignpointsgrabdestloc",
+                icon='VERTEXSEL',
+                text=""
+            )
+            pt_uppers_rightside.operator(
+                "maplus.quickalignpointsgrabdest",
+                icon='WORLD',
+                text=""
+            )
+            typein_and_grab_pt.prop(
+                bpy.types.AnyType(addon_data.quick_align_pts_dest),
+                'point',
+                ""
+            )
+
+        ########################
+
         align_pts_gui.label("Operator settings:")
         apt_mods = align_pts_gui.box()
         apt_box_row1 = apt_mods.row()
