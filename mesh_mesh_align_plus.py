@@ -479,6 +479,13 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    quick_axr_show_src_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the source geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
     quick_axis_rotate_auto_grab_src = bpy.props.BoolProperty(
         description=(
             "Automatically grab source axis from selected geometry"
@@ -923,6 +930,14 @@ class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
     bl_description = "Show/hide quick align planes destination geometry"
     bl_options = {'REGISTER', 'UNDO'}
     quick_op_target = 'APLDEST'
+
+
+class ShowHideQuickAxrSrcGeom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaxrsrcgeom"
+    bl_label = "Show/hide quick axis rotate source geometry"
+    bl_description = "Show/hide quick axis rotate source geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'AXRSRC'
 
 
 # Exception when adding new items, if we can't get a unique name
@@ -1572,6 +1587,15 @@ class QuickAlnDestGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'ALNDEST'
 
 
+class QuickAxrSrcGrabLineStartFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaxrsrcgrablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'AXRSRC'
+
+
 class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
@@ -1648,6 +1672,32 @@ class QuickAlnDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
+class QuickAxrSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaxrsrcgrablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'AXRSRC'
+
+
+class QuickAxrSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaxrsrcgrablinestartfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'AXRSRC'
+
+
 class SendLineStartToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
@@ -1674,6 +1724,15 @@ class QuickAlnDestSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'ALNDEST'
 
 
+class QuickAxrSrcSendLineStartToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaxrsrcsendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'AXRSRC'
+
+
 class GrabLineEndFromCursor(GrabFromCursorBase):
     bl_idname = "maplus.grablineendfromcursor"
     bl_label = "Grab From Cursor"
@@ -1698,6 +1757,15 @@ class QuickAlnDestGrabLineEndFromCursor(GrabFromCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'line_end'
     quick_op_target = 'ALNDEST'
+
+
+class QuickAxrSrcGrabLineEndFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.quickaxrsrcgrablineendfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'AXRSRC'
 
 
 class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
@@ -1772,6 +1840,45 @@ class QuickAlnDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
+class QuickAlnSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickalnsrcgrablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'ALNSRC'
+
+
+class QuickAxrSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaxrsrcgrablineendfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'AXRSRC'
+
+
+class QuickAxrSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaxrsrcgrablineendfromactivelocal"
+    bl_label = "Grab Global Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'AXRSRC'
+
+
 class SendLineEndToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.sendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
@@ -1796,6 +1903,15 @@ class QuickAlnDestSendLineEndToCursor(SendCoordToCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'line_end'
     quick_op_target = 'ALNDEST'
+
+
+class QuickAxrSrcSendLineEndToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.quickaxrsrcsendlineendtocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'AXRSRC'
 
 
 class GrabAllVertsLineLocal(GrabFromGeometryBase):
@@ -1901,6 +2017,18 @@ class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
+    quick_op_target = "AXRSRC"
+
+
+class QuickAxisRotateGrabSrcLoc(GrabFromGeometryBase):
+    bl_idname = "maplus.quickaxisrotategrabsrcloc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = False
     quick_op_target = "AXRSRC"
 
 
@@ -2438,6 +2566,15 @@ class QuickAlnDestSwapLinePoints(SwapPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('line_start', 'line_end')
     quick_op_target = 'ALNDEST'
+
+
+class QuickAxrSrcSwapLinePoints(SwapPointsBase):
+    bl_idname = "maplus.quickaxrsrcswaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'AXRSRC'
 
 
 class SwapPlaneAPlaneB(SwapPointsBase):
@@ -7944,12 +8081,203 @@ class QuickAxisRotateGUI(bpy.types.Panel):
             'quick_axis_rotate_auto_grab_src',
             'Auto Grab Axis from Selected Vertices'
         )
+
+        axr_src_geom_top = axr_grab_col.row()
         if not addon_data.quick_axis_rotate_auto_grab_src:
-            axr_grab_col.operator(
+            if not addon_data.quick_axr_show_src_geom:
+                axr_src_geom_top.operator(
+                        "maplus.showhidequickaxrsrcgeom",
+                        icon='TRIA_RIGHT',
+                        text="",
+                        emboss=False
+                )
+                axr_src_geom_top.operator(
+                        "maplus.quickaxisrotategrabsrc",
+                        icon='WORLD',
+                        text="Grab Axis"
+                )
+            else:
+                axr_src_geom_top.operator(
+                        "maplus.showhidequickaxrsrcgeom",
+                        icon='TRIA_DOWN',
+                        text="",
+                        emboss=False
+                )
+                axr_src_geom_top.label("Source Coordinates")
+
+                axr_src_geom_editor = axr_grab_col.box()
+                ln_grab_all = axr_src_geom_editor.row(align=True)
+                ln_grab_all.operator(
+                    "maplus.quickaxisrotategrabsrcloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                ln_grab_all.operator(
                     "maplus.quickaxisrotategrabsrc",
                     icon='WORLD',
-                    text="Grab Axis"
-            )
+                    text="Grab All Global"
+                )
+
+                axr_src_geom_editor.label("Start:")
+                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_start_items = axr_src_geom_editor.row()
+                typein_and_grab_start = ln_start_items.column()
+                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
+
+                ln_start_swap = ln_start_uppers.row(align=True)
+                ln_start_swap.label("Swap With:")
+                ln_start_swap.operator(
+                    "maplus.quickaxrsrcswaplinepoints",
+                    text="End"
+                )
+
+                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
+                ln_start_uppers_rightside.alignment = 'RIGHT'
+                ln_start_uppers_rightside.label("Send:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickaxrsrcsendlinestarttocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_start_uppers_rightside.label("Grab:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablinestartfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablinestartfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablinestartfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_start.prop(
+                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                    'line_start',
+                    ""
+                )
+
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
+
+                axr_src_geom_editor.label("End:")
+                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_end_items = axr_src_geom_editor.row()
+                typein_and_grab_end = ln_end_items.column()
+                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
+
+                ln_end_swap = ln_end_uppers.row(align=True)
+                ln_end_swap.label("Swap With:")
+                ln_end_swap.operator(
+                    "maplus.quickaxrsrcswaplinepoints",
+                    text="Start"
+                )
+
+                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
+                ln_end_uppers_rightside.alignment = 'RIGHT'
+                ln_end_uppers_rightside.label("Send:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickaxrsrcsendlineendtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_end_uppers_rightside.label("Grab:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablineendfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablineendfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickaxrsrcgrablineendfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                typein_and_grab_end.prop(
+                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                    'line_end',
+                    ""
+                )
+
+                # component_changers_plnc = plane_c_items.row()
+                # zero_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # zero_components_plnc.label("Set Zeroes:")
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcx",
+                    # text="X00"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcy",
+                    # text="0Y0"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcz",
+                    # text="00Z"
+                # )
+                # one_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # one_components_plnc.label("Set Ones:")
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcx",
+                    # text="X11"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcy",
+                    # text="1Y1"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcz",
+                    # text="11Z"
+                # )
+        if addon_data.quick_aln_show_src_geom:
+            axr_grab_col.separator()
+
         axr_gui.label("Operator settings:")
         axr_mods = axr_gui.box()
         axr_mods_row1 = axr_mods.row()
