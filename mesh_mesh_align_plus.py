@@ -7663,6 +7663,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Source"
                 )
+                preserve_button_roundedge.operator(
+                    "maplus.quickalngrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
+                )
             else:
                 aln_src_geom_top.operator(
                         "maplus.showhidequickalnsrcgeom",
@@ -7872,6 +7877,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     "maplus.quickalignlinesgrabdest",
                     icon='WORLD',
                     text="Grab Destination"
+            )
+            preserve_button_roundedge.operator(
+                "maplus.quickalngrabnormaldest",
+                icon='LAMP_HEMI',
+                text=""
             )
         else:
             aln_dest_geom_top.operator(
@@ -8751,6 +8761,11 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Axis"
                 )
+                preserve_button_roundedge.operator(
+                    "maplus.quickaxrgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
+                )
             else:
                 axr_src_geom_top.operator(
                         "maplus.showhidequickaxrsrcgeom",
@@ -9011,6 +9026,11 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                         "maplus.quickdirectionalslidegrabsrc",
                         icon='WORLD',
                         text="Grab Source"
+                )
+                preserve_button_roundedge.operator(
+                    "maplus.quickdsgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
                 )
             else:
                 ds_src_geom_top.operator(
