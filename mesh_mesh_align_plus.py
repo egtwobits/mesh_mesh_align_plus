@@ -7199,7 +7199,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             'Auto Grab Source from Selected Vertices'
         )
 
-        apt_src_geom_top = apt_grab_col.row()
+        apt_src_geom_top = apt_grab_col.row(align=True)
         if not addon_data.quick_align_pts_auto_grab_src:
             if not addon_data.quick_apt_show_src_geom:
                 apt_src_geom_top.operator(
@@ -7208,11 +7208,13 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                apt_src_geom_top.operator(
+                preserve_button_roundedge = apt_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickalignpointsgrabsrc",
                         icon='WORLD',
                         text="Grab Source"
                 )
+                
             else:
                 apt_src_geom_top.operator(
                         "maplus.showhidequickaptsrcgeom",
@@ -7311,7 +7313,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         if addon_data.quick_apt_show_src_geom:
             apt_grab_col.separator()
 
-        apt_dest_geom_top = apt_grab_col.row()
+        apt_dest_geom_top = apt_grab_col.row(align=True)
         if not addon_data.quick_apt_show_dest_geom:
             apt_dest_geom_top.operator(
                     "maplus.showhidequickaptdestgeom",
@@ -7319,11 +7321,13 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apt_dest_geom_top.operator(
+            preserve_button_roundedge = apt_dest_geom_top.row()
+            preserve_button_roundedge.operator(
                     "maplus.quickalignpointsgrabdest",
                     icon='WORLD',
                     text="Grab Destination"
             )
+
         else:
             apt_dest_geom_top.operator(
                     "maplus.showhidequickaptdestgeom",
@@ -7457,7 +7461,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             'Auto Grab Source from Selected Vertices'
         )
 
-        aln_src_geom_top = aln_grab_col.row()
+        aln_src_geom_top = aln_grab_col.row(align=True)
         if not addon_data.quick_align_lines_auto_grab_src:
             if not addon_data.quick_aln_show_src_geom:
                 aln_src_geom_top.operator(
@@ -7466,7 +7470,8 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                aln_src_geom_top.operator(
+                preserve_button_roundedge = aln_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickalignlinesgrabsrc",
                         icon='WORLD',
                         text="Grab Source"
@@ -7661,7 +7666,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 # text="Grab Destination"
         # )
 
-        aln_dest_geom_top = aln_grab_col.row()
+        aln_dest_geom_top = aln_grab_col.row(align=True)
         if not addon_data.quick_aln_show_dest_geom:
             aln_dest_geom_top.operator(
                     "maplus.showhidequickalndestgeom",
@@ -7669,7 +7674,8 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            aln_dest_geom_top.operator(
+            preserve_button_roundedge = aln_dest_geom_top.row()
+            preserve_button_roundedge.operator(
                     "maplus.quickalignlinesgrabdest",
                     icon='WORLD',
                     text="Grab Destination"
@@ -7885,7 +7891,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             'Auto Grab Source from Selected Vertices'
         )
 
-        apl_src_geom_top = apl_grab_col.row()
+        apl_src_geom_top = apl_grab_col.row(align=True)
         if not addon_data.quick_align_planes_auto_grab_src:
             if not addon_data.quick_apl_show_src_geom:
                 apl_src_geom_top.operator(
@@ -7894,7 +7900,8 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                apl_src_geom_top.operator(
+                preserve_button_roundedge = apl_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickalignplanesgrabsrc",
                         icon='WORLD',
                         text="Grab Source"
@@ -8177,7 +8184,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 # text="Grab Destination"
         # )
 
-        apl_dest_geom_top = apl_grab_col.row()
+        apl_dest_geom_top = apl_grab_col.row(align=True)
         if not addon_data.quick_apl_show_dest_geom:
             apl_dest_geom_top.operator(
                     "maplus.showhidequickapldestgeom",
@@ -8185,7 +8192,8 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apl_dest_geom_top.operator(
+            preserve_button_roundedge = apl_dest_geom_top.row()
+            preserve_button_roundedge.operator(
                     "maplus.quickalignplanesgrabdest",
                     icon='WORLD',
                     text="Grab Destination"
@@ -8529,7 +8537,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
             'Auto Grab Axis from Selected Vertices'
         )
 
-        axr_src_geom_top = axr_grab_col.row()
+        axr_src_geom_top = axr_grab_col.row(align=True)
         if not addon_data.quick_axis_rotate_auto_grab_src:
             if not addon_data.quick_axr_show_src_geom:
                 axr_src_geom_top.operator(
@@ -8538,7 +8546,8 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                axr_src_geom_top.operator(
+                preserve_button_roundedge = axr_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickaxisrotategrabsrc",
                         icon='WORLD',
                         text="Grab Axis"
@@ -8783,7 +8792,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
             'Auto Grab Source from Selected Vertices'
         )
 
-        ds_src_geom_top = ds_grab_col.row()
+        ds_src_geom_top = ds_grab_col.row(align=True)
         if not addon_data.quick_directional_slide_auto_grab_src:
             if not addon_data.quick_ds_show_src_geom:
                 ds_src_geom_top.operator(
@@ -8792,7 +8801,8 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                ds_src_geom_top.operator(
+                preserve_button_roundedge = ds_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickdirectionalslidegrabsrc",
                         icon='WORLD',
                         text="Grab Source"
@@ -9048,7 +9058,7 @@ class QuickSMEGUI(bpy.types.Panel):
             'Auto Grab Source from Selected Vertices'
         )
 
-        sme_src_geom_top = sme_grab_col.row()
+        sme_src_geom_top = sme_grab_col.row(align=True)
         if not addon_data.quick_scale_match_edge_auto_grab_src:
             if not addon_data.quick_sme_show_src_geom:
                 sme_src_geom_top.operator(
@@ -9057,7 +9067,8 @@ class QuickSMEGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                sme_src_geom_top.operator(
+                preserve_button_roundedge = sme_src_geom_top.row()
+                preserve_button_roundedge.operator(
                         "maplus.quickscalematchedgegrabsrc",
                         icon='WORLD',
                         text="Grab Source"
@@ -9244,7 +9255,7 @@ class QuickSMEGUI(bpy.types.Panel):
         if addon_data.quick_sme_show_src_geom:
             sme_grab_col.separator()
 
-        sme_dest_geom_top = sme_grab_col.row()
+        sme_dest_geom_top = sme_grab_col.row(align=True)
         if not addon_data.quick_sme_show_dest_geom:
             sme_dest_geom_top.operator(
                     "maplus.showhidequicksmedestgeom",
@@ -9252,7 +9263,8 @@ class QuickSMEGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            sme_dest_geom_top.operator(
+            preserve_button_roundedge = sme_dest_geom_top.row()
+            preserve_button_roundedge.operator(
                     "maplus.quickscalematchedgegrabdest",
                     icon='WORLD',
                     text="Grab Destination"
