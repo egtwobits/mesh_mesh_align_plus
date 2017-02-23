@@ -1178,7 +1178,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
                 len(self.vert_attribs_to_set),
                 bpy.context.active_object.matrix_world
             )
-        except NotEnoughVertsError:
+        except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
         except NonMeshGrabError:
@@ -1243,7 +1243,7 @@ class NonMeshGrabError(Exception):
     pass
 
 
-class NotEnoughVertsError(Exception):
+class InsufficientSelectionError(Exception):
     pass
 
 
@@ -1301,7 +1301,7 @@ def return_selected_verts(mesh_object,
         if len(selection) == verts_to_grab:
             return selection
         else:
-            raise NotEnoughVertsError()
+            raise InsufficientSelectionError()
     else:
         raise NonMeshGrabError(mesh_object)
 
@@ -1319,14 +1319,14 @@ def return_normal_coords(mesh_object,
         src_mesh.from_mesh(mesh_object.data)
         src_mesh.select_history.validate()
 
-        # Todo, make sure we're in face select mode
         face_elems = []
         face_indices = []
         normal = []
         for element in src_mesh.select_history:
-            face_elems.append(element)
-            face_indices.append(element.index)
-            break
+            if type(element) == bmesh.types.BMFace:
+                face_elems.append(element)
+                face_indices.append(element.index)
+                break
 
         for face in (f for f in src_mesh.faces if f.select):
             if not (face.index in face_indices):
@@ -1335,7 +1335,7 @@ def return_normal_coords(mesh_object,
 
         if not face_elems:
             # Todo, make proper exception or modify old
-            raise NotEnoughVertsError()
+            raise InsufficientSelectionError()
         if global_matrix_multiplier:
             face_normal_origin = (
                 global_matrix_multiplier *
@@ -1425,7 +1425,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
                 len(self.vert_attribs_to_set),
                 matrix_multiplier
             )
-        except NotEnoughVertsError:
+        except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
         except NonMeshGrabError:
@@ -1484,8 +1484,11 @@ class GrabNormalBase(bpy.types.Operator):
                 bpy.context.active_object,
                 matrix_multiplier
             )
-        except NotEnoughVertsError:
-            self.report({'ERROR'}, 'Not enough vertices selected.')
+        except InsufficientSelectionError:
+            self.report(
+                {'ERROR'},
+                'Select at least one face to grab a face normal.'
+            )
             return {'CANCELLED'}
         except NonMeshGrabError:
             self.report(
@@ -3809,7 +3812,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4136,7 +4139,7 @@ class AlignPointsBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4403,7 +4406,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4679,7 +4682,7 @@ class AxisRotateBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4977,7 +4980,7 @@ class AlignLinesBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -5296,7 +5299,7 @@ class AlignPlanesBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
