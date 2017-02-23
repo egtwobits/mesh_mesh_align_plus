@@ -2437,9 +2437,9 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
 
 class QuickAlnGrabNormalSrc(GrabNormalBase):
     bl_idname = "maplus.quickalngrabnormalsrc"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
@@ -2449,9 +2449,9 @@ class QuickAlnGrabNormalSrc(GrabNormalBase):
 
 class QuickAlnGrabNormalDest(GrabNormalBase):
     bl_idname = "maplus.quickalngrabnormaldest"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
@@ -2461,9 +2461,9 @@ class QuickAlnGrabNormalDest(GrabNormalBase):
 
 class QuickAxrGrabNormalSrc(GrabNormalBase):
     bl_idname = "maplus.quickaxrgrabnormalsrc"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
@@ -2473,9 +2473,9 @@ class QuickAxrGrabNormalSrc(GrabNormalBase):
 
 class QuickDsGrabNormalSrc(GrabNormalBase):
     bl_idname = "maplus.quickdsgrabnormalsrc"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
@@ -2485,9 +2485,9 @@ class QuickDsGrabNormalSrc(GrabNormalBase):
 
 class QuickSmeGrabNormalSrc(GrabNormalBase):
     bl_idname = "maplus.quicksmegrabnormalsrc"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
@@ -2497,9 +2497,9 @@ class QuickSmeGrabNormalSrc(GrabNormalBase):
 
 class QuickSmeGrabNormalDest(GrabNormalBase):
     bl_idname = "maplus.quicksmegrabnormaldest"
-    bl_label = "Grab Line from Selected Verts"
+    bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
-        "Grabs line coordinates from selected vertices in edit mode"
+        "Grabs normal coordinates from selected face in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
