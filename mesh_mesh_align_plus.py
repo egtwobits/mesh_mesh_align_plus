@@ -8381,6 +8381,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'ln_multiplier',
                 "Multiplier"
+            )
 
             aln_dest_geom_editor.label("Start:")
             # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
@@ -9331,6 +9332,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'ln_multiplier',
                     "Multiplier"
+                )
 
                 axr_src_geom_editor.label("Start:")
                 # plane_a_items = axr_src_geom_editor.split(percentage=.75)
