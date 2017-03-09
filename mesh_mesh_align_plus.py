@@ -7214,7 +7214,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Source"
                 )
-                
+
             else:
                 apt_src_geom_top.operator(
                         "maplus.showhidequickaptsrcgeom",
@@ -7235,6 +7235,33 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     "maplus.quickalignpointsgrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+
+                modifier_header = apt_src_geom_editor.row()
+                modifier_header.label("Point Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = apt_src_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_align_pts_src),
+                    'pt_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_align_pts_src),
+                    'pt_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.quick_align_pts_src),
+                    'pt_multiplier',
+                    "Multiplier"
                 )
 
                 apt_src_geom_editor.label("Pt. Origin:")
@@ -7348,6 +7375,33 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 "maplus.quickalignpointsgrabdest",
                 icon='WORLD',
                 text="Grab All Global"
+            )
+            
+            modifier_header = apt_dest_geom_editor.row()
+            modifier_header.label("Point Modifiers:")
+            apply_mods = modifier_header.row()
+            apply_mods.alignment = 'RIGHT'
+            # apply_mods.operator(
+                # "maplus.applygeommodifiers",
+                # text="Apply ModifiersXXXXX"
+            # )
+            item_mods_box = apt_dest_geom_editor.box()
+            mods_row_1 = item_mods_box.row()
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_align_pts_dest),
+                'pt_make_unit_vec',
+                "Set Length Equal to One"
+            )
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_align_pts_dest),
+                'pt_flip_direction',
+                "Flip Direction"
+            )
+            mods_row_2 = item_mods_box.row()
+            mods_row_2.prop(
+                bpy.types.AnyType(addon_data.quick_align_pts_dest),
+                'pt_multiplier',
+                "Multiplier"
             )
 
             apt_dest_geom_editor.label("Pt. Origin:")
@@ -7496,6 +7550,33 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     "maplus.quickalignlinesgrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+
+                modifier_header = aln_src_geom_editor.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = aln_src_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_align_lines_src),
+                    'ln_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_align_lines_src),
+                    'ln_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.quick_align_lines_src),
+                    'ln_multiplier',
+                    "Multiplier"
                 )
 
                 aln_src_geom_editor.label("Start:")
@@ -7700,6 +7781,33 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 "maplus.quickalignlinesgrabdest",
                 icon='WORLD',
                 text="Grab All Global"
+            )
+            
+            modifier_header = aln_dest_geom_editor.row()
+            modifier_header.label("Line Modifiers:")
+            apply_mods = modifier_header.row()
+            apply_mods.alignment = 'RIGHT'
+            # apply_mods.operator(
+                # "maplus.applygeommodifiers",
+                # text="Apply ModifiersXXXXX"
+            # )
+            item_mods_box = aln_dest_geom_editor.box()
+            mods_row_1 = item_mods_box.row()
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_align_lines_dest),
+                'ln_make_unit_vec',
+                "Set Length Equal to One"
+            )
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_align_lines_dest),
+                'ln_flip_direction',
+                "Flip Direction"
+            )
+            mods_row_2 = item_mods_box.row()
+            mods_row_2.prop(
+                bpy.types.AnyType(addon_data.quick_align_lines_dest),
+                'ln_multiplier',
+                "Multiplier"
             )
 
             aln_dest_geom_editor.label("Start:")
@@ -8573,6 +8681,33 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab All Global"
                 )
+                
+                modifier_header = axr_src_geom_editor.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = axr_src_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                    'ln_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                    'ln_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                    'ln_multiplier',
+                    "Multiplier"
+                )
 
                 axr_src_geom_editor.label("Start:")
                 # plane_a_items = axr_src_geom_editor.split(percentage=.75)
@@ -8827,6 +8962,33 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     "maplus.quickdirectionalslidegrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+
+                modifier_header = ds_src_geom_editor.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = ds_src_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                    'ln_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                    'ln_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                    'ln_multiplier',
+                    "Multiplier"
                 )
 
                 ds_src_geom_editor.label("Start:")
@@ -9094,6 +9256,33 @@ class QuickSMEGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab All Global"
                 )
+                
+                modifier_header = sme_src_geom_editor.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = sme_src_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    'ln_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    'ln_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    'ln_multiplier',
+                    "Multiplier"
+                )
 
                 sme_src_geom_editor.label("Start:")
                 # plane_a_items = sme_src_geom_editor.split(percentage=.75)
@@ -9289,6 +9478,33 @@ class QuickSMEGUI(bpy.types.Panel):
                 "maplus.quickscalematchedgegrabdest",
                 icon='WORLD',
                 text="Grab All Global"
+            )
+
+            modifier_header = sme_dest_geom_editor.row()
+            modifier_header.label("Line Modifiers:")
+            apply_mods = modifier_header.row()
+            apply_mods.alignment = 'RIGHT'
+            # apply_mods.operator(
+                # "maplus.applygeommodifiers",
+                # text="Apply ModifiersXXXXX"
+            # )
+            item_mods_box = sme_dest_geom_editor.box()
+            mods_row_1 = item_mods_box.row()
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
+                'ln_make_unit_vec',
+                "Set Length Equal to One"
+            )
+            mods_row_1.prop(
+                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
+                'ln_flip_direction',
+                "Flip Direction"
+            )
+            mods_row_2 = item_mods_box.row()
+            mods_row_2.prop(
+                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
+                'ln_multiplier',
+                "Multiplier"
             )
 
             sme_dest_geom_editor.label("Start:")
