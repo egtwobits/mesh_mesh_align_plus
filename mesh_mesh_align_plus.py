@@ -1178,7 +1178,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
                 len(self.vert_attribs_to_set),
                 bpy.context.active_object.matrix_world
             )
-        except NotEnoughVertsError:
+        except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
         except NonMeshGrabError:
@@ -1243,7 +1243,7 @@ class NonMeshGrabError(Exception):
     pass
 
 
-class NotEnoughVertsError(Exception):
+class InsufficientSelectionError(Exception):
     pass
 
 
@@ -1301,7 +1301,60 @@ def return_selected_verts(mesh_object,
         if len(selection) == verts_to_grab:
             return selection
         else:
-            raise NotEnoughVertsError()
+            raise InsufficientSelectionError()
+    else:
+        raise NonMeshGrabError(mesh_object)
+
+
+def return_normal_coords(mesh_object,
+                         global_matrix_multiplier=None):
+    if type(mesh_object.data) == bpy.types.Mesh:
+
+        # Todo, check for a better way to handle/if this is needed
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        # Init source mesh
+        src_mesh = bmesh.new()
+        src_mesh.from_mesh(mesh_object.data)
+        src_mesh.select_history.validate()
+
+        face_elems = []
+        face_indices = []
+        normal = []
+        for element in src_mesh.select_history:
+            if type(element) == bmesh.types.BMFace:
+                face_elems.append(element)
+                face_indices.append(element.index)
+                break
+
+        for face in (f for f in src_mesh.faces if f.select):
+            if not (face.index in face_indices):
+                face_elems.append(face)
+                break
+
+        if not face_elems:
+            # Todo, make proper exception or modify old
+            raise InsufficientSelectionError()
+        if global_matrix_multiplier:
+            face_normal_origin = (
+                global_matrix_multiplier *
+                face_elems[0].calc_center_median()
+            )
+            face_normal_endpoint = (
+                global_matrix_multiplier *
+                (face_elems[0].calc_center_median() + face_elems[0].normal)
+            )
+        else:
+            face_normal_origin = face_elems[0].calc_center_median()
+            face_normal_endpoint = face_normal_origin + face_elems[0].normal
+
+        normal.extend(
+            [face_normal_origin,
+             face_normal_endpoint]
+        )
+        return normal
+
     else:
         raise NonMeshGrabError(mesh_object)
 
@@ -1406,7 +1459,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
                 len(self.vert_attribs_to_set),
                 matrix_multiplier
             )
-        except NotEnoughVertsError:
+        except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
         except NonMeshGrabError:
@@ -1477,6 +1530,68 @@ class GrabAverageLocationBase(bpy.types.Operator):
             )
         except NotEnoughVertsError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
+            return {'CANCELLED'}
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
+
+        set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
+
+        return {'FINISHED'}
+
+
+class GrabNormalBase(bpy.types.Operator):
+    bl_idname = "maplus.grabnormalbase"
+    bl_label = "Grab Normal Base Class"
+    bl_description = (
+        "The base class for grabbing normal coords from a selected face."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    # For grabbing global coords
+    multiply_by_world_matrix = None
+    # A tuple of attribute names (strings) that should be set on the maplus
+    # primitive (point, line or plane item). The length of this tuple
+    # determines how many verts will be grabbed.
+    vert_attribs_to_set = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        if not hasattr(self, "quick_op_target"):
+            active_item = prims[addon_data.active_list_item]
+        else:
+            if self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
+
+            elif self.quick_op_target == "SMESRC":
+                active_item = addon_data.quick_scale_match_edge_src
+            elif self.quick_op_target == "SMEDEST":
+                active_item = addon_data.quick_scale_match_edge_dest
+
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
+
+            elif self.quick_op_target == "AXRSRC":
+                active_item = addon_data.quick_axis_rotate_src
+
+        matrix_multiplier = None
+        if self.multiply_by_world_matrix:
+            matrix_multiplier = bpy.context.active_object.matrix_world
+        try:
+            vert_data = return_normal_coords(
+                bpy.context.active_object,
+                matrix_multiplier
+            )
+        except InsufficientSelectionError:
+            self.report(
+                {'ERROR'},
+                'Select at least one face to grab a face normal.'
+            )
             return {'CANCELLED'}
         except NonMeshGrabError:
             self.report(
@@ -2589,6 +2704,78 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
+
+
+class QuickAlnGrabNormalSrc(GrabNormalBase):
+    bl_idname = "maplus.quickalngrabnormalsrc"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNSRC"
+
+
+class QuickAlnGrabNormalDest(GrabNormalBase):
+    bl_idname = "maplus.quickalngrabnormaldest"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNDEST"
+
+
+class QuickAxrGrabNormalSrc(GrabNormalBase):
+    bl_idname = "maplus.quickaxrgrabnormalsrc"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "AXRSRC"
+
+
+class QuickDsGrabNormalSrc(GrabNormalBase):
+    bl_idname = "maplus.quickdsgrabnormalsrc"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "DSSRC"
+
+
+class QuickSmeGrabNormalSrc(GrabNormalBase):
+    bl_idname = "maplus.quicksmegrabnormalsrc"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SMESRC"
+
+
+class QuickSmeGrabNormalDest(GrabNormalBase):
+    bl_idname = "maplus.quicksmegrabnormaldest"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SMEDEST"
 
 
 class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
@@ -3968,7 +4155,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4295,7 +4482,7 @@ class AlignPointsBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4562,7 +4749,7 @@ class DirectionalSlideBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -4838,7 +5025,7 @@ class AxisRotateBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -5136,7 +5323,7 @@ class AlignLinesBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -5455,7 +5642,7 @@ class AlignPlanesBase(bpy.types.Operator):
                             len(vert_attribs_to_set),
                             bpy.context.active_object.matrix_world
                         )
-                    except NotEnoughVertsError:
+                    except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
                         return {'CANCELLED'}
                     except NonMeshGrabError:
@@ -7883,6 +8070,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Source"
                 )
+                preserve_button_roundedge.operator(
+                    "maplus.quickalngrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
+                )
             else:
                 aln_src_geom_top.operator(
                         "maplus.showhidequickalnsrcgeom",
@@ -7903,6 +8095,12 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     "maplus.quickalignlinesgrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+                special_grabs = aln_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.quickalngrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
                 )
 
                 modifier_header = aln_src_geom_editor.row()
@@ -8124,6 +8322,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab Destination"
             )
+            preserve_button_roundedge.operator(
+                "maplus.quickalngrabnormaldest",
+                icon='LAMP_HEMI',
+                text=""
+            )
         else:
             aln_dest_geom_top.operator(
                     "maplus.showhidequickalndestgeom",
@@ -8146,6 +8349,13 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 text="Grab All Global"
             )
             
+            special_grabs = aln_dest_geom_editor.row(align=True)
+            special_grabs.operator(
+                "maplus.quickalngrabnormaldest",
+                icon='LAMP_HEMI',
+                text="Grab Normal"
+            )
+
             modifier_header = aln_dest_geom_editor.row()
             modifier_header.label("Line Modifiers:")
             apply_mods = modifier_header.row()
@@ -8171,7 +8381,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'ln_multiplier',
                 "Multiplier"
-            )
 
             aln_dest_geom_editor.label("Start:")
             # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
@@ -9063,6 +9272,11 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Axis"
                 )
+                preserve_button_roundedge.operator(
+                    "maplus.quickaxrgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
+                )
             else:
                 axr_src_geom_top.operator(
                         "maplus.showhidequickaxrsrcgeom",
@@ -9084,7 +9298,14 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab All Global"
                 )
-                
+
+                special_grabs = axr_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.quickaxrgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
+                )
+
                 modifier_header = axr_src_geom_editor.row()
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
@@ -9110,7 +9331,6 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'ln_multiplier',
                     "Multiplier"
-                )
 
                 axr_src_geom_editor.label("Start:")
                 # plane_a_items = axr_src_geom_editor.split(percentage=.75)
@@ -9355,6 +9575,11 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Source"
                 )
+                preserve_button_roundedge.operator(
+                    "maplus.quickdsgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text=""
+                )
             else:
                 ds_src_geom_top.operator(
                         "maplus.showhidequickdssrcgeom",
@@ -9375,6 +9600,12 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     "maplus.quickdirectionalslidegrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+                special_grabs = ds_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.quickdsgrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
                 )
 
                 modifier_header = ds_src_geom_editor.row()
@@ -9680,6 +9911,13 @@ class QuickSMEGUI(bpy.types.Panel):
                     text="Grab All Global"
                 )
                 
+                special_grabs = sme_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.quicksmegrabnormalsrc",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
+                )
+
                 modifier_header = sme_src_geom_editor.row()
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
@@ -9911,6 +10149,12 @@ class QuickSMEGUI(bpy.types.Panel):
                 "maplus.quickscalematchedgegrabdest",
                 icon='WORLD',
                 text="Grab All Global"
+            )
+            special_grabs = sme_dest_geom_editor.row(align=True)
+            special_grabs.operator(
+                "maplus.quicksmegrabnormaldest",
+                icon='LAMP_HEMI',
+                text="Grab Normal"
             )
 
             modifier_header = sme_dest_geom_editor.row()
