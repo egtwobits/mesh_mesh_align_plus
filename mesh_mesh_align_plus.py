@@ -1079,6 +1079,66 @@ class AddNewTransformation(AddListItemBase):
     new_kind = "TRANSFORMATION"
 
 
+def copy_source_attribs_to_dest(source, dest, set_attribs=None):
+    if set_attribs:
+        for att in set_attribs:
+            setattr(dest, att, getattr(source, att))
+
+
+class CopyToOtherBase(bpy.types.Operator):
+    bl_idname = "maplus.copytootherbase"
+    bl_label = "Copy to other"
+    bl_description = "Copies this item to a destination"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        advanced_tools_active_item = prims[addon_data.active_list_item]
+
+        string_to_target_mappings = {
+            'APTSRC': addon_data.quick_align_points_source,
+            'APTDEST': addon_data.quick_align_points_dest,
+            'ALNSRC': addon_data.quick_align_lines_source,
+            'ALNDEST': addon_data.quick_align_lines_dest,
+            'APLSRC': addon_data.quick_align_planes_source,
+            'APLDEST': addon_data.quick_align_planes_dest,
+            'AXRSRC': addon_data.quick_axis_rotate_source,
+            'DSSRC': addon_data.quick_directional_slide_source,
+            'SMESRC': addon_data.scale_match_edge_source,
+            'SMEDEST': addon_data.scale_match_edge_dest,
+            'ADVTOOLSACTIVE': advanced_tools_active_item,
+        }
+        set_attribs = {
+            "POINT": (
+                "point",
+                "pt_make_unit_vec",
+                "pt_flip_direction",
+                "pt_multiplier"
+            ),
+            "LINE": (
+                "line_start",
+                "line_end",
+                "ln_make_unit_vec",
+                "ln_flip_direction",
+                "ln_multiplier"
+            ),
+            "PLANE": (
+                "plane_pt_a",
+                "plane_pt_b",
+                "plane_pt_c"
+            ),
+        }
+
+        source = string_to_target_mappings[self.source_dest_pair[0]]
+        dest = string_to_target_mappings[self.source_dest_pair[1]]
+        copy_source_attribs_to_dest(source, dest, set_attribs[source.kind])
+
+        return {'FINISHED'}
+
+
 class DuplicateItemBase(bpy.types.Operator):
     bl_idname = "maplus.duplicateitembase"
     bl_label = "Duplicate Item"
