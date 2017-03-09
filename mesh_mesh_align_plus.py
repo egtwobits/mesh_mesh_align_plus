@@ -1306,6 +1306,40 @@ def return_selected_verts(mesh_object,
         raise NonMeshGrabError(mesh_object)
 
 
+def return_avg_vert_pos(mesh_object,
+                        global_matrix_multiplier=None):
+    if type(mesh_object.data) == bpy.types.Mesh:
+
+        # Todo, check for a better way to handle/if this is needed
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        # Init source mesh
+        src_mesh = bmesh.new()
+        src_mesh.from_mesh(mesh_object.data)
+
+        selection = []
+        vert_indices = []
+        for vert in (v for v in src_mesh.verts if v.select):
+            coords = vert.co
+            if global_matrix_multiplier:
+                coords = global_matrix_multiplier * coords
+            if not (vert.index in vert_indices):
+                vert_indices.append(vert.index)
+                selection.append(coords)
+
+        if len(selection) > 0:
+            average_position = mathutils.Vector((0, 0, 0))
+            for item in selection:
+                average_position += item
+            average_position /= len(selection)
+            return [average_position]
+        else:
+            raise NotEnoughVertsError()
+    else:
+        raise NonMeshGrabError(mesh_object)
+
+
 def set_item_coords(item, coords_to_set, coords):
     target_data = collections.OrderedDict(
         zip(coords_to_set, coords)
@@ -1370,6 +1404,75 @@ class GrabFromGeometryBase(bpy.types.Operator):
             vert_data = return_selected_verts(
                 bpy.context.active_object,
                 len(self.vert_attribs_to_set),
+                matrix_multiplier
+            )
+        except NotEnoughVertsError:
+            self.report({'ERROR'}, 'Not enough vertices selected.')
+            return {'CANCELLED'}
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
+
+        set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
+
+        return {'FINISHED'}
+
+
+class GrabAverageLocationBase(bpy.types.Operator):
+    bl_idname = "maplus.grabaveragelocationbase"
+    bl_label = "Grab Average Location Base Class"
+    bl_description = (
+        "The base class for grabbing average point coords from mesh verts."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    # For grabbing global coords
+    multiply_by_world_matrix = None
+    # A tuple of attribute names (strings) that should be set on the maplus
+    # primitive (point, line or plane item). The length of this tuple
+    # determines how many verts will be grabbed.
+    vert_attribs_to_set = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        if not hasattr(self, "quick_op_target"):
+            active_item = prims[addon_data.active_list_item]
+        else:
+            if self.quick_op_target == "APTSRC":
+                active_item = addon_data.quick_align_pts_src
+            elif self.quick_op_target == "APTDEST":
+                active_item = addon_data.quick_align_pts_dest
+
+            elif self.quick_op_target == "DSSRC":
+                active_item = addon_data.quick_directional_slide_src
+
+            elif self.quick_op_target == "SMESRC":
+                active_item = addon_data.quick_scale_match_edge_src
+            elif self.quick_op_target == "SMEDEST":
+                active_item = addon_data.quick_scale_match_edge_dest
+
+            elif self.quick_op_target == "ALNSRC":
+                active_item = addon_data.quick_align_lines_src
+            elif self.quick_op_target == "ALNDEST":
+                active_item = addon_data.quick_align_lines_dest
+
+            elif self.quick_op_target == "AXRSRC":
+                active_item = addon_data.quick_axis_rotate_src
+
+            elif self.quick_op_target == "APLSRC":
+                active_item = addon_data.quick_align_planes_src
+            elif self.quick_op_target == "APLDEST":
+                active_item = addon_data.quick_align_planes_dest
+
+        matrix_multiplier = None
+        if self.multiply_by_world_matrix:
+            matrix_multiplier = bpy.context.active_object.matrix_world
+        try:
+            vert_data = return_avg_vert_pos(
+                bpy.context.active_object,
                 matrix_multiplier
             )
         except NotEnoughVertsError:
@@ -1530,6 +1633,30 @@ class GrabPointFromActiveGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
+
+
+class QuickAptGrabAvgSrc(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaptgrabavgsrc"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APTSRC"
+
+
+class QuickAptGrabAvgDest(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaptgrabavgdest"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APTDEST"
 
 
 class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
@@ -1699,6 +1826,150 @@ class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start',)
     multiply_by_world_matrix = True
+
+
+class QuickAlnGrabAvgSrcLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quickalngrabavgsrclinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNSRC"
+
+
+class QuickAlnGrabAvgDestLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quickalngrabavgdestlinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNDEST"
+
+
+class QuickAlnGrabAvgSrcLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quickalngrabavgsrclineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNSRC"
+
+
+class QuickAlnGrabAvgDestLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quickalngrabavgdestlineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "ALNDEST"
+
+
+class QuickAxrGrabAvgSrcLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaxrgrabavgsrclinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "AXRSRC"
+
+
+class QuickAxrGrabAvgSrcLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaxrgrabavgsrclineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "AXRSRC"
+
+
+class QuickDsGrabAvgSrcLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quickdsgrabavgsrclinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "DSSRC"
+
+
+class QuickDsGrabAvgSrcLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quickdsgrabavgsrclineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "DSSRC"
+
+
+class QuickSmeGrabAvgSrcLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quicksmegrabavgsrclinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SMESRC"
+
+
+class QuickSmeGrabAvgDestLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.quicksmegrabavgdestlinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SMEDEST"
+
+
+class QuickSmeGrabAvgSrcLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quicksmegrabavgsrclineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SMESRC"
+
+
+class QuickSmeGrabAvgDestLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.quicksmegrabavgdestlineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SMEDEST"
 
 
 class QuickAlnSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
@@ -2512,6 +2783,30 @@ class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAplGrabAvgSrcPlaneA(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgsrcplanea"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLSRC"
+
+
+class QuickAplGrabAvgDestPlaneA(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgdestplanea"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLDEST"
+
+
 class QuickAplSrcGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -2634,6 +2929,30 @@ class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
+class QuickAplGrabAvgSrcPlaneB(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgsrcplaneb"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLSRC"
+
+
+class QuickAplGrabAvgDestPlaneB(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgdestplaneb"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLDEST"
+
+
 class QuickAplSrcGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -2754,6 +3073,30 @@ class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('plane_pt_c',)
     multiply_by_world_matrix = True
+
+
+class QuickAplGrabAvgSrcPlaneC(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgsrcplanec"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLSRC"
+
+
+class QuickAplGrabAvgDestPlaneC(GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgdestplanec"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APLDEST"
 
 
 class QuickAplSrcGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
@@ -7298,6 +7641,11 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                pt_uppers_rightside.operator(
+                    "maplus.quickaptgrabavgsrc",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_pt.prop(
                     bpy.types.AnyType(addon_data.quick_align_pts_src),
                     'point',
@@ -7436,6 +7784,11 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             pt_uppers_rightside.operator(
                 "maplus.quickalignpointsgrabdest",
                 icon='WORLD',
+                text=""
+            )
+            pt_uppers_rightside.operator(
+                "maplus.quickaptgrabavgdest",
+                icon='GROUP_VERTEX',
                 text=""
             )
             typein_and_grab_pt.prop(
@@ -7618,6 +7971,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickalngrabavgsrclinestart",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_start.prop(
                     bpy.types.AnyType(addon_data.quick_align_lines_src),
                     'line_start',
@@ -7696,6 +8054,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 ln_end_uppers_rightside.operator(
                     "maplus.quickalnsrcgrablineendfromactiveglobal",
                     icon='WORLD',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickalngrabavgsrclineend",
+                    icon='GROUP_VERTEX',
                     text=""
                 )
                 typein_and_grab_end.prop(
@@ -7849,6 +8212,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 icon='WORLD',
                 text=""
             )
+            ln_start_uppers_rightside.operator(
+                "maplus.quickalngrabavgdestlinestart",
+                icon='GROUP_VERTEX',
+                text=""
+            )
             typein_and_grab_start.prop(
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'line_start',
@@ -7926,6 +8294,11 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             ln_end_uppers_rightside.operator(
                 "maplus.quickalndestgrablineendfromactiveglobal",
                 icon='WORLD',
+                text=""
+            )
+            ln_end_uppers_rightside.operator(
+                "maplus.quickalngrabavgdestlineend",
+                icon='GROUP_VERTEX',
                 text=""
             )
             typein_and_grab_end.prop(
@@ -8079,6 +8452,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                plane_a_uppers_rightside.operator(
+                    "maplus.quickaplgrabavgsrcplanea",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_plna.prop(
                     bpy.types.AnyType(addon_data.quick_align_planes_src),
                     'plane_pt_a',
@@ -8161,6 +8539,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                plane_b_uppers_rightside.operator(
+                    "maplus.quickaplgrabavgsrcplaneb",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_plnb.prop(
                     bpy.types.AnyType(addon_data.quick_align_planes_src),
                     'plane_pt_b',
@@ -8241,6 +8624,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 plane_c_uppers_rightside.operator(
                     "maplus.quickaplsrcgrabplanecfromactiveglobal",
                     icon='WORLD',
+                    text=""
+                )
+                plane_c_uppers_rightside.operator(
+                    "maplus.quickaplgrabavgsrcplanec",
+                    icon='GROUP_VERTEX',
                     text=""
                 )
                 typein_and_grab_plnc.prop(
@@ -8371,6 +8759,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 icon='WORLD',
                 text=""
             )
+            plane_a_uppers_rightside.operator(
+                "maplus.quickaplgrabavgdestplanea",
+                icon='GROUP_VERTEX',
+                text=""
+            )
             typein_and_grab_plna.prop(
                 bpy.types.AnyType(addon_data.quick_align_planes_dest),
                 'plane_pt_a',
@@ -8453,6 +8846,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 icon='WORLD',
                 text=""
             )
+            plane_b_uppers_rightside.operator(
+                "maplus.quickaplgrabavgdestplaneb",
+                icon='GROUP_VERTEX',
+                text=""
+            )
             typein_and_grab_plnb.prop(
                 bpy.types.AnyType(addon_data.quick_align_planes_dest),
                 'plane_pt_b',
@@ -8533,6 +8931,11 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             plane_c_uppers_rightside.operator(
                 "maplus.quickapldestgrabplanecfromactiveglobal",
                 icon='WORLD',
+                text=""
+            )
+            plane_c_uppers_rightside.operator(
+                "maplus.quickaplgrabavgdestplanec",
+                icon='GROUP_VERTEX',
                 text=""
             )
             typein_and_grab_plnc.prop(
@@ -8748,6 +9151,11 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickaxrgrabavgsrclinestart",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_start.prop(
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'line_start',
@@ -8825,6 +9233,11 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 ln_end_uppers_rightside.operator(
                     "maplus.quickaxrsrcgrablineendfromactiveglobal",
                     icon='WORLD',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickaxrgrabavgsrclineend",
+                    icon='GROUP_VERTEX',
                     text=""
                 )
                 typein_and_grab_end.prop(
@@ -9030,6 +9443,11 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quickdsgrabavgsrclinestart",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_start.prop(
                     bpy.types.AnyType(addon_data.quick_directional_slide_src),
                     'line_start',
@@ -9107,6 +9525,11 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 ln_end_uppers_rightside.operator(
                     "maplus.quickdssrcgrablineendfromactiveglobal",
                     icon='WORLD',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quickdsgrabavgsrclineend",
+                    icon='GROUP_VERTEX',
                     text=""
                 )
                 typein_and_grab_end.prop(
@@ -9323,6 +9746,11 @@ class QuickSMEGUI(bpy.types.Panel):
                     icon='WORLD',
                     text=""
                 )
+                ln_start_uppers_rightside.operator(
+                    "maplus.quicksmegrabavgsrclinestart",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
                 typein_and_grab_start.prop(
                     bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
                     'line_start',
@@ -9400,6 +9828,11 @@ class QuickSMEGUI(bpy.types.Panel):
                 ln_end_uppers_rightside.operator(
                     "maplus.quicksmesrcgrablineendfromactiveglobal",
                     icon='WORLD',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.quicksmegrabavgsrclineend",
+                    icon='GROUP_VERTEX',
                     text=""
                 )
                 typein_and_grab_end.prop(
@@ -9546,6 +9979,11 @@ class QuickSMEGUI(bpy.types.Panel):
                 icon='WORLD',
                 text=""
             )
+            ln_start_uppers_rightside.operator(
+                "maplus.quicksmegrabavgdestlinestart",
+                icon='GROUP_VERTEX',
+                text=""
+            )
             typein_and_grab_start.prop(
                 bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                 'line_start',
@@ -9623,6 +10061,11 @@ class QuickSMEGUI(bpy.types.Panel):
             ln_end_uppers_rightside.operator(
                 "maplus.quicksmedestgrablineendfromactiveglobal",
                 icon='WORLD',
+                text=""
+            )
+            ln_end_uppers_rightside.operator(
+                "maplus.quicksmegrabavgdestlineend",
+                icon='GROUP_VERTEX',
                 text=""
             )
             typein_and_grab_end.prop(
