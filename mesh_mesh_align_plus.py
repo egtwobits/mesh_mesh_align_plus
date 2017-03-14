@@ -7557,7 +7557,12 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                         icon='WORLD',
                         text="Grab Source"
                 )
-                
+                preserve_button_roundedge.operator(
+                        "maplus.quickaptgrabavgsrc",
+                        icon='GROUP_VERTEX',
+                        text=""
+                )
+
             else:
                 apt_src_geom_top.operator(
                         "maplus.showhidequickaptsrcgeom",
@@ -7674,6 +7679,11 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     "maplus.quickalignpointsgrabdest",
                     icon='WORLD',
                     text="Grab Destination"
+            )
+            preserve_button_roundedge.operator(
+                    "maplus.quickaptgrabavgdest",
+                    icon='GROUP_VERTEX',
+                    text=""
             )
 
         else:
