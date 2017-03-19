@@ -556,6 +556,17 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    
+    # Quick Calculation items
+    quick_calc_result_item = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    internal_storage_slot_1 = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    internal_storage_slot_2 = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_calc_result_to_clipboard = bpy.props.BoolProperty(
+        description=(
+            "Copy numeric calculations to clipboard"
+        ),
+        default=True
+    )
 
 
 # Basic type selector functionality, derived classes provide
@@ -1393,12 +1404,48 @@ def return_avg_vert_pos(mesh_object,
         raise NonMeshGrabError(mesh_object)
 
 
+# For the ambiguous "internal storage slots", which can be any geom type in
+# [POINT, LINE, PLANE]. Must return at least 1 selected vert (for a point).
+def return_at_least_one_selected_vert(mesh_object,
+                                      global_matrix_multiplier=None):
+    if type(mesh_object.data) == bpy.types.Mesh:
+
+        # Todo, check for a better way to handle/if this is needed
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        # Init source mesh
+        src_mesh = bmesh.new()
+        src_mesh.from_mesh(mesh_object.data)
+
+        selection = []
+        vert_indices = []
+        for vert in (v for v in src_mesh.verts if v.select):
+            if len(selection) == 3:
+                break
+            coords = vert.co
+            if global_matrix_multiplier:
+                coords = global_matrix_multiplier * coords
+            if not (vert.index in vert_indices):
+                vert_indices.append(vert.index)
+                selection.append(coords)
+
+        print(selection)
+        if len(selection) > 0:
+            return selection
+        else:
+            raise InsufficientSelectionError()
+    else:
+        raise NonMeshGrabError(mesh_object)
+
+
 def set_item_coords(item, coords_to_set, coords):
     target_data = collections.OrderedDict(
         zip(coords_to_set, coords)
     )
     for key, val in target_data.items():
         setattr(item, key, val)
+    print('UMMM....')
     return True
 
 
@@ -1471,6 +1518,70 @@ class GrabFromGeometryBase(bpy.types.Operator):
 
         set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
 
+        return {'FINISHED'}
+
+
+class GrabAndSetItemKindBase(bpy.types.Operator):
+    bl_idname = "maplus.grabandsetitemkindbase"
+    bl_label = "Grab and Set Item Base Class"
+    bl_description = (
+        "The base class for grabbing coords and setting item kind"
+        " based on the number of selected verts."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    # For grabbing global coords
+    multiply_by_world_matrix = None
+    # A tuple of attribute names (strings) that should be set on the maplus
+    # primitive (point, line or plane item). The length of this tuple
+    # determines how many verts will be grabbed.
+    vert_attribs_to_set = None
+    target = None
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+
+        if self.target == "SLOT1":
+            active_item = addon_data.internal_storage_slot_1
+        elif self.target == "SLOT2":
+            active_item = addon_data.internal_storage_slot_2
+
+        matrix_multiplier = None
+        if self.multiply_by_world_matrix:
+            matrix_multiplier = bpy.context.active_object.matrix_world
+        try:
+            vert_data = return_at_least_one_selected_vert(
+                bpy.context.active_object,
+                matrix_multiplier
+            )
+        except InsufficientSelectionError:
+            self.report({'ERROR'}, 'Not enough vertices selected.')
+            return {'CANCELLED'}
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
+
+        if len(vert_data) == 1:
+            active_item.kind = 'POINT'
+            vert_attribs_to_set = ('point',)
+            print('A')
+        elif len(vert_data) == 2:
+            active_item.kind = 'LINE'
+            vert_attribs_to_set = ('line_start', 'line_end')
+            print('B')
+        elif len(vert_data) == 3:
+            print(active_item.kind)
+            active_item.kind = 'PLANE'
+            print(active_item.kind)
+            vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+            print('C')
+
+        set_item_coords(active_item, vert_attribs_to_set, vert_data)
+
+        print('YO')
         return {'FINISHED'}
 
 
@@ -1700,6 +1811,28 @@ class SendCoordToCursorBase(bpy.types.Operator):
             self.source_coord_attrib
         )
         return {'FINISHED'}
+
+
+class GrabAllSlot1(GrabAndSetItemKindBase):
+    bl_idname = "maplus.graballslot1"
+    bl_label = "Grab Global Coordinates From Selected Vertices"
+    bl_description = (
+        "Grabs global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    multiply_by_world_matrix = True
+    target = 'SLOT1'
+
+
+class GrabAllSlot2(GrabAndSetItemKindBase):
+    bl_idname = "maplus.graballslot2"
+    bl_label = "Grab Global Coordinates From Selected Vertices"
+    bl_description = (
+        "Grabs global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    multiply_by_world_matrix = True
+    target = 'SLOT2'
 
 
 class GrabPointFromCursor(GrabFromCursorBase):
@@ -6028,10 +6161,16 @@ class CalcLineLength(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_item = prims[active_item.single_calc_target]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data.quick_calc_result_item
+            result_attrib = 'single_calc_result'
+            calc_target_item = addon_data.internal_storage_slot_1
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            result_attrib = 'single_calc_result'
+            calc_target_item = prims[active_calculation.single_calc_target]
 
-        if calc_target_item.kind != 'LINE':
+        if (not hasattr(self, 'quick_calc_target')) and calc_target_item.kind != 'LINE':
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Calculate Line Length" can only operate on'
@@ -6045,11 +6184,19 @@ class CalcLineLength(bpy.types.Operator):
         )
         src_line = src_global_data[1] - src_global_data[0]
         result = src_line.length
-        active_item.single_calc_result = result
+        setattr(active_calculation, result_attrib, result)
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
 
         return {'FINISHED'}
+
+
+class QuickCalcLineLength(CalcLineLength):
+    bl_idname = "maplus.quickcalclinelength"
+    bl_label = "Calculate Line Length"
+    bl_description = "Calculates the length of the targeted line item"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class CalcRotationalDiff(bpy.types.Operator):
@@ -10361,6 +10508,203 @@ class QuickAlignObjectsGUI(bpy.types.Panel):
                 "maplus.quickalignobjects",
                 text="Align Objects"
         )
+
+
+class CalculateAndComposeGUI(bpy.types.Panel):
+    bl_idname = "calculate_and_compose_gui"
+    bl_label = "Calculate and Compose"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "Mesh Align Plus"
+    bl_options = {"DEFAULT_CLOSED"}
+
+    def draw(self, context):
+        layout = self.layout
+        maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
+        addon_data = bpy.context.scene.maplus_data
+
+        calc_gui = layout.column()
+        
+        calc_gui.operator(
+            "maplus.graballslot1",
+            icon='WORLD',
+            text="Grab Slot 1"
+        )
+        calc_gui.operator(
+            "maplus.graballslot2",
+            icon='WORLD',
+            text="Grab Slot 2"
+        )
+        calc_gui.separator()
+
+        calcs_and_results_header = calc_gui.row()
+        calcs_and_results_header.label(
+            "Result:"
+        )
+        clipboard_row_right = calcs_and_results_header.row()
+        clipboard_row_right.alignment = 'RIGHT'
+        clipboard_row_right.prop(
+            bpy.types.AnyType(maplus_data_ptr),
+            'quick_calc_result_to_clipboard',
+            "Copy to Clipboard"
+        )
+        calc_gui.prop(
+            bpy.types.AnyType(bpy.types.AnyType(addon_data.quick_calc_result_item)),
+            'single_calc_result',
+            ""
+        )
+        calc_gui.separator()
+        
+        calc_gui.operator(
+            "maplus.quickcalclinelength",
+            text="Line Length"
+        )
+
+        # slot1_geom_top = calc_gui.row(align=True)
+        # if not addon_data.quick_calc_show_slot1_geom:
+            # slot1_geom_top.operator(
+                # "maplus.showhidequickcalcslot1geom",
+                # icon='TRIA_RIGHT',
+                # text="",
+                # emboss=False
+            # )
+            # preserve_button_roundedge = slot1_geom_top.row()
+            # preserve_button_roundedge.operator(
+                # "maplus.quickcalcgrabslot1",
+                # icon='WORLD',
+                # text="Grab Source"
+            # )
+
+        # else:
+            # slot1_geom_top.operator(
+                # "maplus.showhidequickcalcslot1geom",
+                # icon='TRIA_DOWN',
+                # text="",
+                # emboss=False
+            # )
+            # slot1_geom_top.label("Slot 1 Coordinates")
+
+        # if addon_data.quick_calc_result.kind == 'POINT':
+            # slot1_geom_editor = calc_gui.box()
+            # pt_grab_all = slot1_geom_editor.row(align=True)
+            # pt_grab_all.operator(
+                # "maplus.quickcalcgrabslot1loc",
+                # icon='VERTEXSEL',
+                # text="Grab All Local"
+            # )
+            # pt_grab_all.operator(
+                # "maplus.quickcalcgrabslot1",
+                # icon='WORLD',
+                # text="Grab All Global"
+            # )
+
+            # modifier_header = slot1_geom_editor.row()
+            # modifier_header.label("Point Modifiers:")
+            # apply_mods = modifier_header.row()
+            # apply_mods.alignment = 'RIGHT'
+            # # apply_mods.operator(
+                # # "maplus.applygeommodifiers",
+                # # text="Apply ModifiersXXXXX"
+            # # )
+            # item_mods_box = slot1_geom_editor.box()
+            # mods_row_1 = item_mods_box.row()
+            # mods_row_1.prop(
+                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                # 'pt_make_unit_vec',
+                # "Set Length Equal to One"
+            # )
+            # mods_row_1.prop(
+                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                # 'pt_flip_direction',
+                # "Flip Direction"
+            # )
+            # mods_row_2 = item_mods_box.row()
+            # mods_row_2.prop(
+                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                # 'pt_multiplier',
+                # "Multiplier"
+            # )
+
+            # slot1_geom_editor.label("Pt. Origin:")
+            # # plane_a_items = slot1_geom_editor.split(percentage=.75)
+            # # ^ line changed to remove component changers
+            # pt_items = slot1_geom_editor.row()
+            # typein_and_grab_pt = pt_items.column()
+            # pt_uppers = typein_and_grab_pt.row()
+
+            # pt_uppers_leftside = pt_uppers.row(align=True)
+            # pt_uppers_leftside.alignment = 'LEFT'
+            # pt_uppers_leftside.label("Send:")
+            # pt_uppers_leftside.operator(
+                # "maplus.quickcalcslot1sendpointtocursor",
+                # icon='CURSOR',
+                # text=""
+            # )
+
+            # pt_uppers_rightside = pt_uppers.row(align=True)
+            # pt_uppers_rightside.alignment = 'RIGHT'
+            # pt_uppers_rightside.label("Grab:")
+            # pt_uppers_rightside.operator(
+                # "maplus.quickcalcslot1grabpointfromcursor",
+                # icon='CURSOR',
+                # text=""
+            # )
+            # pt_uppers_rightside.operator(
+                # "maplus.quickcalcgrabslot1loc",
+                # icon='VERTEXSEL',
+                # text=""
+            # )
+            # pt_uppers_rightside.operator(
+                # "maplus.quickcalcgrabslot1",
+                # icon='WORLD',
+                # text=""
+            # )
+            # pt_uppers_rightside.operator(
+                # "maplus.quickcalcgrabavgslot1",
+                # icon='GROUP_VERTEX',
+                # text=""
+            # )
+            # typein_and_grab_pt.prop(
+                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                # 'point',
+                # ""
+            # )
+
+            # # component_changers_plna = plane_a_items.row()
+            # # zero_components_plna = component_changers_plna.column(
+                # # align=True
+            # # )
+            # # zero_components_plna.label("Set Zeroes:")
+            # # zero_components_plna.operator(
+                # # "maplus.zerootherplanepointax",
+                # # text="X00"
+            # # )
+            # # zero_components_plna.operator(
+                # # "maplus.zerootherplanepointay",
+                # # text="0Y0"
+            # # )
+            # # zero_components_plna.operator(
+                # # "maplus.zerootherplanepointaz",
+                # # text="00Z"
+            # # )
+            # # one_components_plna = component_changers_plna.column(
+                # # align=True
+            # # )
+            # # one_components_plna.label("Set Ones:")
+            # # one_components_plna.operator(
+                # # "maplus.oneotherplanepointax",
+                # # text="X11"
+            # # )
+            # # one_components_plna.operator(
+                # # "maplus.oneotherplanepointay",
+                # # text="1Y1"
+            # # )
+            # # one_components_plna.operator(
+                # # "maplus.oneotherplanepointaz",
+                # # text="11Z"
+            # # )
+        # if addon_data.quick_apt_show_src_geom:
+            # calc_gui.separator()
 
 
 def specials_menu_items(self, context):
