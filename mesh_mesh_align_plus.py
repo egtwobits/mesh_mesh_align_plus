@@ -559,6 +559,11 @@ class MAPlusData(bpy.types.PropertyGroup):
     
     # Quick Calculation items
     quick_calc_result_item = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_calc_result_numeric = bpy.props.FloatProperty(
+        description="Quick Calculation numeric result",
+        default=0,
+        precision=6
+    )
     internal_storage_slot_1 = bpy.props.PointerProperty(type=MAPlusPrimitive)
     internal_storage_slot_2 = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_calc_result_to_clipboard = bpy.props.BoolProperty(
@@ -1417,9 +1422,34 @@ def return_at_least_one_selected_vert(mesh_object,
         # Init source mesh
         src_mesh = bmesh.new()
         src_mesh.from_mesh(mesh_object.data)
+        src_mesh.select_history.validate()
+
+        history_indices = []
+        history_as_verts = []
+        for element in src_mesh.select_history:
+            if len(history_as_verts) == 3:
+                break
+            if type(element) == bmesh.types.BMVert:
+                if not (element.index in history_indices):
+                    history_as_verts.append(element)
+            else:
+                for item in element.verts:
+                    if len(history_as_verts) == 3:
+                        break
+                    if not (item.index in history_indices):
+                        history_as_verts.append(item)
 
         selection = []
         vert_indices = []
+        for vert in history_as_verts:
+            if len(selection) == 3:
+                break
+            coords = vert.co
+            if global_matrix_multiplier:
+                coords = global_matrix_multiplier * coords
+            if not (vert.index in vert_indices):
+                vert_indices.append(vert.index)
+                selection.append(coords)
         for vert in (v for v in src_mesh.verts if v.select):
             if len(selection) == 3:
                 break
@@ -1430,7 +1460,6 @@ def return_at_least_one_selected_vert(mesh_object,
                 vert_indices.append(vert.index)
                 selection.append(coords)
 
-        print(selection)
         if len(selection) > 0:
             return selection
         else:
@@ -1445,7 +1474,6 @@ def set_item_coords(item, coords_to_set, coords):
     )
     for key, val in target_data.items():
         setattr(item, key, val)
-    print('UMMM....')
     return True
 
 
@@ -1567,21 +1595,15 @@ class GrabAndSetItemKindBase(bpy.types.Operator):
         if len(vert_data) == 1:
             active_item.kind = 'POINT'
             vert_attribs_to_set = ('point',)
-            print('A')
         elif len(vert_data) == 2:
             active_item.kind = 'LINE'
             vert_attribs_to_set = ('line_start', 'line_end')
-            print('B')
         elif len(vert_data) == 3:
-            print(active_item.kind)
             active_item.kind = 'PLANE'
-            print(active_item.kind)
             vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
-            print('C')
 
         set_item_coords(active_item, vert_attribs_to_set, vert_data)
 
-        print('YO')
         return {'FINISHED'}
 
 
@@ -6152,8 +6174,8 @@ class QuickAlignObjects(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CalcLineLength(bpy.types.Operator):
-    bl_idname = "maplus.calclinelength"
+class CalcLineLengthBase(bpy.types.Operator):
+    bl_idname = "maplus.calclinelengthbase"
     bl_label = "Calculate Line Length"
     bl_description = "Calculates the length of the targeted line item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6162,8 +6184,8 @@ class CalcLineLength(bpy.types.Operator):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         if hasattr(self, 'quick_calc_target'):
-            active_calculation = addon_data.quick_calc_result_item
-            result_attrib = 'single_calc_result'
+            active_calculation = addon_data
+            result_attrib = 'quick_calc_result_numeric'
             calc_target_item = addon_data.internal_storage_slot_1
         else:
             active_calculation = prims[addon_data.active_list_item]
@@ -6191,7 +6213,14 @@ class CalcLineLength(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class QuickCalcLineLength(CalcLineLength):
+class CalcLineLength(CalcLineLengthBase):
+    bl_idname = "maplus.calclinelength"
+    bl_label = "Calculate Line Length"
+    bl_description = "Calculates the length of the targeted line item"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickCalcLineLength(CalcLineLengthBase):
     bl_idname = "maplus.quickcalclinelength"
     bl_label = "Calculate Line Length"
     bl_description = "Calculates the length of the targeted line item"
@@ -6199,8 +6228,8 @@ class QuickCalcLineLength(CalcLineLength):
     quick_calc_target = True
 
 
-class CalcRotationalDiff(bpy.types.Operator):
-    bl_idname = "maplus.calcrotationaldiff"
+class CalcRotationalDiffBase(bpy.types.Operator):
+    bl_idname = "maplus.calcrotationaldiffbase"
     bl_label = "Angle of Lines"
     bl_description = (
         "Calculates the rotational difference between line items"
@@ -6211,10 +6240,18 @@ class CalcRotationalDiff(bpy.types.Operator):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_attrib = 'quick_calc_result_numeric'
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            result_attrib = 'multi_calc_result'
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'LINE' and
+        if (not hasattr(self, 'quick_calc_target')) and not (calc_target_one.kind == 'LINE' and
                 calc_target_two.kind == 'LINE'):
             self.report(
                 {'ERROR'},
@@ -6242,11 +6279,31 @@ class CalcRotationalDiff(bpy.types.Operator):
             result = angle
         else:
             result = math.degrees(angle)
-        active_item.multi_calc_result = result
+        
+        setattr(active_calculation, result_attrib, result)
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
 
         return {'FINISHED'}
+
+
+class CalcRotationalDiff(CalcRotationalDiffBase):
+    bl_idname = "maplus.calcrotationaldiff"
+    bl_label = "Angle of Lines"
+    bl_description = (
+        "Calculates the rotational difference between line items"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickCalcRotationalDiff(CalcRotationalDiffBase):
+    bl_idname = "maplus.quickcalcrotationaldiff"
+    bl_label = "Angle of Lines"
+    bl_description = (
+        "Calculates the rotational difference between line items"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class ComposeNewLineFromOrigin(bpy.types.Operator):
@@ -10549,8 +10606,8 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             "Copy to Clipboard"
         )
         calc_gui.prop(
-            bpy.types.AnyType(bpy.types.AnyType(addon_data.quick_calc_result_item)),
-            'single_calc_result',
+            bpy.types.AnyType(bpy.types.AnyType(addon_data)),
+            'quick_calc_result_numeric',
             ""
         )
         calc_gui.separator()
@@ -10558,6 +10615,10 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         calc_gui.operator(
             "maplus.quickcalclinelength",
             text="Line Length"
+        )
+        calc_gui.operator(
+            "maplus.quickcalcrotationaldiff",
+            text="Angle of Lines"
         )
 
         # slot1_geom_top = calc_gui.row(align=True)
