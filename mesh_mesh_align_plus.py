@@ -6239,7 +6239,6 @@ class CalcRotationalDiffBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
         if hasattr(self, 'quick_calc_target'):
             active_calculation = addon_data
             result_attrib = 'quick_calc_result_numeric'
@@ -6306,8 +6305,8 @@ class QuickCalcRotationalDiff(CalcRotationalDiffBase):
     quick_calc_target = True
 
 
-class ComposeNewLineFromOrigin(bpy.types.Operator):
-    bl_idname = "maplus.composenewlinefromorigin"
+class ComposeNewLineFromOriginBase(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinefromoriginbase"
     bl_label = "New Line from Origin"
     bl_description = "Composes a new line item starting at the world origin"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6315,8 +6314,15 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_item = prims[active_item.single_calc_target]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_item = addon_data.internal_storage_slot_1
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_item = prims[active_calculation.single_calc_target]
 
         if calc_target_item.kind != 'LINE':
             self.report(
@@ -6334,14 +6340,27 @@ class ComposeNewLineFromOrigin(bpy.types.Operator):
         )
         src_line = src_global_data[1] - src_global_data[0]
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = start_loc
-        new_line.line_end = (
+        result_item.line_start = start_loc
+        result_item.line_end = (
             start_loc + src_line
         )
 
         return {'FINISHED'}
+
+
+class ComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
+    bl_idname = "maplus.composenewlinefromorigin"
+    bl_label = "New Line from Origin"
+    bl_description = "Composes a new line item starting at the world origin"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
+    bl_idname = "maplus.quickcomposenewlinefromorigin"
+    bl_label = "New Line from Origin"
+    bl_description = "Composes a new line item starting at the world origin"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class ComposeNormalFromPlane(bpy.types.Operator):
@@ -6471,8 +6490,8 @@ class ComposeNewLineAtPointLocation(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CalcDistanceBetweenPoints(bpy.types.Operator):
-    bl_idname = "maplus.calcdistancebetweenpoints"
+class CalcDistanceBetweenPointsBase(bpy.types.Operator):
+    bl_idname = "maplus.calcdistancebetweenpointsbase"
     bl_label = "Distance Between Points"
     bl_description = "Calculate the distance between provided point items"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6480,11 +6499,18 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_attrib = 'quick_calc_result_numeric'
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            result_attrib = 'multi_calc_result'
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'POINT' and
+        if (not hasattr(self, 'quick_calc_target')) and not (calc_target_one.kind == 'POINT' and
                 calc_target_two.kind == 'POINT'):
             self.report(
                 {'ERROR'},
@@ -6505,11 +6531,26 @@ class CalcDistanceBetweenPoints(bpy.types.Operator):
         dest_pt = dest_global_data[0]
 
         result = (dest_pt - src_pt).length
-        active_item.multi_calc_result = result
+        setattr(active_calculation, result_attrib, result)
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
 
         return {'FINISHED'}
+
+
+class CalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
+    bl_idname = "maplus.calcdistancebetweenpoints"
+    bl_label = "Distance Between Points"
+    bl_description = "Calculate the distance between provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickCalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
+    bl_idname = "maplus.quickcalcdistancebetweenpoints"
+    bl_label = "Distance Between Points"
+    bl_description = "Calculate the distance between provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class ComposeNewLineFromPoints(bpy.types.Operator):
@@ -10619,6 +10660,15 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         calc_gui.operator(
             "maplus.quickcalcrotationaldiff",
             text="Angle of Lines"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposenewlinefromorigin",
+            icon='MAN_TRANS',
+            text="New Line from Origin"
+        )
+        calc_gui.operator(
+            "maplus.quickcalcdistancebetweenpoints",
+            text="Distance Between Points"
         )
 
         # slot1_geom_top = calc_gui.row(align=True)
