@@ -6324,7 +6324,7 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
             result_item = prims[-1]
             calc_target_item = prims[active_calculation.single_calc_target]
 
-        if calc_target_item.kind != 'LINE':
+        if (not hasattr(self, 'quick_calc_target')) and calc_target_item.kind != 'LINE':
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Compose New Line from Origin" can'
@@ -6363,8 +6363,8 @@ class QuickComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
     quick_calc_target = True
 
 
-class ComposeNormalFromPlane(bpy.types.Operator):
-    bl_idname = "maplus.composenormalfromplane"
+class ComposeNormalFromPlaneBase(bpy.types.Operator):
+    bl_idname = "maplus.composenormalfromplanebase"
     bl_label = "Get Plane Normal"
     bl_description = "Get the plane's normal as a new line item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6372,10 +6372,17 @@ class ComposeNormalFromPlane(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_item = prims[active_item.single_calc_target]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_item = addon_data.internal_storage_slot_1
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_item = prims[active_calculation.single_calc_target]
 
-        if not calc_target_item.kind == 'PLANE':
+        if (not hasattr(self, 'quick_calc_target')) and not calc_target_item.kind == 'PLANE':
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Get Plane Normal" can only operate on'
@@ -6401,16 +6408,29 @@ class ComposeNormalFromPlane(bpy.types.Operator):
             calc_target_item.plane_pt_b[0:3]
         )
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = start_loc
-        new_line.line_end = start_loc + normal
+        result_item.line_start = start_loc
+        result_item.line_end = start_loc + normal
 
         return {'FINISHED'}
 
 
-class ComposeNewLineFromPoint(bpy.types.Operator):
-    bl_idname = "maplus.composenewlinefrompoint"
+class ComposeNormalFromPlane(ComposeNormalFromPlaneBase):
+    bl_idname = "maplus.composenormalfromplane"
+    bl_label = "Get Plane Normal"
+    bl_description = "Get the plane's normal as a new line item"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNormalFromPlane(ComposeNormalFromPlaneBase):
+    bl_idname = "maplus.quickcomposenormalfromplane"
+    bl_label = "Get Plane Normal"
+    bl_description = "Get the plane's normal as a new line item"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
+
+
+class ComposeNewLineFromPointBase(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinefrompointbase"
     bl_label = "New Line from Point"
     bl_description = (
         "Composes a new line item from the supplied point,"
@@ -6421,10 +6441,17 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_item = prims[active_item.single_calc_target]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_item = addon_data.internal_storage_slot_1
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_item = prims[active_calculation.single_calc_target]
 
-        if calc_target_item.kind != 'POINT':
+        if (not hasattr(self, 'quick_calc_target')) and calc_target_item.kind != 'POINT':
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Compose New Line from Point" can'
@@ -6439,12 +6466,31 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
             kind='POINT'
         )
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = start_loc
-        new_line.line_end = src_global_data[0]
+        result_item.line_start = start_loc
+        result_item.line_end = src_global_data[0]
 
         return {'FINISHED'}
+
+
+class ComposeNewLineFromPoint(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinefrompoint"
+    bl_label = "New Line from Point"
+    bl_description = (
+        "Composes a new line item from the supplied point,"
+        " starting at the world origin"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNewLineFromPoint(bpy.types.Operator):
+    bl_idname = "maplus.quickcomposenewlinefrompoint"
+    bl_label = "New Line from Point"
+    bl_description = (
+        "Composes a new line item from the supplied point,"
+        " starting at the world origin"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
@@ -6636,8 +6682,8 @@ class QuickComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
     quick_calc_target = True
 
 
-class ComposeNewLineVectorAddition(bpy.types.Operator):
-    bl_idname = "maplus.composenewlinevectoraddition"
+class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinevectoradditionbase"
     bl_label = "Add Lines"
     bl_description = "Composes a new line item by vector-adding provided lines"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6645,11 +6691,19 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'LINE' and
+        if (not hasattr(self, 'quick_calc_target')) and not (calc_target_one.kind == 'LINE' and
                 calc_target_two.kind == 'LINE'):
             self.report(
                 {'ERROR'},
@@ -6671,16 +6725,29 @@ class ComposeNewLineVectorAddition(bpy.types.Operator):
         src_line = src_global_data[1] - src_global_data[0]
         dest_line = dest_global_data[1] - dest_global_data[0]
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = start_loc
-        new_line.line_end = src_line + dest_line
+        result_item.line_start = start_loc
+        result_item.line_end = src_line + dest_line
 
         return {'FINISHED'}
 
 
-class ComposeNewLineVectorSubtraction(bpy.types.Operator):
-    bl_idname = "maplus.composenewlinevectorsubtraction"
+class ComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
+    bl_idname = "maplus.composenewlinevectoraddition"
+    bl_label = "Add Lines"
+    bl_description = "Composes a new line item by vector-adding provided lines"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
+    bl_idname = "maplus.quickcomposenewlinevectoraddition"
+    bl_label = "Add Lines"
+    bl_description = "Composes a new line item by vector-adding provided lines"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
+
+
+class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinevectorsubtractionbase"
     bl_label = "Subtract Lines"
     bl_description = (
         "Composes a new line item by performing vector-subtraction"
@@ -6691,11 +6758,19 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'LINE' and
+        if (not hasattr(self, 'quick_calc_target')) and not (calc_target_one.kind == 'LINE' and
                 calc_target_two.kind == 'LINE'):
             self.report(
                 {'ERROR'},
@@ -6717,16 +6792,35 @@ class ComposeNewLineVectorSubtraction(bpy.types.Operator):
         src_line = src_global_data[1] - src_global_data[0]
         dest_line = dest_global_data[1] - dest_global_data[0]
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = start_loc
-        new_line.line_end = src_line - dest_line
+        result_item.line_start = start_loc
+        result_item.line_end = src_line - dest_line
 
         return {'FINISHED'}
 
 
-class ComposePointIntersectingLinePlane(bpy.types.Operator):
-    bl_idname = "maplus.composepointintersectinglineplane"
+class ComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
+    bl_idname = "maplus.composenewlinevectorsubtraction"
+    bl_label = "Subtract Lines"
+    bl_description = (
+        "Composes a new line item by performing vector-subtraction"
+        " (first line minus second line)"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
+    bl_idname = "maplus.quickcomposenewlinevectorsubtraction"
+    bl_label = "Subtract Lines"
+    bl_description = (
+        "Composes a new line item by performing vector-subtraction"
+        " (first line minus second line)"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
+
+
+class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
+    bl_idname = "maplus.composepointintersectinglineplanebase"
     bl_label = "Intersect Line/Plane"
     bl_description = (
         "Composes a new point item by intersecting a line and a plane"
@@ -6736,14 +6830,22 @@ class ComposePointIntersectingLinePlane(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
         targets_by_kind = {
             item.kind: item for item in [calc_target_one, calc_target_two]
         }
 
-        if not ('LINE' in targets_by_kind and 'PLANE' in targets_by_kind):
+        if (not hasattr(self, 'quick_calc_target')) and not ('LINE' in targets_by_kind and 'PLANE' in targets_by_kind):
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Intersect Line/Plane" can'
@@ -6771,9 +6873,7 @@ class ComposePointIntersectingLinePlane(bpy.types.Operator):
         )
 
         if intersection:
-            bpy.ops.maplus.addnewpoint()
-            new_point = prims[-1]
-            new_point.point = intersection
+            result_item.point = intersection
         else:
             self.report(
                 {'ERROR'},
@@ -6782,6 +6882,25 @@ class ComposePointIntersectingLinePlane(bpy.types.Operator):
             return {'CANCELLED'}
 
         return {'FINISHED'}
+
+
+class ComposePointIntersectingLinePlane(ComposePointIntersectingLinePlaneBase):
+    bl_idname = "maplus.composepointintersectinglineplane"
+    bl_label = "Intersect Line/Plane"
+    bl_description = (
+        "Composes a new point item by intersecting a line and a plane"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposePointIntersectingLinePlane(ComposePointIntersectingLinePlaneBase):
+    bl_idname = "maplus.quickcomposepointintersectinglineplane"
+    bl_label = "Intersect Line/Plane"
+    bl_description = (
+        "Composes a new point item by intersecting a line and a plane"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 # Custom list, for displaying combined list of all primitives (Used at top
@@ -10709,6 +10828,16 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             text="New Line from Origin"
         )
         calc_gui.operator(
+            "maplus.quickcomposenormalfromplane",
+            icon='MAN_TRANS',
+            text="Get Plane Normal (Normalized)"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposenewlinefrompoint",
+            icon='MAN_TRANS',
+            text="New Line from Point"
+        )
+        calc_gui.operator(
             "maplus.quickcalcdistancebetweenpoints",
             text="Distance Between Points"
         )
@@ -10721,6 +10850,21 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             "maplus.quickcomposenewlinefrompoints",
             icon='MAN_TRANS',
             text="New Line from Points"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposenewlinevectoraddition",
+            icon='MAN_TRANS',
+            text="Add Lines"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposenewlinevectorsubtraction",
+            icon='MAN_TRANS',
+            text="Subtract Lines"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposepointintersectinglineplane",
+            icon='LAYER_ACTIVE',
+            text="Intersect Line/Plane"
         )
 
         # slot1_geom_top = calc_gui.row(align=True)
