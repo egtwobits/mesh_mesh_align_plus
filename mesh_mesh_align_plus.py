@@ -1107,20 +1107,28 @@ class CopyToOtherBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        advanced_tools_active_item = prims[addon_data.active_list_item]
+        advanced_tools_active_item = None
+        if 'ADVTOOLSACTIVE' in self.source_dest_pair:
+            if len(prims) < 1:
+                self.report({'ERROR'}, 'No stored geometry items exist to copy.')
+                return {'CANCELLED'}
+            advanced_tools_active_item = prims[addon_data.active_list_item]
 
         string_to_target_mappings = {
-            'APTSRC': addon_data.quick_align_points_source,
-            'APTDEST': addon_data.quick_align_points_dest,
-            'ALNSRC': addon_data.quick_align_lines_source,
+            'APTSRC': addon_data.quick_align_pts_src,
+            'APTDEST': addon_data.quick_align_pts_dest,
+            'ALNSRC': addon_data.quick_align_lines_src,
             'ALNDEST': addon_data.quick_align_lines_dest,
-            'APLSRC': addon_data.quick_align_planes_source,
+            'APLSRC': addon_data.quick_align_planes_src,
             'APLDEST': addon_data.quick_align_planes_dest,
-            'AXRSRC': addon_data.quick_axis_rotate_source,
-            'DSSRC': addon_data.quick_directional_slide_source,
-            'SMESRC': addon_data.scale_match_edge_source,
-            'SMEDEST': addon_data.scale_match_edge_dest,
+            'AXRSRC': addon_data.quick_axis_rotate_src,
+            'DSSRC': addon_data.quick_directional_slide_src,
+            'SMESRC': addon_data.quick_scale_match_edge_src,
+            'SMEDEST': addon_data.quick_scale_match_edge_dest,
             'ADVTOOLSACTIVE': advanced_tools_active_item,
+            'INTERNALCLIPBOARD': addon_data.internal_storage_clipboard,
+            'SLOT1': addon_data.internal_storage_slot_1,
+            'SLOT2': addon_data.internal_storage_slot_2
         }
         set_attribs = {
             "POINT": (
@@ -1148,6 +1156,42 @@ class CopyToOtherBase(bpy.types.Operator):
         copy_source_attribs_to_dest(source, dest, set_attribs[source.kind])
 
         return {'FINISHED'}
+
+
+class PasteIntoAptSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoaptsrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'APTSRC')
+
+
+class CopyFromAptSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromaptsrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('APTSRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAptDest(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoaptdest"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'APTDEST')
+
+
+class CopyFromAptDest(CopyToOtherBase):
+    bl_idname = "maplus.copyfromaptdest"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('APTDEST', 'INTERNALCLIPBOARD')
 
 
 class DuplicateItemBase(bpy.types.Operator):
@@ -8313,6 +8357,17 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab All Global"
                 )
+                special_grabs = apt_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromaptsrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoaptsrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
 
                 modifier_header = apt_src_geom_editor.row()
                 modifier_header.label("Point Modifiers:")
@@ -8458,7 +8513,18 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 icon='WORLD',
                 text="Grab All Global"
             )
-            
+            special_grabs = apt_dest_geom_editor.row(align=True)
+            special_grabs.operator(
+                "maplus.copyfromaptdest",
+                icon='COPYDOWN',
+                text="Copy (To Clipboard)"
+            )
+            special_grabs.operator(
+                "maplus.pasteintoaptdest",
+                icon='PASTEDOWN',
+                text="Paste (From Clipboard)"
+            )
+
             modifier_header = apt_dest_geom_editor.row()
             modifier_header.label("Point Modifiers:")
             apply_mods = modifier_header.row()
