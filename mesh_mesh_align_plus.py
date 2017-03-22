@@ -566,12 +566,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     internal_storage_slot_1 = bpy.props.PointerProperty(type=MAPlusPrimitive)
     internal_storage_slot_2 = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_calc_result_to_clipboard = bpy.props.BoolProperty(
-        description=(
-            "Copy numeric calculations to clipboard"
-        ),
-        default=True
-    )
+    internal_storage_clipboard = bpy.props.PointerProperty(type=MAPlusPrimitive)
 
 
 # Basic type selector functionality, derived classes provide
@@ -6393,7 +6388,6 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
             return {'CANCELLED'}
 
         start_loc = mathutils.Vector((0, 0, 0))
-
         src_global_data = get_modified_global_coords(
             geometry=calc_target_item,
             kind='LINE'
@@ -6404,6 +6398,17 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
         result_item.line_end = (
             start_loc + src_line
         )
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6470,6 +6475,17 @@ class ComposeNormalFromPlaneBase(bpy.types.Operator):
 
         result_item.line_start = start_loc
         result_item.line_end = start_loc + normal
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6528,6 +6544,17 @@ class ComposeNewLineFromPointBase(bpy.types.Operator):
 
         result_item.line_start = start_loc
         result_item.line_end = src_global_data[0]
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6598,6 +6625,17 @@ class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
 
         result_item.line_start = start_loc
         result_item.line_end = start_loc + src_line
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6723,6 +6761,17 @@ class ComposeNewLineFromPointsBase(bpy.types.Operator):
 
         result_item.line_start = src_pt
         result_item.line_end = dest_pt
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6787,6 +6836,17 @@ class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
 
         result_item.line_start = start_loc
         result_item.line_end = src_line + dest_line
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6854,6 +6914,17 @@ class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
 
         result_item.line_start = start_loc
         result_item.line_end = src_line - dest_line
+        if addon_data.calc_result_to_clipboard:
+            addon_data.internal_storage_clipboard.kind = 'LINE'
+            copy_source_attribs_to_dest(
+                result_item,
+                addon_data.internal_storage_clipboard,
+                ("line_start",
+                 "line_end",
+                 "ln_make_unit_vec",
+                 "ln_flip_direction",
+                 "ln_multiplier")
+            )
 
         return {'FINISHED'}
 
@@ -6934,6 +7005,16 @@ class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
 
         if intersection:
             result_item.point = intersection
+            if addon_data.calc_result_to_clipboard:
+                addon_data.internal_storage_clipboard.kind = 'POINT'
+                copy_source_attribs_to_dest(
+                    result_item,
+                    addon_data.internal_storage_clipboard,
+                    ("point",
+                     "pt_make_unit_vec",
+                     "pt_flip_direction",
+                     "pt_multiplier")
+                )
         else:
             self.report(
                 {'ERROR'},
@@ -10864,7 +10945,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         clipboard_row_right.alignment = 'RIGHT'
         clipboard_row_right.prop(
             bpy.types.AnyType(maplus_data_ptr),
-            'quick_calc_result_to_clipboard',
+            'calc_result_to_clipboard',
             "Copy to Clipboard"
         )
         calc_gui.prop(
