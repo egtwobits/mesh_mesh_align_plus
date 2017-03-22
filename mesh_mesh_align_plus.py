@@ -6574,8 +6574,8 @@ class QuickCalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
     quick_calc_target = True
 
 
-class ComposeNewLineFromPoints(bpy.types.Operator):
-    bl_idname = "maplus.composenewlinefrompoints"
+class ComposeNewLineFromPointsBase(bpy.types.Operator):
+    bl_idname = "maplus.composenewlinefrompointsbase"
     bl_label = "New Line from Points"
     bl_description = "Composes a new line item from provided point items"
     bl_options = {'REGISTER', 'UNDO'}
@@ -6583,11 +6583,19 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        active_item = prims[addon_data.active_list_item]
-        calc_target_one = prims[active_item.multi_calc_target_one]
-        calc_target_two = prims[active_item.multi_calc_target_two]
+        if hasattr(self, 'quick_calc_target'):
+            active_calculation = addon_data
+            result_item = active_calculation.quick_calc_result_item
+            calc_target_one = addon_data.internal_storage_slot_1
+            calc_target_two = addon_data.internal_storage_slot_2
+        else:
+            active_calculation = prims[addon_data.active_list_item]
+            bpy.ops.maplus.addnewline()
+            result_item = prims[-1]
+            calc_target_one = prims[active_calculation.multi_calc_target_one]
+            calc_target_two = prims[active_calculation.multi_calc_target_two]
 
-        if not (calc_target_one.kind == 'POINT' and
+        if (not hasattr(self, 'quick_calc_target')) and not (calc_target_one.kind == 'POINT' and
                 calc_target_two.kind == 'POINT'):
             self.report(
                 {'ERROR'},
@@ -6607,12 +6615,25 @@ class ComposeNewLineFromPoints(bpy.types.Operator):
         src_pt = src_global_data[0]
         dest_pt = dest_global_data[0]
 
-        bpy.ops.maplus.addnewline()
-        new_line = prims[-1]
-        new_line.line_start = src_pt
-        new_line.line_end = dest_pt
+        result_item.line_start = src_pt
+        result_item.line_end = dest_pt
 
         return {'FINISHED'}
+
+
+class ComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
+    bl_idname = "maplus.composenewlinefrompoints"
+    bl_label = "New Line from Points"
+    bl_description = "Composes a new line item from provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+class QuickComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
+    bl_idname = "maplus.quickcomposenewlinefrompoints"
+    bl_label = "New Line from Points"
+    bl_description = "Composes a new line item from provided point items"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_calc_target = True
 
 
 class ComposeNewLineVectorAddition(bpy.types.Operator):
@@ -10695,6 +10716,11 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             "maplus.quickcomposenewlineatpointlocation",
             icon='MAN_TRANS',
             text="New Line at Point"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposenewlinefrompoints",
+            icon='MAN_TRANS',
+            text="New Line from Points"
         )
 
         # slot1_geom_top = calc_gui.row(align=True)
