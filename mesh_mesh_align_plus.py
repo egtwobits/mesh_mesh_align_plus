@@ -1107,28 +1107,94 @@ class CopyToOtherBase(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
+
+        # Safely set active advanced tools item values...both the item and the
+        # kind are needed to set mapping values, so dummy values are used if
+        # the prims collections is empty (avoids access exceptions)
         advanced_tools_active_item = None
+        active_kind = 'POINT'
         if 'ADVTOOLSACTIVE' in self.source_dest_pair:
             if len(prims) < 1:
-                self.report({'ERROR'}, 'No stored geometry items exist to copy.')
+                self.report(
+                    {'ERROR'},
+                    'No stored geometry items exist to copy.'
+                )
                 return {'CANCELLED'}
             advanced_tools_active_item = prims[addon_data.active_list_item]
+            active_kind = advanced_tools_active_item.kind
 
         string_to_target_mappings = {
-            'APTSRC': addon_data.quick_align_pts_src,
-            'APTDEST': addon_data.quick_align_pts_dest,
-            'ALNSRC': addon_data.quick_align_lines_src,
-            'ALNDEST': addon_data.quick_align_lines_dest,
-            'APLSRC': addon_data.quick_align_planes_src,
-            'APLDEST': addon_data.quick_align_planes_dest,
-            'AXRSRC': addon_data.quick_axis_rotate_src,
-            'DSSRC': addon_data.quick_directional_slide_src,
-            'SMESRC': addon_data.quick_scale_match_edge_src,
-            'SMEDEST': addon_data.quick_scale_match_edge_dest,
-            'ADVTOOLSACTIVE': advanced_tools_active_item,
-            'INTERNALCLIPBOARD': addon_data.internal_storage_clipboard,
-            'SLOT1': addon_data.internal_storage_slot_1,
-            'SLOT2': addon_data.internal_storage_slot_2
+            'APTSRC': {
+                "item": addon_data.quick_align_pts_src,
+                "geom_mode": 'POINT',
+            },
+            'APTDEST': {
+                "item": addon_data.quick_align_pts_dest,
+                "geom_mode": 'POINT',
+            },
+            'ALNSRC': {
+                "item": addon_data.quick_align_lines_src,
+                "geom_mode": 'LINE',
+            },
+            'ALNDEST': {
+                "item": addon_data.quick_align_lines_dest,
+                "geom_mode": 'LINE',
+            },
+            'APLSRC': {
+                "item": addon_data.quick_align_planes_src,
+                "geom_mode": 'PLANE',
+            },
+            'APLDEST': {
+                "item": addon_data.quick_align_planes_dest,
+                "geom_mode": 'PLANE',
+            },
+            'AXRSRC': {
+                "item": addon_data.quick_axis_rotate_src,
+                "geom_mode": 'LINE',
+            },
+            'DSSRC': {
+                "item": addon_data.quick_directional_slide_src,
+                "geom_mode": 'LINE',
+            },
+            'SMESRC': {
+                "item": addon_data.quick_scale_match_edge_src,
+                "geom_mode": 'LINE',
+            },
+            'SMEDEST': {
+                "item": addon_data.quick_scale_match_edge_dest,
+                "geom_mode": 'LINE',
+            },
+            'ADVTOOLSACTIVE': {
+                "item": advanced_tools_active_item,
+                "geom_mode": active_kind,
+            },
+            'INTERNALCLIPBOARD': {
+                "item": addon_data.internal_storage_clipboard,
+                "geom_mode": (
+                    addon_data.internal_storage_clipboard.kind if
+                    addon_data.internal_storage_clipboard.kind in
+                    ['POINT', 'LINE', 'PLANE'] else
+                    'POINT'
+                ),
+            },
+            'SLOT1': {
+                "item": addon_data.internal_storage_slot_1,
+                "geom_mode": (
+                    addon_data.internal_storage_slot_1.kind if
+                    addon_data.internal_storage_slot_1.kind in
+                    ['POINT', 'LINE', 'PLANE'] else
+                    'POINT'
+                ),
+            },
+            'SLOT2': {
+                "item": addon_data.internal_storage_slot_2,
+                "geom_mode": (
+                    addon_data.internal_storage_slot_2.kind if
+                    addon_data.internal_storage_slot_2.kind in
+                    ['POINT', 'LINE', 'PLANE'] else
+                    'POINT'
+                ),
+            }
         }
         set_attribs = {
             "POINT": (
@@ -1153,7 +1219,16 @@ class CopyToOtherBase(bpy.types.Operator):
 
         source = string_to_target_mappings[self.source_dest_pair[0]]
         dest = string_to_target_mappings[self.source_dest_pair[1]]
-        copy_source_attribs_to_dest(source, dest, set_attribs[source.kind])
+        # If internal storage is the destination, the kind needs to be set
+        # to the proper value
+        if self.source_dest_pair[1] in ['INTERNALCLIPBOARD', 'SLOT1', 'SLOT2']:
+            dest["item"].kind = source["geom_mode"]
+
+        copy_source_attribs_to_dest(
+            source["item"],
+            dest["item"],
+            set_attribs[source["geom_mode"]]
+        )
 
         return {'FINISHED'}
 
@@ -1192,6 +1267,150 @@ class CopyFromAptDest(CopyToOtherBase):
     bl_options = {'REGISTER', 'UNDO'}
     # A tuple of strings indicating the source and destination
     source_dest_pair = ('APTDEST', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAlnSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoalnsrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'ALNSRC')
+
+
+class CopyFromAlnSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromalnsrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('ALNSRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAlnDest(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoalndest"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'ALNDEST')
+
+
+class CopyFromAlnDest(CopyToOtherBase):
+    bl_idname = "maplus.copyfromalndest"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('ALNDEST', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAplSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoaplsrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'APLSRC')
+
+
+class CopyFromAplSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromaplsrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('APLSRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAplDest(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoapldest"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'APLDEST')
+
+
+class CopyFromAplDest(CopyToOtherBase):
+    bl_idname = "maplus.copyfromapldest"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('APLDEST', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoAxrSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoaxrsrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'AXRSRC')
+
+
+class CopyFromAxrSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromaxrsrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('AXRSRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoDsSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintodssrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'DSSRC')
+
+
+class CopyFromDsSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromdssrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('DSSRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoSmeSrc(CopyToOtherBase):
+    bl_idname = "maplus.pasteintosmesrc"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'SMESRC')
+
+
+class CopyFromSmeSrc(CopyToOtherBase):
+    bl_idname = "maplus.copyfromsmesrc"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('SMESRC', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoSmeDest(CopyToOtherBase):
+    bl_idname = "maplus.pasteintosmedest"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'SMEDEST')
+
+
+class CopyFromSmeDest(CopyToOtherBase):
+    bl_idname = "maplus.copyfromsmedest"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('SMEDEST', 'INTERNALCLIPBOARD')
 
 
 class DuplicateItemBase(bpy.types.Operator):
@@ -8715,6 +8934,17 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     icon='LAMP_HEMI',
                     text="Grab Normal"
                 )
+                special_grabs_extra = aln_src_geom_editor.row(align=True)
+                special_grabs_extra.operator(
+                    "maplus.copyfromalnsrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs_extra.operator(
+                    "maplus.pasteintoalnsrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
 
                 modifier_header = aln_src_geom_editor.row()
                 modifier_header.label("Line Modifiers:")
@@ -8961,12 +9191,22 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 icon='WORLD',
                 text="Grab All Global"
             )
-            
             special_grabs = aln_dest_geom_editor.row(align=True)
             special_grabs.operator(
                 "maplus.quickalngrabnormaldest",
                 icon='LAMP_HEMI',
                 text="Grab Normal"
+            )
+            special_grabs_extra = aln_dest_geom_editor.row(align=True)
+            special_grabs_extra.operator(
+                "maplus.copyfromalndest",
+                icon='COPYDOWN',
+                text="Copy (To Clipboard)"
+            )
+            special_grabs_extra.operator(
+                "maplus.pasteintoalndest",
+                icon='PASTEDOWN',
+                text="Paste (From Clipboard)"
             )
 
             modifier_header = aln_dest_geom_editor.row()
@@ -9199,23 +9439,23 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         if not addon_data.quick_align_planes_auto_grab_src:
             if not addon_data.quick_apl_show_src_geom:
                 apl_src_geom_top.operator(
-                        "maplus.showhidequickaplsrcgeom",
-                        icon='TRIA_RIGHT',
-                        text="",
-                        emboss=False
+                    "maplus.showhidequickaplsrcgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
                 )
                 preserve_button_roundedge = apl_src_geom_top.row()
                 preserve_button_roundedge.operator(
-                        "maplus.quickalignplanesgrabsrc",
-                        icon='WORLD',
-                        text="Grab Source"
+                    "maplus.quickalignplanesgrabsrc",
+                    icon='WORLD',
+                    text="Grab Source"
                 )
             else:
                 apl_src_geom_top.operator(
-                        "maplus.showhidequickaplsrcgeom",
-                        icon='TRIA_DOWN',
-                        text="",
-                        emboss=False
+                    "maplus.showhidequickaplsrcgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
                 )
                 apl_src_geom_top.label("Source Coordinates")
 
@@ -9230,6 +9470,17 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     "maplus.quickalignplanesgrabsrc",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+                special_grabs = apl_src_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromaplsrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoaplsrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
                 )
 
                 apl_src_geom_editor.label("Pt. A:")
@@ -9537,6 +9788,17 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 "maplus.quickalignplanesgrabdest",
                 icon='WORLD',
                 text="Grab All Global"
+            )
+            special_grabs = apl_dest_geom_editor.row(align=True)
+            special_grabs.operator(
+                "maplus.copyfromapldest",
+                icon='COPYDOWN',
+                text="Copy (To Clipboard)"
+            )
+            special_grabs.operator(
+                "maplus.pasteintoapldest",
+                icon='PASTEDOWN',
+                text="Paste (From Clipboard)"
             )
 
             apl_dest_geom_editor.label("Pt. A:")
@@ -9919,6 +10181,17 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     icon='LAMP_HEMI',
                     text="Grab Normal"
                 )
+                special_grabs_extra = axr_src_geom_editor.row(align=True)
+                special_grabs_extra.operator(
+                    "maplus.copyfromaxrsrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs_extra.operator(
+                    "maplus.pasteintoaxrsrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
 
                 modifier_header = axr_src_geom_editor.row()
                 modifier_header.label("Line Modifiers:")
@@ -10221,6 +10494,17 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     "maplus.quickdsgrabnormalsrc",
                     icon='LAMP_HEMI',
                     text="Grab Normal"
+                )
+                special_grabs_extra = ds_src_geom_editor.row(align=True)
+                special_grabs_extra.operator(
+                    "maplus.copyfromdssrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs_extra.operator(
+                    "maplus.pasteintodssrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
                 )
 
                 modifier_header = ds_src_geom_editor.row()
@@ -10532,6 +10816,17 @@ class QuickSMEGUI(bpy.types.Panel):
                     icon='LAMP_HEMI',
                     text="Grab Normal"
                 )
+                special_grabs_extra = sme_src_geom_editor.row(align=True)
+                special_grabs_extra.operator(
+                    "maplus.copyfromsmesrc",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs_extra.operator(
+                    "maplus.pasteintosmesrc",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
 
                 modifier_header = sme_src_geom_editor.row()
                 modifier_header.label("Line Modifiers:")
@@ -10770,6 +11065,17 @@ class QuickSMEGUI(bpy.types.Panel):
                 "maplus.quicksmegrabnormaldest",
                 icon='LAMP_HEMI',
                 text="Grab Normal"
+            )
+            special_grabs_extra = sme_dest_geom_editor.row(align=True)
+            special_grabs_extra.operator(
+                "maplus.copyfromsmedest",
+                icon='COPYDOWN',
+                text="Copy (To Clipboard)"
+            )
+            special_grabs_extra.operator(
+                "maplus.pasteintosmedest",
+                icon='PASTEDOWN',
+                text="Paste (From Clipboard)"
             )
 
             modifier_header = sme_dest_geom_editor.row()
