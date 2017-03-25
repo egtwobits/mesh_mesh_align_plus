@@ -558,6 +558,20 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     
     # Quick Calculation items
+    quick_calc_show_slot1_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the slot 1 geometry editor"
+            " in the calculate/compose panel."
+        ),
+        default=False
+    )
+    quick_calc_show_slot2_geom = bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the slot 2 geometry editor"
+            " in the calculate/compose panel."
+        ),
+        default=False
+    )
     quick_calc_result_item = bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_calc_result_numeric = bpy.props.FloatProperty(
         description="Quick Calculation numeric result",
@@ -912,8 +926,32 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
             addon_data.quick_apl_show_dest_geom = (
                 not addon_data.quick_apl_show_dest_geom
             )
+        elif self.quick_op_target == "SLOT1":
+            addon_data.quick_calc_show_slot1_geom = (
+                not addon_data.quick_calc_show_slot1_geom
+            )
+        elif self.quick_op_target == "SLOT2":
+            addon_data.quick_calc_show_slot2_geom = (
+                not addon_data.quick_calc_show_slot2_geom
+            )
 
         return {'FINISHED'}
+
+
+class ShowHideQuickCalcSlot1Geom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickcalcslot1geom"
+    bl_label = "Show/hide slot 1 geometry"
+    bl_description = "Show/hide slot 1 geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'SLOT1'
+
+
+class ShowHideQuickCalcSlot2Geom(ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickcalcslot2geom"
+    bl_label = "Show/hide slot 2 geometry"
+    bl_description = "Show/hide slot 2 geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'SLOT2'
 
 
 class ShowHideQuickAptSrcGeom(ShowHideQuickGeomBaseClass):
@@ -1231,6 +1269,42 @@ class CopyToOtherBase(bpy.types.Operator):
         )
 
         return {'FINISHED'}
+
+
+class PasteIntoSlot1(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoslot1"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'SLOT1')
+
+
+class CopyFromSlot1(CopyToOtherBase):
+    bl_idname = "maplus.copyfromslot1"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('SLOT1', 'INTERNALCLIPBOARD')
+
+
+class PasteIntoSlot2(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoslot2"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'SLOT2')
+
+
+class CopyFromSlot2(CopyToOtherBase):
+    bl_idname = "maplus.copyfromslot2"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('SLOT2', 'INTERNALCLIPBOARD')
 
 
 class PasteIntoAptSrc(CopyToOtherBase):
@@ -1843,6 +1917,11 @@ class GrabFromGeometryBase(bpy.types.Operator):
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
 
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
+
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
             matrix_multiplier = bpy.context.active_object.matrix_world
@@ -1971,6 +2050,10 @@ class GrabAverageLocationBase(bpy.types.Operator):
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
 
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
             matrix_multiplier = bpy.context.active_object.matrix_world
@@ -2029,6 +2112,11 @@ class GrabNormalBase(bpy.types.Operator):
 
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
+            
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
@@ -2094,6 +2182,11 @@ class GrabFromCursorBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
         else:
             active_item = prims[addon_data.active_list_item]
 
@@ -2143,6 +2236,12 @@ class SendCoordToCursorBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
+
         else:
             active_item = prims[addon_data.active_list_item]
 
@@ -2164,6 +2263,17 @@ class GrabAllSlot1(GrabAndSetItemKindBase):
     target = 'SLOT1'
 
 
+class GrabAllSlot1Loc(GrabAndSetItemKindBase):
+    bl_idname = "maplus.graballslot1loc"
+    bl_label = "Grab Global Coordinates From Selected Vertices"
+    bl_description = (
+        "Grabs global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    multiply_by_world_matrix = False
+    target = 'SLOT1'
+
+
 class GrabAllSlot2(GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot2"
     bl_label = "Grab Global Coordinates From Selected Vertices"
@@ -2175,12 +2285,41 @@ class GrabAllSlot2(GrabAndSetItemKindBase):
     target = 'SLOT2'
 
 
+class GrabAllSlot2Loc(GrabAndSetItemKindBase):
+    bl_idname = "maplus.graballslot2loc"
+    bl_label = "Grab Global Coordinates From Selected Vertices"
+    bl_description = (
+        "Grabs global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    multiply_by_world_matrix = False
+    target = 'SLOT2'
+
+
 class GrabPointFromCursor(GrabFromCursorBase):
     bl_idname = "maplus.grabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'point'
+
+
+class Slot1GrabPointFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot1grabpointfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'point'
+    quick_op_target = "SLOT1"
+
+
+class Slot2GrabPointFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot2grabpointfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'point'
+    quick_op_target = "SLOT2"
 
 
 class QuickAptSrcGrabPointFromCursor(GrabFromCursorBase):
@@ -2221,6 +2360,78 @@ class GrabPointFromActiveGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('point',)
     multiply_by_world_matrix = True
+
+
+class GrabPointSlot1(GrabFromGeometryBase):
+    bl_idname = "maplus.grabpointslot1"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class GrabPointSlot1Loc(GrabFromGeometryBase):
+    bl_idname = "maplus.grabpointslot1loc"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = False
+    quick_op_target = "SLOT1"
+
+
+class GrabPointSlot2(GrabFromGeometryBase):
+    bl_idname = "maplus.grabpointslot2"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
+
+
+class GrabPointSlot2Loc(GrabFromGeometryBase):
+    bl_idname = "maplus.grabpointslot2loc"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = False
+    quick_op_target = "SLOT2"
+
+
+class Slot1PointGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.slot1pointgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class Slot2PointGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.slot2pointgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
 
 
 class QuickAptGrabAvgSrc(GrabAverageLocationBase):
@@ -2303,6 +2514,24 @@ class SendPointToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'point'
 
 
+class Slot1SendPointToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot1sendpointtocursor"
+    bl_label = "Sends Point to Cursor"
+    bl_description = "Sends Point Coordinates to the 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'point'
+    quick_op_target = 'SLOT1'
+
+
+class Slot2SendPointToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot2sendpointtocursor"
+    bl_label = "Sends Point to Cursor"
+    bl_description = "Sends Point Coordinates to the 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'point'
+    quick_op_target = 'SLOT2'
+
+
 class QuickAptSrcSendPointToCursor(SendCoordToCursorBase):
     bl_idname = "maplus.quickaptsrcsendpointtocursor"
     bl_label = "Sends Point to Cursor"
@@ -2327,6 +2556,42 @@ class GrabLineStartFromCursor(GrabFromCursorBase):
     bl_description = "Grabs line start coordinates from the 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'line_start'
+
+
+class Slot1GrabLineStartFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot1grablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'SLOT1'
+
+
+class Slot1GrabLineEndFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot1grablineendfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'SLOT1'
+
+
+class Slot2GrabLineStartFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot2grablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'SLOT2'
+
+
+class Slot2GrabLineEndFromCursor(GrabFromCursorBase):
+    bl_idname = "maplus.slot2grablineendfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'SLOT2'
 
 
 class QuickAlnSrcGrabLineStartFromCursor(GrabFromCursorBase):
@@ -2414,6 +2679,158 @@ class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start',)
     multiply_by_world_matrix = True
+
+
+class Slot1GrabLineStartFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot1grablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'SLOT1'
+
+
+class Slot1GrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot1grablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'SLOT1'
+
+
+class Slot2GrabLineEndFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot2grablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'SLOT2'
+
+
+class Slot1GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot1grablineendfromactiveglobal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'SLOT1'
+
+
+class Slot2GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot2grablineendfromactiveglobal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'SLOT2'
+
+
+class Slot1GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot1grablinestartfromactiveglobal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'SLOT1'
+
+
+class Slot2GrabLineStartFromActiveLocal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot2grablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'SLOT2'
+
+
+class Slot2GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+    bl_idname = "maplus.slot2grablinestartfromactiveglobal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'SLOT2'
+
+
+class Slot1GrabAvgLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.slot1grabavglinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class Slot2GrabAvgLineStart(GrabAverageLocationBase):
+    bl_idname = "maplus.slot2grabavglinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
+
+
+class Slot1GrabAvgLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.slot1grabavglineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class Slot2GrabAvgLineEnd(GrabAverageLocationBase):
+    bl_idname = "maplus.slot2grabavglineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
 
 
 class QuickAlnGrabAvgSrcLineStart(GrabAverageLocationBase):
@@ -2748,6 +3165,42 @@ class SendLineStartToCursor(SendCoordToCursorBase):
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'line_start'
+
+
+class Slot1SendLineStartToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot1sendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'SLOT1'
+
+
+class Slot1SendLineEndToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot1sendlineendtocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'SLOT1'
+
+
+class Slot2SendLineStartToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot2sendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'SLOT2'
+
+
+class Slot2SendLineEndToCursor(SendCoordToCursorBase):
+    bl_idname = "maplus.slot2sendlineendtocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'SLOT2'
 
 
 class QuickAlnSrcSendLineStartToCursor(SendCoordToCursorBase):
@@ -3177,6 +3630,78 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = True
+
+
+class GrabLineSlot1(GrabFromGeometryBase):
+    bl_idname = "maplus.grablineslot1"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+        )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class GrabLineSlot1Loc(GrabFromGeometryBase):
+    bl_idname = "maplus.grablineslot1loc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+        )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = False
+    quick_op_target = "SLOT1"
+
+
+class GrabLineSlot2(GrabFromGeometryBase):
+    bl_idname = "maplus.grablineslot2"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+        )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
+
+
+class GrabLineSlot2Loc(GrabFromGeometryBase):
+    bl_idname = "maplus.grablineslot2loc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+        )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = False
+    quick_op_target = "SLOT2"
+
+
+class Slot1GrabNormal(GrabNormalBase):
+    bl_idname = "maplus.slot1grabnormal"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT1"
+
+
+class Slot2GrabNormal(GrabNormalBase):
+    bl_idname = "maplus.slot2grabnormal"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "SLOT2"
 
 
 class QuickAlnGrabNormalSrc(GrabNormalBase):
@@ -3936,6 +4461,11 @@ class SwapPointsBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+
+            elif self.quick_op_target == "SLOT1":
+                active_item = addon_data.internal_storage_slot_1
+            elif self.quick_op_target == "SLOT2":
+                active_item = addon_data.internal_storage_slot_2
         else:
             active_item = prims[addon_data.active_list_item]
 
@@ -3971,6 +4501,24 @@ class SwapLinePoints(SwapPointsBase):
     bl_description = "Swap line points"
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('line_start', 'line_end')
+
+
+class Slot1SwapLinePoints(SwapPointsBase):
+    bl_idname = "maplus.slot1swaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'SLOT1'
+
+
+class Slot2SwapLinePoints(SwapPointsBase):
+    bl_idname = "maplus.slot2swaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'SLOT2'
 
 
 class QuickAlnSrcSwapLinePoints(SwapPointsBase):
@@ -11296,12 +11844,353 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
 
         calc_gui = layout.column()
-        
-        calc_gui.operator(
-            "maplus.graballslot1",
-            icon='WORLD',
-            text="Grab Slot 1"
-        )
+
+        slot1_geom_top = calc_gui.row(align=True)
+        if not addon_data.quick_calc_show_slot1_geom:
+            slot1_geom_top.operator(
+                "maplus.showhidequickcalcslot1geom",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+            preserve_button_roundedge = slot1_geom_top.row()
+            preserve_button_roundedge.operator(
+                "maplus.graballslot1",
+                icon='WORLD',
+                text="Grab Slot 1"
+            )
+
+        else:
+            slot1_geom_top.operator(
+                "maplus.showhidequickcalcslot1geom",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+            slot1_geom_top.label("Slot 1 Coordinates")
+            slot1_geom_editor = calc_gui.box()
+            types_row = slot1_geom_editor.row()
+            types_row.label("Item type:")
+            types_row.prop(
+                bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                'kind',
+                ""
+            )
+
+            if addon_data.internal_storage_slot_1.kind == 'POINT':
+                pt_grab_all = slot1_geom_editor.row(align=True)
+                pt_grab_all.operator(
+                    "maplus.grabpointslot1loc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                pt_grab_all.operator(
+                    "maplus.grabpointslot1",
+                    icon='WORLD',
+                    text="Grab All Global"
+                )
+
+                modifier_header = slot1_geom_editor.row()
+                modifier_header.label("Point Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = slot1_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'pt_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'pt_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'pt_multiplier',
+                    "Multiplier"
+                )
+
+                slot1_geom_editor.label("Pt. Origin:")
+                # plane_a_items = slot1_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                pt_items = slot1_geom_editor.row()
+                typein_and_grab_pt = pt_items.column()
+                pt_uppers = typein_and_grab_pt.row()
+
+                pt_uppers_leftside = pt_uppers.row(align=True)
+                pt_uppers_leftside.alignment = 'LEFT'
+                pt_uppers_leftside.label("Send:")
+                pt_uppers_leftside.operator(
+                    "maplus.slot1sendpointtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                pt_uppers_rightside = pt_uppers.row(align=True)
+                pt_uppers_rightside.alignment = 'RIGHT'
+                pt_uppers_rightside.label("Grab:")
+                pt_uppers_rightside.operator(
+                    "maplus.slot1grabpointfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                pt_uppers_rightside.operator(
+                    "maplus.grabpointslot1loc",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                pt_uppers_rightside.operator(
+                    "maplus.grabpointslot1",
+                    icon='WORLD',
+                    text=""
+                )
+                pt_uppers_rightside.operator(
+                    "maplus.slot1pointgrabavg",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
+                typein_and_grab_pt.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'point',
+                    ""
+                )
+
+            elif addon_data.internal_storage_slot_1.kind == 'LINE':
+                ln_grab_all = slot1_geom_editor.row(align=True)
+                ln_grab_all.operator(
+                    "maplus.grablineslot1loc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                ln_grab_all.operator(
+                    "maplus.grablineslot1",
+                    icon='WORLD',
+                    text="Grab All Global"
+                )
+
+                special_grabs = slot1_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.slot1grabnormal",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
+                )
+                special_grabs_extra = slot1_geom_editor.row(align=True)
+                special_grabs_extra.operator(
+                    "maplus.copyfromslot1",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs_extra.operator(
+                    "maplus.pasteintoslot1",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
+
+                modifier_header = slot1_geom_editor.row()
+                modifier_header.label("Line Modifiers:")
+                apply_mods = modifier_header.row()
+                apply_mods.alignment = 'RIGHT'
+                # apply_mods.operator(
+                    # "maplus.applygeommodifiers",
+                    # text="Apply ModifiersXXXXX"
+                # )
+                item_mods_box = slot1_geom_editor.box()
+                mods_row_1 = item_mods_box.row()
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'ln_make_unit_vec',
+                    "Set Length Equal to One"
+                )
+                mods_row_1.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'ln_flip_direction',
+                    "Flip Direction"
+                )
+                mods_row_2 = item_mods_box.row()
+                mods_row_2.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'ln_multiplier',
+                    "Multiplier"
+                )
+
+                slot1_geom_editor.label("Start:")
+                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_start_items = slot1_geom_editor.row()
+                typein_and_grab_start = ln_start_items.column()
+                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
+
+                ln_start_swap = ln_start_uppers.row(align=True)
+                ln_start_swap.label("Swap With:")
+                ln_start_swap.operator(
+                    "maplus.slot1swaplinepoints",
+                    text="End"
+                )
+
+                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
+                ln_start_uppers_rightside.alignment = 'RIGHT'
+                ln_start_uppers_rightside.label("Send:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.slot1sendlinestarttocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_start_uppers_rightside.label("Grab:")
+                ln_start_uppers_rightside.operator(
+                    "maplus.slot1grablinestartfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.slot1grablinestartfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.slot1grablinestartfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                ln_start_uppers_rightside.operator(
+                    "maplus.slot1grabavglinestart",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
+                typein_and_grab_start.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'line_start',
+                    ""
+                )
+
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
+
+                slot1_geom_editor.label("End:")
+                # plane_a_items = slot1_geom_editor.split(percentage=.75)
+                # ^ line changed to remove component changers
+                ln_end_items = slot1_geom_editor.row()
+                typein_and_grab_end = ln_end_items.column()
+                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
+
+                ln_end_swap = ln_end_uppers.row(align=True)
+                ln_end_swap.label("Swap With:")
+                ln_end_swap.operator(
+                    "maplus.slot1swaplinepoints",
+                    text="Start"
+                )
+
+                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
+                ln_end_uppers_rightside.alignment = 'RIGHT'
+                ln_end_uppers_rightside.label("Send:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.slot1sendlineendtocursor",
+                    icon='CURSOR',
+                    text=""
+                )
+
+                ln_end_uppers_rightside.label("Grab:")
+                ln_end_uppers_rightside.operator(
+                    "maplus.slot1grablineendfromcursor",
+                    icon='CURSOR',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.slot1grablineendfromactivelocal",
+                    icon='VERTEXSEL',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.slot1grablineendfromactiveglobal",
+                    icon='WORLD',
+                    text=""
+                )
+                ln_end_uppers_rightside.operator(
+                    "maplus.slot1grabavglineend",
+                    icon='GROUP_VERTEX',
+                    text=""
+                )
+                typein_and_grab_end.prop(
+                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
+                    'line_end',
+                    ""
+                )
+
+                # component_changers_plnc = plane_c_items.row()
+                # zero_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # zero_components_plnc.label("Set Zeroes:")
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcx",
+                    # text="X00"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcy",
+                    # text="0Y0"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcz",
+                    # text="00Z"
+                # )
+                # one_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # one_components_plnc.label("Set Ones:")
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcx",
+                    # text="X11"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcy",
+                    # text="1Y1"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcz",
+                    # text="11Z"
+                # )
+
+        if addon_data.quick_calc_show_slot1_geom:
+                calc_gui.separator()
+
         calc_gui.operator(
             "maplus.graballslot2",
             icon='WORLD',
@@ -11379,152 +12268,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             icon='LAYER_ACTIVE',
             text="Intersect Line/Plane"
         )
-
-        # slot1_geom_top = calc_gui.row(align=True)
-        # if not addon_data.quick_calc_show_slot1_geom:
-            # slot1_geom_top.operator(
-                # "maplus.showhidequickcalcslot1geom",
-                # icon='TRIA_RIGHT',
-                # text="",
-                # emboss=False
-            # )
-            # preserve_button_roundedge = slot1_geom_top.row()
-            # preserve_button_roundedge.operator(
-                # "maplus.quickcalcgrabslot1",
-                # icon='WORLD',
-                # text="Grab Source"
-            # )
-
-        # else:
-            # slot1_geom_top.operator(
-                # "maplus.showhidequickcalcslot1geom",
-                # icon='TRIA_DOWN',
-                # text="",
-                # emboss=False
-            # )
-            # slot1_geom_top.label("Slot 1 Coordinates")
-
-        # if addon_data.quick_calc_result.kind == 'POINT':
-            # slot1_geom_editor = calc_gui.box()
-            # pt_grab_all = slot1_geom_editor.row(align=True)
-            # pt_grab_all.operator(
-                # "maplus.quickcalcgrabslot1loc",
-                # icon='VERTEXSEL',
-                # text="Grab All Local"
-            # )
-            # pt_grab_all.operator(
-                # "maplus.quickcalcgrabslot1",
-                # icon='WORLD',
-                # text="Grab All Global"
-            # )
-
-            # modifier_header = slot1_geom_editor.row()
-            # modifier_header.label("Point Modifiers:")
-            # apply_mods = modifier_header.row()
-            # apply_mods.alignment = 'RIGHT'
-            # # apply_mods.operator(
-                # # "maplus.applygeommodifiers",
-                # # text="Apply ModifiersXXXXX"
-            # # )
-            # item_mods_box = slot1_geom_editor.box()
-            # mods_row_1 = item_mods_box.row()
-            # mods_row_1.prop(
-                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                # 'pt_make_unit_vec',
-                # "Set Length Equal to One"
-            # )
-            # mods_row_1.prop(
-                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                # 'pt_flip_direction',
-                # "Flip Direction"
-            # )
-            # mods_row_2 = item_mods_box.row()
-            # mods_row_2.prop(
-                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                # 'pt_multiplier',
-                # "Multiplier"
-            # )
-
-            # slot1_geom_editor.label("Pt. Origin:")
-            # # plane_a_items = slot1_geom_editor.split(percentage=.75)
-            # # ^ line changed to remove component changers
-            # pt_items = slot1_geom_editor.row()
-            # typein_and_grab_pt = pt_items.column()
-            # pt_uppers = typein_and_grab_pt.row()
-
-            # pt_uppers_leftside = pt_uppers.row(align=True)
-            # pt_uppers_leftside.alignment = 'LEFT'
-            # pt_uppers_leftside.label("Send:")
-            # pt_uppers_leftside.operator(
-                # "maplus.quickcalcslot1sendpointtocursor",
-                # icon='CURSOR',
-                # text=""
-            # )
-
-            # pt_uppers_rightside = pt_uppers.row(align=True)
-            # pt_uppers_rightside.alignment = 'RIGHT'
-            # pt_uppers_rightside.label("Grab:")
-            # pt_uppers_rightside.operator(
-                # "maplus.quickcalcslot1grabpointfromcursor",
-                # icon='CURSOR',
-                # text=""
-            # )
-            # pt_uppers_rightside.operator(
-                # "maplus.quickcalcgrabslot1loc",
-                # icon='VERTEXSEL',
-                # text=""
-            # )
-            # pt_uppers_rightside.operator(
-                # "maplus.quickcalcgrabslot1",
-                # icon='WORLD',
-                # text=""
-            # )
-            # pt_uppers_rightside.operator(
-                # "maplus.quickcalcgrabavgslot1",
-                # icon='GROUP_VERTEX',
-                # text=""
-            # )
-            # typein_and_grab_pt.prop(
-                # bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                # 'point',
-                # ""
-            # )
-
-            # # component_changers_plna = plane_a_items.row()
-            # # zero_components_plna = component_changers_plna.column(
-                # # align=True
-            # # )
-            # # zero_components_plna.label("Set Zeroes:")
-            # # zero_components_plna.operator(
-                # # "maplus.zerootherplanepointax",
-                # # text="X00"
-            # # )
-            # # zero_components_plna.operator(
-                # # "maplus.zerootherplanepointay",
-                # # text="0Y0"
-            # # )
-            # # zero_components_plna.operator(
-                # # "maplus.zerootherplanepointaz",
-                # # text="00Z"
-            # # )
-            # # one_components_plna = component_changers_plna.column(
-                # # align=True
-            # # )
-            # # one_components_plna.label("Set Ones:")
-            # # one_components_plna.operator(
-                # # "maplus.oneotherplanepointax",
-                # # text="X11"
-            # # )
-            # # one_components_plna.operator(
-                # # "maplus.oneotherplanepointay",
-                # # text="1Y1"
-            # # )
-            # # one_components_plna.operator(
-                # # "maplus.oneotherplanepointaz",
-                # # text="11Z"
-            # # )
-        # if addon_data.quick_apt_show_src_geom:
-            # calc_gui.separator()
 
 
 def specials_menu_items(self, context):
