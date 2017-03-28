@@ -8808,6 +8808,77 @@ class MAPlusList(bpy.types.UIList):
             layout.label(item.name, icon="MANIPUL")
 
 
+def layout_coordvec(parent_layout,
+                    coordvec_label,
+                    op_id_cursor_grab,
+                    op_id_avg_grab,
+                    op_id_local_grab,
+                    op_id_global_grab,
+                    coord_prop,
+                    op_id_cursor_send,
+                    op_id_text_tuple_swap_first=None,
+                    op_id_text_tuple_swap_second=None):
+    coordvec_container = parent_layout.column(align=True)
+    coordvec_container.label(coordvec_label)
+    type_or_grab_coords = coordvec_container.column()
+
+    grab_buttons = type_or_grab_coords.row(align=True)
+    grab_buttons.label("Grab:")
+    grab_buttons.operator(
+        op_id_cursor_grab,
+        icon='CURSOR',
+        text=""
+    )
+    grab_buttons.operator(
+        op_id_avg_grab,
+        icon='GROUP_VERTEX',
+        text=""
+    )
+    grab_buttons.operator(
+        op_id_local_grab,
+        icon='VERTEXSEL',
+        text=""
+    )
+    grab_buttons.operator(
+        op_id_global_grab,
+        icon='WORLD',
+        text=""
+    )
+
+    type_or_grab_coords.prop(
+        bpy.types.AnyType(coord_prop),
+        'line_start',
+        ""
+    )
+
+    coordvec_lowers = type_or_grab_coords.row()
+
+    if op_id_text_tuple_swap_first:
+        coordvec_lowers.label("Swap:")
+        if op_id_text_tuple_swap_second:
+            aligned_swap_buttons = coordvec_lowers.row(align=True)
+            aligned_swap_buttons.operator(
+                op_id_text_tuple_swap_first[0],
+                text=op_id_text_tuple_swap_first[1]
+            )
+            aligned_swap_buttons.operator(
+                op_id_text_tuple_swap_second[0],
+                text=op_id_text_tuple_swap_second[1]
+            )
+        else:
+            coordvec_lowers.operator(
+                op_id_text_tuple_swap_first[0],
+                text=op_id_text_tuple_swap_first[1]
+            )
+
+    coordvec_lowers.label("Send:")
+    coordvec_lowers.operator(
+        op_id_cursor_send,
+        icon='CURSOR',
+        text=""
+    )
+
+
 # Advanced Tools panel
 class MAPlusGui(bpy.types.Panel):
     bl_idname = "maplus_advanced_tools"
@@ -10708,54 +10779,29 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 "Multiplier"
             )
 
-            aln_dest_geom_editor.label("Start:")
-            # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            ln_start_items = aln_dest_geom_editor.row()
-            typein_and_grab_start = ln_start_items.column()
-            ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-            ln_start_swap = ln_start_uppers.row(align=True)
-            ln_start_swap.label("Swap With:")
-            ln_start_swap.operator(
-                "maplus.quickalndestswaplinepoints",
-                text="End"
-            )
-
-            ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-            ln_start_uppers_rightside.alignment = 'RIGHT'
-            ln_start_uppers_rightside.label("Send:")
-            ln_start_uppers_rightside.operator(
-                "maplus.quickalndestsendlinestarttocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            ln_start_uppers_rightside.label("Grab:")
-            ln_start_uppers_rightside.operator(
-                "maplus.quickalndestgrablinestartfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quickalndestgrablinestartfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quickalndestgrablinestartfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quickalngrabavgdestlinestart",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_start.prop(
-                bpy.types.AnyType(addon_data.quick_align_lines_dest),
-                'line_start',
-                ""
+            layout_coordvec(
+                parent_layout=aln_dest_geom_editor,
+                coordvec_label="Start:",
+                op_id_cursor_grab=(
+                    "maplus.quickalndestgrablinestartfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickalngrabavgdestlinestart"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickalndestgrablinestartfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickalndestgrablinestartfromactiveglobal"
+                ),
+                coord_prop=addon_data.quick_align_lines_dest,
+                op_id_cursor_send=(
+                    "maplus.quickalndestsendlinestarttocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quickalndestswaplinepoints",
+                    "End"
+                )
             )
 
             # component_changers_plna = plane_a_items.row()
