@@ -8814,7 +8814,8 @@ def layout_coordvec(parent_layout,
                     op_id_avg_grab,
                     op_id_local_grab,
                     op_id_global_grab,
-                    coord_prop,
+                    coord_container,
+                    coord_attribute,
                     op_id_cursor_send,
                     op_id_text_tuple_swap_first=None,
                     op_id_text_tuple_swap_second=None):
@@ -8846,8 +8847,8 @@ def layout_coordvec(parent_layout,
     )
 
     type_or_grab_coords.prop(
-        bpy.types.AnyType(coord_prop),
-        'line_start',
+        bpy.types.AnyType(coord_container),
+        coord_attribute,
         ""
     )
 
@@ -8874,7 +8875,7 @@ def layout_coordvec(parent_layout,
     coordvec_lowers.label("Send:")
     coordvec_lowers.operator(
         op_id_cursor_send,
-        icon='CURSOR',
+        icon='DRIVER',
         text=""
     )
 
@@ -10163,49 +10164,26 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                apt_src_geom_editor.label("Pt. Origin:")
-                # plane_a_items = apt_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                pt_items = apt_src_geom_editor.row()
-                typein_and_grab_pt = pt_items.column()
-                pt_uppers = typein_and_grab_pt.row()
-
-                pt_uppers_leftside = pt_uppers.row(align=True)
-                pt_uppers_leftside.alignment = 'LEFT'
-                pt_uppers_leftside.label("Send:")
-                pt_uppers_leftside.operator(
-                    "maplus.quickaptsrcsendpointtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                pt_uppers_rightside = pt_uppers.row(align=True)
-                pt_uppers_rightside.alignment = 'RIGHT'
-                pt_uppers_rightside.label("Grab:")
-                pt_uppers_rightside.operator(
-                    "maplus.quickaptsrcgrabpointfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.quickalignpointsgrabsrcloc",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.quickalignpointsgrabsrc",
-                    icon='WORLD',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.quickaptgrabavgsrc",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_pt.prop(
-                    bpy.types.AnyType(addon_data.quick_align_pts_src),
-                    'point',
-                    ""
+                layout_coordvec(
+                    parent_layout=apt_src_geom_editor,
+                    coordvec_label="Pt. Origin:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaptsrcgrabpointfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaptgrabavgsrc"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickalignpointsgrabsrcloc"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickalignpointsgrabsrc"
+                    ),
+                    coord_container=addon_data.quick_align_pts_src,
+                    coord_attribute="point",
+                    op_id_cursor_send=(
+                        "maplus.quickaptsrcsendpointtocursor"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -10324,49 +10302,26 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 "Multiplier"
             )
 
-            apt_dest_geom_editor.label("Pt. Origin:")
-            # plane_a_items = apt_src_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            pt_items = apt_dest_geom_editor.row()
-            typein_and_grab_pt = pt_items.column()
-            pt_uppers = typein_and_grab_pt.row()
-
-            pt_uppers_leftside = pt_uppers.row(align=True)
-            pt_uppers_leftside.alignment = 'LEFT'
-            pt_uppers_leftside.label("Send:")
-            pt_uppers_leftside.operator(
-                "maplus.quickaptdestsendpointtocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            pt_uppers_rightside = pt_uppers.row(align=True)
-            pt_uppers_rightside.alignment = 'RIGHT'
-            pt_uppers_rightside.label("Grab:")
-            pt_uppers_rightside.operator(
-                "maplus.quickaptdestgrabpointfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            pt_uppers_rightside.operator(
-                "maplus.quickalignpointsgrabdestloc",
-                icon='VERTEXSEL',
-                text=""
-            )
-            pt_uppers_rightside.operator(
-                "maplus.quickalignpointsgrabdest",
-                icon='WORLD',
-                text=""
-            )
-            pt_uppers_rightside.operator(
-                "maplus.quickaptgrabavgdest",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_pt.prop(
-                bpy.types.AnyType(addon_data.quick_align_pts_dest),
-                'point',
-                ""
+            layout_coordvec(
+                parent_layout=apt_dest_geom_editor,
+                coordvec_label="Pt. Origin:",
+                op_id_cursor_grab=(
+                    "maplus.quickaptdestgrabpointfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickaptgrabavgdest"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickalignpointsgrabdestloc"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickalignpointsgrabdest"
+                ),
+                coord_container=addon_data.quick_align_pts_dest,
+                coord_attribute="point",
+                op_id_cursor_send=(
+                    "maplus.quickaptdestsendpointtocursor"
+                )
             )
 
         ########################
@@ -10526,54 +10481,30 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                aln_src_geom_editor.label("Start:")
-                # plane_a_items = aln_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = aln_src_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.quickalnsrcswaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickalnsrcsendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickalngrabavgsrclinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.quick_align_lines_src),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=aln_src_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.quickalnsrcgrablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickalngrabavgsrclinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickalnsrcgrablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickalnsrcgrablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_lines_src,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.quickalnsrcsendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickalnsrcswaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -10609,56 +10540,31 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     # "maplus.oneotherplanepointaz",
                     # text="11Z"
                 # )
-                
-                
-                aln_src_geom_editor.label("End:")
-                # plane_a_items = aln_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = aln_src_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
 
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.quickalnsrcswaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickalnsrcsendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickalnsrcgrablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickalngrabavgsrclineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.quick_align_lines_src),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=aln_src_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.quickalnsrcgrablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickalngrabavgsrclineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickalnsrcgrablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickalnsrcgrablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_lines_src,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.quickalnsrcsendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickalnsrcswaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -10804,7 +10710,8 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 op_id_global_grab=(
                     "maplus.quickalndestgrablinestartfromactiveglobal"
                 ),
-                coord_prop=addon_data.quick_align_lines_dest,
+                coord_container=addon_data.quick_align_lines_dest,
+                coord_attribute="line_start",
                 op_id_cursor_send=(
                     "maplus.quickalndestsendlinestarttocursor"
                 ),
@@ -10848,54 +10755,30 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 # text="11Z"
             # )
 
-            aln_dest_geom_editor.label("End:")
-            # plane_a_items = aln_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            ln_end_items = aln_dest_geom_editor.row()
-            typein_and_grab_end = ln_end_items.column()
-            ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-            ln_end_swap = ln_end_uppers.row(align=True)
-            ln_end_swap.label("Swap With:")
-            ln_end_swap.operator(
-                "maplus.quickalndestswaplinepoints",
-                text="Start"
-            )
-
-            ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-            ln_end_uppers_rightside.alignment = 'RIGHT'
-            ln_end_uppers_rightside.label("Send:")
-            ln_end_uppers_rightside.operator(
-                "maplus.quickalndestsendlineendtocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            ln_end_uppers_rightside.label("Grab:")
-            ln_end_uppers_rightside.operator(
-                "maplus.quickalndestgrablineendfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quickalndestgrablineendfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quickalndestgrablineendfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quickalngrabavgdestlineend",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_end.prop(
-                bpy.types.AnyType(addon_data.quick_align_lines_dest),
-                'line_end',
-                ""
+            layout_coordvec(
+                parent_layout=aln_dest_geom_editor,
+                coordvec_label="End:",
+                op_id_cursor_grab=(
+                    "maplus.quickalndestgrablineendfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickalngrabavgdestlineend"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickalndestgrablineendfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickalndestgrablineendfromactiveglobal"
+                ),
+                coord_container=addon_data.quick_align_lines_dest,
+                coord_attribute="line_end",
+                op_id_cursor_send=(
+                    "maplus.quickalndestsendlineendtocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quickalndestswaplinepoints",
+                    "Start"
+                )
             )
 
         ###################################
@@ -11011,58 +10894,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="Paste (From Clipboard)"
                 )
 
-                apl_src_geom_editor.label("Pt. A:")
-                # plane_a_items = apl_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_a_items = apl_src_geom_editor.row()
-                typein_and_grab_plna = plane_a_items.column()
-                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-                plane_a_swap = plane_a_uppers.row(align=True)
-                plane_a_swap.label("Swap With:")
-                plane_a_swap.operator(
-                    "maplus.quickaplsrcswapplaneaplaneb",
-                    text="B"
-                )
-                plane_a_swap.operator(
-                    "maplus.quickaplsrcswapplaneaplanec",
-                    text="C"
-                )
-
-                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-                plane_a_uppers_rightside.alignment = 'RIGHT'
-                plane_a_uppers_rightside.label("Send:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.quickaplsrcsendplaneatocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_a_uppers_rightside.label("Grab:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplaneafromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplaneafromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplaneafromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.quickaplgrabavgsrcplanea",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plna.prop(
-                    bpy.types.AnyType(addon_data.quick_align_planes_src),
-                    'plane_pt_a',
-                    ""
+                layout_coordvec(
+                    parent_layout=apl_src_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsrcgrabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplgrabavgsrcplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsrcgrabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsrcgrabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_src,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsrcsendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsrcswapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsrcswapplaneaplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -11099,57 +10958,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                apl_src_geom_editor.label("Pt. B (Pivot):")
-                # plane_b_items = apl_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_b_items = apl_src_geom_editor.row()
-                typein_and_grab_plnb = plane_b_items.column()
-                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-                plane_b_swap = plane_b_uppers.row(align=True)
-                plane_b_swap.label("Swap With:")
-                plane_b_swap.operator(
-                    "maplus.quickaplsrcswapplaneaplaneb",
-                    text="A"
-                )
-                plane_b_swap.operator(
-                    "maplus.quickaplsrcswapplanebplanec",
-                    text="C"
-                )
-
-                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-                plane_b_uppers_rightside.alignment = 'RIGHT'
-                plane_b_uppers_rightside.label("Send:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.quickaplsrcsendplanebtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_b_uppers_rightside.label("Grab:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanebfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanebfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanebfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.quickaplgrabavgsrcplaneb",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnb.prop(
-                    bpy.types.AnyType(addon_data.quick_align_planes_src),
-                    'plane_pt_b',
-                    ""
+                layout_coordvec(
+                    parent_layout=apl_src_geom_editor,
+                    coordvec_label="Pt. B:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsrcgrabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplgrabavgsrcplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsrcgrabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsrcgrabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_src,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsrcsendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsrcswapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsrcswapplanebplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plnb = plane_b_items.row()
@@ -11186,57 +11022,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                apl_src_geom_editor.label("Pt. C:")
-                # plane_c_items = apl_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_c_items = apl_src_geom_editor.row()
-                typein_and_grab_plnc = plane_c_items.column()
-                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-                plane_c_swap = plane_c_uppers.row(align=True)
-                plane_c_swap.label("Swap With:")
-                plane_c_swap.operator(
-                    "maplus.quickaplsrcswapplaneaplanec",
-                    text="A"
-                )
-                plane_c_swap.operator(
-                    "maplus.quickaplsrcswapplanebplanec",
-                    text="B"
-                )
-
-                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-                plane_c_uppers_rightside.alignment = 'RIGHT'
-                plane_c_uppers_rightside.label("Send:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.quickaplsrcsendplanectocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_c_uppers_rightside.label("Grab:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanecfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanecfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.quickaplsrcgrabplanecfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.quickaplgrabavgsrcplanec",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnc.prop(
-                    bpy.types.AnyType(addon_data.quick_align_planes_src),
-                    'plane_pt_c',
-                    ""
+                layout_coordvec(
+                    parent_layout=apl_src_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsrcgrabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplgrabavgsrcplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsrcgrabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsrcgrabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_src,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsrcsendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsrcswapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsrcswapplanebplanec",
+                        "B"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -11329,58 +11142,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 text="Paste (From Clipboard)"
             )
 
-            apl_dest_geom_editor.label("Pt. A:")
-            # plane_a_items = apl_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            plane_a_items = apl_dest_geom_editor.row()
-            typein_and_grab_plna = plane_a_items.column()
-            plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-            plane_a_swap = plane_a_uppers.row(align=True)
-            plane_a_swap.label("Swap With:")
-            plane_a_swap.operator(
-                "maplus.quickapldestswapplaneaplaneb",
-                text="B"
-            )
-            plane_a_swap.operator(
-                "maplus.quickapldestswapplaneaplanec",
-                text="C"
-            )
-
-            plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-            plane_a_uppers_rightside.alignment = 'RIGHT'
-            plane_a_uppers_rightside.label("Send:")
-            plane_a_uppers_rightside.operator(
-                "maplus.quickapldestsendplaneatocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            plane_a_uppers_rightside.label("Grab:")
-            plane_a_uppers_rightside.operator(
-                "maplus.quickapldestgrabplaneafromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            plane_a_uppers_rightside.operator(
-                "maplus.quickapldestgrabplaneafromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            plane_a_uppers_rightside.operator(
-                "maplus.quickapldestgrabplaneafromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            plane_a_uppers_rightside.operator(
-                "maplus.quickaplgrabavgdestplanea",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_plna.prop(
-                bpy.types.AnyType(addon_data.quick_align_planes_dest),
-                'plane_pt_a',
-                ""
+            layout_coordvec(
+                parent_layout=apl_dest_geom_editor,
+                coordvec_label="Pt. A:",
+                op_id_cursor_grab=(
+                    "maplus.quickapldestgrabplaneafromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickaplgrabavgdestplanea"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickapldestgrabplaneafromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickapldestgrabplaneafromactiveglobal"
+                ),
+                coord_container=addon_data.quick_align_planes_dest,
+                coord_attribute="plane_pt_a",
+                op_id_cursor_send=(
+                    "maplus.quickapldestsendplaneatocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quickapldestswapplaneaplaneb",
+                    "B"
+                ),
+                op_id_text_tuple_swap_second=(
+                    "maplus.quickapldestswapplaneaplanec",
+                    "C"
+                )
             )
 
             # component_changers_plna = plane_a_items.row()
@@ -11417,57 +11206,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 # text="11Z"
             # )
 
-            apl_dest_geom_editor.label("Pt. B (Pivot):")
-            # plane_b_items = apl_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            plane_b_items = apl_dest_geom_editor.row()
-            typein_and_grab_plnb = plane_b_items.column()
-            plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-            plane_b_swap = plane_b_uppers.row(align=True)
-            plane_b_swap.label("Swap With:")
-            plane_b_swap.operator(
-                "maplus.quickapldestswapplaneaplaneb",
-                text="A"
-            )
-            plane_b_swap.operator(
-                "maplus.quickapldestswapplanebplanec",
-                text="C"
-            )
-
-            plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-            plane_b_uppers_rightside.alignment = 'RIGHT'
-            plane_b_uppers_rightside.label("Send:")
-            plane_b_uppers_rightside.operator(
-                "maplus.quickapldestsendplanebtocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            plane_b_uppers_rightside.label("Grab:")
-            plane_b_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanebfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            plane_b_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanebfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            plane_b_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanebfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            plane_b_uppers_rightside.operator(
-                "maplus.quickaplgrabavgdestplaneb",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_plnb.prop(
-                bpy.types.AnyType(addon_data.quick_align_planes_dest),
-                'plane_pt_b',
-                ""
+            layout_coordvec(
+                parent_layout=apl_dest_geom_editor,
+                coordvec_label="Pt. B (Pivot):",
+                op_id_cursor_grab=(
+                    "maplus.quickapldestgrabplanebfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickaplgrabavgdestplaneb"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickapldestgrabplanebfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickapldestgrabplanebfromactiveglobal"
+                ),
+                coord_container=addon_data.quick_align_planes_dest,
+                coord_attribute="plane_pt_b",
+                op_id_cursor_send=(
+                    "maplus.quickapldestsendplanebtocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quickapldestswapplaneaplaneb",
+                    "A"
+                ),
+                op_id_text_tuple_swap_second=(
+                    "maplus.quickapldestswapplanebplanec",
+                    "C"
+                )
             )
 
             # component_changers_plnb = plane_b_items.row()
@@ -11504,57 +11270,34 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 # text="11Z"
             # )
 
-            apl_dest_geom_editor.label("Pt. C:")
-            # plane_c_items = apl_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            plane_c_items = apl_dest_geom_editor.row()
-            typein_and_grab_plnc = plane_c_items.column()
-            plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-            plane_c_swap = plane_c_uppers.row(align=True)
-            plane_c_swap.label("Swap With:")
-            plane_c_swap.operator(
-                "maplus.quickapldestswapplaneaplanec",
-                text="A"
-            )
-            plane_c_swap.operator(
-                "maplus.quickapldestswapplanebplanec",
-                text="B"
-            )
-
-            plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-            plane_c_uppers_rightside.alignment = 'RIGHT'
-            plane_c_uppers_rightside.label("Send:")
-            plane_c_uppers_rightside.operator(
-                "maplus.quickapldestsendplanectocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            plane_c_uppers_rightside.label("Grab:")
-            plane_c_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanecfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            plane_c_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanecfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            plane_c_uppers_rightside.operator(
-                "maplus.quickapldestgrabplanecfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            plane_c_uppers_rightside.operator(
-                "maplus.quickaplgrabavgdestplanec",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_plnc.prop(
-                bpy.types.AnyType(addon_data.quick_align_planes_dest),
-                'plane_pt_c',
-                ""
+            layout_coordvec(
+                parent_layout=apl_dest_geom_editor,
+                coordvec_label="Pt. C:",
+                op_id_cursor_grab=(
+                    "maplus.quickapldestgrabplanecfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quickaplgrabavgdestplanec"
+                ),
+                op_id_local_grab=(
+                    "maplus.quickapldestgrabplanecfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quickapldestgrabplanecfromactiveglobal"
+                ),
+                coord_container=addon_data.quick_align_planes_dest,
+                coord_attribute="plane_pt_c",
+                op_id_cursor_send=(
+                    "maplus.quickapldestsendplanectocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quickapldestswapplaneaplanec",
+                    "A"
+                ),
+                op_id_text_tuple_swap_second=(
+                    "maplus.quickapldestswapplanebplanec",
+                    "B"
+                )
             )
 
             # component_changers_plnc = plane_c_items.row()
@@ -12063,54 +11806,30 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                ds_src_geom_editor.label("Start:")
-                # plane_a_items = ds_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = ds_src_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.quickdssrcswaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickdssrcsendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickdsgrabavgsrclinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=ds_src_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.quickdssrcgrablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickdsgrabavgsrclinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickdssrcgrablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickdssrcgrablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_directional_slide_src,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.quickdssrcsendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickdssrcswaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -12147,54 +11866,30 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                ds_src_geom_editor.label("End:")
-                # plane_a_items = ds_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = ds_src_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.quickdssrcswaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickdssrcsendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickdssrcgrablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickdsgrabavgsrclineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=ds_src_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.quickdssrcgrablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickdsgrabavgsrclineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickdssrcgrablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickdssrcgrablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_directional_slide_src,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.quickdssrcsendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickdssrcswaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -12384,54 +12079,30 @@ class QuickSMEGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                sme_src_geom_editor.label("Start:")
-                # plane_a_items = sme_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = sme_src_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.quicksmesrcswaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quicksmesrcsendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quicksmegrabavgsrclinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=sme_src_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.quicksmesrcgrablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quicksmegrabavgsrclinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quicksmesrcgrablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quicksmesrcgrablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_scale_match_edge_src,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.quicksmesrcsendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quicksmesrcswaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -12468,54 +12139,30 @@ class QuickSMEGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                sme_src_geom_editor.label("End:")
-                # plane_a_items = sme_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = sme_src_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.quicksmesrcswaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quicksmesrcsendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quicksmesrcgrablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quicksmegrabavgsrclineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=sme_src_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.quicksmesrcgrablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quicksmegrabavgsrclineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quicksmesrcgrablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quicksmesrcgrablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_scale_match_edge_src,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.quicksmesrcsendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quicksmesrcswaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -12634,54 +12281,30 @@ class QuickSMEGUI(bpy.types.Panel):
                 "Multiplier"
             )
 
-            sme_dest_geom_editor.label("Start:")
-            # plane_a_items = sme_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            ln_start_items = sme_dest_geom_editor.row()
-            typein_and_grab_start = ln_start_items.column()
-            ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-            ln_start_swap = ln_start_uppers.row(align=True)
-            ln_start_swap.label("Swap With:")
-            ln_start_swap.operator(
-                "maplus.quicksmedestswaplinepoints",
-                text="End"
-            )
-
-            ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-            ln_start_uppers_rightside.alignment = 'RIGHT'
-            ln_start_uppers_rightside.label("Send:")
-            ln_start_uppers_rightside.operator(
-                "maplus.quicksmedestsendlinestarttocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            ln_start_uppers_rightside.label("Grab:")
-            ln_start_uppers_rightside.operator(
-                "maplus.quicksmedestgrablinestartfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quicksmedestgrablinestartfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quicksmedestgrablinestartfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            ln_start_uppers_rightside.operator(
-                "maplus.quicksmegrabavgdestlinestart",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_start.prop(
-                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
-                'line_start',
-                ""
+            layout_coordvec(
+                parent_layout=sme_dest_geom_editor,
+                coordvec_label="Start:",
+                op_id_cursor_grab=(
+                    "maplus.quicksmedestgrablinestartfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quicksmegrabavgdestlinestart"
+                ),
+                op_id_local_grab=(
+                    "maplus.quicksmedestgrablinestartfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quicksmedestgrablinestartfromactiveglobal"
+                ),
+                coord_container=addon_data.quick_scale_match_edge_dest,
+                coord_attribute="line_start",
+                op_id_cursor_send=(
+                    "maplus.quicksmedestsendlinestarttocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quicksmedestswaplinepoints",
+                    "End"
+                )
             )
 
             # component_changers_plna = plane_a_items.row()
@@ -12718,54 +12341,30 @@ class QuickSMEGUI(bpy.types.Panel):
                 # text="11Z"
             # )
 
-            sme_dest_geom_editor.label("End:")
-            # plane_a_items = sme_dest_geom_editor.split(percentage=.75)
-            # ^ line changed to remove component changers
-            ln_end_items = sme_dest_geom_editor.row()
-            typein_and_grab_end = ln_end_items.column()
-            ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-            ln_end_swap = ln_end_uppers.row(align=True)
-            ln_end_swap.label("Swap With:")
-            ln_end_swap.operator(
-                "maplus.quicksmedestswaplinepoints",
-                text="Start"
-            )
-
-            ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-            ln_end_uppers_rightside.alignment = 'RIGHT'
-            ln_end_uppers_rightside.label("Send:")
-            ln_end_uppers_rightside.operator(
-                "maplus.quicksmedestsendlineendtocursor",
-                icon='CURSOR',
-                text=""
-            )
-
-            ln_end_uppers_rightside.label("Grab:")
-            ln_end_uppers_rightside.operator(
-                "maplus.quicksmedestgrablineendfromcursor",
-                icon='CURSOR',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quicksmedestgrablineendfromactivelocal",
-                icon='VERTEXSEL',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quicksmedestgrablineendfromactiveglobal",
-                icon='WORLD',
-                text=""
-            )
-            ln_end_uppers_rightside.operator(
-                "maplus.quicksmegrabavgdestlineend",
-                icon='GROUP_VERTEX',
-                text=""
-            )
-            typein_and_grab_end.prop(
-                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
-                'line_end',
-                ""
+            layout_coordvec(
+                parent_layout=sme_dest_geom_editor,
+                coordvec_label="End:",
+                op_id_cursor_grab=(
+                    "maplus.quicksmedestgrablineendfromcursor"
+                ),
+                op_id_avg_grab=(
+                    "maplus.quicksmegrabavgdestlineend"
+                ),
+                op_id_local_grab=(
+                    "maplus.quicksmedestgrablineendfromactivelocal"
+                ),
+                op_id_global_grab=(
+                    "maplus.quicksmedestgrablineendfromactiveglobal"
+                ),
+                coord_container=addon_data.quick_scale_match_edge_dest,
+                coord_attribute="line_end",
+                op_id_cursor_send=(
+                    "maplus.quicksmedestsendlineendtocursor"
+                ),
+                op_id_text_tuple_swap_first=(
+                    "maplus.quicksmedestswaplinepoints",
+                    "Start"
+                )
             )
 
         sme_apply_header = sme_gui.row()
@@ -12909,49 +12508,26 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                slot1_geom_editor.label("Pt. Origin:")
-                # plane_a_items = slot1_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                pt_items = slot1_geom_editor.row()
-                typein_and_grab_pt = pt_items.column()
-                pt_uppers = typein_and_grab_pt.row()
-
-                pt_uppers_leftside = pt_uppers.row(align=True)
-                pt_uppers_leftside.alignment = 'LEFT'
-                pt_uppers_leftside.label("Send:")
-                pt_uppers_leftside.operator(
-                    "maplus.slot1sendpointtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                pt_uppers_rightside = pt_uppers.row(align=True)
-                pt_uppers_rightside.alignment = 'RIGHT'
-                pt_uppers_rightside.label("Grab:")
-                pt_uppers_rightside.operator(
-                    "maplus.slot1grabpointfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointslot1loc",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointslot1",
-                    icon='WORLD',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.slot1pointgrabavg",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_pt.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'point',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="Pt. Origin:",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grabpointfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1pointgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabpointslot1loc"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabpointslot1"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="point",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendpointtocursor"
+                    )
                 )
 
             elif addon_data.internal_storage_slot_1.kind == 'LINE':
@@ -13012,54 +12588,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                slot1_geom_editor.label("Start:")
-                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = slot1_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.slot1swaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot1sendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot1grablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot1grablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot1grablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot1grabavglinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1grabavglinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot1grablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot1grablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot1swaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -13096,54 +12648,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot1_geom_editor.label("End:")
-                # plane_a_items = slot1_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = slot1_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.slot1swaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot1sendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot1grablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot1grablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot1grablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot1grabavglineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1grabavglineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot1grablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot1grablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot1swaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -13203,58 +12731,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     text="Paste (From Clipboard)"
                 )
 
-                slot1_geom_editor.label("Pt. A:")
-                # plane_a_items = slot1_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_a_items = slot1_geom_editor.row()
-                typein_and_grab_plna = plane_a_items.column()
-                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-                plane_a_swap = plane_a_uppers.row(align=True)
-                plane_a_swap.label("Swap With:")
-                plane_a_swap.operator(
-                    "maplus.slot1swapplaneaplaneb",
-                    text="B"
-                )
-                plane_a_swap.operator(
-                    "maplus.slot1swapplaneaplanec",
-                    text="C"
-                )
-
-                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-                plane_a_uppers_rightside.alignment = 'RIGHT'
-                plane_a_uppers_rightside.label("Send:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot1sendplaneatocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_a_uppers_rightside.label("Grab:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot1grabplaneafromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot1grabplaneafromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot1grabplaneafromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot1grabavgplanea",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plna.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'plane_pt_a',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1grabavgplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot1grabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot1grabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot1swapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot1swapplaneaplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -13291,57 +12795,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot1_geom_editor.label("Pt. B (Pivot):")
-                # plane_b_items = slot1_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_b_items = slot1_geom_editor.row()
-                typein_and_grab_plnb = plane_b_items.column()
-                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-                plane_b_swap = plane_b_uppers.row(align=True)
-                plane_b_swap.label("Swap With:")
-                plane_b_swap.operator(
-                    "maplus.slot1swapplaneaplaneb",
-                    text="A"
-                )
-                plane_b_swap.operator(
-                    "maplus.slot1swapplanebplanec",
-                    text="C"
-                )
-
-                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-                plane_b_uppers_rightside.alignment = 'RIGHT'
-                plane_b_uppers_rightside.label("Send:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot1sendplanebtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_b_uppers_rightside.label("Grab:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot1grabplanebfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot1grabplanebfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot1grabplanebfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot1grabavgplaneb",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnb.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'plane_pt_b',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="Pt. B (Pivot):",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1grabavgplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot1grabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot1grabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot1swapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot1swapplanebplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plnb = plane_b_items.row()
@@ -13378,57 +12859,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot1_geom_editor.label("Pt. C:")
-                # plane_c_items = slot1_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_c_items = slot1_geom_editor.row()
-                typein_and_grab_plnc = plane_c_items.column()
-                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-                plane_c_swap = plane_c_uppers.row(align=True)
-                plane_c_swap.label("Swap With:")
-                plane_c_swap.operator(
-                    "maplus.slot1swapplaneaplanec",
-                    text="A"
-                )
-                plane_c_swap.operator(
-                    "maplus.slot1swapplanebplanec",
-                    text="B"
-                )
-
-                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-                plane_c_uppers_rightside.alignment = 'RIGHT'
-                plane_c_uppers_rightside.label("Send:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot1sendplanectocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_c_uppers_rightside.label("Grab:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot1grabplanecfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot1grabplanecfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot1grabplanecfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot1grabavgplanec",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnc.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_1),
-                    'plane_pt_c',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot1_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.slot1grabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot1grabavgplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot1grabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot1grabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_1,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.slot1sendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot1swapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot1swapplanebplanec",
+                        "B"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -13480,7 +12938,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             preserve_button_roundedge.operator(
                 "maplus.graballslot2",
                 icon='WORLD',
-                text="Grab Slot 1"
+                text="Grab Slot 2"
             )
 
         else:
@@ -13490,7 +12948,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 text="",
                 emboss=False
             )
-            slot2_geom_top.label("Slot 1 Coordinates")
+            slot2_geom_top.label("Slot 2 Coordinates")
             slot2_geom_editor = calc_gui.box()
             types_row = slot2_geom_editor.row()
             types_row.label("Item type:")
@@ -13551,49 +13009,26 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                slot2_geom_editor.label("Pt. Origin:")
-                # plane_a_items = slot2_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                pt_items = slot2_geom_editor.row()
-                typein_and_grab_pt = pt_items.column()
-                pt_uppers = typein_and_grab_pt.row()
-
-                pt_uppers_leftside = pt_uppers.row(align=True)
-                pt_uppers_leftside.alignment = 'LEFT'
-                pt_uppers_leftside.label("Send:")
-                pt_uppers_leftside.operator(
-                    "maplus.slot2sendpointtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                pt_uppers_rightside = pt_uppers.row(align=True)
-                pt_uppers_rightside.alignment = 'RIGHT'
-                pt_uppers_rightside.label("Grab:")
-                pt_uppers_rightside.operator(
-                    "maplus.slot2grabpointfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointslot2loc",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointslot2",
-                    icon='WORLD',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.slot2pointgrabavg",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_pt.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'point',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="Pt. Origin:",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grabpointfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2pointgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabpointslot2loc"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabpointslot2"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="point",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendpointtocursor"
+                    )
                 )
 
             elif addon_data.internal_storage_slot_2.kind == 'LINE':
@@ -13654,54 +13089,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                slot2_geom_editor.label("Start:")
-                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = slot2_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.slot2swaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot2sendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot2grablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot2grablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot2grablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.slot2grabavglinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2grabavglinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot2grablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot2grablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot2swaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -13738,54 +13149,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot2_geom_editor.label("End:")
-                # plane_a_items = slot2_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = slot2_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.slot2swaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot2sendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot2grablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot2grablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot2grablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.slot2grabavglineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2grabavglineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot2grablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot2grablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot2swaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -13845,58 +13232,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     text="Paste (From Clipboard)"
                 )
 
-                slot2_geom_editor.label("Pt. A:")
-                # plane_a_items = slot2_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_a_items = slot2_geom_editor.row()
-                typein_and_grab_plna = plane_a_items.column()
-                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-                plane_a_swap = plane_a_uppers.row(align=True)
-                plane_a_swap.label("Swap With:")
-                plane_a_swap.operator(
-                    "maplus.slot2swapplaneaplaneb",
-                    text="B"
-                )
-                plane_a_swap.operator(
-                    "maplus.slot2swapplaneaplanec",
-                    text="C"
-                )
-
-                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-                plane_a_uppers_rightside.alignment = 'RIGHT'
-                plane_a_uppers_rightside.label("Send:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot2sendplaneatocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_a_uppers_rightside.label("Grab:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot2grabplaneafromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot2grabplaneafromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot2grabplaneafromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.slot2grabavgplanea",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plna.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'plane_pt_a',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2grabavgplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot2grabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot2grabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot2swapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot2swapplaneaplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -13933,57 +13296,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot2_geom_editor.label("Pt. B (Pivot):")
-                # plane_b_items = slot2_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_b_items = slot2_geom_editor.row()
-                typein_and_grab_plnb = plane_b_items.column()
-                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-                plane_b_swap = plane_b_uppers.row(align=True)
-                plane_b_swap.label("Swap With:")
-                plane_b_swap.operator(
-                    "maplus.slot2swapplaneaplaneb",
-                    text="A"
-                )
-                plane_b_swap.operator(
-                    "maplus.slot2swapplanebplanec",
-                    text="C"
-                )
-
-                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-                plane_b_uppers_rightside.alignment = 'RIGHT'
-                plane_b_uppers_rightside.label("Send:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot2sendplanebtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_b_uppers_rightside.label("Grab:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot2grabplanebfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot2grabplanebfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot2grabplanebfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.slot2grabavgplaneb",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnb.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'plane_pt_b',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="Pt. B (Pivot):",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2grabavgplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot2grabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot2grabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot2swapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot2swapplanebplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plnb = plane_b_items.row()
@@ -14020,57 +13360,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                slot2_geom_editor.label("Pt. C:")
-                # plane_c_items = slot2_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_c_items = slot2_geom_editor.row()
-                typein_and_grab_plnc = plane_c_items.column()
-                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-                plane_c_swap = plane_c_uppers.row(align=True)
-                plane_c_swap.label("Swap With:")
-                plane_c_swap.operator(
-                    "maplus.slot2swapplaneaplanec",
-                    text="A"
-                )
-                plane_c_swap.operator(
-                    "maplus.slot2swapplanebplanec",
-                    text="B"
-                )
-
-                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-                plane_c_uppers_rightside.alignment = 'RIGHT'
-                plane_c_uppers_rightside.label("Send:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot2sendplanectocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_c_uppers_rightside.label("Grab:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot2grabplanecfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot2grabplanecfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot2grabplanecfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.slot2grabavgplanec",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnc.prop(
-                    bpy.types.AnyType(addon_data.internal_storage_slot_2),
-                    'plane_pt_c',
-                    ""
+                layout_coordvec(
+                    parent_layout=slot2_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.slot2grabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.slot2grabavgplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.slot2grabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.slot2grabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.internal_storage_slot_2,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.slot2sendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.slot2swapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.slot2swapplanebplanec",
+                        "B"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -14209,49 +13526,26 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                calcresult_geom_editor.label("Pt. Origin:")
-                # plane_a_items = calcresult_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                pt_items = calcresult_geom_editor.row()
-                typein_and_grab_pt = pt_items.column()
-                pt_uppers = typein_and_grab_pt.row()
-
-                pt_uppers_leftside = pt_uppers.row(align=True)
-                pt_uppers_leftside.alignment = 'LEFT'
-                pt_uppers_leftside.label("Send:")
-                pt_uppers_leftside.operator(
-                    "maplus.calcresultsendpointtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                pt_uppers_rightside = pt_uppers.row(align=True)
-                pt_uppers_rightside.alignment = 'RIGHT'
-                pt_uppers_rightside.label("Grab:")
-                pt_uppers_rightside.operator(
-                    "maplus.calcresultgrabpointfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointcalcresultloc",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.grabpointcalcresult",
-                    icon='WORLD',
-                    text=""
-                )
-                pt_uppers_rightside.operator(
-                    "maplus.calcresultpointgrabavg",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_pt.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'point',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="Pt. Origin:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrabpointfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultpointgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabpointcalcresultloc"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabpointcalcresult"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="point",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendpointtocursor"
+                    )
                 )
 
             elif addon_data.quick_calc_result_item.kind == 'LINE':
@@ -14312,54 +13606,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                calcresult_geom_editor.label("Start:")
-                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = calcresult_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.calcresultswaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.calcresultsendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.calcresultgrablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.calcresultgrablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.calcresultgrablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.calcresultgrabavglinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultgrabavglinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.calcresultgrablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.calcresultgrablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.calcresultswaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -14396,54 +13666,30 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                calcresult_geom_editor.label("End:")
-                # plane_a_items = calcresult_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = calcresult_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.calcresultswaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.calcresultsendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.calcresultgrablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.calcresultgrablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.calcresultgrablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.calcresultgrabavglineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultgrabavglineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.calcresultgrablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.calcresultgrablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.calcresultswaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
@@ -14503,58 +13749,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     text="Paste (From Clipboard)"
                 )
 
-                calcresult_geom_editor.label("Pt. A:")
-                # plane_a_items = calcresult_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_a_items = calcresult_geom_editor.row()
-                typein_and_grab_plna = plane_a_items.column()
-                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-                plane_a_swap = plane_a_uppers.row(align=True)
-                plane_a_swap.label("Swap With:")
-                plane_a_swap.operator(
-                    "maplus.calcresultswapplaneaplaneb",
-                    text="B"
-                )
-                plane_a_swap.operator(
-                    "maplus.calcresultswapplaneaplanec",
-                    text="C"
-                )
-
-                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-                plane_a_uppers_rightside.alignment = 'RIGHT'
-                plane_a_uppers_rightside.label("Send:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.calcresultsendplaneatocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_a_uppers_rightside.label("Grab:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.calcresultgrabplaneafromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.calcresultgrabplaneafromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.calcresultgrabplaneafromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.calcresultgrabavgplanea",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plna.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'plane_pt_a',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultgrabavgplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.calcresultgrabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.calcresultgrabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.calcresultswapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.calcresultswapplaneaplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -14591,57 +13813,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                calcresult_geom_editor.label("Pt. B (Pivot):")
-                # plane_b_items = calcresult_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_b_items = calcresult_geom_editor.row()
-                typein_and_grab_plnb = plane_b_items.column()
-                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-                plane_b_swap = plane_b_uppers.row(align=True)
-                plane_b_swap.label("Swap With:")
-                plane_b_swap.operator(
-                    "maplus.calcresultswapplaneaplaneb",
-                    text="A"
-                )
-                plane_b_swap.operator(
-                    "maplus.calcresultswapplanebplanec",
-                    text="C"
-                )
-
-                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-                plane_b_uppers_rightside.alignment = 'RIGHT'
-                plane_b_uppers_rightside.label("Send:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.calcresultsendplanebtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_b_uppers_rightside.label("Grab:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanebfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanebfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanebfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.calcresultgrabavgplaneb",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnb.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'plane_pt_b',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="Pt. B:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultgrabavgplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.calcresultgrabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.calcresultgrabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.calcresultswapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.calcresultswapplanebplanec",
+                        "C"
+                    )
                 )
 
                 # component_changers_plnb = plane_b_items.row()
@@ -14678,57 +13877,34 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                calcresult_geom_editor.label("Pt. C:")
-                # plane_c_items = calcresult_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                plane_c_items = calcresult_geom_editor.row()
-                typein_and_grab_plnc = plane_c_items.column()
-                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-                plane_c_swap = plane_c_uppers.row(align=True)
-                plane_c_swap.label("Swap With:")
-                plane_c_swap.operator(
-                    "maplus.calcresultswapplaneaplanec",
-                    text="A"
-                )
-                plane_c_swap.operator(
-                    "maplus.calcresultswapplanebplanec",
-                    text="B"
-                )
-
-                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-                plane_c_uppers_rightside.alignment = 'RIGHT'
-                plane_c_uppers_rightside.label("Send:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.calcresultsendplanectocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_c_uppers_rightside.label("Grab:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanecfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanecfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.calcresultgrabplanecfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.calcresultgrabavgplanec",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_plnc.prop(
-                    bpy.types.AnyType(addon_data.quick_calc_result_item),
-                    'plane_pt_c',
-                    ""
+                layout_coordvec(
+                    parent_layout=calcresult_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.calcresultgrabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.calcresultgrabavgplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.calcresultgrabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.calcresultgrabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_calc_result_item,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.calcresultsendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.calcresultswapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.calcresultswapplanebplanec",
+                        "B"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
