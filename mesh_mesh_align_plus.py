@@ -10326,7 +10326,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
 
         ########################
 
-        align_pts_gui.label("Operator settings:")
+        align_pts_gui.label("Operator settings:", icon="SCRIPTWIN")
         apt_mods = align_pts_gui.box()
         apt_box_row1 = apt_mods.row()
         apt_box_row1.prop(
@@ -10788,7 +10788,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         ###################################
         ###################################
 
-        aln_gui.label("Operator settings:")
+        aln_gui.label("Operator settings:", icon="SCRIPTWIN")
         aln_mods = aln_gui.box()
         aln_mods_row1 = aln_mods.row()
         aln_mods_row1.prop(
@@ -11341,7 +11341,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         ###################################
         ###################################
 
-        apl_gui.label("Operator settings:")
+        apl_gui.label("Operator settings:", icon="SCRIPTWIN")
         apl_mods = apl_gui.box()
         apl_mods_row1 = apl_mods.row()
         apl_mods_row1.prop(
@@ -11661,7 +11661,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         if addon_data.quick_axr_show_src_geom:
             axr_grab_col.separator()
 
-        axr_gui.label("Operator settings:")
+        axr_gui.label("Operator settings:", icon="SCRIPTWIN")
         axr_mods = axr_gui.box()
         axr_mods_row1 = axr_mods.row()
         axr_mods_row1.prop(
@@ -11928,7 +11928,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         if addon_data.quick_ds_show_src_geom:
             ds_grab_col.separator()
 
-        ds_gui.label("Operator settings:")
+        ds_gui.label("Operator settings:", icon="SCRIPTWIN")
         ds_mods = ds_gui.box()
         ds_box_row1 = ds_mods.row()
         ds_box_row1.prop(
