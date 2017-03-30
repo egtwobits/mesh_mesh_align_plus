@@ -10095,7 +10095,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 preserve_button_roundedge = apt_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickalignpointsgrabsrc",
-                        icon='WORLD',
+                        icon='LAYER_ACTIVE',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
@@ -10111,7 +10111,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                apt_src_geom_top.label("Source Coordinates")
+                apt_src_geom_top.label("Source Coordinates", icon="LAYER_ACTIVE")
 
                 apt_src_geom_editor = apt_grab_col.box()
                 pt_grab_all = apt_src_geom_editor.row(align=True)
@@ -10233,7 +10233,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             preserve_button_roundedge = apt_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickalignpointsgrabdest",
-                    icon='WORLD',
+                    icon='LAYER_ACTIVE',
                     text="Grab Destination"
             )
             preserve_button_roundedge.operator(
@@ -10249,7 +10249,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apt_dest_geom_top.label("Destination Coordinates")
+            apt_dest_geom_top.label("Destination Coordinates", icon="LAYER_ACTIVE")
 
             apt_dest_geom_editor = apt_grab_col.box()
             pt_grab_all = apt_dest_geom_editor.row(align=True)
@@ -10407,7 +10407,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 preserve_button_roundedge = aln_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickalignlinesgrabsrc",
-                        icon='WORLD',
+                        icon='MAN_TRANS',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
@@ -10422,7 +10422,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                aln_src_geom_top.label("Source Coordinates")
+                aln_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
 
                 aln_src_geom_editor = aln_grab_col.box()
                 ln_grab_all = aln_src_geom_editor.row(align=True)
@@ -10621,7 +10621,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             preserve_button_roundedge = aln_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickalignlinesgrabdest",
-                    icon='WORLD',
+                    icon='MAN_TRANS',
                     text="Grab Destination"
             )
             preserve_button_roundedge.operator(
@@ -10636,7 +10636,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            aln_dest_geom_top.label("Destination Coordinates")
+            aln_dest_geom_top.label("Destination Coordinates", icon="MAN_TRANS")
 
             aln_dest_geom_editor = aln_grab_col.box()
             ln_grab_all = aln_dest_geom_editor.row(align=True)
@@ -10858,7 +10858,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 preserve_button_roundedge = apl_src_geom_top.row()
                 preserve_button_roundedge.operator(
                     "maplus.quickalignplanesgrabsrc",
-                    icon='WORLD',
+                    icon='OUTLINER_OB_MESH',
                     text="Grab Source"
                 )
             else:
@@ -10868,7 +10868,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
                 )
-                apl_src_geom_top.label("Source Coordinates")
+                apl_src_geom_top.label("Source Coordinates", icon="OUTLINER_OB_MESH")
 
                 apl_src_geom_editor = apl_grab_col.box()
                 plane_grab_all = apl_src_geom_editor.row(align=True)
@@ -11106,7 +11106,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             preserve_button_roundedge = apl_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickalignplanesgrabdest",
-                    icon='WORLD',
+                    icon='OUTLINER_OB_MESH',
                     text="Grab Destination"
             )
         else:
@@ -11116,7 +11116,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apl_dest_geom_top.label("Destination Coordinates")
+            apl_dest_geom_top.label("Destination Coordinates", icon="OUTLINER_OB_MESH")
 
             apl_dest_geom_editor = apl_grab_col.box()
             plane_grab_all = apl_dest_geom_editor.row(align=True)
@@ -11416,7 +11416,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 preserve_button_roundedge = axr_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickaxisrotategrabsrc",
-                        icon='WORLD',
+                        icon='MAN_TRANS',
                         text="Grab Axis"
                 )
                 preserve_button_roundedge.operator(
@@ -11431,7 +11431,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                axr_src_geom_top.label("Source Coordinates")
+                axr_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
 
                 axr_src_geom_editor = axr_grab_col.box()
                 ln_grab_all = axr_src_geom_editor.row(align=True)
@@ -11731,7 +11731,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 preserve_button_roundedge = ds_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickdirectionalslidegrabsrc",
-                        icon='WORLD',
+                        icon='MAN_TRANS',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
@@ -11747,7 +11747,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                ds_src_geom_top.label("Source Coordinates")
+                ds_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
 
                 ds_src_geom_editor = ds_grab_col.box()
                 ln_grab_all = ds_src_geom_editor.row(align=True)
@@ -12009,7 +12009,7 @@ class QuickSMEGUI(bpy.types.Panel):
                 preserve_button_roundedge = sme_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickscalematchedgegrabsrc",
-                        icon='WORLD',
+                        icon='MAN_TRANS',
                         text="Grab Source"
                 )
             else:
@@ -12019,7 +12019,7 @@ class QuickSMEGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                sme_src_geom_top.label("Source Coordinates")
+                sme_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
 
                 sme_src_geom_editor = sme_grab_col.box()
                 ln_grab_all = sme_src_geom_editor.row(align=True)
@@ -12212,7 +12212,7 @@ class QuickSMEGUI(bpy.types.Panel):
             preserve_button_roundedge = sme_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickscalematchedgegrabdest",
-                    icon='WORLD',
+                    icon='MAN_TRANS',
                     text="Grab Destination"
             )
         else:
@@ -12222,7 +12222,7 @@ class QuickSMEGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            sme_dest_geom_top.label("Destination Coordinates")
+            sme_dest_geom_top.label("Destination Coordinates", icon="MAN_TRANS")
 
             sme_dest_geom_editor = sme_grab_col.box()
             ln_grab_all = sme_dest_geom_editor.row(align=True)
