@@ -11491,54 +11491,30 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     "Multiplier"
                 )
 
-                axr_src_geom_editor.label("Start:")
-                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_start_items = axr_src_geom_editor.row()
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap With:")
-                ln_start_swap.operator(
-                    "maplus.quickaxrsrcswaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickaxrsrcsendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.quickaxrgrabavgsrclinestart",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=axr_src_geom_editor,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaxrsrcgrablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaxrgrabavgsrclinestart"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaxrsrcgrablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaxrsrcgrablinestartfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_axis_rotate_src,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.quickaxrsrcsendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaxrsrcswaplinepoints",
+                        "End"
+                    )
                 )
 
                 # component_changers_plna = plane_a_items.row()
@@ -11575,54 +11551,30 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     # text="11Z"
                 # )
 
-                axr_src_geom_editor.label("End:")
-                # plane_a_items = axr_src_geom_editor.split(percentage=.75)
-                # ^ line changed to remove component changers
-                ln_end_items = axr_src_geom_editor.row()
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap With:")
-                ln_end_swap.operator(
-                    "maplus.quickaxrsrcswaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickaxrsrcsendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickaxrsrcgrablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.quickaxrgrabavgsrclineend",
-                    icon='GROUP_VERTEX',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
-                    'line_end',
-                    ""
+                layout_coordvec(
+                    parent_layout=axr_src_geom_editor,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaxrsrcgrablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaxrgrabavgsrclineend"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaxrsrcgrablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaxrsrcgrablineendfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_axis_rotate_src,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.quickaxrsrcsendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaxrsrcswaplinepoints",
+                        "Start"
+                    )
                 )
 
                 # component_changers_plnc = plane_c_items.row()
