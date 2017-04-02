@@ -556,8 +556,17 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    
+
     # Quick Calculation items
+    quick_calc_check_types = bpy.props.BoolProperty(
+        description=(
+            "Check/verify slot types and disable operations that do not"
+            " match the type(s) of the current geometry item slots."
+            " Uncheck to silently allow calculations on slot data that is"
+            " not currently displayed in the interface."
+        ),
+        default=True
+    )
     quick_calc_show_slot1_geom = bpy.props.BoolProperty(
         description=(
             "Expand/collapse the slot 1 geometry editor"
@@ -7989,6 +7998,14 @@ class CalcLineLengthBase(bpy.types.Operator):
                  ' a line')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_item.kind != 'LINE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 (the target) is not'
+                     ' explicitly using the correct type for this'
+                     ' calculation (type should be set to "Line").')
+                )
 
         src_global_data = get_modified_global_coords(
             geometry=calc_target_item,
@@ -8013,9 +8030,20 @@ class CalcLineLength(CalcLineLengthBase):
 class QuickCalcLineLength(CalcLineLengthBase):
     bl_idname = "maplus.quickcalclinelength"
     bl_label = "Calculate Line Length"
-    bl_description = "Calculates the length of the targeted line item"
+    bl_description = (
+        "Calculates the length of the line item in Slot 1"
+    )
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                addon_data.internal_storage_slot_1.kind != 'LINE'):
+            return False
+        return True
 
 
 class CalcRotationalDiffBase(bpy.types.Operator):
@@ -8048,6 +8076,16 @@ class CalcRotationalDiffBase(bpy.types.Operator):
                  ' only operate on two lines')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_one.kind != 'LINE' or calc_target_two.kind != 'LINE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 and/or Slot 2 are not'
+                     ' explicitly using the correct types for this'
+                     ' calculation (item type for both should be'
+                     ' set to "Line").')
+                )
+
 
         src_global_data = get_modified_global_coords(
             geometry=calc_target_one,
@@ -8094,6 +8132,16 @@ class QuickCalcRotationalDiff(CalcRotationalDiffBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                (addon_data.internal_storage_slot_1.kind != 'LINE' or
+                 addon_data.internal_storage_slot_2.kind != 'LINE')):
+            return False
+        return True
+
 
 class ComposeNewLineFromOriginBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefromoriginbase"
@@ -8121,6 +8169,14 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
                  ' only operate on a line')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_item.kind != 'LINE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 (the target) is not'
+                     ' explicitly using the correct type for this'
+                     ' calculation (type should be set to "Line").')
+                )
 
         start_loc = mathutils.Vector((0, 0, 0))
         src_global_data = get_modified_global_coords(
@@ -8129,6 +8185,7 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
         )
         src_line = src_global_data[1] - src_global_data[0]
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = (
             start_loc + src_line
@@ -8162,6 +8219,15 @@ class QuickComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                addon_data.internal_storage_slot_1.kind != 'LINE'):
+            return False
+        return True
+
 
 class ComposeNormalFromPlaneBase(bpy.types.Operator):
     bl_idname = "maplus.composenormalfromplanebase"
@@ -8189,6 +8255,14 @@ class ComposeNormalFromPlaneBase(bpy.types.Operator):
                  ' a plane')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_item.kind != 'PLANE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 (the target) is not'
+                     ' explicitly using the correct type for this'
+                     ' calculation (type should be set to "Plane").')
+                )
 
         src_global_data = get_modified_global_coords(
             geometry=calc_target_item,
@@ -8208,6 +8282,7 @@ class ComposeNormalFromPlaneBase(bpy.types.Operator):
             calc_target_item.plane_pt_b[0:3]
         )
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = start_loc + normal
         if addon_data.calc_result_to_clipboard:
@@ -8239,6 +8314,15 @@ class QuickComposeNormalFromPlane(ComposeNormalFromPlaneBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                addon_data.internal_storage_slot_1.kind != 'PLANE'):
+            return False
+        return True
+
 
 class ComposeNewLineFromPointBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefrompointbase"
@@ -8269,6 +8353,14 @@ class ComposeNewLineFromPointBase(bpy.types.Operator):
                  ' only operate on a point')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_item.kind != 'POINT':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 (the target) is not'
+                     ' explicitly using the correct type for this'
+                     ' calculation (type should be set to "Point").')
+                )
 
         start_loc = mathutils.Vector((0, 0, 0))
 
@@ -8277,6 +8369,7 @@ class ComposeNewLineFromPointBase(bpy.types.Operator):
             kind='POINT'
         )
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = src_global_data[0]
         if addon_data.calc_result_to_clipboard:
@@ -8314,6 +8407,15 @@ class QuickComposeNewLineFromPoint(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                addon_data.internal_storage_slot_1.kind != 'POINT'):
+            return False
+        return True
+
 
 class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlineatpointlocationbase"
@@ -8339,11 +8441,11 @@ class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
             item.kind: item for item in [calc_target_one, calc_target_two]
         }
 
-        if (not hasattr(self, 'quick_calc_target')) and not ('POINT' in targets_by_kind and 'LINE' in targets_by_kind):
+        if not ('POINT' in targets_by_kind and 'LINE' in targets_by_kind):
             self.report(
                 {'ERROR'},
-                ('Wrong operand: "Compose New Line at Point" can'
-                 ' only operate on a line')
+                ('Wrong operand(s): "Compose New Line at Point" can'
+                 ' only operate with both a line and a point')
             )
             return {'CANCELLED'}
 
@@ -8358,6 +8460,7 @@ class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
         start_loc = pt_global_data[0]
         src_line = line_global_data[1] - line_global_data[0]
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = start_loc + src_line
         if addon_data.calc_result_to_clipboard:
@@ -8389,6 +8492,22 @@ class QuickComposeNewLineAtPointLocation(ComposeNewLineAtPointLocationBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        slot_kinds = set(
+            [item.kind for item in [
+                    addon_data.internal_storage_slot_1,
+                    addon_data.internal_storage_slot_2
+                ]
+            ]
+        )
+        if (addon_data.quick_calc_check_types and
+                ('POINT' not in slot_kinds or 'LINE' not in slot_kinds)):
+            return False
+        return True
+
 
 class CalcDistanceBetweenPointsBase(bpy.types.Operator):
     bl_idname = "maplus.calcdistancebetweenpointsbase"
@@ -8418,6 +8537,15 @@ class CalcDistanceBetweenPointsBase(bpy.types.Operator):
                  ' only operate on two points')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_one.kind != 'POINT' or calc_target_two.kind != 'POINT':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 and/or Slot 2 are not'
+                     ' explicitly using the correct types for this'
+                     ' calculation (item type for both should be'
+                     ' set to "Point").')
+                )
 
         src_global_data = get_modified_global_coords(
             geometry=calc_target_one,
@@ -8452,6 +8580,16 @@ class QuickCalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                (addon_data.internal_storage_slot_1.kind != 'POINT' or
+                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+            return False
+        return True
+
 
 class ComposeNewLineFromPointsBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefrompointsbase"
@@ -8482,6 +8620,15 @@ class ComposeNewLineFromPointsBase(bpy.types.Operator):
                  ' only operate on two points')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_one.kind != 'POINT' or calc_target_two.kind != 'POINT':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 and/or Slot 2 are not'
+                     ' explicitly using the correct types for this'
+                     ' calculation (item type for both should be'
+                     ' set to "Point").')
+                )
 
         src_global_data = get_modified_global_coords(
             geometry=calc_target_one,
@@ -8494,6 +8641,7 @@ class ComposeNewLineFromPointsBase(bpy.types.Operator):
         src_pt = src_global_data[0]
         dest_pt = dest_global_data[0]
 
+        result_item.kind = 'LINE'
         result_item.line_start = src_pt
         result_item.line_end = dest_pt
         if addon_data.calc_result_to_clipboard:
@@ -8525,6 +8673,16 @@ class QuickComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                (addon_data.internal_storage_slot_1.kind != 'POINT' or
+                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+            return False
+        return True
+
 
 class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinevectoradditionbase"
@@ -8555,6 +8713,15 @@ class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
                  ' two lines')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_one.kind != 'LINE' or calc_target_two.kind != 'LINE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 and/or Slot 2 are not'
+                     ' explicitly using the correct types for this'
+                     ' calculation (item type for both should be'
+                     ' set to "Line").')
+                )
 
         start_loc = mathutils.Vector((0, 0, 0))
 
@@ -8569,6 +8736,7 @@ class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
         src_line = src_global_data[1] - src_global_data[0]
         dest_line = dest_global_data[1] - dest_global_data[0]
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = src_line + dest_line
         if addon_data.calc_result_to_clipboard:
@@ -8599,6 +8767,16 @@ class QuickComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
     bl_description = "Composes a new line item by vector-adding provided lines"
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                (addon_data.internal_storage_slot_1.kind != 'POINT' or
+                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+            return False
+        return True
 
 
 class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
@@ -8633,6 +8811,15 @@ class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
                  ' two lines')
             )
             return {'CANCELLED'}
+        if hasattr(self, 'quick_calc_target'):
+            if calc_target_one.kind != 'LINE' or calc_target_two.kind != 'LINE':
+                self.report(
+                    {'WARNING'},
+                    ('Operand type warning: Slot 1 and/or Slot 2 are not'
+                     ' explicitly using the correct types for this'
+                     ' calculation (item type for both should be'
+                     ' set to "Line").')
+                )
 
         start_loc = mathutils.Vector((0, 0, 0))
 
@@ -8647,6 +8834,7 @@ class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
         src_line = src_global_data[1] - src_global_data[0]
         dest_line = dest_global_data[1] - dest_global_data[0]
 
+        result_item.kind = 'LINE'
         result_item.line_start = start_loc
         result_item.line_end = src_line - dest_line
         if addon_data.calc_result_to_clipboard:
@@ -8684,6 +8872,16 @@ class QuickComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types and
+                (addon_data.internal_storage_slot_1.kind != 'POINT' or
+                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+            return False
+        return True
+
 
 class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
     bl_idname = "maplus.composepointintersectinglineplanebase"
@@ -8711,7 +8909,7 @@ class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
             item.kind: item for item in [calc_target_one, calc_target_two]
         }
 
-        if (not hasattr(self, 'quick_calc_target')) and not ('LINE' in targets_by_kind and 'PLANE' in targets_by_kind):
+        if not ('LINE' in targets_by_kind and 'PLANE' in targets_by_kind):
             self.report(
                 {'ERROR'},
                 ('Wrong operand: "Intersect Line/Plane" can'
@@ -8739,6 +8937,7 @@ class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
         )
 
         if intersection:
+            result_item.kind = 'POINT'
             result_item.point = intersection
             if addon_data.calc_result_to_clipboard:
                 addon_data.internal_storage_clipboard.kind = 'POINT'
@@ -8777,6 +8976,22 @@ class QuickComposePointIntersectingLinePlane(ComposePointIntersectingLinePlaneBa
     )
     bl_options = {'REGISTER', 'UNDO'}
     quick_calc_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        slot_kinds = set(
+            [item.kind for item in [
+                    addon_data.internal_storage_slot_1,
+                    addon_data.internal_storage_slot_2
+                ]
+            ]
+        )
+        if (addon_data.quick_calc_check_types and
+                ('LINE' not in slot_kinds or 'PLANE' not in slot_kinds)):
+            return False
+        return True
 
 
 # Custom list, for displaying combined list of all primitives (Used at top
@@ -13897,7 +14112,13 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
         calc_gui.separator()
 
-        calc_gui.label("Available Calc.'s:")
+        ops_header = calc_gui.row()
+        ops_header.label("Available Calc.'s:")
+        ops_header.prop(
+            bpy.types.AnyType(addon_data),
+            'quick_calc_check_types',
+            "Check/Verify Types"
+        )
         calc_gui.operator(
             "maplus.quickcalclinelength",
             text="Line Length"
