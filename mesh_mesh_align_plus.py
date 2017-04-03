@@ -469,6 +469,12 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    quick_sme_numeric_auto = bpy.props.BoolProperty(
+        description=(
+            "Automatically grab source line from selected geometry"
+        ),
+        default=True
+    )
     quick_sme_numeric_length = bpy.props.FloatProperty(
         description="Desired length for the target edge",
         default=1,
@@ -2018,6 +2024,56 @@ class GrabFromGeometryBase(bpy.types.Operator):
             return {'CANCELLED'}
 
         set_item_coords(active_item, self.vert_attribs_to_set, vert_data)
+
+        return {'FINISHED'}
+
+
+class GrabSmeNumeric(bpy.types.Operator):
+    bl_idname = "maplus.grabsmenumeric"
+    bl_label = "Grab Target"
+    bl_description = (
+        "Grab target for scale match edge numeric mode."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    # For grabbing global coords
+    multiply_by_world_matrix = True
+    # A tuple of attribute names (strings) that should be set on the maplus
+    # primitive (point, line or plane item). The length of this tuple
+    # determines how many verts will be grabbed.
+    vert_attribs_to_set = ('line_start', 'line_end')
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        matrix_multiplier = None
+        if self.multiply_by_world_matrix:
+            matrix_multiplier = bpy.context.active_object.matrix_world
+        try:
+            vert_data = return_selected_verts(
+                bpy.context.active_object,
+                len(self.vert_attribs_to_set),
+                matrix_multiplier
+            )
+        except InsufficientSelectionError:
+            self.report({'ERROR'}, 'Not enough vertices selected.')
+            return {'CANCELLED'}
+        except NonMeshGrabError:
+            self.report(
+                {'ERROR'},
+                'Cannot grab coords: non-mesh or no active object.'
+            )
+            return {'CANCELLED'}
+
+        set_item_coords(
+            addon_data.quick_sme_numeric_src,
+            self.vert_attribs_to_set,
+            vert_data
+        )
+        set_item_coords(
+            addon_data.quick_sme_numeric_dest,
+            self.vert_attribs_to_set,
+            vert_data
+        )
 
         return {'FINISHED'}
 
@@ -6123,22 +6179,34 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
             if hasattr(self, "quick_op_target"):
                 # Numeric mode is part of this op's quick tools
                 if addon_data.quick_sme_numeric_mode:
-                    vert_attribs_to_set = ('line_start', 'line_end')
-                    try:
-                        vert_data = return_selected_verts(
-                            bpy.context.active_object,
-                            len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                    if addon_data.quick_sme_numeric_auto:
+                        vert_attribs_to_set = ('line_start', 'line_end')
+                        try:
+                            vert_data = return_selected_verts(
+                                bpy.context.active_object,
+                                len(vert_attribs_to_set),
+                                bpy.context.active_object.matrix_world
+                            )
+                        except InsufficientSelectionError:
+                            self.report({'ERROR'}, 'Not enough vertices selected.')
+                            return {'CANCELLED'}
+                        except NonMeshGrabError:
+                            self.report(
+                                {'ERROR'},
+                                'Cannot grab coords: non-mesh or no active object.'
+                            )
+                            return {'CANCELLED'}
+                        
+                        set_item_coords(
+                            addon_data.quick_sme_numeric_src,
+                            vert_attribs_to_set,
+                            vert_data
                         )
-                    except InsufficientSelectionError:
-                        self.report({'ERROR'}, 'Not enough vertices selected.')
-                        return {'CANCELLED'}
-                    except NonMeshGrabError:
-                        self.report(
-                            {'ERROR'},
-                            'Cannot grab coords: non-mesh or no active object.'
+                        set_item_coords(
+                            addon_data.quick_sme_numeric_dest,
+                            vert_attribs_to_set,
+                            vert_data
                         )
-                        return {'CANCELLED'}
 
                     addon_data.quick_sme_numeric_dest.ln_make_unit_vec = (
                         True
@@ -6146,16 +6214,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     addon_data.quick_sme_numeric_dest.ln_multiplier = (
                         addon_data.quick_sme_numeric_length
                     )
-                    set_item_coords(
-                        addon_data.quick_sme_numeric_src,
-                        vert_attribs_to_set,
-                        vert_data
-                    )
-                    set_item_coords(
-                        addon_data.quick_sme_numeric_dest,
-                        vert_attribs_to_set,
-                        vert_data
-                    )
+
                     src_global_data = get_modified_global_coords(
                         geometry=addon_data.quick_sme_numeric_src,
                         kind='LINE'
@@ -12601,13 +12660,23 @@ class QuickSMEGUI(bpy.types.Panel):
                 )
             )
 
-        numeric_gui = sme_gui.column(align=True)
+        numeric_gui = sme_gui.column()
         numeric_gui.prop(
             addon_data,
             'quick_sme_numeric_mode',
             'Numeric Input Mode'
         )
-        numeric_settings = numeric_gui.row()
+        numeric_settings = numeric_gui.box()
+        numeric_grabs = numeric_settings.row()
+        numeric_grabs.prop(
+            addon_data,
+            'quick_sme_numeric_auto',
+            'Auto Grab Target'
+        )
+        if not addon_data.quick_sme_numeric_auto:
+            numeric_grabs.operator(
+                "maplus.grabsmenumeric"
+            )
         numeric_settings.prop(
             addon_data,
             'quick_sme_numeric_length',
@@ -12620,7 +12689,6 @@ class QuickSMEGUI(bpy.types.Panel):
             sme_grab_col.enabled = False
         else:
             numeric_settings.enabled = False
-            
 
         sme_apply_header = sme_gui.row()
         sme_apply_header.label("Apply to:")
