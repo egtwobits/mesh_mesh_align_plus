@@ -461,6 +461,25 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_scale_match_edge_transf = bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
+    # Scale Match Edge numeric mode items
+    quick_sme_numeric_mode = bpy.props.BoolProperty(
+        description=(
+            'Use alternate "Numeric Input" mode to type a target edge'
+            ' length in directly.'
+        ),
+        default=False
+    )
+    quick_sme_numeric_length = bpy.props.FloatProperty(
+        description="Desired length for the target edge",
+        default=1,
+        precision=6
+    )
+    quick_sme_numeric_src = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
+    quick_sme_numeric_dest = bpy.props.PointerProperty(
+        type=MAPlusPrimitive
+    )
 
     quick_align_lines_show = bpy.props.BoolProperty(
         description=(
@@ -6097,11 +6116,13 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                 bpy.ops.object.editmode_toggle()
 
             # Get global coordinate data for each geometry item, with
-            # modifiers applied. Grab either directly from the scene data
-            # (for quick ops), or from the MAPlus primitives
-            # CollectionProperty on the scene data (for advanced tools)
+            # applicable modifiers applied. Grab either (A) directly from
+            # the scene data (for quick ops), (B) from the MAPlus primitives 
+            # CollectionProperty on the scene data (for advanced tools), or
+            # (C) from the selected verts directly for numeric input mode
             if hasattr(self, "quick_op_target"):
-                if addon_data.quick_scale_match_edge_auto_grab_src:
+                # Numeric mode is part of this op's quick tools
+                if addon_data.quick_sme_numeric_mode:
                     vert_attribs_to_set = ('line_start', 'line_end')
                     try:
                         vert_data = return_selected_verts(
@@ -6119,21 +6140,67 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         )
                         return {'CANCELLED'}
 
+                    addon_data.quick_sme_numeric_dest.ln_make_unit_vec = (
+                        True
+                    )
+                    addon_data.quick_sme_numeric_dest.ln_multiplier = (
+                        addon_data.quick_sme_numeric_length
+                    )
                     set_item_coords(
-                        addon_data.quick_scale_match_edge_src,
+                        addon_data.quick_sme_numeric_src,
                         vert_attribs_to_set,
                         vert_data
                     )
+                    set_item_coords(
+                        addon_data.quick_sme_numeric_dest,
+                        vert_attribs_to_set,
+                        vert_data
+                    )
+                    src_global_data = get_modified_global_coords(
+                        geometry=addon_data.quick_sme_numeric_src,
+                        kind='LINE'
+                    )
+                    dest_global_data = get_modified_global_coords(
+                        geometry=addon_data.quick_sme_numeric_dest,
+                        kind='LINE'
+                    )
 
-                src_global_data = get_modified_global_coords(
-                    geometry=addon_data.quick_scale_match_edge_src,
-                    kind='LINE'
-                )
-                dest_global_data = get_modified_global_coords(
-                    geometry=addon_data.quick_scale_match_edge_dest,
-                    kind='LINE'
-                )
+                # Non-numeric (normal quick op) mode
+                else:
+                    if addon_data.quick_scale_match_edge_auto_grab_src:
+                        vert_attribs_to_set = ('line_start', 'line_end')
+                        try:
+                            vert_data = return_selected_verts(
+                                bpy.context.active_object,
+                                len(vert_attribs_to_set),
+                                bpy.context.active_object.matrix_world
+                            )
+                        except InsufficientSelectionError:
+                            self.report({'ERROR'}, 'Not enough vertices selected.')
+                            return {'CANCELLED'}
+                        except NonMeshGrabError:
+                            self.report(
+                                {'ERROR'},
+                                'Cannot grab coords: non-mesh or no active object.'
+                            )
+                            return {'CANCELLED'}
 
+                        set_item_coords(
+                            addon_data.quick_scale_match_edge_src,
+                            vert_attribs_to_set,
+                            vert_data
+                        )
+
+                    src_global_data = get_modified_global_coords(
+                        geometry=addon_data.quick_scale_match_edge_src,
+                        kind='LINE'
+                    )
+                    dest_global_data = get_modified_global_coords(
+                        geometry=addon_data.quick_scale_match_edge_dest,
+                        kind='LINE'
+                    )
+
+            # Else, operate on data from the advanced tools
             else:
                 src_global_data = get_modified_global_coords(
                     geometry=prims[active_item.sme_edge_one],
@@ -12533,6 +12600,27 @@ class QuickSMEGUI(bpy.types.Panel):
                     "Start"
                 )
             )
+
+        numeric_gui = sme_gui.column(align=True)
+        numeric_gui.prop(
+            addon_data,
+            'quick_sme_numeric_mode',
+            'Numeric Input Mode'
+        )
+        numeric_settings = numeric_gui.row()
+        numeric_settings.prop(
+            addon_data,
+            'quick_sme_numeric_length',
+            'Target Length'
+        )
+
+        # Disable relevant items depending on whether numeric mode
+        # is enabled or not
+        if addon_data.quick_sme_numeric_mode:
+            sme_grab_col.enabled = False
+        else:
+            numeric_settings.enabled = False
+            
 
         sme_apply_header = sme_gui.row()
         sme_apply_header.label("Apply to:")
