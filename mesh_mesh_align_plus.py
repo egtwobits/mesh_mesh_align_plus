@@ -471,7 +471,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_sme_numeric_auto = bpy.props.BoolProperty(
         description=(
-            "Automatically grab source line from selected geometry"
+            "Automatically grab target line from selected geometry"
         ),
         default=True
     )
