@@ -8899,8 +8899,8 @@ class QuickComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
         addon_data = bpy.context.scene.maplus_data
 
         if (addon_data.quick_calc_check_types and
-                (addon_data.internal_storage_slot_1.kind != 'POINT' or
-                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+                (addon_data.internal_storage_slot_1.kind != 'LINE' or
+                 addon_data.internal_storage_slot_2.kind != 'LINE')):
             return False
         return True
 
@@ -9003,8 +9003,8 @@ class QuickComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
         addon_data = bpy.context.scene.maplus_data
 
         if (addon_data.quick_calc_check_types and
-                (addon_data.internal_storage_slot_1.kind != 'POINT' or
-                 addon_data.internal_storage_slot_2.kind != 'POINT')):
+                (addon_data.internal_storage_slot_1.kind != 'LINE' or
+                 addon_data.internal_storage_slot_2.kind != 'LINE')):
             return False
         return True
 
