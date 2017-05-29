@@ -4109,6 +4109,17 @@ class GrabLineCalcResultLoc(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
+class GrabNormal(GrabNormalBase):
+    bl_idname = "maplus.grabnormal"
+    bl_label = "Grab Normal Coords from Selected Face"
+    bl_description = (
+        "Grabs normal coordinates from selected face in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+
+
 class Slot1GrabNormal(GrabNormalBase):
     bl_idname = "maplus.slot1grabnormal"
     bl_label = "Grab Normal Coords from Selected Face"
@@ -9558,11 +9569,18 @@ class MAPlusGui(bpy.types.Panel):
                 item_info_col.separator()
                 special_grabs = item_info_col.row(align=True)
                 special_grabs.operator(
+                    "maplus.grabnormal",
+                    icon='LAMP_HEMI',
+                    text="Grab Normal"
+                )
+                item_info_col.separator()
+                special_grabs_extra = item_info_col.row(align=True)
+                special_grabs_extra.operator(
                     "maplus.copyfromadvtoolsactive",
                     icon='COPYDOWN',
                     text="Copy (To Clipboard)"
                 )
-                special_grabs.operator(
+                special_grabs_extra.operator(
                     "maplus.pasteintoadvtoolsactive",
                     icon='PASTEDOWN',
                     text="Paste (From Clipboard)"
