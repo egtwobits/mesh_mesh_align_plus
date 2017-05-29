@@ -1333,6 +1333,24 @@ class CopyToOtherBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class PasteIntoAdvToolsActive(CopyToOtherBase):
+    bl_idname = "maplus.pasteintoadvtoolsactive"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'ADVTOOLSACTIVE')
+
+
+class CopyFromAdvToolsActive(CopyToOtherBase):
+    bl_idname = "maplus.copyfromadvtoolsactive"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('ADVTOOLSACTIVE', 'INTERNALCLIPBOARD')
+
+
 class PasteIntoSlot1(CopyToOtherBase):
     bl_idname = "maplus.pasteintoslot1"
     bl_label = "Paste into this item"
@@ -9426,6 +9444,18 @@ class MAPlusGui(bpy.types.Panel):
                     text="Grab All Global"
                 )
                 item_info_col.separator()
+                special_grabs = item_info_col.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromadvtoolsactive",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoadvtoolsactive",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
+                item_info_col.separator()
 
                 layout_coordvec(
                     parent_layout=item_info_col,
@@ -9524,6 +9554,18 @@ class MAPlusGui(bpy.types.Panel):
                     "maplus.graballvertslineglobal",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+                item_info_col.separator()
+                special_grabs = item_info_col.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromadvtoolsactive",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoadvtoolsactive",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
                 )
                 item_info_col.separator()
 
@@ -9657,6 +9699,18 @@ class MAPlusGui(bpy.types.Panel):
                     "maplus.graballvertsplaneglobal",
                     icon='WORLD',
                     text="Grab All Global"
+                )
+                item_info_col.separator()
+                special_grabs = item_info_col.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromadvtoolsactive",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoadvtoolsactive",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
                 )
                 item_info_col.separator()
 
