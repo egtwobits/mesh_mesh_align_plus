@@ -2598,6 +2598,72 @@ class GrabPointSlot2Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
+class PointGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.pointgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('point',)
+    multiply_by_world_matrix = True
+
+
+class LineStartGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.linestartgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+
+
+class LineEndGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.lineendgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+
+
+class PlaneAGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.planeagrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+
+
+class PlaneBGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.planebgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+
+
+class PlaneCGrabAvg(GrabAverageLocationBase):
+    bl_idname = "maplus.planecgrabavg"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+
+
 class Slot1PointGrabAvg(GrabAverageLocationBase):
     bl_idname = "maplus.slot1pointgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
@@ -9361,73 +9427,57 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                item_info_col.label('Pt. Origin:')
-                pt_coord_items = item_info_col.split(percentage=.75)
-                typein_and_grab = pt_coord_items.column()
-                pt_coord_uppers = typein_and_grab.row()
-
-                pt_coord_uppers_leftside = pt_coord_uppers.row(align=True)
-                pt_coord_uppers_leftside.alignment = 'LEFT'
-                pt_coord_uppers_leftside.label("Send:")
-                pt_coord_uppers_leftside.operator(
-                    "maplus.sendpointtocursor",
-                    icon='CURSOR',
-                    text=""
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="Point Coordinates:",
+                    op_id_cursor_grab=(
+                        "maplus.grabpointfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.pointgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabpointfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabpointfromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="point",
+                    op_id_cursor_send=(
+                        "maplus.sendpointtocursor"
+                    )
                 )
 
-                pt_coord_uppers_rightside = pt_coord_uppers.row(align=True)
-                pt_coord_uppers_rightside.alignment = 'RIGHT'
-                pt_coord_uppers_rightside.label("Grab:")
-                pt_coord_uppers_rightside.operator(
-                    "maplus.grabpointfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                pt_coord_uppers_rightside.operator(
-                    "maplus.grabpointfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                pt_coord_uppers_rightside.operator(
-                    "maplus.grabpointfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab.prop(
-                    bpy.types.AnyType(active_item),
-                    'point',
-                    ""
-                )
-
-                component_changers = pt_coord_items.row()
-                zero_components = component_changers.column(align=True)
-                zero_components.label("Set Zeroes:")
-                zero_components.operator(
-                    "maplus.zerootherpointx",
-                    text="X00"
-                )
-                zero_components.operator(
-                    "maplus.zerootherpointy",
-                    text="0Y0"
-                )
-                zero_components.operator(
-                    "maplus.zerootherpointz",
-                    text="00Z"
-                )
-                one_components = component_changers.column(align=True)
-                one_components.label("Set Ones:")
-                one_components.operator(
-                    "maplus.oneotherpointx",
-                    text="X11"
-                )
-                one_components.operator(
-                    "maplus.oneotherpointy",
-                    text="1Y1"
-                )
-                one_components.operator(
-                    "maplus.oneotherpointz",
-                    text="11Z"
-                )
+                # component_changers = pt_coord_items.row()
+                # zero_components = component_changers.column(align=True)
+                # zero_components.label("Set Zeroes:")
+                # zero_components.operator(
+                    # "maplus.zerootherpointx",
+                    # text="X00"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherpointy",
+                    # text="0Y0"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherpointz",
+                    # text="00Z"
+                # )
+                # one_components = component_changers.column(align=True)
+                # one_components.label("Set Ones:")
+                # one_components.operator(
+                    # "maplus.oneotherpointx",
+                    # text="X11"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherpointy",
+                    # text="1Y1"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherpointz",
+                    # text="11Z"
+                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
@@ -9477,151 +9527,118 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                item_info_col.label("Start:")
-                ln_start_items = item_info_col.split(percentage=.75)
-                typein_and_grab_start = ln_start_items.column()
-                ln_start_uppers = typein_and_grab_start.split(percentage=.33)
-                ln_start_swap = ln_start_uppers.row(align=True)
-                ln_start_swap.label("Swap:")
-                ln_start_swap.operator(
-                    "maplus.swaplinepoints",
-                    text="End"
-                )
-
-                ln_start_uppers_rightside = ln_start_uppers.row(align=True)
-                ln_start_uppers_rightside.alignment = 'RIGHT'
-
-                ln_start_uppers_rightside.label("Send:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.sendlinestarttocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_start_uppers_rightside.label("Grab:")
-                ln_start_uppers_rightside.operator(
-                    "maplus.grablinestartfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.grablinestartfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_start_uppers_rightside.operator(
-                    "maplus.grablinestartfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab_start.prop(
-                    bpy.types.AnyType(active_item),
-                    'line_start',
-                    ""
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="Start:",
+                    op_id_cursor_grab=(
+                        "maplus.grablinestartfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.linestartgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grablinestartfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grablinestartfromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="line_start",
+                    op_id_cursor_send=(
+                        "maplus.sendlinestarttocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.swaplinepoints",
+                        "End"
+                    )
                 )
                 item_info_col.separator()
 
-                component_changers_start = ln_start_items.row()
-                zero_components = component_changers_start.column(align=True)
-                zero_components.label("Set Zeroes:")
-                zero_components.operator(
-                    "maplus.zerootherlinestartx",
-                    text="X00"
-                )
-                zero_components.operator(
-                    "maplus.zerootherlinestarty",
-                    text="0Y0"
-                )
-                zero_components.operator(
-                    "maplus.zerootherlinestartz",
-                    text="00Z"
-                )
-                one_components = component_changers_start.column(align=True)
-                one_components.label("Set Ones:")
-                one_components.operator(
-                    "maplus.oneotherlinestartx",
-                    text="X11"
-                )
-                one_components.operator(
-                    "maplus.oneotherlinestarty",
-                    text="1Y1"
-                )
-                one_components.operator(
-                    "maplus.oneotherlinestartz",
-                    text="11Z"
+                # component_changers_start = ln_start_items.row()
+                # zero_components = component_changers_start.column(align=True)
+                # zero_components.label("Set Zeroes:")
+                # zero_components.operator(
+                    # "maplus.zerootherlinestartx",
+                    # text="X00"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherlinestarty",
+                    # text="0Y0"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherlinestartz",
+                    # text="00Z"
+                # )
+                # one_components = component_changers_start.column(align=True)
+                # one_components.label("Set Ones:")
+                # one_components.operator(
+                    # "maplus.oneotherlinestartx",
+                    # text="X11"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherlinestarty",
+                    # text="1Y1"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherlinestartz",
+                    # text="11Z"
+                # )
+
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="End:",
+                    op_id_cursor_grab=(
+                        "maplus.grablineendfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.lineendgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grablineendfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grablineendfromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="line_end",
+                    op_id_cursor_send=(
+                        "maplus.sendlineendtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.swaplinepoints",
+                        "Start"
+                    )
                 )
 
-                item_info_col.label("End:")
-                ln_end_items = item_info_col.split(percentage=.75)
-                typein_and_grab_end = ln_end_items.column()
-                ln_end_uppers = typein_and_grab_end.split(percentage=.33)
-                ln_end_swap = ln_end_uppers.row(align=True)
-                ln_end_swap.label("Swap:")
-                ln_end_swap.operator(
-                    "maplus.swaplinepoints",
-                    text="Start"
-                )
-
-                ln_end_uppers_rightside = ln_end_uppers.row(align=True)
-                ln_end_uppers_rightside.alignment = 'RIGHT'
-                ln_end_uppers_rightside.label("Send:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.sendlineendtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                ln_end_uppers_rightside.label("Grab:")
-                ln_end_uppers_rightside.operator(
-                    "maplus.grablineendfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.grablineendfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                ln_end_uppers_rightside.operator(
-                    "maplus.grablineendfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab_end.prop(
-                    bpy.types.AnyType(active_item),
-                    'line_end',
-                    ""
-                )
-
-                component_changers_end = ln_end_items.row()
-                zero_components = component_changers_end.column(align=True)
-                zero_components.label("Set Zeroes:")
-                zero_components.operator(
-                    "maplus.zerootherlineendx",
-                    text="X00"
-                )
-                zero_components.operator(
-                    "maplus.zerootherlineendy",
-                    text="0Y0"
-                )
-                zero_components.operator(
-                    "maplus.zerootherlineendz",
-                    text="00Z"
-                )
-                one_components = component_changers_end.column(align=True)
-                one_components.label("Set Ones:")
-                one_components.operator(
-                    "maplus.oneotherlineendx",
-                    text="X11"
-                )
-                one_components.operator(
-                    "maplus.oneotherlineendy",
-                    text="1Y1"
-                )
-                one_components.operator(
-                    "maplus.oneotherlineendz",
-                    text="11Z"
-                )
+                # component_changers_end = ln_end_items.row()
+                # zero_components = component_changers_end.column(align=True)
+                # zero_components.label("Set Zeroes:")
+                # zero_components.operator(
+                    # "maplus.zerootherlineendx",
+                    # text="X00"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherlineendy",
+                    # text="0Y0"
+                # )
+                # zero_components.operator(
+                    # "maplus.zerootherlineendz",
+                    # text="00Z"
+                # )
+                # one_components = component_changers_end.column(align=True)
+                # one_components.label("Set Ones:")
+                # one_components.operator(
+                    # "maplus.oneotherlineendx",
+                    # text="X11"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherlineendy",
+                    # text="1Y1"
+                # )
+                # one_components.operator(
+                    # "maplus.oneotherlineendz",
+                    # text="11Z"
+                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
@@ -9643,248 +9660,199 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                item_info_col.label("Pt. A:")
-                plane_a_items = item_info_col.split(percentage=.75)
-                typein_and_grab_plna = plane_a_items.column()
-                plane_a_uppers = typein_and_grab_plna.split(percentage=.33)
-
-                plane_a_swap = plane_a_uppers.row(align=True)
-                plane_a_swap.label("Swap With:")
-                plane_a_swap.operator(
-                    "maplus.swapplaneaplaneb",
-                    text="B"
-                )
-                plane_a_swap.operator(
-                    "maplus.swapplaneaplanec",
-                    text="C"
-                )
-
-                plane_a_uppers_rightside = plane_a_uppers.row(align=True)
-                plane_a_uppers_rightside.alignment = 'RIGHT'
-                plane_a_uppers_rightside.label("Send:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.sendplaneatocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_a_uppers_rightside.label("Grab:")
-                plane_a_uppers_rightside.operator(
-                    "maplus.grabplaneafromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.grabplaneafromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_a_uppers_rightside.operator(
-                    "maplus.grabplaneafromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab_plna.prop(
-                    bpy.types.AnyType(active_item),
-                    'plane_pt_a',
-                    ""
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.grabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.planeagrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabplaneafromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.sendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.swapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.swapplaneaplanec",
+                        "C"
+                    )
                 )
                 item_info_col.separator()
 
-                component_changers_plna = plane_a_items.row()
-                zero_components_plna = component_changers_plna.column(
-                    align=True
-                )
-                zero_components_plna.label("Set Zeroes:")
-                zero_components_plna.operator(
-                    "maplus.zerootherplanepointax",
-                    text="X00"
-                )
-                zero_components_plna.operator(
-                    "maplus.zerootherplanepointay",
-                    text="0Y0"
-                )
-                zero_components_plna.operator(
-                    "maplus.zerootherplanepointaz",
-                    text="00Z"
-                )
-                one_components_plna = component_changers_plna.column(
-                    align=True
-                )
-                one_components_plna.label("Set Ones:")
-                one_components_plna.operator(
-                    "maplus.oneotherplanepointax",
-                    text="X11"
-                )
-                one_components_plna.operator(
-                    "maplus.oneotherplanepointay",
-                    text="1Y1"
-                )
-                one_components_plna.operator(
-                    "maplus.oneotherplanepointaz",
-                    text="11Z"
-                )
+                # component_changers_plna = plane_a_items.row()
+                # zero_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # zero_components_plna.label("Set Zeroes:")
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointax",
+                    # text="X00"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointay",
+                    # text="0Y0"
+                # )
+                # zero_components_plna.operator(
+                    # "maplus.zerootherplanepointaz",
+                    # text="00Z"
+                # )
+                # one_components_plna = component_changers_plna.column(
+                    # align=True
+                # )
+                # one_components_plna.label("Set Ones:")
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointax",
+                    # text="X11"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointay",
+                    # text="1Y1"
+                # )
+                # one_components_plna.operator(
+                    # "maplus.oneotherplanepointaz",
+                    # text="11Z"
+                # )
 
-                item_info_col.label("Pt. B (Pivot):")
-                plane_b_items = item_info_col.split(percentage=.75)
-                typein_and_grab_plnb = plane_b_items.column()
-                plane_b_uppers = typein_and_grab_plnb.split(percentage=.33)
-                plane_b_swap = plane_b_uppers.row(align=True)
-                plane_b_swap.label("Swap With:")
-                plane_b_swap.operator(
-                    "maplus.swapplaneaplaneb",
-                    text="A"
-                )
-                plane_b_swap.operator(
-                    "maplus.swapplanebplanec",
-                    text="C"
-                )
-
-                plane_b_uppers_rightside = plane_b_uppers.row(align=True)
-                plane_b_uppers_rightside.alignment = 'RIGHT'
-                plane_b_uppers_rightside.label("Send:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.sendplanebtocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_b_uppers_rightside.label("Grab:")
-                plane_b_uppers_rightside.operator(
-                    "maplus.grabplanebfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.grabplanebfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_b_uppers_rightside.operator(
-                    "maplus.grabplanebfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab_plnb.prop(
-                    bpy.types.AnyType(active_item),
-                    'plane_pt_b',
-                    ""
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="Pt. B:",
+                    op_id_cursor_grab=(
+                        "maplus.grabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.planebgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabplanebfromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.sendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.swapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.swapplanebplanec",
+                        "C"
+                    )
                 )
                 item_info_col.separator()
 
-                component_changers_plnb = plane_b_items.row()
-                zero_components_plnb = component_changers_plnb.column(
-                    align=True
-                )
-                zero_components_plnb.label("Set Zeroes:")
-                zero_components_plnb.operator(
-                    "maplus.zerootherplanepointbx",
-                    text="X00"
-                )
-                zero_components_plnb.operator(
-                    "maplus.zerootherplanepointby",
-                    text="0Y0"
-                )
-                zero_components_plnb.operator(
-                    "maplus.zerootherplanepointbz",
-                    text="00Z"
-                )
-                one_components_plnb = component_changers_plnb.column(
-                    align=True
-                )
-                one_components_plnb.label("Set Ones:")
-                one_components_plnb.operator(
-                    "maplus.oneotherplanepointbx",
-                    text="X11"
-                )
-                one_components_plnb.operator(
-                    "maplus.oneotherplanepointby",
-                    text="1Y1"
-                )
-                one_components_plnb.operator(
-                    "maplus.oneotherplanepointbz",
-                    text="11Z"
+                # component_changers_plnb = plane_b_items.row()
+                # zero_components_plnb = component_changers_plnb.column(
+                    # align=True
+                # )
+                # zero_components_plnb.label("Set Zeroes:")
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointbx",
+                    # text="X00"
+                # )
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointby",
+                    # text="0Y0"
+                # )
+                # zero_components_plnb.operator(
+                    # "maplus.zerootherplanepointbz",
+                    # text="00Z"
+                # )
+                # one_components_plnb = component_changers_plnb.column(
+                    # align=True
+                # )
+                # one_components_plnb.label("Set Ones:")
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointbx",
+                    # text="X11"
+                # )
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointby",
+                    # text="1Y1"
+                # )
+                # one_components_plnb.operator(
+                    # "maplus.oneotherplanepointbz",
+                    # text="11Z"
+                # )
+
+                layout_coordvec(
+                    parent_layout=item_info_col,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.grabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.planecgrabavg"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.grabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.grabplanecfromactiveglobal"
+                    ),
+                    coord_container=active_item,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.sendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.swapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.swapplanebplanec",
+                        "B"
+                    )
                 )
 
-                item_info_col.label("Pt. C:")
-                plane_c_items = item_info_col.split(percentage=.75)
-                typein_and_grab_plnc = plane_c_items.column()
-                plane_c_uppers = typein_and_grab_plnc.split(percentage=.33)
-                plane_c_swap = plane_c_uppers.row(align=True)
-                plane_c_swap.label("Swap With:")
-                plane_c_swap.operator(
-                    "maplus.swapplaneaplanec",
-                    text="A"
-                )
-                plane_c_swap.operator(
-                    "maplus.swapplanebplanec",
-                    text="B"
-                )
-
-                plane_c_uppers_rightside = plane_c_uppers.row(align=True)
-                plane_c_uppers_rightside.alignment = 'RIGHT'
-                plane_c_uppers_rightside.label("Send:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.sendplanectocursor",
-                    icon='CURSOR',
-                    text=""
-                )
-
-                plane_c_uppers_rightside.label("Grab:")
-                plane_c_uppers_rightside.operator(
-                    "maplus.grabplanecfromcursor",
-                    icon='CURSOR',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.grabplanecfromactivelocal",
-                    icon='VERTEXSEL',
-                    text=""
-                )
-                plane_c_uppers_rightside.operator(
-                    "maplus.grabplanecfromactiveglobal",
-                    icon='WORLD',
-                    text=""
-                )
-                typein_and_grab_plnc.prop(
-                    bpy.types.AnyType(active_item),
-                    'plane_pt_c',
-                    ""
-                )
-
-                component_changers_plnc = plane_c_items.row()
-                zero_components_plnc = component_changers_plnc.column(
-                    align=True
-                )
-                zero_components_plnc.label("Set Zeroes:")
-                zero_components_plnc.operator(
-                    "maplus.zerootherplanepointcx",
-                    text="X00"
-                )
-                zero_components_plnc.operator(
-                    "maplus.zerootherplanepointcy",
-                    text="0Y0"
-                )
-                zero_components_plnc.operator(
-                    "maplus.zerootherplanepointcz",
-                    text="00Z"
-                )
-                one_components_plnc = component_changers_plnc.column(
-                    align=True
-                )
-                one_components_plnc.label("Set Ones:")
-                one_components_plnc.operator(
-                    "maplus.oneotherplanepointcx",
-                    text="X11"
-                )
-                one_components_plnc.operator(
-                    "maplus.oneotherplanepointcy",
-                    text="1Y1"
-                )
-                one_components_plnc.operator(
-                    "maplus.oneotherplanepointcz",
-                    text="11Z"
-                )
+                # component_changers_plnc = plane_c_items.row()
+                # zero_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # zero_components_plnc.label("Set Zeroes:")
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcx",
+                    # text="X00"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcy",
+                    # text="0Y0"
+                # )
+                # zero_components_plnc.operator(
+                    # "maplus.zerootherplanepointcz",
+                    # text="00Z"
+                # )
+                # one_components_plnc = component_changers_plnc.column(
+                    # align=True
+                # )
+                # one_components_plnc.label("Set Ones:")
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcx",
+                    # text="X11"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcy",
+                    # text="1Y1"
+                # )
+                # one_components_plnc.operator(
+                    # "maplus.oneotherplanepointcz",
+                    # text="11Z"
+                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
