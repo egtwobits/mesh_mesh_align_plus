@@ -12799,8 +12799,8 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             preserve_button_roundedge = slot1_geom_top.row()
             preserve_button_roundedge.operator(
                 "maplus.graballslot1",
-                icon='WORLD',
-                text="Grab Slot 1"
+                icon='SOLO_ON',
+                text="S. Grab Slot 1"
             )
 
         else:
@@ -13300,8 +13300,8 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             preserve_button_roundedge = slot2_geom_top.row()
             preserve_button_roundedge.operator(
                 "maplus.graballslot2",
-                icon='WORLD',
-                text="Grab Slot 2"
+                icon='SOLO_ON',
+                text="S. Grab Slot 2"
             )
 
         else:
