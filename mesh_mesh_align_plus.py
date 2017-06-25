@@ -577,7 +577,9 @@ class MAPlusData(bpy.types.PropertyGroup):
     # Calculation global settings
     calc_result_to_clipboard = bpy.props.BoolProperty(
         description=(
-            "Copy numeric calculations to clipboard"
+            "Copy  calculation results (new reference locations or"
+            " numeric calculations) to the addon clipboard or the"
+            " system clipboard, respectively."
         ),
         default=True
     )
@@ -13817,8 +13819,8 @@ class CalculateAndComposeGUI(bpy.types.Panel):
             preserve_button_roundedge = result_geom_top.row()
             preserve_button_roundedge.operator(
                 "maplus.graballcalcresult",
-                icon='WORLD',
-                text="Grab Calc. Result"
+                icon='SOLO_ON',
+                text="S. Grab Result"
             )
 
         else:
