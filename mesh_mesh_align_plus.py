@@ -6239,6 +6239,12 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -6614,6 +6620,12 @@ class AlignPointsBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -6884,6 +6896,12 @@ class DirectionalSlideBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -7160,6 +7178,12 @@ class AxisRotateBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -7457,6 +7481,12 @@ class AlignLinesBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -7772,6 +7802,12 @@ class AlignPlanesBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
@@ -8164,6 +8200,12 @@ class QuickAlignObjects(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        if not bpy.context.active_object:
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = bpy.context.active_object.mode
