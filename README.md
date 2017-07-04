@@ -8,7 +8,7 @@ Some concrete examples of things you can do with the addon:
 * Stick a flat surface from one object against a flat surface on another object
 * Align something to an invisible axis, or shift that axis to a new location first and then rotate around it.
 
-See the simple demo clips below for a general sense of what the addon can do, or watch the full 30 minute demo video on <a href="https://www.youtube.com/watch?v=ebEkfAQ4OOk">YouTube (Link)</a>.
+See the simple demo clips below for a general sense of what the addon can do, read the Wiki above, or watch the full 30 minute demo video on <a href="https://www.youtube.com/watch?v=ebEkfAQ4OOk">YouTube (Link)</a>.
 
 <div>
 <div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/hi2Lw.gif"></div>
