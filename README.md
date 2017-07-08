@@ -10,9 +10,7 @@ Some concrete examples of things you can do with the addon:
 
 See the simple demo clips below for a general sense of what the addon can do, read the Wiki above, or watch the full 30 minute demo video on <a href="https://www.youtube.com/watch?v=ebEkfAQ4OOk">YouTube (Link)</a>.
 
-<div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/hi2Lw.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/dOOF8.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/IgMGY.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/05uXX.gif"></div>
-</div>
+![alt](http://i.imgur.com/hro9YEB.gif)
+![alt](http://i.imgur.com/VSkjGdN.gif)
+![alt](http://i.imgur.com/qlUZwPC.gif)
+![alt](http://i.imgur.com/JOa7Fcd.gif)
