@@ -11385,7 +11385,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=apl_src_geom_editor,
-                    coordvec_label="Pt. B:",
+                    coordvec_label="Pt. B (Pivot):",
                     op_id_cursor_grab=(
                         "maplus.quickaplsrcgrabplanebfromcursor"
                     ),
@@ -14222,7 +14222,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=calcresult_geom_editor,
-                    coordvec_label="Pt. B:",
+                    coordvec_label="Pt. B (Pivot):",
                     op_id_cursor_grab=(
                         "maplus.calcresultgrabplanebfromcursor"
                     ),
