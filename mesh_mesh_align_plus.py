@@ -18,7 +18,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 #
-# <pep8-80 compliant>
+# <pep8 compliant>
 
 
 # Blender requires addons to provide this information.
@@ -29,7 +29,7 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 3, 0),
+    "version": (0, 4, 0),
     "blender": (2, 69, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
@@ -39,8 +39,7 @@ bl_info = {
         "not currently supported."
     ),
     "wiki_url": (
-        "https://wiki.blender.org/index.php/Extensions:2.6/Py/"
-        "Scripts/Modeling/Mesh_Align_Plus"
+        "https://github.com/egtwobits/mesh-align-plus/wiki"
     ),
     "support": "COMMUNITY",
     "category": "Mesh"
