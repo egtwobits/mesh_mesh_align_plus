@@ -10565,10 +10565,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 modifier_header.label("Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = apt_src_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -10610,39 +10607,6 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
         if addon_data.quick_apt_show_src_geom:
             apt_grab_col.separator()
 
@@ -10703,10 +10667,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             modifier_header.label("Point Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
-            # apply_mods.operator(
-                # "maplus.applygeommodifiers",
-                # text="Apply ModifiersXXXXX"
-            # )
+
             item_mods_box = apt_dest_geom_editor.box()
             mods_row_1 = item_mods_box.row()
             mods_row_1.prop(
@@ -10747,8 +10708,6 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     "maplus.quickaptdestsendpointtocursor"
                 )
             )
-
-        ########################
 
         align_pts_gui.label("Operator settings:", icon="SCRIPTWIN")
         apt_mods = align_pts_gui.box()
@@ -10882,10 +10841,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = aln_src_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -10931,40 +10887,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=aln_src_geom_editor,
                     coordvec_label="End:",
@@ -10991,48 +10913,8 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_aln_show_src_geom:
             aln_grab_col.separator()
-
-        # apl_dest_geom = apl_grab_col.row()
-        # apl_grab_col.operator(
-                # "maplus.quickalignplanesgrabdest",
-                # icon='WORLD',
-                # text="Grab Destination"
-        # )
 
         aln_dest_geom_top = aln_grab_col.row(align=True)
         if not addon_data.quick_aln_show_dest_geom:
@@ -11096,10 +10978,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             modifier_header.label("Line Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
-            # apply_mods.operator(
-                # "maplus.applygeommodifiers",
-                # text="Apply ModifiersXXXXX"
-            # )
+
             item_mods_box = aln_dest_geom_editor.box()
             mods_row_1 = item_mods_box.row()
             mods_row_1.prop(
@@ -11145,40 +11024,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 )
             )
 
-            # component_changers_plna = plane_a_items.row()
-            # zero_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # zero_components_plna.label("Set Zeroes:")
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointax",
-                # text="X00"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointay",
-                # text="0Y0"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointaz",
-                # text="00Z"
-            # )
-            # one_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # one_components_plna.label("Set Ones:")
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointax",
-                # text="X11"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointay",
-                # text="1Y1"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointaz",
-                # text="11Z"
-            # )
-
             layout_coordvec(
                 parent_layout=aln_dest_geom_editor,
                 coordvec_label="End:",
@@ -11204,13 +11049,6 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     "Start"
                 )
             )
-
-        ###################################
-        ###################################
-
-
-        ###################################
-        ###################################
 
         aln_gui.label("Operator settings:", icon="SCRIPTWIN")
         aln_mods = aln_gui.box()
@@ -11348,40 +11186,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=apl_src_geom_editor,
                     coordvec_label="Pt. B (Pivot):",
@@ -11411,40 +11215,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                         "C"
                     )
                 )
-
-                # component_changers_plnb = plane_b_items.row()
-                # zero_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # zero_components_plnb.label("Set Zeroes:")
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbx",
-                    # text="X00"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointby",
-                    # text="0Y0"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbz",
-                    # text="00Z"
-                # )
-                # one_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # one_components_plnb.label("Set Ones:")
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbx",
-                    # text="X11"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointby",
-                    # text="1Y1"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbz",
-                    # text="11Z"
-                # )
 
                 layout_coordvec(
                     parent_layout=apl_src_geom_editor,
@@ -11476,48 +11246,8 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_apl_show_src_geom:
             apl_grab_col.separator()
-
-        # apl_dest_geom = apl_grab_col.row()
-        # apl_grab_col.operator(
-                # "maplus.quickalignplanesgrabdest",
-                # icon='WORLD',
-                # text="Grab Destination"
-        # )
 
         apl_dest_geom_top = apl_grab_col.row(align=True)
         if not addon_data.quick_apl_show_dest_geom:
@@ -11596,40 +11326,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 )
             )
 
-            # component_changers_plna = plane_a_items.row()
-            # zero_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # zero_components_plna.label("Set Zeroes:")
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointax",
-                # text="X00"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointay",
-                # text="0Y0"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointaz",
-                # text="00Z"
-            # )
-            # one_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # one_components_plna.label("Set Ones:")
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointax",
-                # text="X11"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointay",
-                # text="1Y1"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointaz",
-                # text="11Z"
-            # )
-
             layout_coordvec(
                 parent_layout=apl_dest_geom_editor,
                 coordvec_label="Pt. B (Pivot):",
@@ -11660,40 +11356,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 )
             )
 
-            # component_changers_plnb = plane_b_items.row()
-            # zero_components_plnb = component_changers_plnb.column(
-                # align=True
-            # )
-            # zero_components_plnb.label("Set Zeroes:")
-            # zero_components_plnb.operator(
-                # "maplus.zerootherplanepointbx",
-                # text="X00"
-            # )
-            # zero_components_plnb.operator(
-                # "maplus.zerootherplanepointby",
-                # text="0Y0"
-            # )
-            # zero_components_plnb.operator(
-                # "maplus.zerootherplanepointbz",
-                # text="00Z"
-            # )
-            # one_components_plnb = component_changers_plnb.column(
-                # align=True
-            # )
-            # one_components_plnb.label("Set Ones:")
-            # one_components_plnb.operator(
-                # "maplus.oneotherplanepointbx",
-                # text="X11"
-            # )
-            # one_components_plnb.operator(
-                # "maplus.oneotherplanepointby",
-                # text="1Y1"
-            # )
-            # one_components_plnb.operator(
-                # "maplus.oneotherplanepointbz",
-                # text="11Z"
-            # )
-
             layout_coordvec(
                 parent_layout=apl_dest_geom_editor,
                 coordvec_label="Pt. C:",
@@ -11723,47 +11385,6 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     "B"
                 )
             )
-
-            # component_changers_plnc = plane_c_items.row()
-            # zero_components_plnc = component_changers_plnc.column(
-                # align=True
-            # )
-            # zero_components_plnc.label("Set Zeroes:")
-            # zero_components_plnc.operator(
-                # "maplus.zerootherplanepointcx",
-                # text="X00"
-            # )
-            # zero_components_plnc.operator(
-                # "maplus.zerootherplanepointcy",
-                # text="0Y0"
-            # )
-            # zero_components_plnc.operator(
-                # "maplus.zerootherplanepointcz",
-                # text="00Z"
-            # )
-            # one_components_plnc = component_changers_plnc.column(
-                # align=True
-            # )
-            # one_components_plnc.label("Set Ones:")
-            # one_components_plnc.operator(
-                # "maplus.oneotherplanepointcx",
-                # text="X11"
-            # )
-            # one_components_plnc.operator(
-                # "maplus.oneotherplanepointcy",
-                # text="1Y1"
-            # )
-            # one_components_plnc.operator(
-                # "maplus.oneotherplanepointcz",
-                # text="11Z"
-            # )
-
-        ###################################
-        ###################################
-
-
-        ###################################
-        ###################################
 
         apl_gui.label("Operator settings:", icon="SCRIPTWIN")
         apl_mods = apl_gui.box()
@@ -11892,10 +11513,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = axr_src_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -11941,40 +11559,6 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=axr_src_geom_editor,
                     coordvec_label="End:",
@@ -12001,39 +11585,6 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_axr_show_src_geom:
             axr_grab_col.separator()
 
@@ -12159,10 +11710,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = ds_src_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -12208,40 +11756,6 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=ds_src_geom_editor,
                     coordvec_label="End:",
@@ -12268,39 +11782,6 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_ds_show_src_geom:
             ds_grab_col.separator()
 
@@ -12432,10 +11913,7 @@ class QuickSMEGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = sme_src_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -12481,40 +11959,6 @@ class QuickSMEGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=sme_src_geom_editor,
                     coordvec_label="End:",
@@ -12541,39 +11985,6 @@ class QuickSMEGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_sme_show_src_geom:
             sme_grab_col.separator()
 
@@ -12634,10 +12045,7 @@ class QuickSMEGUI(bpy.types.Panel):
             modifier_header.label("Line Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
-            # apply_mods.operator(
-                # "maplus.applygeommodifiers",
-                # text="Apply ModifiersXXXXX"
-            # )
+
             item_mods_box = sme_dest_geom_editor.box()
             mods_row_1 = item_mods_box.row()
             mods_row_1.prop(
@@ -12682,40 +12090,6 @@ class QuickSMEGUI(bpy.types.Panel):
                     "End"
                 )
             )
-
-            # component_changers_plna = plane_a_items.row()
-            # zero_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # zero_components_plna.label("Set Zeroes:")
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointax",
-                # text="X00"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointay",
-                # text="0Y0"
-            # )
-            # zero_components_plna.operator(
-                # "maplus.zerootherplanepointaz",
-                # text="00Z"
-            # )
-            # one_components_plna = component_changers_plna.column(
-                # align=True
-            # )
-            # one_components_plna.label("Set Ones:")
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointax",
-                # text="X11"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointay",
-                # text="1Y1"
-            # )
-            # one_components_plna.operator(
-                # "maplus.oneotherplanepointaz",
-                # text="11Z"
-            # )
 
             layout_coordvec(
                 parent_layout=sme_dest_geom_editor,
@@ -12891,10 +12265,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = slot1_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -12971,10 +12342,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
+
                 item_mods_box = slot1_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -13020,40 +12388,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=slot1_geom_editor,
                     coordvec_label="End:",
@@ -13080,39 +12414,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
             elif addon_data.internal_storage_slot_1.kind == 'PLANE':
                 plane_grab_all = slot1_geom_editor.row(align=True)
                 plane_grab_all.operator(
@@ -13167,40 +12468,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=slot1_geom_editor,
                     coordvec_label="Pt. B (Pivot):",
@@ -13231,40 +12498,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnb = plane_b_items.row()
-                # zero_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # zero_components_plnb.label("Set Zeroes:")
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbx",
-                    # text="X00"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointby",
-                    # text="0Y0"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbz",
-                    # text="00Z"
-                # )
-                # one_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # one_components_plnb.label("Set Ones:")
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbx",
-                    # text="X11"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointby",
-                    # text="1Y1"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=slot1_geom_editor,
                     coordvec_label="Pt. C:",
@@ -13294,40 +12527,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                         "B"
                     )
                 )
-
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
 
         if addon_data.quick_calc_show_slot1_geom:
                 calc_gui.separator()
@@ -13392,10 +12591,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
                 item_mods_box = slot2_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -13472,10 +12667,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
                 item_mods_box = slot2_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -13521,40 +12712,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=slot2_geom_editor,
                     coordvec_label="End:",
@@ -13581,39 +12738,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
             elif addon_data.internal_storage_slot_2.kind == 'PLANE':
                 plane_grab_all = slot2_geom_editor.row(align=True)
                 plane_grab_all.operator(
@@ -13668,40 +12792,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=slot2_geom_editor,
                     coordvec_label="Pt. B (Pivot):",
@@ -13731,40 +12821,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                         "C"
                     )
                 )
-
-                # component_changers_plnb = plane_b_items.row()
-                # zero_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # zero_components_plnb.label("Set Zeroes:")
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbx",
-                    # text="X00"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointby",
-                    # text="0Y0"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbz",
-                    # text="00Z"
-                # )
-                # one_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # one_components_plnb.label("Set Ones:")
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbx",
-                    # text="X11"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointby",
-                    # text="1Y1"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbz",
-                    # text="11Z"
-                # )
 
                 layout_coordvec(
                     parent_layout=slot2_geom_editor,
@@ -13796,39 +12852,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
         if addon_data.quick_calc_show_slot2_geom:
                 calc_gui.separator()
 
@@ -13909,10 +12932,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
                 item_mods_box = calcresult_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -13989,10 +13008,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 modifier_header.label("Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
-                # apply_mods.operator(
-                    # "maplus.applygeommodifiers",
-                    # text="Apply ModifiersXXXXX"
-                # )
                 item_mods_box = calcresult_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
@@ -14038,40 +13053,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=calcresult_geom_editor,
                     coordvec_label="End:",
@@ -14098,39 +13079,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
             elif addon_data.quick_calc_result_item.kind == 'PLANE':
                 plane_grab_all = calcresult_geom_editor.row(align=True)
                 plane_grab_all.operator(
@@ -14185,40 +13133,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=calcresult_geom_editor,
                     coordvec_label="Pt. B (Pivot):",
@@ -14249,40 +13163,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnb = plane_b_items.row()
-                # zero_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # zero_components_plnb.label("Set Zeroes:")
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbx",
-                    # text="X00"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointby",
-                    # text="0Y0"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbz",
-                    # text="00Z"
-                # )
-                # one_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # one_components_plnb.label("Set Ones:")
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbx",
-                    # text="X11"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointby",
-                    # text="1Y1"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=calcresult_geom_editor,
                     coordvec_label="Pt. C:",
@@ -14312,42 +13192,6 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                         "B"
                     )
                 )
-
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
-        # if addon_data.quick_calc_show_calcresult_geom:
-                # calc_gui.separator()
 
         calc_gui.separator()
 
