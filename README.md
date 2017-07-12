@@ -1,15 +1,16 @@
 # Mesh Align Plus (Blender Addon)
-Mesh Align Plus is a precision modeling addon that lets you move mesh parts and objects around, by picking points of interest and using them as targets for alignments, rotations and other types of transformations.
+Mesh Align Plus helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models.
 
-For example: rest a plane against the tips of three separate pyramid objects...or select an edge and rotate part of your mesh around it (or even take that axis and shift it to a new location, then rotate from there).
+In short: You choose from a basic set of operations, pick reference points, and apply custom transformations to a variety of targets. Flexible reference picking and a depth of customization enable sophisticated results.
 
-The complete manual/wiki is here currently (visit for more info, including contact information): https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Modeling/Mesh_Align_Plus
+Some concrete examples of things you can do with the addon:
+* Grab an edge, then rotate an object around it
+* Stick a flat surface from one object against a flat surface on another object
+* Align something to an invisible axis, or shift that axis to a new location first and then rotate around it.
 
-See the simple demo clips below for a general sense of what the addon can do, or watch the full 30 minute demo video on <a href="https://www.youtube.com/watch?v=ebEkfAQ4OOk">YouTube (Link)</a>.
+See the simple demo clips below for a general sense of what the addon can do, read the Wiki above, or watch the video tutorial on <a href="https://youtu.be/VBoic2MIC8U">YouTube (Link)</a>.
 
-<div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/hi2Lw.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/dOOF8.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/IgMGY.gif"></div>
-<div style="float:left"><img stlye="width:80px" src="http://i.stack.imgur.com/05uXX.gif"></div>
-</div>
+![alt](http://i.imgur.com/hro9YEB.gif)
+![alt](http://i.imgur.com/VSkjGdN.gif)
+![alt](http://i.imgur.com/qlUZwPC.gif)
+![alt](http://i.imgur.com/JOa7Fcd.gif)
