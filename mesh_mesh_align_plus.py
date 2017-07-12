@@ -2268,7 +2268,7 @@ class GrabNormalBase(bpy.types.Operator):
 
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
-            
+
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
             elif self.quick_op_target == "SLOT2":
@@ -6275,7 +6275,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
             # Get global coordinate data for each geometry item, with
             # applicable modifiers applied. Grab either (A) directly from
-            # the scene data (for quick ops), (B) from the MAPlus primitives 
+            # the scene data (for quick ops), (B) from the MAPlus primitives
             # CollectionProperty on the scene data (for advanced tools), or
             # (C) from the selected verts directly for numeric input mode
             if hasattr(self, "quick_op_target"):
@@ -6298,7 +6298,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                                 'Cannot grab coords: non-mesh or no active object.'
                             )
                             return {'CANCELLED'}
-                        
+
                         set_item_coords(
                             addon_data.quick_sme_numeric_src,
                             vert_attribs_to_set,
@@ -8370,7 +8370,7 @@ class CalcRotationalDiffBase(bpy.types.Operator):
             result = angle
         else:
             result = math.degrees(angle)
-        
+
         setattr(active_calculation, result_attrib, result)
         if addon_data.calc_result_to_clipboard:
             bpy.context.window_manager.clipboard = str(result)
@@ -9533,35 +9533,6 @@ class MAPlusGui(bpy.types.Panel):
                     )
                 )
 
-                # component_changers = pt_coord_items.row()
-                # zero_components = component_changers.column(align=True)
-                # zero_components.label("Set Zeroes:")
-                # zero_components.operator(
-                    # "maplus.zerootherpointx",
-                    # text="X00"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherpointy",
-                    # text="0Y0"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherpointz",
-                    # text="00Z"
-                # )
-                # one_components = component_changers.column(align=True)
-                # one_components.label("Set Ones:")
-                # one_components.operator(
-                    # "maplus.oneotherpointx",
-                    # text="X11"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherpointy",
-                    # text="1Y1"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherpointz",
-                    # text="11Z"
-                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
@@ -9657,36 +9628,6 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                # component_changers_start = ln_start_items.row()
-                # zero_components = component_changers_start.column(align=True)
-                # zero_components.label("Set Zeroes:")
-                # zero_components.operator(
-                    # "maplus.zerootherlinestartx",
-                    # text="X00"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherlinestarty",
-                    # text="0Y0"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherlinestartz",
-                    # text="00Z"
-                # )
-                # one_components = component_changers_start.column(align=True)
-                # one_components.label("Set Ones:")
-                # one_components.operator(
-                    # "maplus.oneotherlinestartx",
-                    # text="X11"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherlinestarty",
-                    # text="1Y1"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherlinestartz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=item_info_col,
                     coordvec_label="End:",
@@ -9713,35 +9654,6 @@ class MAPlusGui(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_end = ln_end_items.row()
-                # zero_components = component_changers_end.column(align=True)
-                # zero_components.label("Set Zeroes:")
-                # zero_components.operator(
-                    # "maplus.zerootherlineendx",
-                    # text="X00"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherlineendy",
-                    # text="0Y0"
-                # )
-                # zero_components.operator(
-                    # "maplus.zerootherlineendz",
-                    # text="00Z"
-                # )
-                # one_components = component_changers_end.column(align=True)
-                # one_components.label("Set Ones:")
-                # one_components.operator(
-                    # "maplus.oneotherlineendx",
-                    # text="X11"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherlineendy",
-                    # text="1Y1"
-                # )
-                # one_components.operator(
-                    # "maplus.oneotherlineendz",
-                    # text="11Z"
-                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
@@ -9806,40 +9718,6 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                # component_changers_plna = plane_a_items.row()
-                # zero_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # zero_components_plna.label("Set Zeroes:")
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointax",
-                    # text="X00"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointay",
-                    # text="0Y0"
-                # )
-                # zero_components_plna.operator(
-                    # "maplus.zerootherplanepointaz",
-                    # text="00Z"
-                # )
-                # one_components_plna = component_changers_plna.column(
-                    # align=True
-                # )
-                # one_components_plna.label("Set Ones:")
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointax",
-                    # text="X11"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointay",
-                    # text="1Y1"
-                # )
-                # one_components_plna.operator(
-                    # "maplus.oneotherplanepointaz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=item_info_col,
                     coordvec_label="Pt. B:",
@@ -9871,40 +9749,6 @@ class MAPlusGui(bpy.types.Panel):
                 )
                 item_info_col.separator()
 
-                # component_changers_plnb = plane_b_items.row()
-                # zero_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # zero_components_plnb.label("Set Zeroes:")
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbx",
-                    # text="X00"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointby",
-                    # text="0Y0"
-                # )
-                # zero_components_plnb.operator(
-                    # "maplus.zerootherplanepointbz",
-                    # text="00Z"
-                # )
-                # one_components_plnb = component_changers_plnb.column(
-                    # align=True
-                # )
-                # one_components_plnb.label("Set Ones:")
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbx",
-                    # text="X11"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointby",
-                    # text="1Y1"
-                # )
-                # one_components_plnb.operator(
-                    # "maplus.oneotherplanepointbz",
-                    # text="11Z"
-                # )
-
                 layout_coordvec(
                     parent_layout=item_info_col,
                     coordvec_label="Pt. C:",
@@ -9935,39 +9779,6 @@ class MAPlusGui(bpy.types.Panel):
                     )
                 )
 
-                # component_changers_plnc = plane_c_items.row()
-                # zero_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # zero_components_plnc.label("Set Zeroes:")
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcx",
-                    # text="X00"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcy",
-                    # text="0Y0"
-                # )
-                # zero_components_plnc.operator(
-                    # "maplus.zerootherplanepointcz",
-                    # text="00Z"
-                # )
-                # one_components_plnc = component_changers_plnc.column(
-                    # align=True
-                # )
-                # one_components_plnc.label("Set Ones:")
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcx",
-                    # text="X11"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcy",
-                    # text="1Y1"
-                # )
-                # one_components_plnc.operator(
-                    # "maplus.oneotherplanepointcz",
-                    # text="11Z"
-                # )
                 item_info_col.separator()
                 item_info_col.operator(
                     "maplus.duplicateitembase",
@@ -11890,7 +11701,7 @@ class QuickSMEGUI(bpy.types.Panel):
                     icon='WORLD',
                     text="Grab All Global"
                 )
-                
+
                 special_grabs = sme_src_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.quicksmegrabnormalsrc",
