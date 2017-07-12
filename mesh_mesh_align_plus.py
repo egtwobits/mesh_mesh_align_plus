@@ -6239,10 +6239,10 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
@@ -6620,10 +6620,10 @@ class AlignPointsBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
@@ -6896,10 +6896,10 @@ class DirectionalSlideBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
@@ -7178,10 +7178,10 @@ class AxisRotateBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
@@ -7481,10 +7481,10 @@ class AlignLinesBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
@@ -7802,10 +7802,10 @@ class AlignPlanesBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not (bpy.context.active_object and bpy.context.active_object.select):
             self.report(
                 {'ERROR'},
-                'Cannot complete: no active object.'
+                'Cannot complete: need at least one active (and selected) object.'
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
