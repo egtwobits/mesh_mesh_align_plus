@@ -1666,6 +1666,36 @@ class RemoveListItem(bpy.types.Operator):
         return {'FINISHED'}
 
 
+# Blender 2.8 API compatibility var
+if str(bpy.app.version[1]).startswith('8'):
+    BLENDER_28_PY_API = True
+else:
+    BLENDER_28_PY_API = False
+
+# Blender 2.8 API compatibility func
+def get_active_object():
+    if BLENDER_28_PY_API:
+        return bpy.context.view_layer.objects.active
+    else:
+        return bpy.context.active_object
+
+
+# Blender 2.8 API compatibility func
+def get_select_state(item):
+    if BLENDER_28_PY_API:
+        return item.select_get()
+    else:
+        return item.select
+
+
+# Blender 2.8 API compatibility func
+def set_select_state(state, item):
+    if BLENDER_28_PY_API:
+        item.select_set(state)
+    else:
+        item.select = state
+
+
 class SpecialsAddFromActiveBase(bpy.types.Operator):
     bl_idname = "maplus.specialsaddfromactivebase"
     bl_label = "Specials Menu Item Base Class, Add Geometry Item From Active"
@@ -1681,9 +1711,9 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
 
         try:
             vert_data = return_selected_verts(
-                bpy.context.active_object,
+                get_active_object(),
                 len(self.vert_attribs_to_set),
-                bpy.context.active_object.matrix_world
+                get_active_object().matrix_world
             )
         except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -2025,10 +2055,10 @@ class GrabFromGeometryBase(bpy.types.Operator):
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
-            matrix_multiplier = bpy.context.active_object.matrix_world
+            matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_selected_verts(
-                bpy.context.active_object,
+                get_active_object(),
                 len(self.vert_attribs_to_set),
                 matrix_multiplier
             )
@@ -2066,10 +2096,10 @@ class GrabSmeNumeric(bpy.types.Operator):
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
-            matrix_multiplier = bpy.context.active_object.matrix_world
+            matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_selected_verts(
-                bpy.context.active_object,
+                get_active_object(),
                 len(self.vert_attribs_to_set),
                 matrix_multiplier
             )
@@ -2126,10 +2156,10 @@ class GrabAndSetItemKindBase(bpy.types.Operator):
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
-            matrix_multiplier = bpy.context.active_object.matrix_world
+            matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_at_least_one_selected_vert(
-                bpy.context.active_object,
+                get_active_object(),
                 matrix_multiplier
             )
         except InsufficientSelectionError:
@@ -2212,10 +2242,10 @@ class GrabAverageLocationBase(bpy.types.Operator):
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
-            matrix_multiplier = bpy.context.active_object.matrix_world
+            matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_avg_vert_pos(
-                bpy.context.active_object,
+                get_active_object(),
                 matrix_multiplier
             )
         except NotEnoughVertsError:
@@ -2278,10 +2308,10 @@ class GrabNormalBase(bpy.types.Operator):
 
         matrix_multiplier = None
         if self.multiply_by_world_matrix:
-            matrix_multiplier = bpy.context.active_object.matrix_world
+            matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_normal_coords(
-                bpy.context.active_object,
+                get_active_object(),
                 matrix_multiplier
             )
         except InsufficientSelectionError:
@@ -6154,7 +6184,7 @@ class ApplyGeomModifiers(bpy.types.Operator):
     def execute(self, context):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         active_item = prims[addon_data.active_list_item]
 
         if active_item.kind == 'POINT':
@@ -6238,7 +6268,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -6246,14 +6276,14 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if hasattr(self, "quick_op_target"):
             active_item = addon_data.quick_scale_match_edge_transf
         else:
             active_item = prims[addon_data.active_list_item]
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.sme_edge_one].kind != 'LINE' or
@@ -6285,9 +6315,9 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         vert_attribs_to_set = ('line_start', 'line_end')
                         try:
                             vert_data = return_selected_verts(
-                                bpy.context.active_object,
+                                get_active_object(),
                                 len(vert_attribs_to_set),
-                                bpy.context.active_object.matrix_world
+                                get_active_object().matrix_world
                             )
                         except InsufficientSelectionError:
                             self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -6332,9 +6362,9 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                         vert_attribs_to_set = ('line_start', 'line_end')
                         try:
                             vert_data = return_selected_verts(
-                                bpy.context.active_object,
+                                get_active_object(),
                                 len(vert_attribs_to_set),
-                                bpy.context.active_object.matrix_world
+                                get_active_object().matrix_world
                             )
                         except InsufficientSelectionError:
                             self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -6383,7 +6413,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
             # create common vars needed for object and for mesh
             # level transforms
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
@@ -6401,7 +6431,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -6619,7 +6649,7 @@ class AlignPointsBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -6627,14 +6657,14 @@ class AlignPointsBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_align_pts_transf
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             # todo: use a bool check and put on all derived classes
             # instead of hasattr
@@ -6666,9 +6696,9 @@ class AlignPointsBase(bpy.types.Operator):
                     vert_attribs_to_set = ('point',)
                     try:
                         vert_data = return_selected_verts(
-                            bpy.context.active_object,
+                            get_active_object(),
                             len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                            get_active_object().matrix_world
                         )
                     except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -6712,13 +6742,13 @@ class AlignPointsBase(bpy.types.Operator):
             dest_pt = dest_global_data[0]
 
             # create common vars needed for object and for mesh level transfs
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -6895,7 +6925,7 @@ class DirectionalSlideBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -6903,14 +6933,14 @@ class DirectionalSlideBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_directional_slide_transf
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
                 if prims[active_item.ds_direction].kind != 'LINE':
@@ -6939,9 +6969,9 @@ class DirectionalSlideBase(bpy.types.Operator):
                     vert_attribs_to_set = ('line_start', 'line_end')
                     try:
                         vert_data = return_selected_verts(
-                            bpy.context.active_object,
+                            get_active_object(),
                             len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                            get_active_object().matrix_world
                         )
                     except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -6977,13 +7007,13 @@ class DirectionalSlideBase(bpy.types.Operator):
             dir_end = src_global_data[1]
 
             # create common vars needed for object and for mesh level transfs
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -7177,7 +7207,7 @@ class AxisRotateBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -7185,14 +7215,14 @@ class AxisRotateBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_axis_rotate_transf
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
                 if prims[active_item.axr_axis].kind != 'LINE':
@@ -7221,9 +7251,9 @@ class AxisRotateBase(bpy.types.Operator):
                     vert_attribs_to_set = ('line_start', 'line_end')
                     try:
                         vert_data = return_selected_verts(
-                            bpy.context.active_object,
+                            get_active_object(),
                             len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                            get_active_object().matrix_world
                         )
                     except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -7266,13 +7296,13 @@ class AxisRotateBase(bpy.types.Operator):
 
             # create common vars needed for object and for mesh
             # level transforms
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -7480,7 +7510,7 @@ class AlignLinesBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -7488,14 +7518,14 @@ class AlignLinesBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if hasattr(self, "quick_op_target"):
             active_item = addon_data.quick_align_lines_transf
         else:
             active_item = prims[addon_data.active_list_item]
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.aln_src_line].kind != 'LINE' or
@@ -7525,9 +7555,9 @@ class AlignLinesBase(bpy.types.Operator):
                     vert_attribs_to_set = ('line_start', 'line_end')
                     try:
                         vert_data = return_selected_verts(
-                            bpy.context.active_object,
+                            get_active_object(),
                             len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                            get_active_object().matrix_world
                         )
                     except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -7575,13 +7605,13 @@ class AlignLinesBase(bpy.types.Operator):
 
             # create common vars needed for object and for mesh
             # level transforms
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -7801,7 +7831,7 @@ class AlignPlanesBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not (bpy.context.active_object and bpy.context.active_object.select):
+        if not (get_active_object() and get_select_state(get_active_object())):
             self.report(
                 {'ERROR'},
                 'Cannot complete: need at least one active (and selected) object.'
@@ -7809,14 +7839,14 @@ class AlignPlanesBase(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
         if not hasattr(self, "quick_op_target"):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_align_planes_transf
 
-        if (bpy.context.active_object and
-                type(bpy.context.active_object.data) == bpy.types.Mesh):
+        if (get_active_object() and
+                type(get_active_object().data) == bpy.types.Mesh):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.apl_src_plane].kind != 'PLANE' or
@@ -7850,9 +7880,9 @@ class AlignPlanesBase(bpy.types.Operator):
                     )
                     try:
                         vert_data = return_selected_verts(
-                            bpy.context.active_object,
+                            get_active_object(),
                             len(vert_attribs_to_set),
-                            bpy.context.active_object.matrix_world
+                            get_active_object().matrix_world
                         )
                     except InsufficientSelectionError:
                         self.report({'ERROR'}, 'Not enough vertices selected.')
@@ -7901,7 +7931,7 @@ class AlignPlanesBase(bpy.types.Operator):
             dest_pt_c = dest_global_data[2]
 
             # create common vars needed for object and for mesh level transfs
-            active_obj_transf = bpy.context.active_object.matrix_world.copy()
+            active_obj_transf = get_active_object().matrix_world.copy()
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
@@ -7932,38 +7962,39 @@ class AlignPlanesBase(bpy.types.Operator):
                 dest_pln_ln_BA
             )
 
-            # Create custom transform orientation, for sliding the user's
-            # target along the destination face after it has been aligned.
-            # We do this by making a basis matrix out of the dest plane
-            # leading edge vector, the dest normal vector, and the cross
-            # of those two (each vector is normalized first)
-            vdest = dest_pln_ln_BA.copy()
-            vdest.normalize()
-            vnorm = dest_normal.copy()
-            vnorm.normalize()
-            # vnorm.negate()
-            vcross = vdest.cross(vnorm)
-            vcross.normalize()
-            vcross.negate()
-            custom_orientation = mathutils.Matrix(
-                [
-                    [vcross[0], vnorm[0], vdest[0]],
-                    [vcross[1], vnorm[1], vdest[1]],
-                    [vcross[2], vnorm[2], vdest[2]]
-                ]
-            )
-            bpy.ops.transform.create_orientation(
-                name='MAPlus',
-                use=active_item.apl_use_custom_orientation,
-                overwrite=True
-            )
-            bpy.context.scene.orientations['MAPlus'].matrix = (
-                custom_orientation
-            )
+            # TODO: Disabled until Blender 2.8 custom transform orientations status is known
+            # # Create custom transform orientation, for sliding the user's
+            # # target along the destination face after it has been aligned.
+            # # We do this by making a basis matrix out of the dest plane
+            # # leading edge vector, the dest normal vector, and the cross
+            # # of those two (each vector is normalized first)
+            # vdest = dest_pln_ln_BA.copy()
+            # vdest.normalize()
+            # vnorm = dest_normal.copy()
+            # vnorm.normalize()
+            # # vnorm.negate()
+            # vcross = vdest.cross(vnorm)
+            # vcross.normalize()
+            # vcross.negate()
+            # custom_orientation = mathutils.Matrix(
+            #     [
+            #         [vcross[0], vnorm[0], vdest[0]],
+            #         [vcross[1], vnorm[1], vdest[1]],
+            #         [vcross[2], vnorm[2], vdest[2]]
+            #     ]
+            # )
+            # bpy.ops.transform.create_orientation(
+            #     name='MAPlus',
+            #     use=active_item.apl_use_custom_orientation,
+            #     overwrite=True
+            # )
+            # bpy.context.scene.orientations['MAPlus'].matrix = (
+            #     custom_orientation
+            # )
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
-                    model.select and model.type == 'MESH'
+                    get_select_state(model) and model.type == 'MESH'
                 )
             ]
             if self.target == 'OBJECT':
@@ -8199,7 +8230,7 @@ class QuickAlignObjects(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not bpy.context.active_object:
+        if not get_active_object():
             self.report(
                 {'ERROR'},
                 'Cannot complete: no active object.'
@@ -8207,10 +8238,10 @@ class QuickAlignObjects(bpy.types.Operator):
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
-        previous_mode = bpy.context.active_object.mode
+        previous_mode = get_active_object().mode
 
         # Get active (target) transformation matrix components
-        active_mat = bpy.context.active_object.matrix_world
+        active_mat = get_active_object().matrix_world
         active_trs = [
             mathutils.Matrix.Translation(active_mat.decompose()[0]),
             active_mat.decompose()[1].to_matrix(),
@@ -8219,7 +8250,7 @@ class QuickAlignObjects(bpy.types.Operator):
         active_trs[1].resize_4x4()
 
         # Copy the transform components from the target to the current object
-        selected = [item for item in bpy.context.scene.objects if item.select]
+        selected = [item for item in bpy.context.scene.objects if get_select_state(item)]
         for item in selected:
             current_mat = item.matrix_world
             current_trs = [
