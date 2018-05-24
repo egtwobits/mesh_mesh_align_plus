@@ -273,6 +273,14 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    apl_alternate_pivot = bpy.props.BoolProperty(
+        description=(
+            "Make the first point (A) the pivot (The first point selected on"
+            " each plane will be aligned to each other). Turn this off for"
+            " 'classic'/'old-style' behavior, where point B is the pivot."
+        ),
+        default=True
+    )
 
     # "Align Lines" (transformation) data/settings
     aln_src_line = bpy.props.IntProperty(
@@ -7922,12 +7930,20 @@ class AlignPlanesBase(bpy.types.Operator):
             # These global point coordinate vectors will be used to construct
             # geometry and transformations in both object (global) space
             # and mesh (local) space
-            src_pt_a = src_global_data[0]
-            src_pt_b = src_global_data[1]
+            if active_item.apl_alternate_pivot:
+                src_pt_a = src_global_data[1]
+                src_pt_b = src_global_data[0]
+            else:
+                src_pt_a = src_global_data[0]
+                src_pt_b = src_global_data[1]
             src_pt_c = src_global_data[2]
 
-            dest_pt_a = dest_global_data[0]
-            dest_pt_b = dest_global_data[1]
+            if active_item.apl_alternate_pivot:
+                dest_pt_a = dest_global_data[1]
+                dest_pt_b = dest_global_data[0]
+            else:
+                dest_pt_a = dest_global_data[0]
+                dest_pt_b = dest_global_data[1]
             dest_pt_c = dest_global_data[2]
 
             # create common vars needed for object and for mesh level transfs
@@ -11030,7 +11046,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=apl_src_geom_editor,
-                    coordvec_label="Pt. B (Pivot):",
+                    coordvec_label="Pt. B:",
                     op_id_cursor_grab=(
                         "maplus.quickaplsrcgrabplanebfromcursor"
                     ),
@@ -11170,7 +11186,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
 
             layout_coordvec(
                 parent_layout=apl_dest_geom_editor,
-                coordvec_label="Pt. B (Pivot):",
+                coordvec_label="Pt. B:",
                 op_id_cursor_grab=(
                     "maplus.quickapldestgrabplanebfromcursor"
                 ),
@@ -11240,6 +11256,12 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
             addon_data.quick_align_planes_transf,
             'apl_use_custom_orientation',
             'Use Transf. Orientation'
+        )
+        apl_mods_row2 = apl_mods.row()
+        apl_mods_row2.prop(
+            addon_data.quick_align_planes_transf,
+            'apl_alternate_pivot',
+            'Pivot is A'
         )
         apl_apply_header = apl_gui.row()
         apl_apply_header.label("Apply to:")
@@ -12312,7 +12334,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=slot1_geom_editor,
-                    coordvec_label="Pt. B (Pivot):",
+                    coordvec_label="Pt. B:",
                     op_id_cursor_grab=(
                         "maplus.slot1grabplanebfromcursor"
                     ),
@@ -12636,7 +12658,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=slot2_geom_editor,
-                    coordvec_label="Pt. B (Pivot):",
+                    coordvec_label="Pt. B:",
                     op_id_cursor_grab=(
                         "maplus.slot2grabplanebfromcursor"
                     ),
@@ -12977,7 +12999,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
                 layout_coordvec(
                     parent_layout=calcresult_geom_editor,
-                    coordvec_label="Pt. B (Pivot):",
+                    coordvec_label="Pt. B:",
                     op_id_cursor_grab=(
                         "maplus.calcresultgrabplanebfromcursor"
                     ),
