@@ -29,8 +29,8 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 4, 0),
-    "blender": (2, 69, 0),
+    "version": (0, 5, 0),
+    "blender": (2, 80, 0),
     "location": (
         "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
     ),
@@ -58,12 +58,12 @@ import collections
 # (defaults to point). A MAPlusPrimitive always has data slots for each of
 # these types, regardless of which 'kind' the item is currently
 class MAPlusPrimitive(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(
+    name: bpy.props.StringProperty(
         name="Item name",
         description="The name of this item",
         default="Name"
     )
-    kind = bpy.props.EnumProperty(
+    kind: bpy.props.EnumProperty(
         items=[
             ('POINT', 'Point', 'Point Primitive'),
             ('LINE', 'Line', 'Line Primitive'),
@@ -78,20 +78,20 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
 
     # Point primitive data/settings
     # DuplicateItemBase depends on a complete list of these attribs
-    point = bpy.props.FloatVectorProperty(
+    point: bpy.props.FloatVectorProperty(
         description="Point primitive coordinates",
         precision=6
     )
-    pt_make_unit_vec = bpy.props.BoolProperty(
+    pt_make_unit_vec: bpy.props.BoolProperty(
         description="Treat the point like a vector of length 1"
     )
-    pt_flip_direction = bpy.props.BoolProperty(
+    pt_flip_direction: bpy.props.BoolProperty(
         description=(
             "Treat the point like a vector pointing in"
             " the opposite direction"
         )
     )
-    pt_multiplier = bpy.props.FloatProperty(
+    pt_multiplier: bpy.props.FloatProperty(
         description=(
             "Treat the point like a vector and multiply"
             " its length by this value"
@@ -102,21 +102,21 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
 
     # Line primitive data/settings
     # DuplicateItemBase depends on a complete list of these attribs
-    line_start = bpy.props.FloatVectorProperty(
+    line_start: bpy.props.FloatVectorProperty(
         description="Line primitive, starting point coordinates",
         precision=6
     )
-    line_end = bpy.props.FloatVectorProperty(
+    line_end: bpy.props.FloatVectorProperty(
         description="Line primitive, ending point coordinates",
         precision=6
     )
-    ln_make_unit_vec = bpy.props.BoolProperty(
+    ln_make_unit_vec: bpy.props.BoolProperty(
         description="Make the line's length 1"
     )
-    ln_flip_direction = bpy.props.BoolProperty(
+    ln_flip_direction: bpy.props.BoolProperty(
         description="Point the line in the opposite direction"
     )
-    ln_multiplier = bpy.props.FloatProperty(
+    ln_multiplier: bpy.props.FloatProperty(
         description="Multiply the line's length by this amount",
         default=1.0,
         precision=6
@@ -124,21 +124,21 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
 
     # Plane primitive data
     # DuplicateItemBase depends on a complete list of these attribs
-    plane_pt_a = bpy.props.FloatVectorProperty(
+    plane_pt_a: bpy.props.FloatVectorProperty(
         description="Plane primitive, point A coordinates",
         precision=6
     )
-    plane_pt_b = bpy.props.FloatVectorProperty(
+    plane_pt_b: bpy.props.FloatVectorProperty(
         description="Plane primitive, point B coordinates",
         precision=6
     )
-    plane_pt_c = bpy.props.FloatVectorProperty(
+    plane_pt_c: bpy.props.FloatVectorProperty(
         description="Plane primitive, point C coordinates",
         precision=6
     )
 
     # Calculation primitive data/settings
-    calc_type = bpy.props.EnumProperty(
+    calc_type: bpy.props.EnumProperty(
         items=[
             ('SINGLEITEM',
              'Single',
@@ -152,7 +152,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         default='MULTIITEM'
     )
     # active item index for the single item calc list
-    single_calc_target = bpy.props.IntProperty(
+    single_calc_target: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the item that"
             " the calculation will be based on."
@@ -160,14 +160,14 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         default=0
     )
     # active item indices for the multi item calc lists
-    multi_calc_target_one = bpy.props.IntProperty(
+    multi_calc_target_one: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the first item that"
             " the calculation will be based on."
         ),
         default=0
     )
-    multi_calc_target_two = bpy.props.IntProperty(
+    multi_calc_target_two: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the second item that"
             " the calculation will be based on."
@@ -175,19 +175,19 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         default=0
     )
 
-    single_calc_result = bpy.props.FloatProperty(
+    single_calc_result: bpy.props.FloatProperty(
         description="Single Item Calc. Result",
         default=0,
         precision=6
     )
-    multi_calc_result = bpy.props.FloatProperty(
+    multi_calc_result: bpy.props.FloatProperty(
         description="Multi Item Calc. Result",
         default=0,
         precision=6
     )
 
     # Transformation primitive data/settings (several blocks)
-    transf_type = bpy.props.EnumProperty(
+    transf_type: bpy.props.EnumProperty(
         items=[
             ('ALIGNPOINTS',
              'Align Points',
@@ -217,14 +217,14 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # "Align Points" (transformation) data/settings
-    apt_pt_one = bpy.props.IntProperty(
+    apt_pt_one: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source point"
             " (this point will be 'moved' to match the destination)."
         ),
         default=0
     )
-    apt_pt_two = bpy.props.IntProperty(
+    apt_pt_two: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination point"
             " (this is a fixed reference location, where"
@@ -232,29 +232,29 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    apt_make_unit_vector = bpy.props.BoolProperty(
+    apt_make_unit_vector: bpy.props.BoolProperty(
         description="Set the move distance equal to one",
         default=False
     )
-    apt_flip_direction = bpy.props.BoolProperty(
+    apt_flip_direction: bpy.props.BoolProperty(
         description="Flip the move direction",
         default=False
     )
-    apt_multiplier = bpy.props.FloatProperty(
+    apt_multiplier: bpy.props.FloatProperty(
         description="Multiply the move by this amount",
         default=1.0,
         precision=6
     )
 
     # "Align Planes" (transformation) data/settings
-    apl_src_plane = bpy.props.IntProperty(
+    apl_src_plane: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source plane"
             " (this plane will be 'moved' to match the destination)."
         ),
         default=0
     )
-    apl_dest_plane = bpy.props.IntProperty(
+    apl_dest_plane: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination plane"
             " (this is a fixed reference location, where"
@@ -262,18 +262,18 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    apl_flip_normal = bpy.props.BoolProperty(
+    apl_flip_normal: bpy.props.BoolProperty(
         description="Flips the normal of the source plane",
         default=False
     )
-    apl_use_custom_orientation = bpy.props.BoolProperty(
+    apl_use_custom_orientation: bpy.props.BoolProperty(
         description=(
             "Switches to custom transform orientation upon applying"
             " the operator (oriented to the destination plane)."
         ),
         default=False
     )
-    apl_alternate_pivot = bpy.props.BoolProperty(
+    apl_alternate_pivot: bpy.props.BoolProperty(
         description=(
             "Make the first point (A) the pivot (The first point selected on"
             " each plane will be aligned to each other). Turn this off for"
@@ -283,14 +283,14 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # "Align Lines" (transformation) data/settings
-    aln_src_line = bpy.props.IntProperty(
+    aln_src_line: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source line"
             " (this line will be 'moved' to match the destination)."
         ),
         default=0
     )
-    aln_dest_line = bpy.props.IntProperty(
+    aln_dest_line: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination line"
             " (this is a fixed reference location, where"
@@ -298,17 +298,17 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    aln_flip_direction = bpy.props.BoolProperty(
+    aln_flip_direction: bpy.props.BoolProperty(
         description="Flip the source line direction",
         default=False
     )
 
     # "Axis rotate" (transformation) data/settings
-    axr_axis = bpy.props.IntProperty(
+    axr_axis: bpy.props.IntProperty(
         description="The axis to rotate around",
         default=0
     )
-    axr_amount = bpy.props.FloatProperty(
+    axr_amount: bpy.props.FloatProperty(
         description=(
             "How much to rotate around the specified axis (in radians)"
         ),
@@ -317,26 +317,26 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
 
     # "Directional slide" (transformation) data/settings
-    ds_direction = bpy.props.IntProperty(
+    ds_direction: bpy.props.IntProperty(
         description="The direction to move",
         default=0
     )  # This is a list item pointer
-    ds_make_unit_vec = bpy.props.BoolProperty(
+    ds_make_unit_vec: bpy.props.BoolProperty(
         description="Make the line's length 1",
         default=False
     )
-    ds_flip_direction = bpy.props.BoolProperty(
+    ds_flip_direction: bpy.props.BoolProperty(
         description="Flip source line direction",
         default=False
     )
-    ds_multiplier = bpy.props.FloatProperty(
+    ds_multiplier: bpy.props.FloatProperty(
         description="Multiply the source line's length by this amount",
         default=1.0,
         precision=6
     )
 
     # "Scale Match Edge" (transformation) data/settings
-    sme_edge_one = bpy.props.IntProperty(
+    sme_edge_one: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the source edge"
             " (this edge will be scaled to match"
@@ -344,7 +344,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         ),
         default=0
     )
-    sme_edge_two = bpy.props.IntProperty(
+    sme_edge_two: bpy.props.IntProperty(
         description=(
             "Pointer to an item in the list, the destination edge"
             " (this is a fixed reference edge, used to determine"
@@ -357,10 +357,10 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
 
 # Defines one instance of the addon data (one per scene)
 class MAPlusData(bpy.types.PropertyGroup):
-    prim_list = bpy.props.CollectionProperty(type=MAPlusPrimitive)
+    prim_list: bpy.props.CollectionProperty(type=MAPlusPrimitive)
     # stores index of active primitive in my UIList
-    active_list_item = bpy.props.IntProperty()
-    use_experimental = bpy.props.BoolProperty(
+    active_list_item: bpy.props.IntProperty()
+    use_experimental: bpy.props.BoolProperty(
         description=(
             'Use experimental:'
             ' Mesh transformations are not currently'
@@ -371,218 +371,218 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
 
     # Items for the quick operators
-    quick_align_pts_show = bpy.props.BoolProperty(
+    quick_align_pts_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align points operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_apt_show_src_geom = bpy.props.BoolProperty(
+    quick_apt_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_apt_show_dest_geom = bpy.props.BoolProperty(
+    quick_apt_show_dest_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the destination geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_align_pts_auto_grab_src = bpy.props.BoolProperty(
+    quick_align_pts_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source point from selected geometry"
         ),
         default=True
     )
-    quick_align_pts_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_pts_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_pts_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_pts_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_pts_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_pts_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
 
-    quick_directional_slide_show = bpy.props.BoolProperty(
+    quick_directional_slide_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the directional slide operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_ds_show_src_geom = bpy.props.BoolProperty(
+    quick_ds_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_directional_slide_auto_grab_src = bpy.props.BoolProperty(
+    quick_directional_slide_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
         ),
         default=True
     )
-    quick_directional_slide_src = bpy.props.PointerProperty(
+    quick_directional_slide_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
-    quick_directional_slide_dest = bpy.props.PointerProperty(
+    quick_directional_slide_dest: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
-    quick_directional_slide_transf = bpy.props.PointerProperty(
+    quick_directional_slide_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
 
-    quick_scale_match_edge_show = bpy.props.BoolProperty(
+    quick_scale_match_edge_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the scale match edge operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_sme_show_src_geom = bpy.props.BoolProperty(
+    quick_sme_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_sme_show_dest_geom = bpy.props.BoolProperty(
+    quick_sme_show_dest_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the destination geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_scale_match_edge_auto_grab_src = bpy.props.BoolProperty(
+    quick_scale_match_edge_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
         ),
         default=True
     )
-    quick_scale_match_edge_src = bpy.props.PointerProperty(
+    quick_scale_match_edge_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
-    quick_scale_match_edge_dest = bpy.props.PointerProperty(
+    quick_scale_match_edge_dest: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
-    quick_scale_match_edge_transf = bpy.props.PointerProperty(
+    quick_scale_match_edge_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
     # Scale Match Edge numeric mode items
-    quick_sme_numeric_mode = bpy.props.BoolProperty(
+    quick_sme_numeric_mode: bpy.props.BoolProperty(
         description=(
             'Use alternate "Numeric Input" mode to type a target edge'
             ' length in directly.'
         ),
         default=False
     )
-    quick_sme_numeric_auto = bpy.props.BoolProperty(
+    quick_sme_numeric_auto: bpy.props.BoolProperty(
         description=(
             "Automatically grab target line from selected geometry"
         ),
         default=True
     )
-    quick_sme_numeric_length = bpy.props.FloatProperty(
+    quick_sme_numeric_length: bpy.props.FloatProperty(
         description="Desired length for the target edge",
         default=1,
         precision=6
     )
-    quick_sme_numeric_src = bpy.props.PointerProperty(
+    quick_sme_numeric_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
-    quick_sme_numeric_dest = bpy.props.PointerProperty(
+    quick_sme_numeric_dest: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
 
-    quick_align_lines_show = bpy.props.BoolProperty(
+    quick_align_lines_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align lines operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_aln_show_src_geom = bpy.props.BoolProperty(
+    quick_aln_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_aln_show_dest_geom = bpy.props.BoolProperty(
+    quick_aln_show_dest_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the destination geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_align_lines_auto_grab_src = bpy.props.BoolProperty(
+    quick_align_lines_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source line from selected geometry"
         ),
         default=True
     )
-    quick_align_lines_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_lines_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_lines_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_lines_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_lines_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_lines_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
 
-    quick_axis_rotate_show = bpy.props.BoolProperty(
+    quick_axis_rotate_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the axis rotate operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_axr_show_src_geom = bpy.props.BoolProperty(
+    quick_axr_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_axis_rotate_auto_grab_src = bpy.props.BoolProperty(
+    quick_axis_rotate_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source axis from selected geometry"
         ),
         default=True
     )
-    quick_axis_rotate_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_axis_rotate_transf = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_axis_rotate_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
 
-    quick_align_planes_show = bpy.props.BoolProperty(
+    quick_align_planes_show: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the align planes operator"
             " in the quick tools panel."
         ),
         default=True
     )
-    quick_apl_show_src_geom = bpy.props.BoolProperty(
+    quick_apl_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_apl_show_dest_geom = bpy.props.BoolProperty(
+    quick_apl_show_dest_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the destination geometry editor"
             " in the quick tools panel."
         ),
         default=False
     )
-    quick_align_planes_auto_grab_src = bpy.props.BoolProperty(
+    quick_align_planes_auto_grab_src: bpy.props.BoolProperty(
         description=(
             "Automatically grab source plane from selected geometry"
         ),
         default=True
     )
-    quick_align_planes_src = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_planes_dest = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_align_planes_transf = bpy.props.PointerProperty(
+    quick_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
 
     # Calculation global settings
-    calc_result_to_clipboard = bpy.props.BoolProperty(
+    calc_result_to_clipboard: bpy.props.BoolProperty(
         description=(
             "Copy  calculation results (new reference locations or"
             " numeric calculations) to the addon clipboard or the"
@@ -592,7 +592,7 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
 
     # Quick Calculation items
-    quick_calc_check_types = bpy.props.BoolProperty(
+    quick_calc_check_types: bpy.props.BoolProperty(
         description=(
             "Check/verify slot types and disable operations that do not"
             " match the type(s) of the current geometry item slots."
@@ -601,36 +601,36 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
-    quick_calc_show_slot1_geom = bpy.props.BoolProperty(
+    quick_calc_show_slot1_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the slot 1 geometry editor"
             " in the calculate/compose panel."
         ),
         default=False
     )
-    quick_calc_show_slot2_geom = bpy.props.BoolProperty(
+    quick_calc_show_slot2_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the slot 2 geometry editor"
             " in the calculate/compose panel."
         ),
         default=False
     )
-    quick_calc_show_result_geom = bpy.props.BoolProperty(
+    quick_calc_show_result_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the calculation result geometry editor"
             " in the calculate/compose panel."
         ),
         default=False
     )
-    quick_calc_result_item = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    quick_calc_result_numeric = bpy.props.FloatProperty(
+    quick_calc_result_item: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_calc_result_numeric: bpy.props.FloatProperty(
         description="Quick Calculation numeric result",
         default=0,
         precision=6
     )
-    internal_storage_slot_1 = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    internal_storage_slot_2 = bpy.props.PointerProperty(type=MAPlusPrimitive)
-    internal_storage_clipboard = bpy.props.PointerProperty(type=MAPlusPrimitive)
+    internal_storage_slot_1: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    internal_storage_slot_2: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    internal_storage_clipboard: bpy.props.PointerProperty(type=MAPlusPrimitive)
 
 
 # Basic type selector functionality, derived classes provide
@@ -1828,7 +1828,7 @@ def return_selected_verts(mesh_object,
                 break
             coords = vert.co
             if global_matrix_multiplier:
-                coords = global_matrix_multiplier * coords
+                coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
                 vert_indices.append(vert.index)
                 selection.append(coords)
@@ -1838,7 +1838,7 @@ def return_selected_verts(mesh_object,
                 break
             coords = vert.co
             if global_matrix_multiplier:
-                coords = global_matrix_multiplier * coords
+                coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
                 vert_indices.append(vert.index)
                 selection.append(coords)
@@ -1883,11 +1883,11 @@ def return_normal_coords(mesh_object,
             raise InsufficientSelectionError()
         if global_matrix_multiplier:
             face_normal_origin = (
-                global_matrix_multiplier *
+                global_matrix_multiplier @
                 face_elems[0].calc_center_median()
             )
             face_normal_endpoint = (
-                global_matrix_multiplier *
+                global_matrix_multiplier @
                 (face_elems[0].calc_center_median() + face_elems[0].normal)
             )
         else:
@@ -1922,7 +1922,7 @@ def return_avg_vert_pos(mesh_object,
         for vert in (v for v in src_mesh.verts if v.select):
             coords = vert.co
             if global_matrix_multiplier:
-                coords = global_matrix_multiplier * coords
+                coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
                 vert_indices.append(vert.index)
                 selection.append(coords)
@@ -1976,7 +1976,7 @@ def return_at_least_one_selected_vert(mesh_object,
                 break
             coords = vert.co
             if global_matrix_multiplier:
-                coords = global_matrix_multiplier * coords
+                coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
                 vert_indices.append(vert.index)
                 selection.append(coords)
@@ -1985,7 +1985,7 @@ def return_at_least_one_selected_vert(mesh_object,
                 break
             coords = vert.co
             if global_matrix_multiplier:
-                coords = global_matrix_multiplier * coords
+                coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
                 vert_indices.append(vert.index)
                 selection.append(coords)
@@ -6460,12 +6460,12 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
 
                     # put the original line starting point (before the object
                     # was transformed) into the local object space
-                    src_pivot_location_local = unaltered_inverse * src_start
+                    src_pivot_location_local = unaltered_inverse @ src_start
 
                     # get final global position of pivot (source line
                     # start coords) after object rotation
                     new_global_src_pivot_coords = (
-                        item.matrix_world *
+                        item.matrix_world @
                         src_pivot_location_local
                     )
 
@@ -6499,11 +6499,11 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     unaltered_inverse_loc.invert()
 
                     # Stored geom data in local coords
-                    src_start_loc = unaltered_inverse_loc * src_start
-                    src_end_loc = unaltered_inverse_loc * src_end
+                    src_start_loc = unaltered_inverse_loc @ src_start
+                    src_end_loc = unaltered_inverse_loc @ src_end
 
-                    dest_start_loc = unaltered_inverse_loc * dest_start
-                    dest_end_loc = unaltered_inverse_loc * dest_end
+                    dest_start_loc = unaltered_inverse_loc @ dest_start
+                    dest_end_loc = unaltered_inverse_loc @ dest_end
 
                     # Construct vectors for each line in local space
                     loc_src_line = src_end_loc - src_start_loc
@@ -6516,7 +6516,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     )
 
                     # Get the new pivot location
-                    new_pivot_location_loc = scaling_match * src_start_loc
+                    new_pivot_location_loc = scaling_match @ src_start_loc
 
                     # Get the translation, new to old pivot location
                     new_to_old_pivot_vec = (
@@ -6527,7 +6527,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
                     )
 
                     # Get combined scale + move
-                    match_transf = new_to_old_pivot * scaling_match
+                    match_transf = new_to_old_pivot @ scaling_match
 
                     if self.target == 'MESHSELECTED':
                         src_mesh.transform(
@@ -6787,8 +6787,8 @@ class AlignPointsBase(bpy.types.Operator):
                     src_mesh.from_mesh(item.data)
 
                     # Stored geom data in local coords
-                    src_pt_loc = inverse_active * src_pt
-                    dest_pt_loc = inverse_active * dest_pt
+                    src_pt_loc = inverse_active @ src_pt
+                    dest_pt_loc = inverse_active @ dest_pt
 
                     # Get translation vector (in local space), src to dest
                     align_points_vec = dest_pt_loc - src_pt_loc
@@ -7059,8 +7059,8 @@ class DirectionalSlideBase(bpy.types.Operator):
                     unaltered_inverse_loc.invert()
 
                     # Stored geom data in local coords
-                    dir_start_loc = unaltered_inverse_loc * dir_start
-                    dir_end_loc = unaltered_inverse_loc * dir_end
+                    dir_start_loc = unaltered_inverse_loc @ dir_start
+                    dir_end_loc = unaltered_inverse_loc @ dir_end
 
                     # Get translation vector in local space
                     direction_loc = dir_end_loc - dir_start_loc
@@ -7194,12 +7194,12 @@ def scale_mat_from_vec(vec):
             vec[0],
             4,
             mathutils.Vector((1, 0.0, 0.0))
-        ) *
+        ) @
         mathutils.Matrix.Scale(
             vec[1],
             4,
             mathutils.Vector((0.0, 1, 0.0))
-        ) *
+        ) @
         mathutils.Matrix.Scale(
             vec[2],
             4,
@@ -7338,13 +7338,13 @@ class AxisRotateBase(bpy.types.Operator):
 
                     # put the original line starting point (before the object
                     # was rotated) into the local object space
-                    src_pivot_location_local = unaltered_inverse * axis_start
+                    src_pivot_location_local = unaltered_inverse @ axis_start
 
                     # Calculate the new pivot location (after the
                     # first rotation), so that the axis can be moved
                     # back into place
                     new_pivot_loc_global = (
-                        item.matrix_world *
+                        item.matrix_world @
                         src_pivot_location_local
                     )
                     pivot_to_dest = axis_start - new_pivot_loc_global
@@ -7372,8 +7372,8 @@ class AxisRotateBase(bpy.types.Operator):
                     unaltered_inverse_loc.invert()
 
                     # Stored geom data in local coords
-                    axis_start_loc = unaltered_inverse_loc * axis_start
-                    axis_end_loc = unaltered_inverse_loc * axis_end
+                    axis_start_loc = unaltered_inverse_loc @ axis_start
+                    axis_end_loc = unaltered_inverse_loc @ axis_end
 
                     # Get axis vector in local space
                     axis_loc = axis_end_loc - axis_start_loc
@@ -7400,8 +7400,8 @@ class AxisRotateBase(bpy.types.Operator):
                     pivot_to_dest.resize_4x4()
 
                     axis_rotate_loc = (
-                        pivot_to_dest *
-                        axis_rot_at_loc_origin *
+                        pivot_to_dest @
+                        axis_rot_at_loc_origin @
                         src_pivot_to_loc_origin
                     )
 
@@ -7653,12 +7653,12 @@ class AlignLinesBase(bpy.types.Operator):
 
                     # put the original line starting point (before the object
                     # was rotated) into the local object space
-                    src_pivot_location_local = unaltered_inverse * src_start
+                    src_pivot_location_local = unaltered_inverse @ src_start
 
                     # get final global position of pivot (source line
                     # start coords) after object rotation
                     new_global_src_pivot_coords = (
-                        item.matrix_world *
+                        item.matrix_world @
                         src_pivot_location_local
                     )
                     # get translation, pivot to dest
@@ -7689,11 +7689,11 @@ class AlignLinesBase(bpy.types.Operator):
                     unaltered_inverse_loc.invert()
 
                     # Stored geom data in local coords
-                    src_start_loc = unaltered_inverse_loc * src_start
-                    src_end_loc = unaltered_inverse_loc * src_end
+                    src_start_loc = unaltered_inverse_loc @ src_start
+                    src_end_loc = unaltered_inverse_loc @ src_end
 
-                    dest_start_loc = unaltered_inverse_loc * dest_start
-                    dest_end_loc = unaltered_inverse_loc * dest_end
+                    dest_start_loc = unaltered_inverse_loc @ dest_start
+                    dest_end_loc = unaltered_inverse_loc @ dest_end
 
                     # Construct vectors for each line in local space
                     loc_src_line = src_end_loc - src_start_loc
@@ -7724,8 +7724,8 @@ class AlignLinesBase(bpy.types.Operator):
                     )
 
                     loc_make_collinear = (
-                        pivot_to_dest_loc *
-                        parallelize_lines_loc *
+                        pivot_to_dest_loc @
+                        parallelize_lines_loc @
                         src_pivot_to_loc_origin
                     )
 
@@ -8038,14 +8038,14 @@ class AlignPlanesBase(bpy.types.Operator):
                     # relative to the active object's origin by reversing
                     # the active object's transf from the pivot's coords
                     local_src_pivot_coords = (
-                        unaltered_inverse * src_pt_b
+                        unaltered_inverse @ src_pt_b
                     )
 
                     # find the new global location of the pivot (we access
                     # the item's matrix_world directly here since we
                     # changed/updated it earlier)
                     new_global_src_pivot_coords = (
-                        item.matrix_world * local_src_pivot_coords
+                        item.matrix_world @ local_src_pivot_coords
                     )
                     # figure out how to translate the object (the translation
                     # vector) so that the source pivot sits on the destination
@@ -8078,13 +8078,13 @@ class AlignPlanesBase(bpy.types.Operator):
                     unaltered_inverse_loc.invert()
 
                     # Stored geom data in local coords
-                    src_a_loc = unaltered_inverse_loc * src_pt_a
-                    src_b_loc = unaltered_inverse_loc * src_pt_b
-                    src_c_loc = unaltered_inverse_loc * src_pt_c
+                    src_a_loc = unaltered_inverse_loc @ src_pt_a
+                    src_b_loc = unaltered_inverse_loc @ src_pt_b
+                    src_c_loc = unaltered_inverse_loc @ src_pt_c
 
-                    dest_a_loc = unaltered_inverse_loc * dest_pt_a
-                    dest_b_loc = unaltered_inverse_loc * dest_pt_b
-                    dest_c_loc = unaltered_inverse_loc * dest_pt_c
+                    dest_a_loc = unaltered_inverse_loc @ dest_pt_a
+                    dest_b_loc = unaltered_inverse_loc @ dest_pt_b
+                    dest_c_loc = unaltered_inverse_loc @ dest_pt_c
 
                     src_ba_loc = src_a_loc - src_b_loc
                     src_bc_loc = src_c_loc - src_b_loc
@@ -8115,7 +8115,7 @@ class AlignPlanesBase(bpy.types.Operator):
 
                     # Get edge alignment rotation (align leading plane edges)
                     new_lead_edge_ornt_loc = (
-                        parallelize_planes_loc * src_ba_loc
+                        parallelize_planes_loc @ src_ba_loc
                     )
                     edge_align_loc = (
                         new_lead_edge_ornt_loc.rotation_difference(
@@ -8131,9 +8131,9 @@ class AlignPlanesBase(bpy.types.Operator):
                     )
 
                     mesh_coplanar = (
-                        pivot_to_dest_loc *
-                        parallelize_edges_loc *
-                        parallelize_planes_loc *
+                        pivot_to_dest_loc @
+                        parallelize_edges_loc @
+                        parallelize_planes_loc @
                         src_pivot_to_loc_origin
                     )
 
@@ -8277,8 +8277,8 @@ class QuickAlignObjects(bpy.types.Operator):
             ]
             current_trs[1].resize_4x4()
             item.matrix_world = (
-                active_trs[0] *
-                active_trs[1] *
+                active_trs[0] @
+                active_trs[1] @
                 current_trs[2]
             )
 
@@ -9324,15 +9324,15 @@ class MAPlusList(bpy.types.UIList):
 
         # Check which type of primitive, separate draw code for each
         if item.kind == 'POINT':
-            layout.label(item.name, icon="LAYER_ACTIVE")
+            layout.label(text=item.name, icon="LAYER_ACTIVE")
         elif item.kind == 'LINE':
-            layout.label(item.name, icon="MAN_TRANS")
+            layout.label(text=item.name, icon="LIGHT_SUN")
         elif item.kind == 'PLANE':
-            layout.label(item.name, icon="OUTLINER_OB_MESH")
+            layout.label(text=item.name, icon="OUTLINER_OB_MESH")
         elif item.kind == 'CALCULATION':
-            layout.label(item.name, icon="NODETREE")
+            layout.label(text=item.name, icon="NODETREE")
         elif item.kind == 'TRANSFORMATION':
-            layout.label(item.name, icon="MANIPUL")
+            layout.label(text=item.name, icon="MANIPUL")
 
 
 def layout_coordvec(parent_layout,
@@ -9347,14 +9347,14 @@ def layout_coordvec(parent_layout,
                     op_id_text_tuple_swap_first=None,
                     op_id_text_tuple_swap_second=None):
     coordvec_container = parent_layout.column(align=True)
-    coordvec_container.label(coordvec_label)
+    coordvec_container.label(text=coordvec_label)
     type_or_grab_coords = coordvec_container.column()
 
     grab_buttons = type_or_grab_coords.row(align=True)
-    grab_buttons.label("Grab:")
+    grab_buttons.label(text="Grab:")
     grab_buttons.operator(
         op_id_cursor_grab,
-        icon='CURSOR',
+        icon='PIVOT_CURSOR',
         text=""
     )
     grab_buttons.operator(
@@ -9376,13 +9376,13 @@ def layout_coordvec(parent_layout,
     type_or_grab_coords.prop(
         bpy.types.AnyType(coord_container),
         coord_attribute,
-        ""
+        text=""
     )
 
     coordvec_lowers = type_or_grab_coords.row()
 
     if op_id_text_tuple_swap_first:
-        coordvec_lowers.label("Swap:")
+        coordvec_lowers.label(text="Swap:")
         if op_id_text_tuple_swap_second:
             aligned_swap_buttons = coordvec_lowers.row(align=True)
             aligned_swap_buttons.operator(
@@ -9399,7 +9399,7 @@ def layout_coordvec(parent_layout,
                 text=op_id_text_tuple_swap_first[1]
             )
 
-    coordvec_lowers.label("Send:")
+    coordvec_lowers.label(text="Send:")
     coordvec_lowers.operator(
         op_id_cursor_send,
         icon='DRIVER',
@@ -9446,7 +9446,7 @@ class MAPlusGui(bpy.types.Panel):
         )
         add_new_items.operator(
             "maplus.addnewline",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text=""
         )
         add_new_items.operator(
@@ -9475,23 +9475,23 @@ class MAPlusGui(bpy.types.Panel):
         # list is not empty, it allow users to choose the type of the
         # current primitive)
         if len(prims) == 0:
-            layout.label("Add items above")
+            layout.label(text="Add items above")
         else:
             basic_item_attribs_col = layout.column()
-            basic_item_attribs_col.label("Item Name and Type:")
+            basic_item_attribs_col.label(text="Item Name and Type:")
             item_name_and_types = basic_item_attribs_col.split(
                 align=True,
-                percentage=.8
+                factor=.8
             )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
                 'name',
-                ""
+                text=""
             )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
                 'kind',
-                ""
+                text=""
             )
             basic_item_attribs_col.separator()
 
@@ -9501,7 +9501,7 @@ class MAPlusGui(bpy.types.Panel):
 
             if active_item.kind == 'POINT':
                 modifier_header = item_info_col.row()
-                modifier_header.label("Point Modifiers:")
+                modifier_header.label(text="Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 apply_mods.operator(
@@ -9513,26 +9513,26 @@ class MAPlusGui(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(active_item),
                     'pt_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(active_item),
                     'pt_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(active_item),
                     'pt_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
                 item_info_col.separator()
 
-                item_info_col.label("Point Coordinates:")
+                item_info_col.label(text="Point Coordinates:")
                 pt_grab_all = item_info_col.row(align=True)
                 pt_grab_all.operator(
                     "maplus.grabpointfromcursor",
-                    icon='CURSOR',
+                    icon='PIVOT_CURSOR',
                     text="Grab Cursor"
                 )
                 pt_grab_all.operator(
@@ -9589,7 +9589,7 @@ class MAPlusGui(bpy.types.Panel):
 
             elif active_item.kind == 'LINE':
                 modifier_header = item_info_col.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 apply_mods.operator(
@@ -9601,22 +9601,22 @@ class MAPlusGui(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(active_item),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(active_item),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(active_item),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
                 item_info_col.separator()
 
-                item_info_col.label("Line Coordinates:")
+                item_info_col.label(text="Line Coordinates:")
                 ln_grab_all = item_info_col.row(align=True)
                 ln_grab_all.operator(
                     "maplus.graballvertslinelocal",
@@ -9632,7 +9632,7 @@ class MAPlusGui(bpy.types.Panel):
                 special_grabs = item_info_col.row(align=True)
                 special_grabs.operator(
                     "maplus.grabnormal",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 item_info_col.separator()
@@ -9709,7 +9709,7 @@ class MAPlusGui(bpy.types.Panel):
                 )
 
             elif active_item.kind == 'PLANE':
-                item_info_col.label("Plane Coordinates:")
+                item_info_col.label(text="Plane Coordinates:")
                 plane_grab_all = item_info_col.row(align=True)
                 plane_grab_all.operator(
                     "maplus.graballvertsplanelocal",
@@ -9834,21 +9834,21 @@ class MAPlusGui(bpy.types.Panel):
                 )
 
             elif active_item.kind == 'CALCULATION':
-                item_info_col.label("Calculation Type:")
+                item_info_col.label(text="Calculation Type:")
                 calc_type_switcher = item_info_col.row()
                 calc_type_switcher.operator(
                     "maplus.changecalctosingle",
-                    # icon='ROTATECOLLECTION',
+                    # icon='PIVOT_INDIVIDUAL',
                     text="Single Item"
                 )
                 calc_type_switcher.operator(
                     "maplus.changecalctomulti",
-                    # icon='ROTATECOLLECTION',
+                    # icon='PIVOT_INDIVIDUAL',
                     text="Multi-Item"
                 )
                 item_info_col.separator()
                 if active_item.calc_type == 'SINGLEITEM':
-                    item_info_col.label("Target:")
+                    item_info_col.label(text="Target:")
                     item_info_col.template_list(
                         "MAPlusList",
                         "single_calc_target_list",
@@ -9860,7 +9860,7 @@ class MAPlusGui(bpy.types.Panel):
                     )
                     item_info_col.separator()
                     calcs_and_results_header = item_info_col.row()
-                    calcs_and_results_header.label(
+                    calcs_and_results_header.label(text=
                         "Available Calc.'s and Result:"
                     )
                     clipboard_row_right = calcs_and_results_header.row()
@@ -9868,12 +9868,12 @@ class MAPlusGui(bpy.types.Panel):
                     clipboard_row_right.prop(
                         bpy.types.AnyType(maplus_data_ptr),
                         'calc_result_to_clipboard',
-                        "Copy to Clipboard"
+                        text="Copy to Clipboard"
                     )
                     item_info_col.prop(
                         bpy.types.AnyType(active_item),
                         'single_calc_result',
-                        "Result"
+                        text="Result"
                     )
                     # Check if the target pointer is valid, since we attempt
                     # to access that index in prims at the beginning here.
@@ -9882,7 +9882,7 @@ class MAPlusGui(bpy.types.Panel):
                         if calc_target.kind == 'POINT':
                             item_info_col.operator(
                                 "maplus.composenewlinefrompoint",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="New Line from Point"
                             )
                         elif calc_target.kind == 'LINE':
@@ -9892,18 +9892,18 @@ class MAPlusGui(bpy.types.Panel):
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinefromorigin",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="New Line from Origin"
                             )
                         elif calc_target.kind == 'PLANE':
                             item_info_col.operator(
                                 "maplus.composenormalfromplane",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="Get Plane Normal (Normalized)"
                             )
                 elif active_item.calc_type == 'MULTIITEM':
 
-                    item_info_col.label("Targets:")
+                    item_info_col.label(text="Targets:")
                     calc_targets = item_info_col.row()
                     calc_targets.template_list(
                         "MAPlusList",
@@ -9925,7 +9925,7 @@ class MAPlusGui(bpy.types.Panel):
                     )
                     item_info_col.separator()
                     calcs_and_results_header = item_info_col.row()
-                    calcs_and_results_header.label(
+                    calcs_and_results_header.label(text=
                         "Available Calc.'s and Result:"
                     )
                     clipboard_row_right = calcs_and_results_header.row()
@@ -9933,12 +9933,12 @@ class MAPlusGui(bpy.types.Panel):
                     clipboard_row_right.prop(
                         bpy.types.AnyType(maplus_data_ptr),
                         'calc_result_to_clipboard',
-                        "Copy to Clipboard"
+                        text="Copy to Clipboard"
                     )
                     item_info_col.prop(
                         bpy.types.AnyType(active_item),
                         'multi_calc_result',
-                        "Result"
+                        text="Result"
                     )
                     # Check if the target pointers are valid, since we attempt
                     # to access those indices in prims at the beginning here.
@@ -9958,7 +9958,7 @@ class MAPlusGui(bpy.types.Panel):
                                 calc_target_two.kind == 'POINT'):
                             item_info_col.operator(
                                 "maplus.composenewlinefrompoints",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="New Line from Points"
                             )
                             item_info_col.operator(
@@ -9973,18 +9973,18 @@ class MAPlusGui(bpy.types.Panel):
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinevectoraddition",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="Add Lines"
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinevectorsubtraction",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="Subtract Lines"
                             )
                         elif 'POINT' in type_combo and 'LINE' in type_combo:
                             item_info_col.operator(
                                 "maplus.composenewlineatpointlocation",
-                                icon='MAN_TRANS',
+                                icon='LIGHT_SUN',
                                 text="New Line at Point"
                             )
                         elif 'LINE' in type_combo and 'PLANE' in type_combo:
@@ -9995,11 +9995,11 @@ class MAPlusGui(bpy.types.Panel):
                             )
 
             elif active_item.kind == 'TRANSFORMATION':
-                item_info_col.label("Transformation Type Selectors:")
+                item_info_col.label(text="Transformation Type Selectors:")
                 transf_types = item_info_col.row(align=True)
                 transf_types.operator(
                     "maplus.changetransftoalignpoints",
-                    icon='ROTATECOLLECTION',
+                    icon='PIVOT_INDIVIDUAL',
                     text="Align Points"
                 )
                 transf_types.operator(
@@ -10030,12 +10030,12 @@ class MAPlusGui(bpy.types.Panel):
                 item_info_col.separator()
 
                 if active_item.transf_type == "UNDEFINED":
-                    item_info_col.label("Select a transformation above")
+                    item_info_col.label(text="Select a transformation above")
                 else:
                     apply_buttons_header = item_info_col.row()
                     if active_item.transf_type == 'ALIGNPOINTS':
-                        apply_buttons_header.label('Apply Align Points to:')
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons_header.label(text='Apply Align Points to:')
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.alignpointsobject",
                             icon='NONE',
@@ -10053,10 +10053,10 @@ class MAPlusGui(bpy.types.Panel):
                             text=" Whole Mesh"
                         )
                     elif active_item.transf_type == 'DIRECTIONALSLIDE':
-                        apply_buttons_header.label(
+                        apply_buttons_header.label(text=
                             'Apply Directional Slide to:'
                         )
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.directionalslideobject",
                             icon='NONE',
@@ -10073,10 +10073,10 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     elif active_item.transf_type == 'SCALEMATCHEDGE':
-                        apply_buttons_header.label(
+                        apply_buttons_header.label(text=
                             'Apply Scale Match Edge to:'
                         )
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.scalematchedgeobject",
                             icon='NONE',
@@ -10093,8 +10093,8 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     elif active_item.transf_type == 'AXISROTATE':
-                        apply_buttons_header.label('Apply Axis Rotate to:')
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons_header.label(text='Apply Axis Rotate to:')
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.axisrotateobject",
                             icon='NONE',
@@ -10111,8 +10111,8 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     elif active_item.transf_type == 'ALIGNLINES':
-                        apply_buttons_header.label('Apply Align Lines to:')
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons_header.label(text='Apply Align Lines to:')
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.alignlinesobject",
                             icon='NONE',
@@ -10130,8 +10130,8 @@ class MAPlusGui(bpy.types.Panel):
                             text="Whole Mesh"
                         )
                     elif active_item.transf_type == 'ALIGNPLANES':
-                        apply_buttons_header.label('Apply Align Planes to:')
-                        apply_buttons = item_info_col.split(percentage=.33)
+                        apply_buttons_header.label(text='Apply Align Planes to:')
+                        apply_buttons = item_info_col.split(factor=.33)
                         apply_buttons.operator(
                             "maplus.alignplanesobject",
                             icon='NONE',
@@ -10153,14 +10153,14 @@ class MAPlusGui(bpy.types.Panel):
                     experiment_toggle.prop(
                             addon_data,
                             'use_experimental',
-                            'Enable Experimental Mesh Ops.'
+                            text='Enable Experimental Mesh Ops.'
                     )
 
                     active_transf = bpy.types.AnyType(active_item)
 
                     if (active_item.transf_type != 'SCALEMATCHEDGE' and
                             active_item.transf_type != 'AXISROTATE'):
-                        item_info_col.label('Transformation Modifiers:')
+                        item_info_col.label(text='Transformation Modifiers:')
                         item_mods_box = item_info_col.box()
                         mods_row_1 = item_mods_box.row()
                         mods_row_2 = item_mods_box.row()
@@ -10168,53 +10168,53 @@ class MAPlusGui(bpy.types.Panel):
                         mods_row_1.prop(
                             active_transf,
                             'apt_make_unit_vector',
-                            'Set Length Equal to One'
+                            text='Set Length Equal to One'
                         )
                         mods_row_1.prop(
                             active_transf,
                             'apt_flip_direction',
-                            'Flip Direction'
+                            text='Flip Direction'
                         )
                         mods_row_2.prop(
                             active_transf,
                             'apt_multiplier',
-                            'Multiplier'
+                            text='Multiplier'
                         )
                     if active_item.transf_type == "DIRECTIONALSLIDE":
-                        item_info_col.label('Item Modifiers:')
+                        item_info_col.label(text='Item Modifiers:')
                         mods_row_1.prop(
                             active_transf,
                             'ds_make_unit_vec',
-                            "Set Length Equal to One"
+                            text="Set Length Equal to One"
                         )
                         mods_row_1.prop(
                             active_transf,
                             'ds_flip_direction',
-                            "Flip Direction"
+                            text="Flip Direction"
                         )
                         mods_row_2.prop(
                             active_transf,
                             'ds_multiplier',
-                            "Multiplier"
+                            text="Multiplier"
                         )
                     if active_item.transf_type == "ALIGNLINES":
                         mods_row_1.prop(
                             active_transf,
                             'aln_flip_direction',
-                            "Flip Direction"
+                            text="Flip Direction"
                         )
                     if active_item.transf_type == "ALIGNPLANES":
                         mods_row_1.prop(
                             active_transf,
                             'apl_flip_normal',
-                            "Flip Source Normal"
+                            text="Flip Source Normal"
                         )
                         # Todo: determine how to handle this from Adv. Tools
                         # ('use' arg only valid from a 3d view editor/context)
                         # mods_row_1.prop(
                         #    active_transf,
                         #    'apl_use_custom_orientation',
-                        #    "Use Transf. Orientation"
+                        #    text="Use Transf. Orientation"
                         # )
                     item_info_col.separator()
 
@@ -10222,7 +10222,7 @@ class MAPlusGui(bpy.types.Panel):
                     # other primitive items in the main list. The indices are
                     # stored on each primitive item
                     if active_item.transf_type == "ALIGNPOINTS":
-                        item_info_col.label("Source Point")
+                        item_info_col.label(text="Source Point")
                         item_info_col.template_list(
                             "MAPlusList",
                             "apt_pt_one_list",
@@ -10233,7 +10233,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label("Destination Point")
+                        item_info_col.label(text="Destination Point")
                         item_info_col.template_list(
                             "MAPlusList",
                             "apt_pt_two_list",
@@ -10244,7 +10244,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                     if active_item.transf_type == "DIRECTIONALSLIDE":
-                        item_info_col.label("Source Line")
+                        item_info_col.label(text="Source Line")
                         item_info_col.template_list(
                             "MAPlusList",
                             "vs_targetLineList",
@@ -10255,7 +10255,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                     if active_item.transf_type == "SCALEMATCHEDGE":
-                        item_info_col.label("Source Edge")
+                        item_info_col.label(text="Source Edge")
                         item_info_col.template_list(
                             "MAPlusList",
                             "sme_src_edgelist",
@@ -10266,7 +10266,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label("Destination Edge")
+                        item_info_col.label(text="Destination Edge")
                         item_info_col.template_list(
                             "MAPlusList",
                             "sme_dest_edgelist",
@@ -10277,7 +10277,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                     if active_item.transf_type == "AXISROTATE":
-                        item_info_col.label("Axis")
+                        item_info_col.label(text="Axis")
                         item_info_col.template_list(
                             "MAPlusList",
                             "axr_src_axis",
@@ -10291,10 +10291,10 @@ class MAPlusGui(bpy.types.Panel):
                         item_info_col.prop(
                             active_transf,
                             'axr_amount',
-                            'Amount'
+                            text='Amount'
                         )
                     if active_item.transf_type == "ALIGNLINES":
-                        item_info_col.label("Source Line")
+                        item_info_col.label(text="Source Line")
                         item_info_col.template_list(
                             "MAPlusList",
                             "aln_src_linelist",
@@ -10305,7 +10305,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label("Destination Line")
+                        item_info_col.label(text="Destination Line")
                         item_info_col.template_list(
                             "MAPlusList",
                             "aln_dest_linelist",
@@ -10316,7 +10316,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                     if active_item.transf_type == "ALIGNPLANES":
-                        item_info_col.label("Source Plane")
+                        item_info_col.label(text="Source Plane")
                         item_info_col.template_list(
                             "MAPlusList",
                             "apl_src_planelist",
@@ -10327,7 +10327,7 @@ class MAPlusGui(bpy.types.Panel):
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label("Destination Plane")
+                        item_info_col.label(text="Destination Plane")
                         item_info_col.template_list(
                             "MAPlusList",
                             "apl_dest_planelist",
@@ -10342,8 +10342,9 @@ class MAPlusGui(bpy.types.Panel):
 class QuickAlignPointsGUI(bpy.types.Panel):
     bl_idname = "quick_align_points_gui"
     bl_label = "Quick Align Points"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -10356,14 +10357,14 @@ class QuickAlignPointsGUI(bpy.types.Panel):
         apg_top = layout.row()
         align_pts_gui = layout.box()
         apg_top.label(
-            "Align Points",
-            icon="ROTATECOLLECTION"
+            text="Align Points",
+            icon="PIVOT_INDIVIDUAL"
         )
         apt_grab_col = align_pts_gui.column()
         apt_grab_col.prop(
             addon_data,
             'quick_align_pts_auto_grab_src',
-            'Auto Grab Source from Selected Vertices'
+            text='Auto Grab Source from Selected Vertices'
         )
 
         apt_src_geom_top = apt_grab_col.row(align=True)
@@ -10394,7 +10395,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                apt_src_geom_top.label("Source Coordinates", icon="LAYER_ACTIVE")
+                apt_src_geom_top.label(text="Source Coordinates", icon="LAYER_ACTIVE")
 
                 apt_src_geom_editor = apt_grab_col.box()
                 pt_grab_all = apt_src_geom_editor.row(align=True)
@@ -10421,7 +10422,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 )
 
                 modifier_header = apt_src_geom_editor.row()
-                modifier_header.label("Point Modifiers:")
+                modifier_header.label(text="Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -10430,18 +10431,18 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_align_pts_src),
                     'pt_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_align_pts_src),
                     'pt_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_align_pts_src),
                     'pt_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -10496,7 +10497,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apt_dest_geom_top.label("Destination Coordinates", icon="LAYER_ACTIVE")
+            apt_dest_geom_top.label(text="Destination Coordinates", icon="LAYER_ACTIVE")
 
             apt_dest_geom_editor = apt_grab_col.box()
             pt_grab_all = apt_dest_geom_editor.row(align=True)
@@ -10523,7 +10524,7 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             )
 
             modifier_header = apt_dest_geom_editor.row()
-            modifier_header.label("Point Modifiers:")
+            modifier_header.label(text="Point Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
 
@@ -10532,18 +10533,18 @@ class QuickAlignPointsGUI(bpy.types.Panel):
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_align_pts_dest),
                 'pt_make_unit_vec',
-                "Set Length Equal to One"
+                text="Set Length Equal to One"
             )
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_align_pts_dest),
                 'pt_flip_direction',
-                "Flip Direction"
+                text="Flip Direction"
             )
             mods_row_2 = item_mods_box.row()
             mods_row_2.prop(
                 bpy.types.AnyType(addon_data.quick_align_pts_dest),
                 'pt_multiplier',
-                "Multiplier"
+                text="Multiplier"
             )
 
             layout_coordvec(
@@ -10568,33 +10569,33 @@ class QuickAlignPointsGUI(bpy.types.Panel):
                 )
             )
 
-        align_pts_gui.label("Operator settings:", icon="SCRIPTWIN")
+        align_pts_gui.label(text="Operator settings:", icon="PREFERENCES")
         apt_mods = align_pts_gui.box()
         apt_box_row1 = apt_mods.row()
         apt_box_row1.prop(
             addon_data.quick_align_pts_transf,
             'apt_make_unit_vector',
-            'Set Length to 1'
+            text='Set Length to 1'
         )
         apt_box_row1.prop(
             addon_data.quick_align_pts_transf,
             'apt_flip_direction',
-            'Flip Direction'
+            text='Flip Direction'
         )
         apt_box_row2 = apt_mods.row()
         apt_box_row2.prop(
             addon_data.quick_align_pts_transf,
             'apt_multiplier',
-            'Multiplier'
+            text='Multiplier'
         )
         apt_apply_header = align_pts_gui.row()
-        apt_apply_header.label("Apply to:")
+        apt_apply_header.label(text="Apply to:")
         apt_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        apt_apply_items = align_pts_gui.split(percentage=.33)
+        apt_apply_items = align_pts_gui.split(factor=.33)
         apt_apply_items.operator(
             "maplus.quickalignpointsobject",
             text="Object"
@@ -10613,8 +10614,9 @@ class QuickAlignPointsGUI(bpy.types.Panel):
 class QuickAlignLinesGUI(bpy.types.Panel):
     bl_idname = "quick_align_lines_gui"
     bl_label = "Quick Align Lines"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -10626,7 +10628,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
 
         aln_top = layout.row()
         aln_gui = layout.box()
-        aln_top.label(
+        aln_top.label(text=
             "Align Lines",
             icon="SNAP_EDGE"
         )
@@ -10634,7 +10636,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
         aln_grab_col.prop(
             addon_data,
             'quick_align_lines_auto_grab_src',
-            'Auto Grab Source from Selected Vertices'
+            text='Auto Grab Source from Selected Vertices'
         )
 
         aln_src_geom_top = aln_grab_col.row(align=True)
@@ -10649,12 +10651,12 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 preserve_button_roundedge = aln_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickalignlinesgrabsrc",
-                        icon='MAN_TRANS',
+                        icon='LIGHT_SUN',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
                     "maplus.quickalngrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text=""
                 )
             else:
@@ -10664,7 +10666,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                aln_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
+                aln_src_geom_top.label(text="Source Coordinates", icon="LIGHT_SUN")
 
                 aln_src_geom_editor = aln_grab_col.box()
                 ln_grab_all = aln_src_geom_editor.row(align=True)
@@ -10681,7 +10683,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 special_grabs = aln_src_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.quickalngrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = aln_src_geom_editor.row(align=True)
@@ -10697,7 +10699,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 )
 
                 modifier_header = aln_src_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -10706,18 +10708,18 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_align_lines_src),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_align_lines_src),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_align_lines_src),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -10786,12 +10788,12 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             preserve_button_roundedge = aln_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickalignlinesgrabdest",
-                    icon='MAN_TRANS',
+                    icon='LIGHT_SUN',
                     text="Grab Destination"
             )
             preserve_button_roundedge.operator(
                 "maplus.quickalngrabnormaldest",
-                icon='LAMP_HEMI',
+                icon='LIGHT_HEMI',
                 text=""
             )
         else:
@@ -10801,7 +10803,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            aln_dest_geom_top.label("Destination Coordinates", icon="MAN_TRANS")
+            aln_dest_geom_top.label(text="Destination Coordinates", icon="LIGHT_SUN")
 
             aln_dest_geom_editor = aln_grab_col.box()
             ln_grab_all = aln_dest_geom_editor.row(align=True)
@@ -10818,7 +10820,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             special_grabs = aln_dest_geom_editor.row(align=True)
             special_grabs.operator(
                 "maplus.quickalngrabnormaldest",
-                icon='LAMP_HEMI',
+                icon='LIGHT_HEMI',
                 text="Grab Normal"
             )
             special_grabs_extra = aln_dest_geom_editor.row(align=True)
@@ -10834,7 +10836,7 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             )
 
             modifier_header = aln_dest_geom_editor.row()
-            modifier_header.label("Line Modifiers:")
+            modifier_header.label(text="Line Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
 
@@ -10843,18 +10845,18 @@ class QuickAlignLinesGUI(bpy.types.Panel):
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'ln_make_unit_vec',
-                "Set Length Equal to One"
+                text="Set Length Equal to One"
             )
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'ln_flip_direction',
-                "Flip Direction"
+                text="Flip Direction"
             )
             mods_row_2 = item_mods_box.row()
             mods_row_2.prop(
                 bpy.types.AnyType(addon_data.quick_align_lines_dest),
                 'ln_multiplier',
-                "Multiplier"
+                text="Multiplier"
             )
 
             layout_coordvec(
@@ -10909,22 +10911,22 @@ class QuickAlignLinesGUI(bpy.types.Panel):
                 )
             )
 
-        aln_gui.label("Operator settings:", icon="SCRIPTWIN")
+        aln_gui.label(text="Operator settings:", icon="PREFERENCES")
         aln_mods = aln_gui.box()
         aln_mods_row1 = aln_mods.row()
         aln_mods_row1.prop(
             addon_data.quick_align_lines_transf,
             'aln_flip_direction',
-            'Flip Direction'
+            text='Flip Direction'
         )
         aln_apply_header = aln_gui.row()
-        aln_apply_header.label("Apply to:")
+        aln_apply_header.label(text="Apply to:")
         aln_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        aln_apply_items = aln_gui.split(percentage=.33)
+        aln_apply_items = aln_gui.split(factor=.33)
         aln_apply_items.operator(
             "maplus.quickalignlinesobject",
             text="Object"
@@ -10943,8 +10945,9 @@ class QuickAlignLinesGUI(bpy.types.Panel):
 class QuickAlignPlanesGUI(bpy.types.Panel):
     bl_idname = "quick_align_planes_gui"
     bl_label = "Quick Align Planes"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -10957,14 +10960,14 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
         apl_top = layout.row()
         apl_gui = layout.box()
         apl_top.label(
-            "Align Planes",
+            text="Align Planes",
             icon="MOD_ARRAY"
         )
         apl_grab_col = apl_gui.column()
         apl_grab_col.prop(
             addon_data,
             'quick_align_planes_auto_grab_src',
-            'Auto Grab Source from Selected Vertices'
+            text='Auto Grab Source from Selected Vertices'
         )
 
         apl_src_geom_top = apl_grab_col.row(align=True)
@@ -10989,7 +10992,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
                 )
-                apl_src_geom_top.label("Source Coordinates", icon="OUTLINER_OB_MESH")
+                apl_src_geom_top.label(text="Source Coordinates", icon="OUTLINER_OB_MESH")
 
                 apl_src_geom_editor = apl_grab_col.box()
                 plane_grab_all = apl_src_geom_editor.row(align=True)
@@ -11129,7 +11132,7 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            apl_dest_geom_top.label("Destination Coordinates", icon="OUTLINER_OB_MESH")
+            apl_dest_geom_top.label(text="Destination Coordinates", icon="OUTLINER_OB_MESH")
 
             apl_dest_geom_editor = apl_grab_col.box()
             plane_grab_all = apl_dest_geom_editor.row(align=True)
@@ -11245,33 +11248,33 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
                 )
             )
 
-        apl_gui.label("Operator settings:", icon="SCRIPTWIN")
+        apl_gui.label(text="Operator settings:", icon="PREFERENCES")
         apl_mods = apl_gui.box()
         apl_mods_row1 = apl_mods.row()
         apl_mods_row1.prop(
             addon_data.quick_align_planes_transf,
             'apl_flip_normal',
-            'Flip Normal'
+            text='Flip Normal'
         )
         apl_mods_row1.prop(
             addon_data.quick_align_planes_transf,
             'apl_use_custom_orientation',
-            'Use Transf. Orientation'
+            text='Use Transf. Orientation'
         )
         apl_mods_row2 = apl_mods.row()
         apl_mods_row2.prop(
             addon_data.quick_align_planes_transf,
             'apl_alternate_pivot',
-            'Pivot is A'
+            text='Pivot is A'
         )
         apl_apply_header = apl_gui.row()
-        apl_apply_header.label("Apply to:")
+        apl_apply_header.label(text="Apply to:")
         apl_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        apl_apply_items = apl_gui.split(percentage=.33)
+        apl_apply_items = apl_gui.split(factor=.33)
         apl_apply_items.operator(
             "maplus.quickalignplanesobject",
             text="Object"
@@ -11290,8 +11293,9 @@ class QuickAlignPlanesGUI(bpy.types.Panel):
 class QuickAxisRotateGUI(bpy.types.Panel):
     bl_idname = "quick_axis_rotate_gui"
     bl_label = "Quick Axis Rotate"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -11303,7 +11307,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
 
         axr_top = layout.row()
         axr_gui = layout.box()
-        axr_top.label(
+        axr_top.label(text=
             "Axis Rotate",
             icon="FORCE_MAGNETIC"
         )
@@ -11311,7 +11315,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         axr_grab_col.prop(
             addon_data,
             'quick_axis_rotate_auto_grab_src',
-            'Auto Grab Axis from Selected Vertices'
+            text='Auto Grab Axis from Selected Vertices'
         )
 
         axr_src_geom_top = axr_grab_col.row(align=True)
@@ -11326,12 +11330,12 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 preserve_button_roundedge = axr_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickaxisrotategrabsrc",
-                        icon='MAN_TRANS',
+                        icon='LIGHT_SUN',
                         text="Grab Axis"
                 )
                 preserve_button_roundedge.operator(
                     "maplus.quickaxrgrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text=""
                 )
             else:
@@ -11341,7 +11345,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                axr_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
+                axr_src_geom_top.label(text="Source Coordinates", icon="LIGHT_SUN")
 
                 axr_src_geom_editor = axr_grab_col.box()
                 ln_grab_all = axr_src_geom_editor.row(align=True)
@@ -11359,7 +11363,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 special_grabs = axr_src_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.quickaxrgrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = axr_src_geom_editor.row(align=True)
@@ -11375,7 +11379,7 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 )
 
                 modifier_header = axr_src_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -11384,18 +11388,18 @@ class QuickAxisRotateGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_axis_rotate_src),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -11453,22 +11457,22 @@ class QuickAxisRotateGUI(bpy.types.Panel):
         if addon_data.quick_axr_show_src_geom:
             axr_grab_col.separator()
 
-        axr_gui.label("Operator settings:", icon="SCRIPTWIN")
+        axr_gui.label(text="Operator settings:", icon="PREFERENCES")
         axr_mods = axr_gui.box()
         axr_mods_row1 = axr_mods.row()
         axr_mods_row1.prop(
             addon_data.quick_axis_rotate_transf,
             'axr_amount',
-            'Amount'
+            text='Amount'
         )
         axr_apply_header = axr_gui.row()
-        axr_apply_header.label("Apply to:")
+        axr_apply_header.label(text="Apply to:")
         axr_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        axr_apply_items = axr_gui.split(percentage=.33)
+        axr_apply_items = axr_gui.split(factor=.33)
         axr_apply_items.operator(
             "maplus.quickaxisrotateobject",
             text="Object"
@@ -11487,8 +11491,9 @@ class QuickAxisRotateGUI(bpy.types.Panel):
 class QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "quick_directional_slide_gui"
     bl_label = "Quick Directional Slide"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -11500,7 +11505,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
 
         ds_top = layout.row()
         ds_gui = layout.box()
-        ds_top.label(
+        ds_top.label(text=
             "Directional Slide",
             icon="CURVE_PATH"
         )
@@ -11508,7 +11513,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         ds_grab_col.prop(
             addon_data,
             'quick_directional_slide_auto_grab_src',
-            'Auto Grab Source from Selected Vertices'
+            text='Auto Grab Source from Selected Vertices'
         )
 
         ds_src_geom_top = ds_grab_col.row(align=True)
@@ -11523,12 +11528,12 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 preserve_button_roundedge = ds_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickdirectionalslidegrabsrc",
-                        icon='MAN_TRANS',
+                        icon='LIGHT_SUN',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
                     "maplus.quickdsgrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text=""
                 )
 
@@ -11539,7 +11544,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                ds_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
+                ds_src_geom_top.label(text="Source Coordinates", icon="LIGHT_SUN")
 
                 ds_src_geom_editor = ds_grab_col.box()
                 ln_grab_all = ds_src_geom_editor.row(align=True)
@@ -11556,7 +11561,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 special_grabs = ds_src_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.quickdsgrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = ds_src_geom_editor.row(align=True)
@@ -11572,7 +11577,7 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 )
 
                 modifier_header = ds_src_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -11581,18 +11586,18 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_directional_slide_src),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_directional_slide_src),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_directional_slide_src),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -11650,33 +11655,33 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
         if addon_data.quick_ds_show_src_geom:
             ds_grab_col.separator()
 
-        ds_gui.label("Operator settings:", icon="SCRIPTWIN")
+        ds_gui.label(text="Operator settings:", icon="PREFERENCES")
         ds_mods = ds_gui.box()
         ds_box_row1 = ds_mods.row()
         ds_box_row1.prop(
             addon_data.quick_directional_slide_transf,
             'ds_make_unit_vec',
-            'Set Length to 1'
+            text='Set Length to 1'
         )
         ds_box_row1.prop(
             addon_data.quick_directional_slide_transf,
             'ds_flip_direction',
-            'Flip Direction'
+            text='Flip Direction'
         )
         ds_box_row2 = ds_mods.row()
         ds_box_row2.prop(
             addon_data.quick_directional_slide_transf,
             'ds_multiplier',
-            'Multiplier'
+            text='Multiplier'
         )
         ds_apply_header = ds_gui.row()
-        ds_apply_header.label("Apply to:")
+        ds_apply_header.label(text="Apply to:")
         ds_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        ds_apply_items = ds_gui.split(percentage=.33)
+        ds_apply_items = ds_gui.split(factor=.33)
         ds_apply_items.operator(
             "maplus.quickdirectionalslideobject",
             text="Object"
@@ -11695,8 +11700,9 @@ class QuickDirectionalSlideGUI(bpy.types.Panel):
 class QuickSMEGUI(bpy.types.Panel):
     bl_idname = "quick_sme_gui"
     bl_label = "Quick Scale Match Edge"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -11708,7 +11714,7 @@ class QuickSMEGUI(bpy.types.Panel):
 
         sme_top = layout.row()
         sme_gui = layout.box()
-        sme_top.label(
+        sme_top.label(text=
             "Match Edge Scale",
             icon="FULLSCREEN_ENTER"
         )
@@ -11716,7 +11722,7 @@ class QuickSMEGUI(bpy.types.Panel):
         sme_grab_col.prop(
             addon_data,
             'quick_scale_match_edge_auto_grab_src',
-            'Auto Grab Source from Selected Vertices'
+            text='Auto Grab Source from Selected Vertices'
         )
 
         sme_src_geom_top = sme_grab_col.row(align=True)
@@ -11731,7 +11737,7 @@ class QuickSMEGUI(bpy.types.Panel):
                 preserve_button_roundedge = sme_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickscalematchedgegrabsrc",
-                        icon='MAN_TRANS',
+                        icon='LIGHT_SUN',
                         text="Grab Source"
                 )
             else:
@@ -11741,7 +11747,7 @@ class QuickSMEGUI(bpy.types.Panel):
                         text="",
                         emboss=False
                 )
-                sme_src_geom_top.label("Source Coordinates", icon="MAN_TRANS")
+                sme_src_geom_top.label(text="Source Coordinates", icon="LIGHT_SUN")
 
                 sme_src_geom_editor = sme_grab_col.box()
                 ln_grab_all = sme_src_geom_editor.row(align=True)
@@ -11759,7 +11765,7 @@ class QuickSMEGUI(bpy.types.Panel):
                 special_grabs = sme_src_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.quicksmegrabnormalsrc",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = sme_src_geom_editor.row(align=True)
@@ -11775,7 +11781,7 @@ class QuickSMEGUI(bpy.types.Panel):
                 )
 
                 modifier_header = sme_src_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -11784,18 +11790,18 @@ class QuickSMEGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -11864,7 +11870,7 @@ class QuickSMEGUI(bpy.types.Panel):
             preserve_button_roundedge = sme_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickscalematchedgegrabdest",
-                    icon='MAN_TRANS',
+                    icon='LIGHT_SUN',
                     text="Grab Destination"
             )
         else:
@@ -11874,7 +11880,7 @@ class QuickSMEGUI(bpy.types.Panel):
                     text="",
                     emboss=False
             )
-            sme_dest_geom_top.label("Destination Coordinates", icon="MAN_TRANS")
+            sme_dest_geom_top.label(text="Destination Coordinates", icon="LIGHT_SUN")
 
             sme_dest_geom_editor = sme_grab_col.box()
             ln_grab_all = sme_dest_geom_editor.row(align=True)
@@ -11891,7 +11897,7 @@ class QuickSMEGUI(bpy.types.Panel):
             special_grabs = sme_dest_geom_editor.row(align=True)
             special_grabs.operator(
                 "maplus.quicksmegrabnormaldest",
-                icon='LAMP_HEMI',
+                icon='LIGHT_HEMI',
                 text="Grab Normal"
             )
             special_grabs_extra = sme_dest_geom_editor.row(align=True)
@@ -11907,7 +11913,7 @@ class QuickSMEGUI(bpy.types.Panel):
             )
 
             modifier_header = sme_dest_geom_editor.row()
-            modifier_header.label("Line Modifiers:")
+            modifier_header.label(text="Line Modifiers:")
             apply_mods = modifier_header.row()
             apply_mods.alignment = 'RIGHT'
 
@@ -11916,18 +11922,18 @@ class QuickSMEGUI(bpy.types.Panel):
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                 'ln_make_unit_vec',
-                "Set Length Equal to One"
+                text="Set Length Equal to One"
             )
             mods_row_1.prop(
                 bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                 'ln_flip_direction',
-                "Flip Direction"
+                text="Flip Direction"
             )
             mods_row_2 = item_mods_box.row()
             mods_row_2.prop(
                 bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                 'ln_multiplier',
-                "Multiplier"
+                text="Multiplier"
             )
 
             layout_coordvec(
@@ -11986,14 +11992,14 @@ class QuickSMEGUI(bpy.types.Panel):
         numeric_gui.prop(
             addon_data,
             'quick_sme_numeric_mode',
-            'Numeric Input Mode'
+            text='Numeric Input Mode'
         )
         numeric_settings = numeric_gui.box()
         numeric_grabs = numeric_settings.row()
         numeric_grabs.prop(
             addon_data,
             'quick_sme_numeric_auto',
-            'Auto Grab Target'
+            text='Auto Grab Target'
         )
         if not addon_data.quick_sme_numeric_auto:
             numeric_grabs.operator(
@@ -12002,7 +12008,7 @@ class QuickSMEGUI(bpy.types.Panel):
         numeric_settings.prop(
             addon_data,
             'quick_sme_numeric_length',
-            'Target Length'
+            text='Target Length'
         )
 
         # Disable relevant items depending on whether numeric mode
@@ -12013,13 +12019,13 @@ class QuickSMEGUI(bpy.types.Panel):
             numeric_settings.enabled = False
 
         sme_apply_header = sme_gui.row()
-        sme_apply_header.label("Apply to:")
+        sme_apply_header.label(text="Apply to:")
         sme_apply_header.prop(
             addon_data,
             'use_experimental',
-            'Enable Experimental Mesh Ops.'
+            text='Enable Experimental Mesh Ops.'
         )
-        sme_apply_items = sme_gui.split(percentage=.33)
+        sme_apply_items = sme_gui.split(factor=.33)
         sme_apply_items.operator(
             "maplus.quickscalematchedgeobject",
             text="Object"
@@ -12038,8 +12044,9 @@ class QuickSMEGUI(bpy.types.Panel):
 class QuickAlignObjectsGUI(bpy.types.Panel):
     bl_idname = "quick_align_objects_gui"
     bl_label = "Quick Align Objects"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -12058,8 +12065,9 @@ class QuickAlignObjectsGUI(bpy.types.Panel):
 class CalculateAndComposeGUI(bpy.types.Panel):
     bl_idname = "calculate_and_compose_gui"
     bl_label = "Calculate and Compose"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = ".workspace"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -12092,14 +12100,14 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 text="",
                 emboss=False
             )
-            slot1_geom_top.label("Slot 1 Coordinates")
+            slot1_geom_top.label(text="Slot 1 Coordinates")
             slot1_geom_editor = calc_gui.box()
             types_row = slot1_geom_editor.row()
-            types_row.label("Item type:")
+            types_row.label(text="Item type:")
             types_row.prop(
                 bpy.types.AnyType(addon_data.internal_storage_slot_1),
                 'kind',
-                ""
+                text=""
             )
 
             if addon_data.internal_storage_slot_1.kind == 'POINT':
@@ -12127,7 +12135,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = slot1_geom_editor.row()
-                modifier_header.label("Point Modifiers:")
+                modifier_header.label(text="Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -12136,18 +12144,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'pt_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'pt_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'pt_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -12188,7 +12196,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 special_grabs = slot1_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.slot1grabnormal",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = slot1_geom_editor.row(align=True)
@@ -12204,7 +12212,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = slot1_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
@@ -12213,18 +12221,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_1),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -12418,14 +12426,14 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 text="",
                 emboss=False
             )
-            slot2_geom_top.label("Slot 2 Coordinates")
+            slot2_geom_top.label(text="Slot 2 Coordinates")
             slot2_geom_editor = calc_gui.box()
             types_row = slot2_geom_editor.row()
-            types_row.label("Item type:")
+            types_row.label(text="Item type:")
             types_row.prop(
                 bpy.types.AnyType(addon_data.internal_storage_slot_2),
                 'kind',
-                ""
+                text=""
             )
 
             if addon_data.internal_storage_slot_2.kind == 'POINT':
@@ -12453,7 +12461,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = slot2_geom_editor.row()
-                modifier_header.label("Point Modifiers:")
+                modifier_header.label(text="Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 item_mods_box = slot2_geom_editor.box()
@@ -12461,18 +12469,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'pt_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'pt_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'pt_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -12513,7 +12521,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 special_grabs = slot2_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.slot2grabnormal",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = slot2_geom_editor.row(align=True)
@@ -12529,7 +12537,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = slot2_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 item_mods_box = slot2_geom_editor.box()
@@ -12537,18 +12545,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.internal_storage_slot_2),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -12721,7 +12729,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 calc_gui.separator()
 
         calcs_and_results_header = calc_gui.row()
-        calcs_and_results_header.label(
+        calcs_and_results_header.label(text=
             "Result:"
         )
         clipboard_row_right = calcs_and_results_header.row()
@@ -12729,12 +12737,12 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         clipboard_row_right.prop(
             bpy.types.AnyType(maplus_data_ptr),
             'calc_result_to_clipboard',
-            "Copy to Clipboard"
+            text="Copy to Clipboard"
         )
         calc_gui.prop(
             bpy.types.AnyType(bpy.types.AnyType(addon_data)),
             'quick_calc_result_numeric',
-            ""
+            text=""
         )
 
         result_geom_top = calc_gui.row(align=True)
@@ -12759,14 +12767,14 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 text="",
                 emboss=False
             )
-            result_geom_top.label("Calc. Result Coordinates")
+            result_geom_top.label(text="Calc. Result Coordinates")
             calcresult_geom_editor = calc_gui.box()
             types_row = calcresult_geom_editor.row()
-            types_row.label("Item type:")
+            types_row.label(text="Item type:")
             types_row.prop(
                 bpy.types.AnyType(addon_data.quick_calc_result_item),
                 'kind',
-                ""
+                text=""
             )
 
             if addon_data.quick_calc_result_item.kind == 'POINT':
@@ -12794,7 +12802,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = calcresult_geom_editor.row()
-                modifier_header.label("Point Modifiers:")
+                modifier_header.label(text="Point Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 item_mods_box = calcresult_geom_editor.box()
@@ -12802,18 +12810,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'pt_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'pt_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'pt_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -12854,7 +12862,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 special_grabs = calcresult_geom_editor.row(align=True)
                 special_grabs.operator(
                     "maplus.calcresultgrabnormal",
-                    icon='LAMP_HEMI',
+                    icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
                 special_grabs_extra = calcresult_geom_editor.row(align=True)
@@ -12870,7 +12878,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 )
 
                 modifier_header = calcresult_geom_editor.row()
-                modifier_header.label("Line Modifiers:")
+                modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
                 item_mods_box = calcresult_geom_editor.box()
@@ -12878,18 +12886,18 @@ class CalculateAndComposeGUI(bpy.types.Panel):
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'ln_make_unit_vec',
-                    "Set Length Equal to One"
+                    text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'ln_flip_direction',
-                    "Flip Direction"
+                    text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
                     bpy.types.AnyType(addon_data.quick_calc_result_item),
                     'ln_multiplier',
-                    "Multiplier"
+                    text="Multiplier"
                 )
 
                 layout_coordvec(
@@ -13061,11 +13069,11 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         calc_gui.separator()
 
         ops_header = calc_gui.row()
-        ops_header.label("Available Calc.'s:")
+        ops_header.label(text="Available Calc.'s:")
         ops_header.prop(
             bpy.types.AnyType(addon_data),
             'quick_calc_check_types',
-            "Check/Verify Types"
+            text="Check/Verify Types"
         )
         calc_gui.operator(
             "maplus.quickcalclinelength",
@@ -13077,17 +13085,17 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefromorigin",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="New Line from Origin"
         )
         calc_gui.operator(
             "maplus.quickcomposenormalfromplane",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="Get Plane Normal (Normalized)"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefrompoint",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="New Line from Point"
         )
         calc_gui.operator(
@@ -13096,22 +13104,22 @@ class CalculateAndComposeGUI(bpy.types.Panel):
         )
         calc_gui.operator(
             "maplus.quickcomposenewlineatpointlocation",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="New Line at Point"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefrompoints",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="New Line from Points"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinevectoraddition",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="Add Lines"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinevectorsubtraction",
-            icon='MAN_TRANS',
+            icon='LIGHT_SUN',
             text="Subtract Lines"
         )
         calc_gui.operator(
@@ -13123,7 +13131,7 @@ class CalculateAndComposeGUI(bpy.types.Panel):
 
 def specials_menu_items(self, context):
     self.layout.separator()
-    self.layout.label('Add Mesh Align Plus items')
+    self.layout.label(text='Add Mesh Align Plus items')
     self.layout.operator('maplus.specialsaddpointfromactiveglobal')
     self.layout.operator('maplus.specialsaddlinefromactiveglobal')
     self.layout.operator('maplus.specialsaddplanefromactiveglobal')
