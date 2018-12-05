@@ -13636,6 +13636,12 @@ classes = (
     MAPlusGui,
     QuickAlignPointsGUI,
     QuickAlignLinesGUI,
+    QuickAlignPlanesGUI,
+    QuickAxisRotateGUI,
+    QuickDirectionalSlideGUI,
+    QuickSMEGUI,
+    QuickAlignObjectsGUI,
+    CalculateAndComposeGUI,
 )
 
 
