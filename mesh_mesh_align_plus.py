@@ -8701,7 +8701,7 @@ class ComposeNewLineFromPointBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineFromPoint(bpy.types.Operator):
+class ComposeNewLineFromPoint(ComposeNewLineFromPointBase):
     bl_idname = "maplus.composenewlinefrompoint"
     bl_label = "New Line from Point"
     bl_description = (
@@ -8711,7 +8711,7 @@ class ComposeNewLineFromPoint(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineFromPoint(bpy.types.Operator):
+class QuickComposeNewLineFromPoint(ComposeNewLineFromPointBase):
     bl_idname = "maplus.quickcomposenewlinefrompoint"
     bl_label = "New Line from Point"
     bl_description = (
