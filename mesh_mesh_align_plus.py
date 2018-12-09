@@ -310,7 +310,9 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
     )
     axr_amount: bpy.props.FloatProperty(
         description=(
-            "How much to rotate around the specified axis (in radians)"
+            "How much to rotate around the specified axis"
+            " (units are set to radians or degrees"
+            " depending on Blender user settings)"
         ),
         default=0,
         precision=6
