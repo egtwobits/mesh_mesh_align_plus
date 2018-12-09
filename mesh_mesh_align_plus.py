@@ -9334,7 +9334,7 @@ class MAPlusList(bpy.types.UIList):
         elif item.kind == 'CALCULATION':
             layout.label(text=item.name, icon="NODETREE")
         elif item.kind == 'TRANSFORMATION':
-            layout.label(text=item.name, icon="MANIPUL")
+            layout.label(text=item.name, icon="GRAPH")
 
 
 def layout_coordvec(parent_layout,
@@ -9463,7 +9463,7 @@ class MAPlusGui(bpy.types.Panel):
         )
         add_new_items.operator(
             "maplus.addnewtransformation",
-            icon='MANIPUL',
+            icon='GRAPH',
             text=""
         )
         add_remove_data_col.operator(
