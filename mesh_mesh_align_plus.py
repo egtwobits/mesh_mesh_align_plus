@@ -9344,6 +9344,7 @@ class QuickComposePointIntersectingLinePlane(
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
 class MAPlusList(bpy.types.UIList):
+    bl_idname = "MAPLUS_UL_advancedtoolslist"
 
     def draw_item(self,
                   context,
