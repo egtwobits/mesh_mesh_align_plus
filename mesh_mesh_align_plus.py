@@ -1935,7 +1935,7 @@ def return_avg_vert_pos(mesh_object,
             average_position /= len(selection)
             return [average_position]
         else:
-            raise NotEnoughVertsError()
+            raise InsufficientSelectionError()
     else:
         raise NonMeshGrabError(mesh_object)
 
@@ -2258,7 +2258,7 @@ class GrabAverageLocationBase(bpy.types.Operator):
                 get_active_object(),
                 matrix_multiplier
             )
-        except NotEnoughVertsError:
+        except InsufficientSelectionError:
             self.report({'ERROR'}, 'Not enough vertices selected.')
             return {'CANCELLED'}
         except NonMeshGrabError:
