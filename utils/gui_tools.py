@@ -1,4 +1,4 @@
-"""TODO, system"""
+"""Layout and interface utilities."""
 
 
 import bpy

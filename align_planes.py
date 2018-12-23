@@ -1,4 +1,4 @@
-"""TODO, align_planes"""
+"""Align Planes tool, internals & UI."""
 
 
 import bmesh

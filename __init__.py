@@ -1,4 +1,4 @@
-"""TODO, mesh_mesh_align_plus"""
+"""This module holds required Blender addon info/utility calls."""
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 # Mesh Align Plus-Build precision models using scene geometry/measurements.

@@ -1,4 +1,4 @@
-"""TODO, system"""
+"""Blender API utilities."""
 
 
 import bpy

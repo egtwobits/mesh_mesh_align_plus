@@ -1,4 +1,4 @@
-"""TODO, align_lines"""
+"""Align Lines tool, internals & UI."""
 
 
 import bmesh

@@ -1,4 +1,4 @@
-"""TODO, storage"""
+"""Data structures & tools for storing, modifying, and moving addon data."""
 
 
 import bpy

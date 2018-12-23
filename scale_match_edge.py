@@ -1,4 +1,4 @@
-"""TODO, scale_match_edge"""
+"""Scale Match Edge tool, internals & UI."""
 
 
 import bmesh

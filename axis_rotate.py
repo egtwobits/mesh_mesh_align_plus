@@ -1,4 +1,4 @@
-"""TODO, axis_rotate"""
+"""Axis Rotate tool, internals & UI."""
 
 
 import math

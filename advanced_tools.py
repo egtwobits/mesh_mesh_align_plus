@@ -1,11 +1,7 @@
-"""TODO, advanced tools"""
+"""Legacy tools system (A unified list-style GUI with geometry/transforms)."""
 
 
-import math
-
-import bmesh
 import bpy
-import mathutils
 
 import mesh_mesh_align_plus.utils.exceptions as maplus_except
 import mesh_mesh_align_plus.utils.geom as maplus_geom

@@ -1,4 +1,4 @@
-"""TODO, calculate_compose"""
+"""Calculate and Compose tool, internals & UI."""
 
 
 import math

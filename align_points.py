@@ -1,4 +1,4 @@
-"""TODO, align_points"""
+"""Align Points tool, internals & UI."""
 
 
 import bmesh

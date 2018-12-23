@@ -1,4 +1,4 @@
-"""TODO, align_objects"""
+"""Align Objects tool, internals & UI."""
 
 
 import bpy

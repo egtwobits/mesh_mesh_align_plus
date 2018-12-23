@@ -1,4 +1,4 @@
-"""TODO, directional_slide"""
+"""Directional Slide tool, internals & UI."""
 
 
 import bmesh

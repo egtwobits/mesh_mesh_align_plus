@@ -1,4 +1,4 @@
-"""TODO, geom"""
+"""Coordinate retrieval, modification and display functionality."""
 
 
 import collections
@@ -4507,29 +4507,13 @@ class ApplyGeomModifiers(bpy.types.Operator):
         return {'FINISHED'}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# TODO: Remove, 2.7x/2.8x cross compatibility no longer supported
 # Blender 2.8 API compatibility var
 if str(bpy.app.version[1]).startswith('8'):
     BLENDER_28_PY_API = True
 else:
     BLENDER_28_PY_API = False
+
 
 # Blender 2.8 API compatibility func
 def get_active_object():
