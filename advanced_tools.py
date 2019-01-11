@@ -11,7 +11,7 @@ import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
 class MAPLUS_UL_MAPlusList(bpy.types.UIList):
-    bl_idname = "maplus.advancedtoolslist"
+    bl_idname = "MAPLUS_UL_MAPlusList"
 
     def draw_item(self,
                   context,
