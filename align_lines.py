@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class AlignLinesBase(bpy.types.Operator):
+class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
     bl_idname = "maplus.alignlinesbase"
     bl_label = "Align Lines Base"
     bl_description = "Align lines base class"
@@ -254,7 +254,7 @@ class AlignLinesBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class AlignLinesObject(AlignLinesBase):
+class MAPLUS_OT_AlignLinesObject(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesobject"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -262,7 +262,7 @@ class AlignLinesObject(AlignLinesBase):
     target = 'OBJECT'
 
 
-class QuickAlignLinesObject(AlignLinesBase):
+class MAPLUS_OT_QuickAlignLinesObject(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.quickalignlinesobject"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -271,7 +271,7 @@ class QuickAlignLinesObject(AlignLinesBase):
     quick_op_target = True
 
 
-class AlignLinesMeshSelected(AlignLinesBase):
+class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -286,7 +286,7 @@ class AlignLinesMeshSelected(AlignLinesBase):
         return True
 
 
-class AlignLinesWholeMesh(AlignLinesBase):
+class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlineswholemesh"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -301,7 +301,7 @@ class AlignLinesWholeMesh(AlignLinesBase):
         return True
 
 
-class QuickAlignLinesMeshSelected(AlignLinesBase):
+class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.quickalignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -317,7 +317,7 @@ class QuickAlignLinesMeshSelected(AlignLinesBase):
         return True
 
 
-class QuickAlignLinesWholeMesh(AlignLinesBase):
+class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.quickalignlineswholemesh"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
@@ -333,8 +333,8 @@ class QuickAlignLinesWholeMesh(AlignLinesBase):
         return True
 
 
-class QuickAlignLinesGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_align_lines_gui"
+class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickAlignLinesGUI"
     bl_label = "Quick Align Lines"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

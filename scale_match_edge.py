@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class ScaleMatchEdgeBase(bpy.types.Operator):
+class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
     bl_idname = "maplus.scalematchedgebase"
     bl_label = "Scale Match Edge Base"
     bl_description = "Scale match edge base class"
@@ -305,7 +305,7 @@ class ScaleMatchEdgeBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ScaleMatchEdgeObject(ScaleMatchEdgeBase):
+class MAPLUS_OT_ScaleMatchEdgeObject(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgeobject"
     bl_label = "Scale Match Edge Object"
     bl_description = (
@@ -315,7 +315,7 @@ class ScaleMatchEdgeObject(ScaleMatchEdgeBase):
     target = 'OBJECT'
 
 
-class QuickScaleMatchEdgeObject(ScaleMatchEdgeBase):
+class MAPLUS_OT_QuickScaleMatchEdgeObject(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.quickscalematchedgeobject"
     bl_label = "Scale Match Edge Object"
     bl_description = (
@@ -326,7 +326,7 @@ class QuickScaleMatchEdgeObject(ScaleMatchEdgeBase):
     quick_op_target = True
 
 
-class ScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
+class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgemeshselected"
     bl_label = "Scale Match Edge Mesh Selected"
     bl_description = (
@@ -344,7 +344,7 @@ class ScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
         return True
 
 
-class QuickScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
+class MAPLUS_OT_QuickScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.quickscalematchedgemeshselected"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
@@ -363,7 +363,7 @@ class QuickScaleMatchEdgeMeshSelected(ScaleMatchEdgeBase):
         return True
 
 
-class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
+class MAPLUS_OT_ScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgewholemesh"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
@@ -381,7 +381,7 @@ class ScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
         return True
 
 
-class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
+class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.quickscalematchedgewholemesh"
     bl_label = "Scale Match Edge Whole Mesh"
     bl_description = (
@@ -400,8 +400,8 @@ class QuickScaleMatchEdgeWholeMesh(ScaleMatchEdgeBase):
         return True
 
 
-class QuickSMEGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_sme_gui"
+class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickSMEGUI"
     bl_label = "Quick Scale Match Edge"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

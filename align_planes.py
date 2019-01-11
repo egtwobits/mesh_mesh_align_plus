@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class AlignPlanesBase(bpy.types.Operator):
+class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
     bl_idname = "maplus.alignplanesbase"
     bl_label = "Align Planes base"
     bl_description = "Align Planes base class"
@@ -340,7 +340,7 @@ class AlignPlanesBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class AlignPlanesObject(AlignPlanesBase):
+class MAPLUS_OT_AlignPlanesObject(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplanesobject"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -348,7 +348,7 @@ class AlignPlanesObject(AlignPlanesBase):
     target = 'OBJECT'
 
 
-class QuickAlignPlanesObject(AlignPlanesBase):
+class MAPLUS_OT_QuickAlignPlanesObject(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.quickalignplanesobject"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -357,7 +357,7 @@ class QuickAlignPlanesObject(AlignPlanesBase):
     quick_op_target = True
 
 
-class AlignPlanesMeshSelected(AlignPlanesBase):
+class MAPLUS_OT_AlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplanesmeshselected"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -372,7 +372,7 @@ class AlignPlanesMeshSelected(AlignPlanesBase):
         return True
 
 
-class AlignPlanesWholeMesh(AlignPlanesBase):
+class MAPLUS_OT_AlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplaneswholemesh"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -387,7 +387,7 @@ class AlignPlanesWholeMesh(AlignPlanesBase):
         return True
 
 
-class QuickAlignPlanesMeshSelected(AlignPlanesBase):
+class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.quickalignplanesmeshselected"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -403,7 +403,7 @@ class QuickAlignPlanesMeshSelected(AlignPlanesBase):
         return True
 
 
-class QuickAlignPlanesWholeMesh(AlignPlanesBase):
+class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.quickalignplaneswholemesh"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
@@ -419,8 +419,8 @@ class QuickAlignPlanesWholeMesh(AlignPlanesBase):
         return True
 
 
-class QuickAlignPlanesGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_align_planes_gui"
+class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickAlignPlanesGUI"
     bl_label = "Quick Align Planes"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

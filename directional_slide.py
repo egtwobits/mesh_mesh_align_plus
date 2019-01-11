@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class DirectionalSlideBase(bpy.types.Operator):
+class MAPLUS_OT_DirectionalSlideBase(bpy.types.Operator):
     bl_idname = "maplus.directionalslidebase"
     bl_label = "Directional Slide Base"
     bl_description = "Directional slide base class"
@@ -191,7 +191,7 @@ class DirectionalSlideBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class DirectionalSlideObject(DirectionalSlideBase):
+class MAPLUS_OT_DirectionalSlideObject(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslideobject"
     bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
@@ -199,7 +199,7 @@ class DirectionalSlideObject(DirectionalSlideBase):
     target = 'OBJECT'
 
 
-class QuickDirectionalSlideObject(DirectionalSlideBase):
+class MAPLUS_OT_QuickDirectionalSlideObject(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.quickdirectionalslideobject"
     bl_label = "Directional Slide Object"
     bl_description = "Translates a target object (moves in a direction)"
@@ -208,7 +208,7 @@ class QuickDirectionalSlideObject(DirectionalSlideBase):
     quick_op_target = True
 
 
-class DirectionalSlideMeshSelected(DirectionalSlideBase):
+class MAPLUS_OT_DirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslidemeshselected"
     bl_label = "Directional Slide Mesh Piece"
     bl_description = (
@@ -225,7 +225,7 @@ class DirectionalSlideMeshSelected(DirectionalSlideBase):
         return True
 
 
-class DirectionalSlideWholeMesh(DirectionalSlideBase):
+class MAPLUS_OT_DirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslidewholemesh"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
@@ -240,7 +240,7 @@ class DirectionalSlideWholeMesh(DirectionalSlideBase):
         return True
 
 
-class QuickDirectionalSlideMeshSelected(DirectionalSlideBase):
+class MAPLUS_OT_QuickDirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.quickdirectionalslidemeshselected"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
@@ -256,7 +256,7 @@ class QuickDirectionalSlideMeshSelected(DirectionalSlideBase):
         return True
 
 
-class QuickDirectionalSlideWholeMesh(DirectionalSlideBase):
+class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.quickdirectionalslidewholemesh"
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
@@ -272,8 +272,8 @@ class QuickDirectionalSlideWholeMesh(DirectionalSlideBase):
         return True
 
 
-class QuickDirectionalSlideGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_directional_slide_gui"
+class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickDirectionalSlideGUI"
     bl_label = "Quick Directional Slide"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

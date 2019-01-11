@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class AlignPointsBase(bpy.types.Operator):
+class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
     bl_idname = "maplus.alignpointsbase"
     bl_label = "Align Points Base"
     bl_description = "Align points base class"
@@ -199,7 +199,7 @@ class AlignPointsBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class AlignPointsObject(AlignPointsBase):
+class MAPLUS_OT_AlignPointsObject(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointsobject"
     bl_label = "Align Points Object"
     bl_description = (
@@ -209,7 +209,7 @@ class AlignPointsObject(AlignPointsBase):
     target = 'OBJECT'
 
 
-class QuickAlignPointsObject(AlignPointsBase):
+class MAPLUS_OT_QuickAlignPointsObject(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.quickalignpointsobject"
     bl_label = "Quick Align Points Object"
     bl_description = (
@@ -220,7 +220,7 @@ class QuickAlignPointsObject(AlignPointsBase):
     quick_op_target = True
 
 
-class AlignPointsMeshSelected(AlignPointsBase):
+class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointsmeshselected"
     bl_label = "Align Points Mesh Selected"
     bl_description = (
@@ -238,7 +238,7 @@ class AlignPointsMeshSelected(AlignPointsBase):
         return True
 
 
-class QuickAlignPointsMeshSelected(AlignPointsBase):
+class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.quickalignpointsmeshselected"
     bl_label = "Quick Align Points Mesh Selected"
     bl_description = (
@@ -257,7 +257,7 @@ class QuickAlignPointsMeshSelected(AlignPointsBase):
         return True
 
 
-class AlignPointsWholeMesh(AlignPointsBase):
+class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointswholemesh"
     bl_label = "Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
@@ -272,7 +272,7 @@ class AlignPointsWholeMesh(AlignPointsBase):
         return True
 
 
-class QuickAlignPointsWholeMesh(AlignPointsBase):
+class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.quickalignpointswholemesh"
     bl_label = "Quick Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
@@ -288,8 +288,8 @@ class QuickAlignPointsWholeMesh(AlignPointsBase):
         return True
 
 
-class QuickAlignPointsGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_align_points_gui"
+class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickAlignPointsGUI"
     bl_label = "Quick Align Points"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

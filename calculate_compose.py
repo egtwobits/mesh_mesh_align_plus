@@ -11,7 +11,7 @@ import mesh_mesh_align_plus.utils.storage as maplus_storage
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class CalcLineLengthBase(bpy.types.Operator):
+class MAPLUS_OT_CalcLineLengthBase(bpy.types.Operator):
     bl_idname = "maplus.calclinelengthbase"
     bl_label = "Calculate Line Length"
     bl_description = "Calculates the length of the targeted line item"
@@ -59,14 +59,14 @@ class CalcLineLengthBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CalcLineLength(CalcLineLengthBase):
+class MAPLUS_OT_CalcLineLength(MAPLUS_OT_CalcLineLengthBase):
     bl_idname = "maplus.calclinelength"
     bl_label = "Calculate Line Length"
     bl_description = "Calculates the length of the targeted line item"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickCalcLineLength(CalcLineLengthBase):
+class MAPLUS_OT_QuickCalcLineLength(MAPLUS_OT_CalcLineLengthBase):
     bl_idname = "maplus.quickcalclinelength"
     bl_label = "Calculate Line Length"
     bl_description = (
@@ -85,7 +85,7 @@ class QuickCalcLineLength(CalcLineLengthBase):
         return True
 
 
-class CalcRotationalDiffBase(bpy.types.Operator):
+class MAPLUS_OT_CalcRotationalDiffBase(bpy.types.Operator):
     bl_idname = "maplus.calcrotationaldiffbase"
     bl_label = "Angle of Lines"
     bl_description = (
@@ -154,7 +154,7 @@ class CalcRotationalDiffBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CalcRotationalDiff(CalcRotationalDiffBase):
+class MAPLUS_OT_CalcRotationalDiff(MAPLUS_OT_CalcRotationalDiffBase):
     bl_idname = "maplus.calcrotationaldiff"
     bl_label = "Angle of Lines"
     bl_description = (
@@ -163,7 +163,7 @@ class CalcRotationalDiff(CalcRotationalDiffBase):
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickCalcRotationalDiff(CalcRotationalDiffBase):
+class MAPLUS_OT_QuickCalcRotationalDiff(MAPLUS_OT_CalcRotationalDiffBase):
     bl_idname = "maplus.quickcalcrotationaldiff"
     bl_label = "Angle of Lines"
     bl_description = (
@@ -183,7 +183,7 @@ class QuickCalcRotationalDiff(CalcRotationalDiffBase):
         return True
 
 
-class ComposeNewLineFromOriginBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineFromOriginBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefromoriginbase"
     bl_label = "New Line from Origin"
     bl_description = "Composes a new line item starting at the world origin"
@@ -246,14 +246,14 @@ class ComposeNewLineFromOriginBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
+class MAPLUS_OT_ComposeNewLineFromOrigin(MAPLUS_OT_ComposeNewLineFromOriginBase):
     bl_idname = "maplus.composenewlinefromorigin"
     bl_label = "New Line from Origin"
     bl_description = "Composes a new line item starting at the world origin"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
+class MAPLUS_OT_QuickComposeNewLineFromOrigin(MAPLUS_OT_ComposeNewLineFromOriginBase):
     bl_idname = "maplus.quickcomposenewlinefromorigin"
     bl_label = "New Line from Origin"
     bl_description = "Composes a new line item starting at the world origin"
@@ -270,7 +270,7 @@ class QuickComposeNewLineFromOrigin(ComposeNewLineFromOriginBase):
         return True
 
 
-class ComposeNormalFromPlaneBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNormalFromPlaneBase(bpy.types.Operator):
     bl_idname = "maplus.composenormalfromplanebase"
     bl_label = "Get Plane Normal"
     bl_description = "Get the plane's normal as a new line item"
@@ -342,14 +342,14 @@ class ComposeNormalFromPlaneBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNormalFromPlane(ComposeNormalFromPlaneBase):
+class MAPLUS_OT_ComposeNormalFromPlane(MAPLUS_OT_ComposeNormalFromPlaneBase):
     bl_idname = "maplus.composenormalfromplane"
     bl_label = "Get Plane Normal"
     bl_description = "Get the plane's normal as a new line item"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNormalFromPlane(ComposeNormalFromPlaneBase):
+class MAPLUS_OT_QuickComposeNormalFromPlane(MAPLUS_OT_ComposeNormalFromPlaneBase):
     bl_idname = "maplus.quickcomposenormalfromplane"
     bl_label = "Get Plane Normal"
     bl_description = "Get the plane's normal as a new line item"
@@ -366,7 +366,7 @@ class QuickComposeNormalFromPlane(ComposeNormalFromPlaneBase):
         return True
 
 
-class ComposeNewLineFromPointBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineFromPointBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefrompointbase"
     bl_label = "New Line from Point"
     bl_description = (
@@ -430,7 +430,7 @@ class ComposeNewLineFromPointBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineFromPoint(ComposeNewLineFromPointBase):
+class MAPLUS_OT_ComposeNewLineFromPoint(MAPLUS_OT_ComposeNewLineFromPointBase):
     bl_idname = "maplus.composenewlinefrompoint"
     bl_label = "New Line from Point"
     bl_description = (
@@ -440,7 +440,7 @@ class ComposeNewLineFromPoint(ComposeNewLineFromPointBase):
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineFromPoint(ComposeNewLineFromPointBase):
+class MAPLUS_OT_QuickComposeNewLineFromPoint(MAPLUS_OT_ComposeNewLineFromPointBase):
     bl_idname = "maplus.quickcomposenewlinefrompoint"
     bl_label = "New Line from Point"
     bl_description = (
@@ -460,7 +460,7 @@ class QuickComposeNewLineFromPoint(ComposeNewLineFromPointBase):
         return True
 
 
-class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineAtPointLocationBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlineatpointlocationbase"
     bl_label = "New Line at Point Location"
     bl_description = "Composes a new line item starting at the point location"
@@ -521,14 +521,14 @@ class ComposeNewLineAtPointLocationBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineAtPointLocation(ComposeNewLineAtPointLocationBase):
+class MAPLUS_OT_ComposeNewLineAtPointLocation(MAPLUS_OT_ComposeNewLineAtPointLocationBase):
     bl_idname = "maplus.composenewlineatpointlocation"
     bl_label = "New Line at Point Location"
     bl_description = "Composes a new line item starting at the point location"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineAtPointLocation(ComposeNewLineAtPointLocationBase):
+class MAPLUS_OT_QuickComposeNewLineAtPointLocation(MAPLUS_OT_ComposeNewLineAtPointLocationBase):
     bl_idname = "maplus.quickcomposenewlineatpointlocation"
     bl_label = "New Line at Point Location"
     bl_description = "Composes a new line item starting at the point location"
@@ -552,7 +552,7 @@ class QuickComposeNewLineAtPointLocation(ComposeNewLineAtPointLocationBase):
         return True
 
 
-class CalcDistanceBetweenPointsBase(bpy.types.Operator):
+class MAPLUS_OT_CalcDistanceBetweenPointsBase(bpy.types.Operator):
     bl_idname = "maplus.calcdistancebetweenpointsbase"
     bl_label = "Distance Between Points"
     bl_description = "Calculate the distance between provided point items"
@@ -611,14 +611,14 @@ class CalcDistanceBetweenPointsBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
+class MAPLUS_OT_CalcDistanceBetweenPoints(MAPLUS_OT_CalcDistanceBetweenPointsBase):
     bl_idname = "maplus.calcdistancebetweenpoints"
     bl_label = "Distance Between Points"
     bl_description = "Calculate the distance between provided point items"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickCalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
+class MAPLUS_OT_QuickCalcDistanceBetweenPoints(MAPLUS_OT_CalcDistanceBetweenPointsBase):
     bl_idname = "maplus.quickcalcdistancebetweenpoints"
     bl_label = "Distance Between Points"
     bl_description = "Calculate the distance between provided point items"
@@ -636,7 +636,7 @@ class QuickCalcDistanceBetweenPoints(CalcDistanceBetweenPointsBase):
         return True
 
 
-class ComposeNewLineFromPointsBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineFromPointsBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinefrompointsbase"
     bl_label = "New Line from Points"
     bl_description = "Composes a new line item from provided point items"
@@ -706,14 +706,14 @@ class ComposeNewLineFromPointsBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
+class MAPLUS_OT_ComposeNewLineFromPoints(MAPLUS_OT_ComposeNewLineFromPointsBase):
     bl_idname = "maplus.composenewlinefrompoints"
     bl_label = "New Line from Points"
     bl_description = "Composes a new line item from provided point items"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
+class MAPLUS_OT_QuickComposeNewLineFromPoints(MAPLUS_OT_ComposeNewLineFromPointsBase):
     bl_idname = "maplus.quickcomposenewlinefrompoints"
     bl_label = "New Line from Points"
     bl_description = "Composes a new line item from provided point items"
@@ -731,7 +731,7 @@ class QuickComposeNewLineFromPoints(ComposeNewLineFromPointsBase):
         return True
 
 
-class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineVectorAdditionBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinevectoradditionbase"
     bl_label = "Add Lines"
     bl_description = "Composes a new line item by vector-adding provided lines"
@@ -803,14 +803,14 @@ class ComposeNewLineVectorAdditionBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
+class MAPLUS_OT_ComposeNewLineVectorAddition(MAPLUS_OT_ComposeNewLineVectorAdditionBase):
     bl_idname = "maplus.composenewlinevectoraddition"
     bl_label = "Add Lines"
     bl_description = "Composes a new line item by vector-adding provided lines"
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
+class MAPLUS_OT_QuickComposeNewLineVectorAddition(MAPLUS_OT_ComposeNewLineVectorAdditionBase):
     bl_idname = "maplus.quickcomposenewlinevectoraddition"
     bl_label = "Add Lines"
     bl_description = "Composes a new line item by vector-adding provided lines"
@@ -828,7 +828,7 @@ class QuickComposeNewLineVectorAddition(ComposeNewLineVectorAdditionBase):
         return True
 
 
-class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
+class MAPLUS_OT_ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
     bl_idname = "maplus.composenewlinevectorsubtractionbase"
     bl_label = "Subtract Lines"
     bl_description = (
@@ -903,7 +903,7 @@ class ComposeNewLineVectorSubtractionBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
+class MAPLUS_OT_ComposeNewLineVectorSubtraction(MAPLUS_OT_ComposeNewLineVectorSubtractionBase):
     bl_idname = "maplus.composenewlinevectorsubtraction"
     bl_label = "Subtract Lines"
     bl_description = (
@@ -913,8 +913,7 @@ class ComposeNewLineVectorSubtraction(ComposeNewLineVectorSubtractionBase):
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposeNewLineVectorSubtraction(
-            ComposeNewLineVectorSubtractionBase):
+class MAPLUS_OT_QuickComposeNewLineVectorSubtraction(MAPLUS_OT_ComposeNewLineVectorSubtractionBase):
     bl_idname = "maplus.quickcomposenewlinevectorsubtraction"
     bl_label = "Subtract Lines"
     bl_description = (
@@ -935,7 +934,7 @@ class QuickComposeNewLineVectorSubtraction(
         return True
 
 
-class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
+class MAPLUS_OT_ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
     bl_idname = "maplus.composepointintersectinglineplanebase"
     bl_label = "Intersect Line/Plane"
     bl_description = (
@@ -1011,7 +1010,7 @@ class ComposePointIntersectingLinePlaneBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ComposePointIntersectingLinePlane(ComposePointIntersectingLinePlaneBase):
+class MAPLUS_OT_ComposePointIntersectingLinePlane(MAPLUS_OT_ComposePointIntersectingLinePlaneBase):
     bl_idname = "maplus.composepointintersectinglineplane"
     bl_label = "Intersect Line/Plane"
     bl_description = (
@@ -1020,8 +1019,7 @@ class ComposePointIntersectingLinePlane(ComposePointIntersectingLinePlaneBase):
     bl_options = {'REGISTER', 'UNDO'}
 
 
-class QuickComposePointIntersectingLinePlane(
-            ComposePointIntersectingLinePlaneBase):
+class MAPLUS_OT_QuickComposePointIntersectingLinePlane(MAPLUS_OT_ComposePointIntersectingLinePlaneBase):
     bl_idname = "maplus.quickcomposepointintersectinglineplane"
     bl_label = "Intersect Line/Plane"
     bl_description = (
@@ -1047,8 +1045,8 @@ class QuickComposePointIntersectingLinePlane(
         return True
 
 
-class CalculateAndComposeGUI(bpy.types.Panel):
-    bl_idname = "maplus._calculate_and_compose_gui"
+class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_CalculateAndComposeGUI"
     bl_label = "Calculate and Compose"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

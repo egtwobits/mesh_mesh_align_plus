@@ -247,7 +247,7 @@ def return_at_least_one_selected_vert(mesh_object,
 
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
 # Todo, design decision: error on too many selected verts or *no*?
-class GrabFromGeometryBase(bpy.types.Operator):
+class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
     bl_idname = "maplus.grabfromgeometrybase"
     bl_label = "Grab From Geometry Base Class"
     bl_description = (
@@ -324,7 +324,7 @@ class GrabFromGeometryBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GrabSmeNumeric(bpy.types.Operator):
+class MAPLUS_OT_GrabSmeNumeric(bpy.types.Operator):
     bl_idname = "maplus.grabsmenumeric"
     bl_label = "Grab Target"
     bl_description = (
@@ -374,7 +374,7 @@ class GrabSmeNumeric(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GrabAndSetItemKindBase(bpy.types.Operator):
+class MAPLUS_OT_GrabAndSetItemKindBase(bpy.types.Operator):
     bl_idname = "maplus.grabandsetitemkindbase"
     bl_label = "Grab and Set Item Base Class"
     bl_description = (
@@ -434,7 +434,7 @@ class GrabAndSetItemKindBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GrabAverageLocationBase(bpy.types.Operator):
+class MAPLUS_OT_GrabAverageLocationBase(bpy.types.Operator):
     bl_idname = "maplus.grabaveragelocationbase"
     bl_label = "Grab Average Location Base Class"
     bl_description = (
@@ -510,7 +510,7 @@ class GrabAverageLocationBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GrabNormalBase(bpy.types.Operator):
+class MAPLUS_OT_GrabNormalBase(bpy.types.Operator):
     bl_idname = "maplus.grabnormalbase"
     bl_label = "Grab Normal Base Class"
     bl_description = (
@@ -580,7 +580,7 @@ class GrabNormalBase(bpy.types.Operator):
 
 
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
-class GrabFromCursorBase(bpy.types.Operator):
+class MAPLUS_OT_GrabFromCursorBase(bpy.types.Operator):
     bl_idname = "maplus.grabfromcursorbase"
     bl_label = "Grab From Cursor Base Class"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -637,7 +637,7 @@ class GrabFromCursorBase(bpy.types.Operator):
 
 
 # Coordinate sender, present on all geometry primitives (point, line, plane)
-class SendCoordToCursorBase(bpy.types.Operator):
+class MAPLUS_OT_SendCoordToCursorBase(bpy.types.Operator):
     bl_idname = "maplus.sendcoordtocursorbase"
     bl_label = "Send Coord to Cursor Base Class"
     bl_description = "The base class for sending coordinates to the 3D Cursor"
@@ -692,7 +692,7 @@ class SendCoordToCursorBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GrabAllSlot1(GrabAndSetItemKindBase):
+class MAPLUS_OT_GrabAllSlot1(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot1"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
@@ -703,7 +703,7 @@ class GrabAllSlot1(GrabAndSetItemKindBase):
     target = 'SLOT1'
 
 
-class GrabAllSlot1Loc(GrabAndSetItemKindBase):
+class MAPLUS_OT_GrabAllSlot1Loc(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot1loc"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
@@ -714,7 +714,7 @@ class GrabAllSlot1Loc(GrabAndSetItemKindBase):
     target = 'SLOT1'
 
 
-class GrabAllSlot2(GrabAndSetItemKindBase):
+class MAPLUS_OT_GrabAllSlot2(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot2"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
@@ -725,7 +725,7 @@ class GrabAllSlot2(GrabAndSetItemKindBase):
     target = 'SLOT2'
 
 
-class GrabAllSlot2Loc(GrabAndSetItemKindBase):
+class MAPLUS_OT_GrabAllSlot2Loc(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot2loc"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
@@ -736,7 +736,7 @@ class GrabAllSlot2Loc(GrabAndSetItemKindBase):
     target = 'SLOT2'
 
 
-class GrabAllCalcResult(GrabAndSetItemKindBase):
+class MAPLUS_OT_GrabAllCalcResult(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballcalcresult"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
@@ -747,7 +747,7 @@ class GrabAllCalcResult(GrabAndSetItemKindBase):
     target = 'CALCRESULT'
 
 
-class GrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -755,7 +755,7 @@ class GrabPointFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'point'
 
 
-class Slot1GrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -764,7 +764,7 @@ class Slot1GrabPointFromCursor(GrabFromCursorBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2GrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -773,7 +773,7 @@ class Slot2GrabPointFromCursor(GrabFromCursorBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultGrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -782,7 +782,7 @@ class CalcResultGrabPointFromCursor(GrabFromCursorBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAptSrcGrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAptSrcGrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaptsrcgrabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -791,7 +791,7 @@ class QuickAptSrcGrabPointFromCursor(GrabFromCursorBase):
     quick_op_target = 'APTSRC'
 
 
-class QuickAptDestGrabPointFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAptDestGrabPointFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaptdestgrabpointfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -800,7 +800,7 @@ class QuickAptDestGrabPointFromCursor(GrabFromCursorBase):
     quick_op_target = 'APTDEST'
 
 
-class GrabPointFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -811,7 +811,7 @@ class GrabPointFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabPointFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -822,7 +822,7 @@ class GrabPointFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class GrabPointSlot1(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointSlot1(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointslot1"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -834,7 +834,7 @@ class GrabPointSlot1(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabPointSlot1Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointSlot1Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointslot1loc"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -846,7 +846,7 @@ class GrabPointSlot1Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabPointCalcResult(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointCalcResult(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointcalcresult"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -858,7 +858,7 @@ class GrabPointCalcResult(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class GrabPointCalcResultLoc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointCalcResultLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointcalcresultloc"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -870,7 +870,7 @@ class GrabPointCalcResultLoc(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class GrabPointSlot2(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointSlot2(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointslot2"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -882,7 +882,7 @@ class GrabPointSlot2(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class GrabPointSlot2Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPointSlot2Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabpointslot2loc"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -894,7 +894,7 @@ class GrabPointSlot2Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class PointGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_PointGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.pointgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -905,7 +905,7 @@ class PointGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class LineStartGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_LineStartGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.linestartgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -916,7 +916,7 @@ class LineStartGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class LineEndGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_LineEndGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.lineendgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -927,7 +927,7 @@ class LineEndGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class PlaneAGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_PlaneAGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.planeagrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -938,7 +938,7 @@ class PlaneAGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class PlaneBGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_PlaneBGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.planebgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -949,7 +949,7 @@ class PlaneBGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class PlaneCGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_PlaneCGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.planecgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -960,7 +960,7 @@ class PlaneCGrabAvg(GrabAverageLocationBase):
     multiply_by_world_matrix = True
 
 
-class Slot1PointGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1PointGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1pointgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -972,7 +972,7 @@ class Slot1PointGrabAvg(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2PointGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2PointGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2pointgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -984,7 +984,7 @@ class Slot2PointGrabAvg(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultPointGrabAvg(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultPointGrabAvg(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultpointgrabavg"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -996,7 +996,7 @@ class CalcResultPointGrabAvg(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAptGrabAvgSrc(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAptGrabAvgSrc(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaptgrabavgsrc"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1008,7 +1008,7 @@ class QuickAptGrabAvgSrc(GrabAverageLocationBase):
     quick_op_target = "APTSRC"
 
 
-class QuickAptGrabAvgDest(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAptGrabAvgDest(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaptgrabavgdest"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1020,7 +1020,7 @@ class QuickAptGrabAvgDest(GrabAverageLocationBase):
     quick_op_target = "APTDEST"
 
 
-class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPointsGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignpointsgrabsrc"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -1032,7 +1032,7 @@ class QuickAlignPointsGrabSrc(GrabFromGeometryBase):
     quick_op_target = "APTSRC"
 
 
-class QuickAlignPointsGrabDest(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPointsGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignpointsgrabdest"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -1044,7 +1044,7 @@ class QuickAlignPointsGrabDest(GrabFromGeometryBase):
     quick_op_target = "APTDEST"
 
 
-class QuickAlignPointsGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPointsGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignpointsgrabsrcloc"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -1056,7 +1056,7 @@ class QuickAlignPointsGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "APTSRC"
 
 
-class QuickAlignPointsGrabDestLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPointsGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignpointsgrabdestloc"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -1068,7 +1068,7 @@ class QuickAlignPointsGrabDestLoc(GrabFromGeometryBase):
     quick_op_target = "APTDEST"
 
 
-class SendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1076,7 +1076,7 @@ class SendPointToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'point'
 
 
-class Slot1SendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1085,7 +1085,7 @@ class Slot1SendPointToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2SendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1094,7 +1094,7 @@ class Slot2SendPointToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultSendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1103,7 +1103,7 @@ class CalcResultSendPointToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAptSrcSendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAptSrcSendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaptsrcsendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1112,7 +1112,7 @@ class QuickAptSrcSendPointToCursor(SendCoordToCursorBase):
     quick_op_target = 'APTSRC'
 
 
-class QuickAptDestSendPointToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAptDestSendPointToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaptdestsendpointtocursor"
     bl_label = "Sends Point to Cursor"
     bl_description = "Sends Point Coordinates to the 3D Cursor"
@@ -1121,7 +1121,7 @@ class QuickAptDestSendPointToCursor(SendCoordToCursorBase):
     quick_op_target = 'APTDEST'
 
 
-class GrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1129,7 +1129,7 @@ class GrabLineStartFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'line_start'
 
 
-class Slot1GrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1138,7 +1138,7 @@ class Slot1GrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grablineendfromcursor"
     bl_label = "Grab Line End From Cursor"
     bl_description = "Grabs line end coordinates from the 3D cursor"
@@ -1147,7 +1147,7 @@ class Slot1GrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1156,7 +1156,7 @@ class Slot2GrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grablineendfromcursor"
     bl_label = "Grab Line End From Cursor"
     bl_description = "Grabs line end coordinates from the 3D cursor"
@@ -1165,7 +1165,7 @@ class Slot2GrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1174,7 +1174,7 @@ class CalcResultGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrablineendfromcursor"
     bl_label = "Grab Line End From Cursor"
     bl_description = "Grabs line end coordinates from the 3D cursor"
@@ -1183,7 +1183,7 @@ class CalcResultGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAlnSrcGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickalnsrcgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1192,7 +1192,7 @@ class QuickAlnSrcGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAlnDestGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickalndestgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1201,7 +1201,7 @@ class QuickAlnDestGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaxrsrcgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1210,7 +1210,7 @@ class QuickAxrSrcGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickDsSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickdssrcgrablinestartfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1219,7 +1219,7 @@ class QuickDsSrcGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickDsDestGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickdsdestgrablinestartfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1228,7 +1228,7 @@ class QuickDsDestGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quicksmesrcgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1237,7 +1237,7 @@ class QuickSmeSrcGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestGrabLineStartFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickSmeDestGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quicksmedestgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
@@ -1246,7 +1246,7 @@ class QuickSmeDestGrabLineStartFromCursor(GrabFromCursorBase):
     quick_op_target = 'SMEDEST'
 
 
-class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1258,7 +1258,7 @@ class GrabLineStartFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1270,7 +1270,7 @@ class GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class Slot1GrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1283,7 +1283,7 @@ class Slot1GrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1296,7 +1296,7 @@ class Slot2GrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1309,7 +1309,7 @@ class CalcResultGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class Slot1GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1322,7 +1322,7 @@ class Slot1GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1335,7 +1335,7 @@ class Slot2GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1348,7 +1348,7 @@ class CalcResultGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class Slot1GrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1361,7 +1361,7 @@ class Slot1GrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1374,7 +1374,7 @@ class Slot1GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1387,7 +1387,7 @@ class Slot2GrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1400,7 +1400,7 @@ class Slot2GrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1413,7 +1413,7 @@ class CalcResultGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1426,7 +1426,7 @@ class CalcResultGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class Slot1GrabAvgLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1GrabAvgLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1grabavglinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1438,7 +1438,7 @@ class Slot1GrabAvgLineStart(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2GrabAvgLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2GrabAvgLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2grabavglinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1450,7 +1450,7 @@ class Slot2GrabAvgLineStart(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultGrabAvgLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultGrabAvgLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultgrabavglinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1462,7 +1462,7 @@ class CalcResultGrabAvgLineStart(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class Slot1GrabAvgLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1GrabAvgLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1grabavglineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1474,7 +1474,7 @@ class Slot1GrabAvgLineEnd(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2GrabAvgLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2GrabAvgLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2grabavglineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1486,7 +1486,7 @@ class Slot2GrabAvgLineEnd(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultGrabAvgLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultGrabAvgLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultgrabavglineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1498,7 +1498,7 @@ class CalcResultGrabAvgLineEnd(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAlnGrabAvgSrcLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAlnGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickalngrabavgsrclinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1510,7 +1510,7 @@ class QuickAlnGrabAvgSrcLineStart(GrabAverageLocationBase):
     quick_op_target = "ALNSRC"
 
 
-class QuickAlnGrabAvgDestLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAlnGrabAvgDestLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickalngrabavgdestlinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1522,7 +1522,7 @@ class QuickAlnGrabAvgDestLineStart(GrabAverageLocationBase):
     quick_op_target = "ALNDEST"
 
 
-class QuickAlnGrabAvgSrcLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAlnGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickalngrabavgsrclineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1534,7 +1534,7 @@ class QuickAlnGrabAvgSrcLineEnd(GrabAverageLocationBase):
     quick_op_target = "ALNSRC"
 
 
-class QuickAlnGrabAvgDestLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAlnGrabAvgDestLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickalngrabavgdestlineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1546,7 +1546,7 @@ class QuickAlnGrabAvgDestLineEnd(GrabAverageLocationBase):
     quick_op_target = "ALNDEST"
 
 
-class QuickAxrGrabAvgSrcLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAxrGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaxrgrabavgsrclinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1558,7 +1558,7 @@ class QuickAxrGrabAvgSrcLineStart(GrabAverageLocationBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickAxrGrabAvgSrcLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAxrGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaxrgrabavgsrclineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1570,7 +1570,7 @@ class QuickAxrGrabAvgSrcLineEnd(GrabAverageLocationBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickDsGrabAvgSrcLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickDsGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickdsgrabavgsrclinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1582,7 +1582,7 @@ class QuickDsGrabAvgSrcLineStart(GrabAverageLocationBase):
     quick_op_target = "DSSRC"
 
 
-class QuickDsGrabAvgSrcLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickDsGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickdsgrabavgsrclineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1594,7 +1594,7 @@ class QuickDsGrabAvgSrcLineEnd(GrabAverageLocationBase):
     quick_op_target = "DSSRC"
 
 
-class QuickSmeGrabAvgSrcLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickSmeGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quicksmegrabavgsrclinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1606,7 +1606,7 @@ class QuickSmeGrabAvgSrcLineStart(GrabAverageLocationBase):
     quick_op_target = "SMESRC"
 
 
-class QuickSmeGrabAvgDestLineStart(GrabAverageLocationBase):
+class MAPLUS_OT_QuickSmeGrabAvgDestLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quicksmegrabavgdestlinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1618,7 +1618,7 @@ class QuickSmeGrabAvgDestLineStart(GrabAverageLocationBase):
     quick_op_target = "SMEDEST"
 
 
-class QuickSmeGrabAvgSrcLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickSmeGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quicksmegrabavgsrclineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1630,7 +1630,7 @@ class QuickSmeGrabAvgSrcLineEnd(GrabAverageLocationBase):
     quick_op_target = "SMESRC"
 
 
-class QuickSmeGrabAvgDestLineEnd(GrabAverageLocationBase):
+class MAPLUS_OT_QuickSmeGrabAvgDestLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quicksmegrabavgdestlineend"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -1642,7 +1642,7 @@ class QuickSmeGrabAvgDestLineEnd(GrabAverageLocationBase):
     quick_op_target = "SMEDEST"
 
 
-class QuickAlnSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalnsrcgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1655,7 +1655,7 @@ class QuickAlnSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalnsrcgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1668,7 +1668,7 @@ class QuickAlnSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnDestGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalndestgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1681,7 +1681,7 @@ class QuickAlnDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAlnDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnDestGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalndestgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1694,7 +1694,7 @@ class QuickAlnDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxrsrcgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1707,7 +1707,7 @@ class QuickAxrSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickAxrSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxrsrcgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1720,7 +1720,7 @@ class QuickAxrSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdssrcgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1733,7 +1733,7 @@ class QuickDsSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsSrcGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdssrcgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1746,7 +1746,7 @@ class QuickDsSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsDestGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdsdestgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1759,7 +1759,7 @@ class QuickDsDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickDsDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsDestGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdsdestgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1772,7 +1772,7 @@ class QuickDsDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmesrcgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1785,7 +1785,7 @@ class QuickSmeSrcGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmesrcgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1798,7 +1798,7 @@ class QuickSmeSrcGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeDestGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmedestgrablinestartfromactivelocal"
     bl_label = "Grab Local Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1811,7 +1811,7 @@ class QuickSmeDestGrabLineStartFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SMEDEST'
 
 
-class QuickSmeDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeDestGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmedestgrablinestartfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
@@ -1824,7 +1824,7 @@ class QuickSmeDestGrabLineStartFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SMEDEST'
 
 
-class SendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1832,7 +1832,7 @@ class SendLineStartToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'line_start'
 
 
-class Slot1SendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1841,7 +1841,7 @@ class Slot1SendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1SendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendlineendtocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1850,7 +1850,7 @@ class Slot1SendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2SendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1859,7 +1859,7 @@ class Slot2SendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2SendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendlineendtocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1868,7 +1868,7 @@ class Slot2SendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1877,7 +1877,7 @@ class CalcResultSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -1886,7 +1886,7 @@ class CalcResultSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAlnSrcSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAlnSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickalnsrcsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1895,7 +1895,7 @@ class QuickAlnSrcSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAlnDestSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickalndestsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1904,7 +1904,7 @@ class QuickAlnDestSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAxrSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaxrsrcsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1913,7 +1913,7 @@ class QuickAxrSrcSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickDsSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickdssrcsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1922,7 +1922,7 @@ class QuickDsSrcSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickDsDestSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickdsdestsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1931,7 +1931,7 @@ class QuickDsDestSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickSmeSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quicksmesrcsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1940,7 +1940,7 @@ class QuickSmeSrcSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestSendLineStartToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickSmeDestSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quicksmedestsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
     bl_description = "Sends Line Start Coordinates to 3D Cursor"
@@ -1949,7 +1949,7 @@ class QuickSmeDestSendLineStartToCursor(SendCoordToCursorBase):
     quick_op_target = 'SMEDEST'
 
 
-class GrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1957,7 +1957,7 @@ class GrabLineEndFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'line_end'
 
 
-class QuickAlnSrcGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickalnsrcgrablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1966,7 +1966,7 @@ class QuickAlnSrcGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAlnDestGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickalndestgrablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1975,7 +1975,7 @@ class QuickAlnDestGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaxrsrcgrablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1984,7 +1984,7 @@ class QuickAxrSrcGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickDsSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickdssrcgrablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -1993,7 +1993,7 @@ class QuickDsSrcGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickDsDestGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickdsdestgrablineendfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2002,7 +2002,7 @@ class QuickDsDestGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quicksmesrcgrablineendfromcursor"
     bl_label = "Grab Line End From Cursor"
     bl_description = "Grabs line end coordinates from the 3D cursor"
@@ -2011,7 +2011,7 @@ class QuickSmeSrcGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestGrabLineEndFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickSmeDestGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quicksmedestgrablineendfromcursor"
     bl_label = "Grab Line End From Cursor"
     bl_description = "Grabs line end coordinates from the 3D cursor"
@@ -2020,7 +2020,7 @@ class QuickSmeDestGrabLineEndFromCursor(GrabFromCursorBase):
     quick_op_target = 'SMEDEST'
 
 
-class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineendfromactivelocal"
     bl_label = "Grab From Active Point"
     bl_description = "Grabs coordinates from selected vertex in edit mode"
@@ -2029,7 +2029,7 @@ class GrabLineEndFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineendfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2040,7 +2040,7 @@ class GrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickAlnSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalnsrcgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2053,7 +2053,7 @@ class QuickAlnSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnSrcGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalnsrcgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2066,7 +2066,7 @@ class QuickAlnSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnDestGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalndestgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2079,7 +2079,7 @@ class QuickAlnDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAlnDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlnDestGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalndestgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2092,7 +2092,7 @@ class QuickAlnDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxrsrcgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2105,7 +2105,7 @@ class QuickAxrSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickAxrSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxrSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxrsrcgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2118,7 +2118,7 @@ class QuickAxrSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdssrcgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2131,7 +2131,7 @@ class QuickDsSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsSrcGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdssrcgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2144,7 +2144,7 @@ class QuickDsSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsDestGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdsdestgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2157,7 +2157,7 @@ class QuickDsDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickDsDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDsDestGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdsdestgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2170,7 +2170,7 @@ class QuickDsDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmesrcgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2183,7 +2183,7 @@ class QuickSmeSrcGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeSrcGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmesrcgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2196,7 +2196,7 @@ class QuickSmeSrcGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeDestGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmedestgrablineendfromactivelocal"
     bl_label = "Grab Local Coordinate for Line End From Active Point"
     bl_description = (
@@ -2209,7 +2209,7 @@ class QuickSmeDestGrabLineEndFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SMEDEST'
 
 
-class QuickSmeDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickSmeDestGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quicksmedestgrablineendfromactiveglobal"
     bl_label = "Grab Global Coordinate for Line End From Active Point"
     bl_description = (
@@ -2222,7 +2222,7 @@ class QuickSmeDestGrabLineEndFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SMEDEST'
 
 
-class SendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2230,7 +2230,7 @@ class SendLineEndToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'line_end'
 
 
-class QuickAlnSrcSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAlnSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickalnsrcsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2239,7 +2239,7 @@ class QuickAlnSrcSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAlnDestSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickalndestsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2248,7 +2248,7 @@ class QuickAlnDestSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAxrSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaxrsrcsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2257,7 +2257,7 @@ class QuickAxrSrcSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickDsSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickdssrcsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2266,7 +2266,7 @@ class QuickDsSrcSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickDsDestSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickDsDestSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickdsdestsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2275,7 +2275,7 @@ class QuickDsDestSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'DSDEST'
 
 
-class QuickSmeSrcSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickSmeSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quicksmesrcsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2284,7 +2284,7 @@ class QuickSmeSrcSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestSendLineEndToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickSmeDestSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quicksmedestsendlineendtocursor"
     bl_label = "Sends Line End to Cursor"
     bl_description = "Sends Line End Coordinates to 3D Cursor"
@@ -2293,7 +2293,7 @@ class QuickSmeDestSendLineEndToCursor(SendCoordToCursorBase):
     quick_op_target = 'SMEDEST'
 
 
-class GrabAllVertsLineLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabAllVertsLineLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.graballvertslinelocal"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2304,7 +2304,7 @@ class GrabAllVertsLineLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabAllVertsLineGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabAllVertsLineGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.graballvertslineglobal"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2315,7 +2315,7 @@ class GrabAllVertsLineGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class GrabLineSlot1(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineSlot1(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineslot1"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2327,7 +2327,7 @@ class GrabLineSlot1(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabLineSlot1Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineSlot1Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineslot1loc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2339,7 +2339,7 @@ class GrabLineSlot1Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabLineSlot2(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineSlot2(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineslot2"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2351,7 +2351,7 @@ class GrabLineSlot2(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class GrabLineSlot2Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineSlot2Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablineslot2loc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2363,7 +2363,7 @@ class GrabLineSlot2Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class GrabLineCalcResult(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineCalcResult(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablinecalcresult"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2375,7 +2375,7 @@ class GrabLineCalcResult(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class GrabLineCalcResultLoc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabLineCalcResultLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grablinecalcresultloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2387,7 +2387,7 @@ class GrabLineCalcResultLoc(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class GrabNormal(GrabNormalBase):
+class MAPLUS_OT_GrabNormal(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.grabnormal"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2398,7 +2398,7 @@ class GrabNormal(GrabNormalBase):
     multiply_by_world_matrix = True
 
 
-class Slot1GrabNormal(GrabNormalBase):
+class MAPLUS_OT_Slot1GrabNormal(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.slot1grabnormal"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2410,7 +2410,7 @@ class Slot1GrabNormal(GrabNormalBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2GrabNormal(GrabNormalBase):
+class MAPLUS_OT_Slot2GrabNormal(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.slot2grabnormal"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2422,7 +2422,7 @@ class Slot2GrabNormal(GrabNormalBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultGrabNormal(GrabNormalBase):
+class MAPLUS_OT_CalcResultGrabNormal(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.calcresultgrabnormal"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2434,7 +2434,7 @@ class CalcResultGrabNormal(GrabNormalBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAlnGrabNormalSrc(GrabNormalBase):
+class MAPLUS_OT_QuickAlnGrabNormalSrc(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quickalngrabnormalsrc"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2446,7 +2446,7 @@ class QuickAlnGrabNormalSrc(GrabNormalBase):
     quick_op_target = "ALNSRC"
 
 
-class QuickAlnGrabNormalDest(GrabNormalBase):
+class MAPLUS_OT_QuickAlnGrabNormalDest(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quickalngrabnormaldest"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2458,7 +2458,7 @@ class QuickAlnGrabNormalDest(GrabNormalBase):
     quick_op_target = "ALNDEST"
 
 
-class QuickAxrGrabNormalSrc(GrabNormalBase):
+class MAPLUS_OT_QuickAxrGrabNormalSrc(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quickaxrgrabnormalsrc"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2470,7 +2470,7 @@ class QuickAxrGrabNormalSrc(GrabNormalBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickDsGrabNormalSrc(GrabNormalBase):
+class MAPLUS_OT_QuickDsGrabNormalSrc(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quickdsgrabnormalsrc"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2482,7 +2482,7 @@ class QuickDsGrabNormalSrc(GrabNormalBase):
     quick_op_target = "DSSRC"
 
 
-class QuickSmeGrabNormalSrc(GrabNormalBase):
+class MAPLUS_OT_QuickSmeGrabNormalSrc(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quicksmegrabnormalsrc"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2494,7 +2494,7 @@ class QuickSmeGrabNormalSrc(GrabNormalBase):
     quick_op_target = "SMESRC"
 
 
-class QuickSmeGrabNormalDest(GrabNormalBase):
+class MAPLUS_OT_QuickSmeGrabNormalDest(MAPLUS_OT_GrabNormalBase):
     bl_idname = "maplus.quicksmegrabnormaldest"
     bl_label = "Grab Normal Coords from Selected Face"
     bl_description = (
@@ -2506,7 +2506,7 @@ class QuickSmeGrabNormalDest(GrabNormalBase):
     quick_op_target = "SMEDEST"
 
 
-class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignLinesGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignlinesgrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2518,7 +2518,7 @@ class QuickAlignLinesGrabSrc(GrabFromGeometryBase):
     quick_op_target = "ALNSRC"
 
 
-class QuickAlignLinesGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignLinesGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignlinesgrabsrcloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2530,7 +2530,7 @@ class QuickAlignLinesGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "ALNSRC"
 
 
-class QuickAlignLinesGrabDest(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignLinesGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignlinesgrabdest"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2542,7 +2542,7 @@ class QuickAlignLinesGrabDest(GrabFromGeometryBase):
     quick_op_target = "ALNDEST"
 
 
-class QuickAlignLinesGrabDestLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignLinesGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignlinesgrabdestloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2554,7 +2554,7 @@ class QuickAlignLinesGrabDestLoc(GrabFromGeometryBase):
     quick_op_target = "ALNDEST"
 
 
-class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickScaleMatchEdgeGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickscalematchedgegrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2566,7 +2566,7 @@ class QuickScaleMatchEdgeGrabSrc(GrabFromGeometryBase):
     quick_op_target = "SMESRC"
 
 
-class QuickScaleMatchEdgeGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickScaleMatchEdgeGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickscalematchedgegrabsrcloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2578,7 +2578,7 @@ class QuickScaleMatchEdgeGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "SMESRC"
 
 
-class QuickScaleMatchEdgeGrabDest(GrabFromGeometryBase):
+class MAPLUS_OT_QuickScaleMatchEdgeGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickscalematchedgegrabdest"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2590,7 +2590,7 @@ class QuickScaleMatchEdgeGrabDest(GrabFromGeometryBase):
     quick_op_target = "SMEDEST"
 
 
-class QuickScaleMatchEdgeGrabDestLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickScaleMatchEdgeGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickscalematchedgegrabdestloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2602,7 +2602,7 @@ class QuickScaleMatchEdgeGrabDestLoc(GrabFromGeometryBase):
     quick_op_target = "SMEDEST"
 
 
-class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxisRotateGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxisrotategrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2614,7 +2614,7 @@ class QuickAxisRotateGrabSrc(GrabFromGeometryBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickAxisRotateGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAxisRotateGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaxisrotategrabsrcloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2626,7 +2626,7 @@ class QuickAxisRotateGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "AXRSRC"
 
 
-class QuickDirectionalSlideGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDirectionalSlideGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdirectionalslidegrabsrc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2638,7 +2638,7 @@ class QuickDirectionalSlideGrabSrc(GrabFromGeometryBase):
     quick_op_target = "DSSRC"
 
 
-class QuickDirectionalSlideGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickDirectionalSlideGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdirectionalslidegrabsrcloc"
     bl_label = "Grab Line from Selected Verts"
     bl_description = (
@@ -2650,7 +2650,7 @@ class QuickDirectionalSlideGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "DSSRC"
 
 
-class GrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2658,7 +2658,7 @@ class GrabPlaneAFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'plane_pt_a'
 
 
-class Slot1GrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2667,7 +2667,7 @@ class Slot1GrabPlaneAFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2676,7 +2676,7 @@ class Slot1GrabPlaneBFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot1GrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot1grabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2685,7 +2685,7 @@ class Slot1GrabPlaneCFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2694,7 +2694,7 @@ class Slot2GrabPlaneAFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2703,7 +2703,7 @@ class Slot2GrabPlaneBFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_Slot2GrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.slot2grabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2712,7 +2712,7 @@ class Slot2GrabPlaneCFromCursor(GrabFromCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2721,7 +2721,7 @@ class CalcResultGrabPlaneAFromCursor(GrabFromCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2730,7 +2730,7 @@ class CalcResultGrabPlaneBFromCursor(GrabFromCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_CalcResultGrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.calcresultgrabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2739,7 +2739,7 @@ class CalcResultGrabPlaneCFromCursor(GrabFromCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAplSrcGrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaplsrcgrabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2748,7 +2748,7 @@ class QuickAplSrcGrabPlaneAFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneAFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickapldestgrabplaneafromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -2757,7 +2757,7 @@ class QuickAplDestGrabPlaneAFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2768,7 +2768,7 @@ class GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2779,7 +2779,7 @@ class GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class Slot1GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2791,7 +2791,7 @@ class Slot1GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2803,7 +2803,7 @@ class Slot1GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2815,7 +2815,7 @@ class Slot1GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2827,7 +2827,7 @@ class Slot1GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2839,7 +2839,7 @@ class Slot1GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot1GrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot1grabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2851,7 +2851,7 @@ class Slot1GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2863,7 +2863,7 @@ class Slot2GrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2875,7 +2875,7 @@ class Slot2GrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2887,7 +2887,7 @@ class Slot2GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2899,7 +2899,7 @@ class Slot2GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2911,7 +2911,7 @@ class Slot2GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_Slot2GrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.slot2grabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2923,7 +2923,7 @@ class Slot2GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2935,7 +2935,7 @@ class CalcResultGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2947,7 +2947,7 @@ class CalcResultGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2959,7 +2959,7 @@ class CalcResultGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2971,7 +2971,7 @@ class CalcResultGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -2983,7 +2983,7 @@ class CalcResultGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_CalcResultGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.calcresultgrabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -2995,7 +2995,7 @@ class CalcResultGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'CALCRESULT'
 
 
-class Slot1GrabAvgPlaneA(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1GrabAvgPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1grabavgplanea"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3007,7 +3007,7 @@ class Slot1GrabAvgPlaneA(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot1GrabAvgPlaneB(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1GrabAvgPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1grabavgplaneb"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3019,7 +3019,7 @@ class Slot1GrabAvgPlaneB(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot1GrabAvgPlaneC(GrabAverageLocationBase):
+class MAPLUS_OT_Slot1GrabAvgPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot1grabavgplanec"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3031,7 +3031,7 @@ class Slot1GrabAvgPlaneC(GrabAverageLocationBase):
     quick_op_target = "SLOT1"
 
 
-class Slot2GrabAvgPlaneA(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2GrabAvgPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2grabavgplanea"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3043,7 +3043,7 @@ class Slot2GrabAvgPlaneA(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class Slot2GrabAvgPlaneB(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2GrabAvgPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2grabavgplaneb"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3055,7 +3055,7 @@ class Slot2GrabAvgPlaneB(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class Slot2GrabAvgPlaneC(GrabAverageLocationBase):
+class MAPLUS_OT_Slot2GrabAvgPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.slot2grabavgplanec"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3067,7 +3067,7 @@ class Slot2GrabAvgPlaneC(GrabAverageLocationBase):
     quick_op_target = "SLOT2"
 
 
-class CalcResultGrabAvgPlaneA(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultGrabAvgPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultgrabavgplanea"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3079,7 +3079,7 @@ class CalcResultGrabAvgPlaneA(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class CalcResultGrabAvgPlaneB(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultGrabAvgPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultgrabavgplaneb"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3091,7 +3091,7 @@ class CalcResultGrabAvgPlaneB(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class CalcResultGrabAvgPlaneC(GrabAverageLocationBase):
+class MAPLUS_OT_CalcResultGrabAvgPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.calcresultgrabavgplanec"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3103,7 +3103,7 @@ class CalcResultGrabAvgPlaneC(GrabAverageLocationBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAplGrabAvgSrcPlaneA(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgSrcPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgsrcplanea"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3115,7 +3115,7 @@ class QuickAplGrabAvgSrcPlaneA(GrabAverageLocationBase):
     quick_op_target = "APLSRC"
 
 
-class QuickAplGrabAvgDestPlaneA(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgDestPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgdestplanea"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3127,7 +3127,7 @@ class QuickAplGrabAvgDestPlaneA(GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
-class QuickAplSrcGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3139,7 +3139,7 @@ class QuickAplSrcGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplSrcGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3151,7 +3151,7 @@ class QuickAplSrcGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3163,7 +3163,7 @@ class QuickAplDestGrabPlaneAFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class QuickAplDestGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3175,7 +3175,7 @@ class QuickAplDestGrabPlaneAFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class SendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3183,7 +3183,7 @@ class SendPlaneAToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'plane_pt_a'
 
 
-class Slot1SendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3192,7 +3192,7 @@ class Slot1SendPlaneAToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1SendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3201,7 +3201,7 @@ class Slot1SendPlaneBToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1SendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot1SendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot1sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3210,7 +3210,7 @@ class Slot1SendPlaneCToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2SendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3219,7 +3219,7 @@ class Slot2SendPlaneAToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2SendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3228,7 +3228,7 @@ class Slot2SendPlaneBToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2SendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_Slot2SendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.slot2sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3237,7 +3237,7 @@ class Slot2SendPlaneCToCursor(SendCoordToCursorBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultSendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3246,7 +3246,7 @@ class CalcResultSendPlaneAToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultSendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3255,7 +3255,7 @@ class CalcResultSendPlaneBToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultSendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_CalcResultSendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.calcresultsendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3264,7 +3264,7 @@ class CalcResultSendPlaneCToCursor(SendCoordToCursorBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAplSrcSendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplSrcSendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaplsrcsendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3273,7 +3273,7 @@ class QuickAplSrcSendPlaneAToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestSendPlaneAToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplDestSendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickapldestsendplaneatocursor"
     bl_label = "Sends Plane Point A to Cursor"
     bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
@@ -3282,7 +3282,7 @@ class QuickAplDestSendPlaneAToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3290,7 +3290,7 @@ class GrabPlaneBFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'plane_pt_b'
 
 
-class QuickAplSrcGrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaplsrcgrabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3299,7 +3299,7 @@ class QuickAplSrcGrabPlaneBFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneBFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickapldestgrabplanebfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3308,7 +3308,7 @@ class QuickAplDestGrabPlaneBFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3319,7 +3319,7 @@ class GrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3330,7 +3330,7 @@ class GrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickAplGrabAvgSrcPlaneB(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgSrcPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgsrcplaneb"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3342,7 +3342,7 @@ class QuickAplGrabAvgSrcPlaneB(GrabAverageLocationBase):
     quick_op_target = "APLSRC"
 
 
-class QuickAplGrabAvgDestPlaneB(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgDestPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgdestplaneb"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3354,7 +3354,7 @@ class QuickAplGrabAvgDestPlaneB(GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
-class QuickAplSrcGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3366,7 +3366,7 @@ class QuickAplSrcGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplSrcGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3378,7 +3378,7 @@ class QuickAplSrcGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3390,7 +3390,7 @@ class QuickAplDestGrabPlaneBFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class QuickAplDestGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3402,7 +3402,7 @@ class QuickAplDestGrabPlaneBFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class SendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3410,7 +3410,7 @@ class SendPlaneBToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'plane_pt_b'
 
 
-class QuickAplSrcSendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplSrcSendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaplsrcsendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3419,7 +3419,7 @@ class QuickAplSrcSendPlaneBToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestSendPlaneBToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplDestSendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickapldestsendplanebtocursor"
     bl_label = "Sends Plane Point B to Cursor"
     bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
@@ -3428,7 +3428,7 @@ class QuickAplDestSendPlaneBToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_GrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3436,7 +3436,7 @@ class GrabPlaneCFromCursor(GrabFromCursorBase):
     vert_attrib_to_set = 'plane_pt_c'
 
 
-class QuickAplSrcGrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickaplsrcgrabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3445,7 +3445,7 @@ class QuickAplSrcGrabPlaneCFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneCFromCursor(GrabFromCursorBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickapldestgrabplanecfromcursor"
     bl_label = "Grab From Cursor"
     bl_description = "Grabs coordinates from 3D cursor"
@@ -3454,7 +3454,7 @@ class QuickAplDestGrabPlaneCFromCursor(GrabFromCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3465,7 +3465,7 @@ class GrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3476,7 +3476,7 @@ class GrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class QuickAplGrabAvgSrcPlaneC(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgSrcPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgsrcplanec"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3488,7 +3488,7 @@ class QuickAplGrabAvgSrcPlaneC(GrabAverageLocationBase):
     quick_op_target = "APLSRC"
 
 
-class QuickAplGrabAvgDestPlaneC(GrabAverageLocationBase):
+class MAPLUS_OT_QuickAplGrabAvgDestPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickaplgrabavgdestplanec"
     bl_label = "Grab Average Global Coordinates From Selected Points"
     bl_description = (
@@ -3500,7 +3500,7 @@ class QuickAplGrabAvgDestPlaneC(GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
-class QuickAplSrcGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3512,7 +3512,7 @@ class QuickAplSrcGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplSrcGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplSrcGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3524,7 +3524,7 @@ class QuickAplSrcGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
     bl_description = (
@@ -3536,7 +3536,7 @@ class QuickAplDestGrabPlaneCFromActiveLocal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class QuickAplDestGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAplDestGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
     bl_description = (
@@ -3548,7 +3548,7 @@ class QuickAplDestGrabPlaneCFromActiveGlobal(GrabFromGeometryBase):
     quick_op_target = 'APLDEST'
 
 
-class SendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_SendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.sendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3556,7 +3556,7 @@ class SendPlaneCToCursor(SendCoordToCursorBase):
     source_coord_attrib = 'plane_pt_c'
 
 
-class QuickAplSrcSendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplSrcSendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickaplsrcsendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3565,7 +3565,7 @@ class QuickAplSrcSendPlaneCToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestSendPlaneCToCursor(SendCoordToCursorBase):
+class MAPLUS_OT_QuickAplDestSendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickapldestsendplanectocursor"
     bl_label = "Sends Plane Point C to Cursor"
     bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
@@ -3574,7 +3574,7 @@ class QuickAplDestSendPlaneCToCursor(SendCoordToCursorBase):
     quick_op_target = 'APLDEST'
 
 
-class GrabAllVertsPlaneLocal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabAllVertsPlaneLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.graballvertsplanelocal"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3585,7 +3585,7 @@ class GrabAllVertsPlaneLocal(GrabFromGeometryBase):
     multiply_by_world_matrix = False
 
 
-class GrabAllVertsPlaneGlobal(GrabFromGeometryBase):
+class MAPLUS_OT_GrabAllVertsPlaneGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.graballvertsplaneglobal"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3596,7 +3596,7 @@ class GrabAllVertsPlaneGlobal(GrabFromGeometryBase):
     multiply_by_world_matrix = True
 
 
-class GrabPlaneSlot1Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneSlot1Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneslot1loc"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3608,7 +3608,7 @@ class GrabPlaneSlot1Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabPlaneSlot1(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneSlot1(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneslot1"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3620,7 +3620,7 @@ class GrabPlaneSlot1(GrabFromGeometryBase):
     quick_op_target = "SLOT1"
 
 
-class GrabPlaneSlot2Loc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneSlot2Loc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneslot2loc"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3632,7 +3632,7 @@ class GrabPlaneSlot2Loc(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class GrabPlaneSlot2(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneSlot2(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneslot2"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3644,7 +3644,7 @@ class GrabPlaneSlot2(GrabFromGeometryBase):
     quick_op_target = "SLOT2"
 
 
-class GrabPlaneCalcResultLoc(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneCalcResultLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanecalcresultloc"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3656,7 +3656,7 @@ class GrabPlaneCalcResultLoc(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class GrabPlaneCalcResult(GrabFromGeometryBase):
+class MAPLUS_OT_GrabPlaneCalcResult(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplanecalcresult"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3668,7 +3668,7 @@ class GrabPlaneCalcResult(GrabFromGeometryBase):
     quick_op_target = "CALCRESULT"
 
 
-class QuickAlignPlanesGrabSrc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPlanesGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignplanesgrabsrc"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3680,7 +3680,7 @@ class QuickAlignPlanesGrabSrc(GrabFromGeometryBase):
     quick_op_target = "APLSRC"
 
 
-class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPlanesGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignplanesgrabdest"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
@@ -3692,7 +3692,7 @@ class QuickAlignPlanesGrabDest(GrabFromGeometryBase):
     quick_op_target = "APLDEST"
 
 
-class QuickAlignPlanesGrabSrcLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPlanesGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignplanesgrabsrcloc"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3704,7 +3704,7 @@ class QuickAlignPlanesGrabSrcLoc(GrabFromGeometryBase):
     quick_op_target = "APLSRC"
 
 
-class QuickAlignPlanesGrabDestLoc(GrabFromGeometryBase):
+class MAPLUS_OT_QuickAlignPlanesGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickalignplanesgrabdestloc"
     bl_label = "Grab Plane Local Coordinates from Selected Verts"
     bl_description = (
@@ -3718,7 +3718,7 @@ class QuickAlignPlanesGrabDestLoc(GrabFromGeometryBase):
 
 # Coordinate swapper, present on all geometry primitives
 # that have multiple points (line, plane)
-class SwapPointsBase(bpy.types.Operator):
+class MAPLUS_OT_SwapPointsBase(bpy.types.Operator):
     bl_idname = "maplus.swappointsbase"
     bl_label = "Swap Points Base"
     bl_description = "Swap points base class"
@@ -3786,7 +3786,7 @@ class SwapPointsBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class SwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_SwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.swaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3794,7 +3794,7 @@ class SwapLinePoints(SwapPointsBase):
     targets = ('line_start', 'line_end')
 
 
-class Slot1SwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_Slot1SwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot1swaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3803,7 +3803,7 @@ class Slot1SwapLinePoints(SwapPointsBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2SwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_Slot2SwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot2swaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3812,7 +3812,7 @@ class Slot2SwapLinePoints(SwapPointsBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_CalcResultSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.calcresultswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3821,7 +3821,7 @@ class CalcResultSwapLinePoints(SwapPointsBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAlnSrcSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickAlnSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickalnsrcswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3830,7 +3830,7 @@ class QuickAlnSrcSwapLinePoints(SwapPointsBase):
     quick_op_target = 'ALNSRC'
 
 
-class QuickAlnDestSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickAlnDestSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickalndestswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3839,7 +3839,7 @@ class QuickAlnDestSwapLinePoints(SwapPointsBase):
     quick_op_target = 'ALNDEST'
 
 
-class QuickAxrSrcSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickAxrSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickaxrsrcswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3848,7 +3848,7 @@ class QuickAxrSrcSwapLinePoints(SwapPointsBase):
     quick_op_target = 'AXRSRC'
 
 
-class QuickDsSrcSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickDsSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickdssrcswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3857,7 +3857,7 @@ class QuickDsSrcSwapLinePoints(SwapPointsBase):
     quick_op_target = 'DSSRC'
 
 
-class QuickSmeSrcSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickSmeSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quicksmesrcswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3866,7 +3866,7 @@ class QuickSmeSrcSwapLinePoints(SwapPointsBase):
     quick_op_target = 'SMESRC'
 
 
-class QuickSmeDestSwapLinePoints(SwapPointsBase):
+class MAPLUS_OT_QuickSmeDestSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quicksmedestswaplinepoints"
     bl_label = "Swap Line Points"
     bl_description = "Swap line points"
@@ -3875,7 +3875,7 @@ class QuickSmeDestSwapLinePoints(SwapPointsBase):
     quick_op_target = 'SMEDEST'
 
 
-class SwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_SwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.swapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -3883,7 +3883,7 @@ class SwapPlaneAPlaneB(SwapPointsBase):
     targets = ('plane_pt_a', 'plane_pt_b')
 
 
-class SwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_SwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.swapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -3891,7 +3891,7 @@ class SwapPlaneAPlaneC(SwapPointsBase):
     targets = ('plane_pt_a', 'plane_pt_c')
 
 
-class SwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_SwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.swapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -3899,7 +3899,7 @@ class SwapPlaneBPlaneC(SwapPointsBase):
     targets = ('plane_pt_b', 'plane_pt_c')
 
 
-class Slot1SwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_Slot1SwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot1swapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -3908,7 +3908,7 @@ class Slot1SwapPlaneAPlaneB(SwapPointsBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1SwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_Slot1SwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot1swapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -3917,7 +3917,7 @@ class Slot1SwapPlaneAPlaneC(SwapPointsBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot1SwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_Slot1SwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot1swapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -3926,7 +3926,7 @@ class Slot1SwapPlaneBPlaneC(SwapPointsBase):
     quick_op_target = 'SLOT1'
 
 
-class Slot2SwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_Slot2SwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot2swapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -3935,7 +3935,7 @@ class Slot2SwapPlaneAPlaneB(SwapPointsBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2SwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_Slot2SwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot2swapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -3944,7 +3944,7 @@ class Slot2SwapPlaneAPlaneC(SwapPointsBase):
     quick_op_target = 'SLOT2'
 
 
-class Slot2SwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_Slot2SwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.slot2swapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -3953,7 +3953,7 @@ class Slot2SwapPlaneBPlaneC(SwapPointsBase):
     quick_op_target = 'SLOT2'
 
 
-class CalcResultSwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_CalcResultSwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.calcresultswapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -3962,7 +3962,7 @@ class CalcResultSwapPlaneAPlaneB(SwapPointsBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultSwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_CalcResultSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.calcresultswapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -3971,7 +3971,7 @@ class CalcResultSwapPlaneAPlaneC(SwapPointsBase):
     quick_op_target = 'CALCRESULT'
 
 
-class CalcResultSwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_CalcResultSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.calcresultswapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -3980,7 +3980,7 @@ class CalcResultSwapPlaneBPlaneC(SwapPointsBase):
     quick_op_target = 'CALCRESULT'
 
 
-class QuickAplSrcSwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_QuickAplSrcSwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickaplsrcswapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -3989,7 +3989,7 @@ class QuickAplSrcSwapPlaneAPlaneB(SwapPointsBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplSrcSwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_QuickAplSrcSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickaplsrcswapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -3998,7 +3998,7 @@ class QuickAplSrcSwapPlaneAPlaneC(SwapPointsBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplSrcSwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_QuickAplSrcSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickaplsrcswapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -4007,7 +4007,7 @@ class QuickAplSrcSwapPlaneBPlaneC(SwapPointsBase):
     quick_op_target = 'APLSRC'
 
 
-class QuickAplDestSwapPlaneAPlaneB(SwapPointsBase):
+class MAPLUS_OT_QuickAplDestSwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickapldestswapplaneaplaneb"
     bl_label = "Swap Plane Point A with Plane Point B"
     bl_description = "Swap plane points A and B"
@@ -4016,7 +4016,7 @@ class QuickAplDestSwapPlaneAPlaneB(SwapPointsBase):
     quick_op_target = 'APLDEST'
 
 
-class QuickAplDestSwapPlaneAPlaneC(SwapPointsBase):
+class MAPLUS_OT_QuickAplDestSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickapldestswapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
     bl_description = "Swap plane points A and C"
@@ -4025,7 +4025,7 @@ class QuickAplDestSwapPlaneAPlaneC(SwapPointsBase):
     quick_op_target = 'APLDEST'
 
 
-class QuickAplDestSwapPlaneBPlaneC(SwapPointsBase):
+class MAPLUS_OT_QuickAplDestSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickapldestswapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
     bl_description = "Swap plane points B and C"
@@ -4036,7 +4036,7 @@ class QuickAplDestSwapPlaneBPlaneC(SwapPointsBase):
 
 # Every x/y/z coordinate component has these functions on each of the
 # geometry primitives (lets users move in one direction easily, etc.)
-class SetOtherComponentsBase(bpy.types.Operator):
+class MAPLUS_OT_SetOtherComponentsBase(bpy.types.Operator):
     bl_idname = "maplus.setotherbase"
     bl_label = ""
     bl_description = ""
@@ -4083,7 +4083,7 @@ class SetOtherComponentsBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ZeroOtherPointX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPointX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherpointx"
     bl_label = ""
     bl_description = ""
@@ -4091,7 +4091,7 @@ class ZeroOtherPointX(SetOtherComponentsBase):
     target_info = ('point', 'X', 0)
 
 
-class ZeroOtherPointY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPointY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherpointy"
     bl_label = ""
     bl_description = ""
@@ -4099,7 +4099,7 @@ class ZeroOtherPointY(SetOtherComponentsBase):
     target_info = ('point', 'Y', 0)
 
 
-class ZeroOtherPointZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPointZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherpointz"
     bl_label = ""
     bl_description = ""
@@ -4107,7 +4107,7 @@ class ZeroOtherPointZ(SetOtherComponentsBase):
     target_info = ('point', 'Z', 0)
 
 
-class ZeroOtherLineStartX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineStartX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlinestartx"
     bl_label = ""
     bl_description = ""
@@ -4115,7 +4115,7 @@ class ZeroOtherLineStartX(SetOtherComponentsBase):
     target_info = ('line_start', 'X', 0)
 
 
-class ZeroOtherLineStartY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineStartY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlinestarty"
     bl_label = ""
     bl_description = ""
@@ -4123,7 +4123,7 @@ class ZeroOtherLineStartY(SetOtherComponentsBase):
     target_info = ('line_start', 'Y', 0)
 
 
-class ZeroOtherLineStartZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineStartZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlinestartz"
     bl_label = ""
     bl_description = ""
@@ -4131,7 +4131,7 @@ class ZeroOtherLineStartZ(SetOtherComponentsBase):
     target_info = ('line_start', 'Z', 0)
 
 
-class ZeroOtherLineEndX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineEndX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlineendx"
     bl_label = ""
     bl_description = ""
@@ -4139,7 +4139,7 @@ class ZeroOtherLineEndX(SetOtherComponentsBase):
     target_info = ('line_end', 'X', 0)
 
 
-class ZeroOtherLineEndY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineEndY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlineendy"
     bl_label = ""
     bl_description = ""
@@ -4147,7 +4147,7 @@ class ZeroOtherLineEndY(SetOtherComponentsBase):
     target_info = ('line_end', 'Y', 0)
 
 
-class ZeroOtherLineEndZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherLineEndZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherlineendz"
     bl_label = ""
     bl_description = ""
@@ -4155,7 +4155,7 @@ class ZeroOtherLineEndZ(SetOtherComponentsBase):
     target_info = ('line_end', 'Z', 0)
 
 
-class ZeroOtherPlanePointAX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointAX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointax"
     bl_label = ""
     bl_description = ""
@@ -4163,7 +4163,7 @@ class ZeroOtherPlanePointAX(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'X', 0)
 
 
-class ZeroOtherPlanePointAY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointAY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointay"
     bl_label = ""
     bl_description = ""
@@ -4171,7 +4171,7 @@ class ZeroOtherPlanePointAY(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'Y', 0)
 
 
-class ZeroOtherPlanePointAZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointAZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointaz"
     bl_label = ""
     bl_description = ""
@@ -4179,7 +4179,7 @@ class ZeroOtherPlanePointAZ(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'Z', 0)
 
 
-class ZeroOtherPlanePointBX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointBX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointbx"
     bl_label = ""
     bl_description = ""
@@ -4187,7 +4187,7 @@ class ZeroOtherPlanePointBX(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'X', 0)
 
 
-class ZeroOtherPlanePointBY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointBY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointby"
     bl_label = ""
     bl_description = ""
@@ -4195,7 +4195,7 @@ class ZeroOtherPlanePointBY(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'Y', 0)
 
 
-class ZeroOtherPlanePointBZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointBZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointbz"
     bl_label = ""
     bl_description = ""
@@ -4203,7 +4203,7 @@ class ZeroOtherPlanePointBZ(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'Z', 0)
 
 
-class ZeroOtherPlanePointCX(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointCX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointcx"
     bl_label = ""
     bl_description = ""
@@ -4211,7 +4211,7 @@ class ZeroOtherPlanePointCX(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'X', 0)
 
 
-class ZeroOtherPlanePointCY(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointCY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointcy"
     bl_label = ""
     bl_description = ""
@@ -4219,7 +4219,7 @@ class ZeroOtherPlanePointCY(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'Y', 0)
 
 
-class ZeroOtherPlanePointCZ(SetOtherComponentsBase):
+class MAPLUS_OT_ZeroOtherPlanePointCZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.zerootherplanepointcz"
     bl_label = ""
     bl_description = ""
@@ -4227,7 +4227,7 @@ class ZeroOtherPlanePointCZ(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'Z', 0)
 
 
-class OneOtherPointX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPointX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherpointx"
     bl_label = ""
     bl_description = ""
@@ -4235,7 +4235,7 @@ class OneOtherPointX(SetOtherComponentsBase):
     target_info = ('point', 'X', 1)
 
 
-class OneOtherPointY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPointY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherpointy"
     bl_label = ""
     bl_description = ""
@@ -4243,7 +4243,7 @@ class OneOtherPointY(SetOtherComponentsBase):
     target_info = ('point', 'Y', 1)
 
 
-class OneOtherPointZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPointZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherpointz"
     bl_label = ""
     bl_description = ""
@@ -4251,7 +4251,7 @@ class OneOtherPointZ(SetOtherComponentsBase):
     target_info = ('point', 'Z', 1)
 
 
-class OneOtherLineStartX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineStartX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlinestartx"
     bl_label = ""
     bl_description = ""
@@ -4259,7 +4259,7 @@ class OneOtherLineStartX(SetOtherComponentsBase):
     target_info = ('line_start', 'X', 1)
 
 
-class OneOtherLineStartY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineStartY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlinestarty"
     bl_label = ""
     bl_description = ""
@@ -4267,7 +4267,7 @@ class OneOtherLineStartY(SetOtherComponentsBase):
     target_info = ('line_start', 'Y', 1)
 
 
-class OneOtherLineStartZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineStartZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlinestartz"
     bl_label = ""
     bl_description = ""
@@ -4275,7 +4275,7 @@ class OneOtherLineStartZ(SetOtherComponentsBase):
     target_info = ('line_start', 'Z', 1)
 
 
-class OneOtherLineEndX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineEndX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlineendx"
     bl_label = ""
     bl_description = ""
@@ -4283,7 +4283,7 @@ class OneOtherLineEndX(SetOtherComponentsBase):
     target_info = ('line_end', 'X', 1)
 
 
-class OneOtherLineEndY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineEndY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlineendy"
     bl_label = ""
     bl_description = ""
@@ -4291,7 +4291,7 @@ class OneOtherLineEndY(SetOtherComponentsBase):
     target_info = ('line_end', 'Y', 1)
 
 
-class OneOtherLineEndZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherLineEndZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherlineendz"
     bl_label = ""
     bl_description = ""
@@ -4299,7 +4299,7 @@ class OneOtherLineEndZ(SetOtherComponentsBase):
     target_info = ('line_end', 'Z', 1)
 
 
-class OneOtherPlanePointAX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointAX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointax"
     bl_label = ""
     bl_description = ""
@@ -4307,7 +4307,7 @@ class OneOtherPlanePointAX(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'X', 1)
 
 
-class OneOtherPlanePointAY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointAY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointay"
     bl_label = ""
     bl_description = ""
@@ -4315,7 +4315,7 @@ class OneOtherPlanePointAY(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'Y', 1)
 
 
-class OneOtherPlanePointAZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointAZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointaz"
     bl_label = ""
     bl_description = ""
@@ -4323,7 +4323,7 @@ class OneOtherPlanePointAZ(SetOtherComponentsBase):
     target_info = ('plane_pt_a', 'Z', 1)
 
 
-class OneOtherPlanePointBX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointBX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointbx"
     bl_label = ""
     bl_description = ""
@@ -4331,7 +4331,7 @@ class OneOtherPlanePointBX(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'X', 1)
 
 
-class OneOtherPlanePointBY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointBY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointby"
     bl_label = ""
     bl_description = ""
@@ -4339,7 +4339,7 @@ class OneOtherPlanePointBY(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'Y', 1)
 
 
-class OneOtherPlanePointBZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointBZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointbz"
     bl_label = ""
     bl_description = ""
@@ -4347,7 +4347,7 @@ class OneOtherPlanePointBZ(SetOtherComponentsBase):
     target_info = ('plane_pt_b', 'Z', 1)
 
 
-class OneOtherPlanePointCX(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointCX(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointcx"
     bl_label = ""
     bl_description = ""
@@ -4355,7 +4355,7 @@ class OneOtherPlanePointCX(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'X', 1)
 
 
-class OneOtherPlanePointCY(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointCY(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointcy"
     bl_label = ""
     bl_description = ""
@@ -4363,7 +4363,7 @@ class OneOtherPlanePointCY(SetOtherComponentsBase):
     target_info = ('plane_pt_c', 'Y', 1)
 
 
-class OneOtherPlanePointCZ(SetOtherComponentsBase):
+class MAPLUS_OT_OneOtherPlanePointCZ(MAPLUS_OT_SetOtherComponentsBase):
     bl_idname = "maplus.oneotherplanepointcz"
     bl_label = ""
     bl_description = ""
@@ -4422,7 +4422,7 @@ def get_modified_global_coords(geometry, kind):
     return global_modified
 
 
-class ApplyGeomModifiers(bpy.types.Operator):
+class MAPLUS_OT_ApplyGeomModifiers(bpy.types.Operator):
     bl_idname = "maplus.applygeommodifiers"
     bl_label = "Apply Modifiers"
     bl_description = "Applies modifiers on the current geometry item."
@@ -4539,7 +4539,7 @@ def set_select_state(state, item):
         item.select = state
 
 
-class ShowHideQuickGeomBaseClass(bpy.types.Operator):
+class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
     bl_idname = "maplus.showhidequickgeombaseclass"
     bl_label = "Show/hide quick geometry base class"
     bl_description = "The base class for showing/hiding quick geometry"
@@ -4608,7 +4608,7 @@ class ShowHideQuickGeomBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ShowHideQuickCalcSlot1Geom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickCalcSlot1Geom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickcalcslot1geom"
     bl_label = "Show/hide slot 1 geometry"
     bl_description = "Show/hide slot 1 geometry"
@@ -4616,7 +4616,7 @@ class ShowHideQuickCalcSlot1Geom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'SLOT1'
 
 
-class ShowHideQuickCalcSlot2Geom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickCalcSlot2Geom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickcalcslot2geom"
     bl_label = "Show/hide slot 2 geometry"
     bl_description = "Show/hide slot 2 geometry"
@@ -4624,7 +4624,7 @@ class ShowHideQuickCalcSlot2Geom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'SLOT2'
 
 
-class ShowHideQuickCalcResultGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickCalcResultGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickcalcresultgeom"
     bl_label = "Show/hide calculation result geometry"
     bl_description = "Show/hide calculation result geometry"
@@ -4632,7 +4632,7 @@ class ShowHideQuickCalcResultGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'CALCRESULT'
 
 
-class ShowHideQuickAptSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAptSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickaptsrcgeom"
     bl_label = "Show/hide quick align points source geometry"
     bl_description = "Show/hide quick align points source geometry"
@@ -4640,7 +4640,7 @@ class ShowHideQuickAptSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'APTSRC'
 
 
-class ShowHideQuickAptDestGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAptDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickaptdestgeom"
     bl_label = "Show/hide quick align points destination geometry"
     bl_description = "Show/hide quick align points destination geometry"
@@ -4648,7 +4648,7 @@ class ShowHideQuickAptDestGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'APTDEST'
 
 
-class ShowHideQuickAlnSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAlnSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickalnsrcgeom"
     bl_label = "Show/hide quick align lines source geometry"
     bl_description = "Show/hide quick align lines source geometry"
@@ -4656,7 +4656,7 @@ class ShowHideQuickAlnSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'ALNSRC'
 
 
-class ShowHideQuickAlnDestGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAlnDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickalndestgeom"
     bl_label = "Show/hide quick align lines destination geometry"
     bl_description = "Show/hide quick align lines destination geometry"
@@ -4664,7 +4664,7 @@ class ShowHideQuickAlnDestGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'ALNDEST'
 
 
-class ShowHideQuickAplSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAplSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickaplsrcgeom"
     bl_label = "Show/hide quick align planes source geometry"
     bl_description = "Show/hide quick align planes source geometry"
@@ -4672,7 +4672,7 @@ class ShowHideQuickAplSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'APLSRC'
 
 
-class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAplDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickapldestgeom"
     bl_label = "Show/hide quick align planes destination geometry"
     bl_description = "Show/hide quick align planes destination geometry"
@@ -4680,7 +4680,7 @@ class ShowHideQuickAplDestGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'APLDEST'
 
 
-class ShowHideQuickAxrSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickAxrSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickaxrsrcgeom"
     bl_label = "Show/hide quick axis rotate source geometry"
     bl_description = "Show/hide quick axis rotate source geometry"
@@ -4688,7 +4688,7 @@ class ShowHideQuickAxrSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'AXRSRC'
 
 
-class ShowHideQuickDsSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickDsSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequickdssrcgeom"
     bl_label = "Show/hide quick directional slide source geometry"
     bl_description = "Show/hide quick directional slide source geometry"
@@ -4696,7 +4696,7 @@ class ShowHideQuickDsSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'DSSRC'
 
 
-class ShowHideQuickSmeSrcGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickSmeSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequicksmesrcgeom"
     bl_label = "Show/hide quick scale match edge source geometry"
     bl_description = "Show/hide quick scale match edge source geometry"
@@ -4704,7 +4704,7 @@ class ShowHideQuickSmeSrcGeom(ShowHideQuickGeomBaseClass):
     quick_op_target = 'SMESRC'
 
 
-class ShowHideQuickSmeDestGeom(ShowHideQuickGeomBaseClass):
+class MAPLUS_OT_ShowHideQuickSmeDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_idname = "maplus.showhidequicksmedestgeom"
     bl_label = "Show/hide quick scale match edge source geometry"
     bl_description = "Show/hide quick scale match edge source geometry"

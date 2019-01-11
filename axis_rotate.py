@@ -12,7 +12,7 @@ import mesh_mesh_align_plus.utils.geom as maplus_geom
 import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 
-class AxisRotateBase(bpy.types.Operator):
+class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
     bl_idname = "maplus.axisrotatebase"
     bl_label = "Axis Rotate Base"
     bl_description = "Axis rotate base class"
@@ -237,7 +237,7 @@ class AxisRotateBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class AxisRotateObject(AxisRotateBase):
+class MAPLUS_OT_AxisRotateObject(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotateobject"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -245,7 +245,7 @@ class AxisRotateObject(AxisRotateBase):
     target = 'OBJECT'
 
 
-class QuickAxisRotateObject(AxisRotateBase):
+class MAPLUS_OT_QuickAxisRotateObject(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.quickaxisrotateobject"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -254,7 +254,7 @@ class QuickAxisRotateObject(AxisRotateBase):
     quick_op_target = True
 
 
-class AxisRotateMeshSelected(AxisRotateBase):
+class MAPLUS_OT_AxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -269,7 +269,7 @@ class AxisRotateMeshSelected(AxisRotateBase):
         return True
 
 
-class AxisRotateWholeMesh(AxisRotateBase):
+class MAPLUS_OT_AxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatewholemesh"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -284,7 +284,7 @@ class AxisRotateWholeMesh(AxisRotateBase):
         return True
 
 
-class QuickAxisRotateMeshSelected(AxisRotateBase):
+class MAPLUS_OT_QuickAxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.quickaxisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -300,7 +300,7 @@ class QuickAxisRotateMeshSelected(AxisRotateBase):
         return True
 
 
-class QuickAxisRotateWholeMesh(AxisRotateBase):
+class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.quickaxisrotatewholemesh"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
@@ -316,8 +316,8 @@ class QuickAxisRotateWholeMesh(AxisRotateBase):
         return True
 
 
-class QuickAxisRotateGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_axis_rotate_gui"
+class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickAxisRotateGUI"
     bl_label = "Quick Axis Rotate"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

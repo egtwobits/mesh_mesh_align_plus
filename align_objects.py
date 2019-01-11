@@ -7,7 +7,7 @@ import mathutils
 import mesh_mesh_align_plus.utils.geom as maplus_geom
 
 
-class QuickAlignObjects(bpy.types.Operator):
+class MAPLUS_OT_QuickAlignObjects(bpy.types.Operator):
     bl_idname = "maplus.quickalignobjects"
     bl_label = "Align Objects"
     bl_description = "Align Objects"
@@ -55,8 +55,8 @@ class QuickAlignObjects(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class QuickAlignObjectsGUI(bpy.types.Panel):
-    bl_idname = "maplus._quick_align_objects_gui"
+class MAPLUS_PT_QuickAlignObjectsGUI(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_QuickAlignObjectsGUI"
     bl_label = "Quick Align Objects"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"

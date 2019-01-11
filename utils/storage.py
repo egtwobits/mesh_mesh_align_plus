@@ -592,7 +592,7 @@ def copy_source_attribs_to_dest(source, dest, set_attribs=None):
             setattr(dest, att, getattr(source, att))
 
 
-class CopyToOtherBase(bpy.types.Operator):
+class MAPLUS_OT_CopyToOtherBase(bpy.types.Operator):
     bl_idname = "maplus.copytootherbase"
     bl_label = "Copy to other"
     bl_description = "Copies this item to a destination"
@@ -739,7 +739,7 @@ class CopyToOtherBase(bpy.types.Operator):
 
 
 
-class PasteIntoAdvToolsActive(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAdvToolsActive(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoadvtoolsactive"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -748,7 +748,7 @@ class PasteIntoAdvToolsActive(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'ADVTOOLSACTIVE')
 
 
-class CopyFromAdvToolsActive(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAdvToolsActive(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromadvtoolsactive"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -757,7 +757,7 @@ class CopyFromAdvToolsActive(CopyToOtherBase):
     source_dest_pair = ('ADVTOOLSACTIVE', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoSlot1(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoSlot1(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoslot1"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -766,7 +766,7 @@ class PasteIntoSlot1(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'SLOT1')
 
 
-class CopyFromSlot1(CopyToOtherBase):
+class MAPLUS_OT_CopyFromSlot1(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromslot1"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -775,7 +775,7 @@ class CopyFromSlot1(CopyToOtherBase):
     source_dest_pair = ('SLOT1', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoSlot2(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoSlot2(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoslot2"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -784,7 +784,7 @@ class PasteIntoSlot2(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'SLOT2')
 
 
-class CopyFromSlot2(CopyToOtherBase):
+class MAPLUS_OT_CopyFromSlot2(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromslot2"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -793,7 +793,7 @@ class CopyFromSlot2(CopyToOtherBase):
     source_dest_pair = ('SLOT2', 'INTERNALCLIPBOARD')
 
 
-class CopyFromCalcResult(CopyToOtherBase):
+class MAPLUS_OT_CopyFromCalcResult(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromcalcresult"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -802,7 +802,7 @@ class CopyFromCalcResult(CopyToOtherBase):
     source_dest_pair = ('CALCRESULT', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoCalcResult(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoCalcResult(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintocalcresult"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -811,7 +811,7 @@ class PasteIntoCalcResult(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'CALCRESULT')
 
 
-class PasteIntoAptSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAptSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoaptsrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -820,7 +820,7 @@ class PasteIntoAptSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'APTSRC')
 
 
-class CopyFromAptSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAptSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromaptsrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -829,7 +829,7 @@ class CopyFromAptSrc(CopyToOtherBase):
     source_dest_pair = ('APTSRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAptDest(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAptDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoaptdest"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -838,7 +838,7 @@ class PasteIntoAptDest(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'APTDEST')
 
 
-class CopyFromAptDest(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAptDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromaptdest"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -847,7 +847,7 @@ class CopyFromAptDest(CopyToOtherBase):
     source_dest_pair = ('APTDEST', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAlnSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAlnSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoalnsrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -856,7 +856,7 @@ class PasteIntoAlnSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'ALNSRC')
 
 
-class CopyFromAlnSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAlnSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromalnsrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -865,7 +865,7 @@ class CopyFromAlnSrc(CopyToOtherBase):
     source_dest_pair = ('ALNSRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAlnDest(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAlnDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoalndest"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -874,7 +874,7 @@ class PasteIntoAlnDest(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'ALNDEST')
 
 
-class CopyFromAlnDest(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAlnDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromalndest"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -883,7 +883,7 @@ class CopyFromAlnDest(CopyToOtherBase):
     source_dest_pair = ('ALNDEST', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAplSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAplSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoaplsrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -892,7 +892,7 @@ class PasteIntoAplSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'APLSRC')
 
 
-class CopyFromAplSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAplSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromaplsrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -901,7 +901,7 @@ class CopyFromAplSrc(CopyToOtherBase):
     source_dest_pair = ('APLSRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAplDest(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAplDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoapldest"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -910,7 +910,7 @@ class PasteIntoAplDest(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'APLDEST')
 
 
-class CopyFromAplDest(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAplDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromapldest"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -919,7 +919,7 @@ class CopyFromAplDest(CopyToOtherBase):
     source_dest_pair = ('APLDEST', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoAxrSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoAxrSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoaxrsrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -928,7 +928,7 @@ class PasteIntoAxrSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'AXRSRC')
 
 
-class CopyFromAxrSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromAxrSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromaxrsrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -937,7 +937,7 @@ class CopyFromAxrSrc(CopyToOtherBase):
     source_dest_pair = ('AXRSRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoDsSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoDsSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintodssrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -946,7 +946,7 @@ class PasteIntoDsSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'DSSRC')
 
 
-class CopyFromDsSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromDsSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromdssrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -955,7 +955,7 @@ class CopyFromDsSrc(CopyToOtherBase):
     source_dest_pair = ('DSSRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoSmeSrc(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoSmeSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintosmesrc"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -964,7 +964,7 @@ class PasteIntoSmeSrc(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'SMESRC')
 
 
-class CopyFromSmeSrc(CopyToOtherBase):
+class MAPLUS_OT_CopyFromSmeSrc(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromsmesrc"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"
@@ -973,7 +973,7 @@ class CopyFromSmeSrc(CopyToOtherBase):
     source_dest_pair = ('SMESRC', 'INTERNALCLIPBOARD')
 
 
-class PasteIntoSmeDest(CopyToOtherBase):
+class MAPLUS_OT_PasteIntoSmeDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintosmedest"
     bl_label = "Paste into this item"
     bl_description = "Pastes from the internal clipboard into this item"
@@ -982,7 +982,7 @@ class PasteIntoSmeDest(CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'SMEDEST')
 
 
-class CopyFromSmeDest(CopyToOtherBase):
+class MAPLUS_OT_CopyFromSmeDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromsmedest"
     bl_label = "Copy from this item"
     bl_description = "Copies this item into the internal clipboard"

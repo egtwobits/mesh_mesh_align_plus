@@ -10,7 +10,7 @@ import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 
 # Custom list, for displaying combined list of all primitives (Used at top
 # of main panel and for item pointers in transformation primitives
-class MAPlusList(bpy.types.UIList):
+class MAPLUS_UL_MAPlusList(bpy.types.UIList):
     bl_idname = "maplus.advancedtoolslist"
 
     def draw_item(self,
@@ -38,7 +38,7 @@ class MAPlusList(bpy.types.UIList):
             layout.label(text=item.name, icon="GRAPH")
 
 
-class AddListItemBase(bpy.types.Operator):
+class MAPLUS_OT_AddListItemBase(bpy.types.Operator):
     bl_idname = "maplus.addlistitembase"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -92,7 +92,7 @@ class AddListItemBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class RemoveListItem(bpy.types.Operator):
+class MAPLUS_OT_RemoveListItem(bpy.types.Operator):
     bl_idname = "maplus.removelistitem"
     bl_label = "Remove an item"
     bl_options = {'REGISTER', 'UNDO'}
@@ -117,42 +117,42 @@ class RemoveListItem(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class AddNewPoint(AddListItemBase):
+class MAPLUS_OT_AddNewPoint(MAPLUS_OT_AddListItemBase):
     bl_idname = "maplus.addnewpoint"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "POINT"
 
 
-class AddNewLine(AddListItemBase):
+class MAPLUS_OT_AddNewLine(MAPLUS_OT_AddListItemBase):
     bl_idname = "maplus.addnewline"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "LINE"
 
 
-class AddNewPlane(AddListItemBase):
+class MAPLUS_OT_AddNewPlane(MAPLUS_OT_AddListItemBase):
     bl_idname = "maplus.addnewplane"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "PLANE"
 
 
-class AddNewCalculation(AddListItemBase):
+class MAPLUS_OT_AddNewCalculation(MAPLUS_OT_AddListItemBase):
     bl_idname = "maplus.addnewcalculation"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "CALCULATION"
 
 
-class AddNewTransformation(AddListItemBase):
+class MAPLUS_OT_AddNewTransformation(MAPLUS_OT_AddListItemBase):
     bl_idname = "maplus.addnewtransformation"
     bl_label = "Add a new item"
     bl_options = {'REGISTER', 'UNDO'}
     new_kind = "TRANSFORMATION"
 
 
-class DuplicateItemBase(bpy.types.Operator):
+class MAPLUS_OT_DuplicateItemBase(bpy.types.Operator):
     bl_idname = "maplus.duplicateitembase"
     bl_label = "Duplicate Item"
     bl_description = "Duplicates this item"
@@ -173,7 +173,7 @@ class DuplicateItemBase(bpy.types.Operator):
             return {'CANCELLED'}
 
         try:
-            new_item = AddListItemBase.add_new_named(self)
+            new_item = MAPLUS_OT_AddListItemBase.add_new_named(self)
         except maplus_except.UniqueNameError:
             self.report({'ERROR'}, 'Cannot add item, unique name error.')
             return {'CANCELLED'}
@@ -209,7 +209,7 @@ class DuplicateItemBase(bpy.types.Operator):
 
 # Basic type selector functionality, derived classes provide
 # the "kind" to switch to (target_type attrib)
-class ChangeTypeBaseClass(bpy.types.Operator):
+class MAPLUS_OT_ChangeTypeBaseClass(bpy.types.Operator):
     bl_idname = "maplus.changetypebaseclass"
     bl_label = "Change type base class"
     bl_description = "The base class for changing types"
@@ -226,7 +226,7 @@ class ChangeTypeBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ChangeTypeToPointPrim(ChangeTypeBaseClass):
+class MAPLUS_OT_ChangeTypeToPointPrim(MAPLUS_OT_ChangeTypeBaseClass):
     bl_idname = "maplus.changetypetopointprim"
     bl_label = "Change this to a point primitive"
     bl_description = "Makes this item a point primitive"
@@ -244,7 +244,7 @@ class ChangeTypeToPointPrim(ChangeTypeBaseClass):
         return True
 
 
-class ChangeTypeToLinePrim(ChangeTypeBaseClass):
+class MAPLUS_OT_ChangeTypeToLinePrim(MAPLUS_OT_ChangeTypeBaseClass):
     bl_idname = "maplus.changetypetolineprim"
     bl_label = "Change this to a line primitive"
     bl_description = "Makes this item a line primitive"
@@ -262,7 +262,7 @@ class ChangeTypeToLinePrim(ChangeTypeBaseClass):
         return True
 
 
-class ChangeTypeToPlanePrim(ChangeTypeBaseClass):
+class MAPLUS_OT_ChangeTypeToPlanePrim(MAPLUS_OT_ChangeTypeBaseClass):
     bl_idname = "maplus.changetypetoplaneprim"
     bl_label = "Change this to a plane primitive"
     bl_description = "Makes this item a plane primitive"
@@ -280,7 +280,7 @@ class ChangeTypeToPlanePrim(ChangeTypeBaseClass):
         return True
 
 
-class ChangeTypeToCalcPrim(ChangeTypeBaseClass):
+class MAPLUS_OT_ChangeTypeToCalcPrim(MAPLUS_OT_ChangeTypeBaseClass):
     bl_idname = "maplus.changetypetocalcprim"
     bl_label = "Change this to a calculation primitive"
     bl_description = "Makes this item a calculation primitive"
@@ -298,7 +298,7 @@ class ChangeTypeToCalcPrim(ChangeTypeBaseClass):
         return True
 
 
-class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
+class MAPLUS_OT_ChangeTypeToTransfPrim(MAPLUS_OT_ChangeTypeBaseClass):
     bl_idname = "maplus.changetypetotransfprim"
     bl_label = "Change this to a transformation primitive"
     bl_description = "Makes this item a transformation primitive"
@@ -317,7 +317,7 @@ class ChangeTypeToTransfPrim(ChangeTypeBaseClass):
 
 
 
-class ChangeCalcBaseClass(bpy.types.Operator):
+class MAPLUS_OT_ChangeCalcBaseClass(bpy.types.Operator):
     bl_idname = "maplus.changecalcbaseclass"
     bl_label = "Change calculation base class"
     bl_description = "The base class for changing calc types"
@@ -334,7 +334,7 @@ class ChangeCalcBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ChangeCalcToSingle(ChangeCalcBaseClass):
+class MAPLUS_OT_ChangeCalcToSingle(MAPLUS_OT_ChangeCalcBaseClass):
     bl_idname = "maplus.changecalctosingle"
     bl_label = "Change to single item calculation"
     bl_description = "Change the calculation type to single item"
@@ -352,7 +352,7 @@ class ChangeCalcToSingle(ChangeCalcBaseClass):
         return True
 
 
-class ChangeCalcToMulti(ChangeCalcBaseClass):
+class MAPLUS_OT_ChangeCalcToMulti(MAPLUS_OT_ChangeCalcBaseClass):
     bl_idname = "maplus.changecalctomulti"
     bl_label = "Change to multi-item calculation"
     bl_description = "Change the calculation type to multi item"
@@ -372,7 +372,7 @@ class ChangeCalcToMulti(ChangeCalcBaseClass):
 
 # Basic transformation type selector functionality (a primitive sub-type),
 # derived classes provide the transf. to switch to (target_transf attrib)
-class ChangeTransfBaseClass(bpy.types.Operator):
+class MAPLUS_OT_ChangeTransfBaseClass(bpy.types.Operator):
     bl_idname = "maplus.changetransfbaseclass"
     bl_label = "Change transformation base class"
     bl_description = "The base class for changing tranf types"
@@ -389,7 +389,7 @@ class ChangeTransfBaseClass(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToAlignPoints(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftoalignpoints"
     bl_label = "Change transformation to align points"
     bl_description = "Change the transformation type to align points"
@@ -407,7 +407,7 @@ class ChangeTransfToAlignPoints(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToDirectionalSlide(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftodirectionalslide"
     bl_label = "Change transformation to directional slide"
     bl_description = "Change the transformation type to directional slide"
@@ -425,7 +425,7 @@ class ChangeTransfToDirectionalSlide(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToScaleMatchEdge(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToScaleMatchEdge(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftoscalematchedge"
     bl_label = "Change transformation to scale match edge"
     bl_description = "Change the transformation type to scale match edge"
@@ -443,7 +443,7 @@ class ChangeTransfToScaleMatchEdge(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToAxisRotate(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftoaxisrotate"
     bl_label = "Change transformation to axis rotate"
     bl_description = "Change the transformation type to axis rotate"
@@ -461,7 +461,7 @@ class ChangeTransfToAxisRotate(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToAlignLines(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToAlignLines(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftoalignlines"
     bl_label = "Change transformation to align lines"
     bl_description = "Change the transformation type to align lines"
@@ -479,7 +479,7 @@ class ChangeTransfToAlignLines(ChangeTransfBaseClass):
         return True
 
 
-class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
+class MAPLUS_OT_ChangeTransfToAlignPlanes(MAPLUS_OT_ChangeTransfBaseClass):
     bl_idname = "maplus.changetransftoalignplanes"
     bl_label = "Change transformation to align planes"
     bl_description = "Change the transformation type to align planes"
@@ -497,7 +497,7 @@ class ChangeTransfToAlignPlanes(ChangeTransfBaseClass):
         return True
 
 
-class SpecialsAddFromActiveBase(bpy.types.Operator):
+class MAPLUS_OT_SpecialsAddFromActiveBase(bpy.types.Operator):
     bl_idname = "maplus.specialsaddfromactivebase"
     bl_label = "Specials Menu Item Base Class, Add Geometry Item From Active"
     bl_options = {'REGISTER', 'UNDO'}
@@ -547,7 +547,7 @@ class SpecialsAddFromActiveBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class SpecialsAddPointFromActiveGlobal(SpecialsAddFromActiveBase):
+class MAPLUS_OT_SpecialsAddPointFromActiveGlobal(MAPLUS_OT_SpecialsAddFromActiveBase):
     bl_idname = "maplus.specialsaddpointfromactiveglobal"
     bl_label = "Point From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
@@ -557,7 +557,7 @@ class SpecialsAddPointFromActiveGlobal(SpecialsAddFromActiveBase):
     multiply_by_world_matrix = True
 
 
-class SpecialsAddLineFromActiveGlobal(SpecialsAddFromActiveBase):
+class MAPLUS_OT_SpecialsAddLineFromActiveGlobal(MAPLUS_OT_SpecialsAddFromActiveBase):
     bl_idname = "maplus.specialsaddlinefromactiveglobal"
     bl_label = "Line From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
@@ -567,7 +567,7 @@ class SpecialsAddLineFromActiveGlobal(SpecialsAddFromActiveBase):
     multiply_by_world_matrix = True
 
 
-class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
+class MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal(MAPLUS_OT_SpecialsAddFromActiveBase):
     bl_idname = "maplus.specialsaddplanefromactiveglobal"
     bl_label = "Plane From Active Global"
     bl_options = {'REGISTER', 'UNDO'}
@@ -578,8 +578,8 @@ class SpecialsAddPlaneFromActiveGlobal(SpecialsAddFromActiveBase):
 
 
 # Advanced Tools panel
-class MAPlusGui(bpy.types.Panel):
-    bl_idname = "maplus._maplus_advanced_tools"
+class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
+    bl_idname = "MAPLUS_PT_MAPlusGui"
     bl_label = "Mesh Align Plus Advanced Tools"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -599,7 +599,7 @@ class MAPlusGui(bpy.types.Panel):
         maplus_data_mgmt_row = layout.row()
         maplus_items_list = maplus_data_mgmt_row.column()
         maplus_items_list.template_list(
-            "MAPlusList",
+            "MAPLUS_UL_MAPlusList",
             "",
             maplus_data_ptr,
             "prim_list",
@@ -1020,7 +1020,7 @@ class MAPlusGui(bpy.types.Panel):
                 if active_item.calc_type == 'SINGLEITEM':
                     item_info_col.label(text="Target:")
                     item_info_col.template_list(
-                        "MAPlusList",
+                        "MAPLUS_UL_MAPlusList",
                         "single_calc_target_list",
                         maplus_data_ptr,
                         "prim_list",
@@ -1076,7 +1076,7 @@ class MAPlusGui(bpy.types.Panel):
                     item_info_col.label(text="Targets:")
                     calc_targets = item_info_col.row()
                     calc_targets.template_list(
-                        "MAPlusList",
+                        "MAPLUS_UL_MAPlusList",
                         "multi_calc_target_one_list",
                         maplus_data_ptr,
                         "prim_list",
@@ -1085,7 +1085,7 @@ class MAPlusGui(bpy.types.Panel):
                         type='DEFAULT'
                     )
                     calc_targets.template_list(
-                        "MAPlusList",
+                        "MAPLUS_UL_MAPlusList",
                         "multi_calc_target_two_list",
                         maplus_data_ptr,
                         "prim_list",
@@ -1402,7 +1402,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNPOINTS":
                         item_info_col.label(text="Source Point")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "apt_pt_one_list",
                             maplus_data_ptr,
                             "prim_list",
@@ -1413,7 +1413,7 @@ class MAPlusGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label(text="Destination Point")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "apt_pt_two_list",
                             maplus_data_ptr,
                             "prim_list",
@@ -1424,7 +1424,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "DIRECTIONALSLIDE":
                         item_info_col.label(text="Source Line")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "vs_targetLineList",
                             maplus_data_ptr,
                             "prim_list",
@@ -1435,7 +1435,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "SCALEMATCHEDGE":
                         item_info_col.label(text="Source Edge")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "sme_src_edgelist",
                             maplus_data_ptr,
                             "prim_list",
@@ -1446,7 +1446,7 @@ class MAPlusGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label(text="Destination Edge")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "sme_dest_edgelist",
                             maplus_data_ptr,
                             "prim_list",
@@ -1457,7 +1457,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "AXISROTATE":
                         item_info_col.label(text="Axis")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "axr_src_axis",
                             maplus_data_ptr,
                             "prim_list",
@@ -1474,7 +1474,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNLINES":
                         item_info_col.label(text="Source Line")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "aln_src_linelist",
                             maplus_data_ptr,
                             "prim_list",
@@ -1485,7 +1485,7 @@ class MAPlusGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label(text="Destination Line")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "aln_dest_linelist",
                             maplus_data_ptr,
                             "prim_list",
@@ -1496,7 +1496,7 @@ class MAPlusGui(bpy.types.Panel):
                     if active_item.transf_type == "ALIGNPLANES":
                         item_info_col.label(text="Source Plane")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "apl_src_planelist",
                             maplus_data_ptr,
                             "prim_list",
@@ -1507,7 +1507,7 @@ class MAPlusGui(bpy.types.Panel):
                         item_info_col.separator()
                         item_info_col.label(text="Destination Plane")
                         item_info_col.template_list(
-                            "MAPlusList",
+                            "MAPLUS_UL_MAPlusList",
                             "apl_dest_planelist",
                             maplus_data_ptr,
                             "prim_list",
