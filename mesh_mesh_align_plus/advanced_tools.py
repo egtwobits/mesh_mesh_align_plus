@@ -528,7 +528,7 @@ class MAPLUS_OT_SpecialsAddFromActiveBase(bpy.types.Operator):
 
         target_data = dict(zip(self.vert_attribs_to_set, vert_data))
         try:
-            new_item = AddListItemBase.add_new_named(self)
+            new_item = MAPLUS_OT_AddListItemBase.add_new_named(self)
         except maplus_except.UniqueNameError:
             self.report({'ERROR'}, 'Cannot add item, unique name error.')
             return {'CANCELLED'}
