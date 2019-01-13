@@ -403,9 +403,9 @@ class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
 class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickSMEGUI"
     bl_label = "Quick Scale Match Edge"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = ".workspace"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 

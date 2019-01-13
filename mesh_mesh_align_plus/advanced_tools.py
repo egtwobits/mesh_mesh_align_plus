@@ -583,6 +583,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
     bl_label = "Mesh Align Plus Advanced Tools"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
+    # bl_category = "Mesh Align Plus"
     bl_context = "scene"
 
     def draw(self, context):

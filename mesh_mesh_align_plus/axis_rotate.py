@@ -319,9 +319,9 @@ class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
 class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAxisRotateGUI"
     bl_label = "Quick Axis Rotate"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = ".workspace"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 

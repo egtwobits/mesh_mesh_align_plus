@@ -275,9 +275,9 @@ class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
 class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDirectionalSlideGUI"
     bl_label = "Quick Directional Slide"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = ".workspace"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 

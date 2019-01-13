@@ -336,9 +336,9 @@ class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
 class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAlignLinesGUI"
     bl_label = "Quick Align Lines"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = ".workspace"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
