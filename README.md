@@ -14,7 +14,6 @@ Some real world examples of things you can do with the addon:
 
 Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">the Wiki</a> above, or watch the video tutorial on <a href="https://youtu.be/VBoic2MIC8U">YouTube (Link)</a>.
 
-![alt](https://i.imgur.com/2GPrDye.gif)
 ![alt](http://i.imgur.com/hro9YEB.gif)
 ![alt](http://i.imgur.com/VSkjGdN.gif)
 ![alt](http://i.imgur.com/qlUZwPC.gif)
