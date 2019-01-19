@@ -36,14 +36,15 @@ bl_info = {
     "version": (0, 5, 0),
     "blender": (2, 80, 0),
     "location": (
-        "3D View > Tools, and Properties -> Scene -> Mesh Align Plus"
+        "3D View > N Panel > Mesh Align Plus tab, and"
+        " Properties -> Scene -> Mesh Align Plus"
     ),
     "warning": (
         "Operations on objects with non-uniform scaling are "
         "not currently supported."
     ),
     "wiki_url": (
-        "https://github.com/egtwobits/mesh-align-plus/wiki"
+        "https://github.com/egtwobits/mesh_mesh_align_plus/wiki"
     ),
     "support": "COMMUNITY",
     "category": "Mesh"
