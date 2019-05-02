@@ -560,8 +560,8 @@ def register():
         type=maplus_storage.MAPlusData
     )
 
-    bpy.types.VIEW3D_MT_object_specials.append(maplus_guitools.specials_menu_items)
-    bpy.types.VIEW3D_MT_edit_mesh_specials.append(maplus_guitools.specials_menu_items)
+    bpy.types.VIEW3D_MT_object_context_menu.append(maplus_guitools.specials_menu_items)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(maplus_guitools.specials_menu_items)
 
 
 def unregister():
