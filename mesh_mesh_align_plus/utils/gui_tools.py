@@ -82,4 +82,3 @@ def specials_menu_items(self, context):
     self.layout.operator('maplus.specialsaddpointfromactiveglobal')
     self.layout.operator('maplus.specialsaddlinefromactiveglobal')
     self.layout.operator('maplus.specialsaddplanefromactiveglobal')
-    self.layout.separator()
