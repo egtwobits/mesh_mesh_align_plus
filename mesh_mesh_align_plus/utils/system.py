@@ -566,8 +566,8 @@ def register():
 
 def unregister():
     del bpy.types.Scene.maplus_data
-    bpy.types.VIEW3D_MT_object_specials.remove(maplus_guitools.specials_menu_items)
-    bpy.types.VIEW3D_MT_edit_mesh_specials.remove(maplus_guitools.specials_menu_items)
+    bpy.types.VIEW3D_MT_object_context_menu.remove(maplus_guitools.specials_menu_items)
+    bpy.types.VIEW3D_MT_edit_mesh_context_menu.remove(maplus_guitools.specials_menu_items)
 
     # Remove custom classes from blender's bpy.types
     for cls in reversed(classes):
