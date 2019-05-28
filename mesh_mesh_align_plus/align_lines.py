@@ -149,7 +149,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     item.rotation_euler.rotate(
                         rotational_diff
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
                     # put the original line starting point (before the object
                     # was rotated) into the local object space
@@ -169,7 +169,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     item.location = (
                         item.location + pivot_to_dest
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
             else:
                 for item in multi_edit_targets:

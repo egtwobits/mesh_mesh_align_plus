@@ -139,7 +139,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
 
                     # Perform the rotation (axis will be realigned later)
                     item.rotation_euler.rotate(axis_rot)
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
                     # put the original line starting point (before the object
                     # was rotated) into the local object space

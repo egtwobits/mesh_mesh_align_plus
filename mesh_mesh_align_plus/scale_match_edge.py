@@ -206,7 +206,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                         scale_factor * num
                         for num in item.scale
                     ]
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
                     # put the original line starting point (before the object
                     # was transformed) into the local object space
@@ -227,7 +227,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     item.location = (
                        item.location + new_to_old_pivot
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
             else:
                 for item in multi_edit_targets:

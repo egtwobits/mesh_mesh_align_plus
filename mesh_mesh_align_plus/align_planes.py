@@ -204,13 +204,13 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     item.rotation_euler.rotate(
                         rotational_diff
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
                     # Parallelize the leading edges
                     item.rotation_euler.rotate(
                         parallelize_edges
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
                     # get local coords using active object as basis, in
                     # other words, determine coords of the source pivot
@@ -239,7 +239,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                         item.location +
                         pivot_to_dest
                     )
-                    bpy.context.scene.update()
+                    bpy.context.view_layer.update()
 
             else:
                 for item in multi_edit_targets:
