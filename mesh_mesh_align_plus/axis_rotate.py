@@ -119,7 +119,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # (Note that there are no transformation modifiers for this
                     # transformation type, so that section is omitted here)
@@ -156,7 +156,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
 
                     item.location += pivot_to_dest
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -210,18 +210,23 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                         src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             axis_rotate_loc,
                             filter={'SELECT'}
                         )
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(item.data)
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(axis_rotate_loc)
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(item.data)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(axis_rotate_loc.inverted())
 
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
                     src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
@@ -254,12 +259,28 @@ class MAPLUS_OT_QuickAxisRotateObject(MAPLUS_OT_AxisRotateBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAxisRotateObjectOrigin(MAPLUS_OT_AxisRotateBase):
+    bl_idname = "maplus.quickaxisrotateobjectorigin"
+    bl_label = "Axis Rotate"
+    bl_description = "Rotates around an axis"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -274,7 +295,7 @@ class MAPLUS_OT_AxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -289,7 +310,7 @@ class MAPLUS_OT_QuickAxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -305,7 +326,7 @@ class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -501,12 +522,17 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        axr_apply_items = axr_gui.split(factor=.33)
-        axr_apply_items.operator(
+        axr_apply_items = axr_gui.row()
+        axr_to_object_and_origin = axr_apply_items.column()
+        axr_to_object_and_origin.operator(
             "maplus.quickaxisrotateobject",
             text="Object"
         )
-        axr_mesh_apply_items = axr_apply_items.row(align=True)
+        axr_to_object_and_origin.operator(
+            "maplus.quickaxisrotateobjectorigin",
+            text="Obj. Origin"
+        )
+        axr_mesh_apply_items = axr_apply_items.column(align=True)
         axr_mesh_apply_items.operator(
             "maplus.quickaxisrotatemeshselected",
             text="Mesh Piece"

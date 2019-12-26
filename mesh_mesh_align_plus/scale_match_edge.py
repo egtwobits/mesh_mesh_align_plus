@@ -193,7 +193,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
@@ -229,7 +229,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # (Note that there are no transformation modifiers for this
                     # transformation type, so that section is omitted here)
@@ -279,13 +279,20 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     # Get combined scale + move
                     match_transf = new_to_old_pivot @ scaling_match
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             match_transf,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(match_transf)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(match_transf.inverted())
 
                     # write and then release the mesh data
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -326,6 +333,24 @@ class MAPLUS_OT_QuickScaleMatchEdgeObject(MAPLUS_OT_ScaleMatchEdgeBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickScaleMatchEdgeObjectOrigin(MAPLUS_OT_ScaleMatchEdgeBase):
+    bl_idname = "maplus.quickscalematchedgeobjectorigin"
+    bl_label = "Scale Match Edge Object Origin"
+    bl_description = (
+        "Scale source object so that source edge matches length of dest edge"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgemeshselected"
     bl_label = "Scale Match Edge Mesh Selected"
@@ -334,7 +359,7 @@ class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -352,7 +377,7 @@ class MAPLUS_OT_QuickScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -371,7 +396,7 @@ class MAPLUS_OT_ScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -389,7 +414,7 @@ class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -734,12 +759,17 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        sme_apply_items = sme_gui.split(factor=.33)
-        sme_apply_items.operator(
+        sme_apply_items = sme_gui.row()
+        sme_to_object_and_origin = sme_apply_items.column()
+        sme_to_object_and_origin.operator(
             "maplus.quickscalematchedgeobject",
             text="Object"
         )
-        sme_mesh_apply_items = sme_apply_items.row(align=True)
+        sme_to_object_and_origin.operator(
+            "maplus.quickscalematchedgeobjectorigin",
+            text="Obj. Origin"
+        )
+        sme_mesh_apply_items = sme_apply_items.column(align=True)
         sme_mesh_apply_items.operator(
             "maplus.quickscalematchedgemeshselected",
             text="Mesh Piece"

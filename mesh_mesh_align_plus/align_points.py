@@ -121,7 +121,7 @@ class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     align_points = dest_pt - src_pt
 
@@ -135,7 +135,7 @@ class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
 
                     item.location += align_points
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -173,13 +173,20 @@ class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
                         align_points_vec
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             align_points_loc,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(align_points_loc)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(align_points_loc.inverted())
 
                     # write and then release the mesh data
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -220,6 +227,24 @@ class MAPLUS_OT_QuickAlignPointsObject(MAPLUS_OT_AlignPointsBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAlignPointsObjectOrigin(MAPLUS_OT_AlignPointsBase):
+    bl_idname = "maplus.quickalignpointsobjectorigin"
+    bl_label = "Quick Align Points Object Origin"
+    bl_description = (
+        "Match the location of one vertex on a mesh object to another"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointsmeshselected"
     bl_label = "Align Points Mesh Selected"
@@ -228,7 +253,7 @@ class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
         "(the selected verts) to another"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -246,7 +271,7 @@ class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
         "(the selected verts) to another"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -262,7 +287,7 @@ class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_label = "Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -277,7 +302,7 @@ class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_label = "Quick Align Points Whole Mesh"
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -550,12 +575,17 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        apt_apply_items = align_pts_gui.split(factor=.33)
-        apt_apply_items.operator(
+        apt_apply_items = align_pts_gui.row()
+        apt_to_object_and_origin = apt_apply_items.column()
+        apt_to_object_and_origin.operator(
             "maplus.quickalignpointsobject",
             text="Object"
         )
-        apt_mesh_apply_items = apt_apply_items.row(align=True)
+        apt_to_object_and_origin.operator(
+            "maplus.quickalignpointsobjectorigin",
+            text="Obj. Origin"
+        )
+        apt_mesh_apply_items = apt_apply_items.column(align=True)
         apt_mesh_apply_items.operator(
             "maplus.quickalignpointsmeshselected",
             text="Mesh Piece"
