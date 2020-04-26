@@ -32,9 +32,25 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
             active_item = addon_data.quick_scale_match_edge_transf
         else:
             active_item = prims[addon_data.active_list_item]
+        if (addon_data.quick_align_planes_auto_grab_src
+                and maplus_geom.get_active_object().type != 'MESH'):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab source verts '
+                 ' from a non-mesh object.')
+            )
+            return {'CANCELLED'}
 
-        if (maplus_geom.get_active_object() and
-                type(maplus_geom.get_active_object().data) == bpy.types.Mesh):
+        # Gather selected Blender object(s) to apply the transform to
+        multi_edit_targets = [
+            item for item in bpy.context.scene.objects if (
+                maplus_geom.get_select_state(item)
+            )
+        ]
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (self.target in {'MESHSELECTED', 'WHOLEMESH'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.sme_edge_one].kind != 'LINE' or
@@ -46,13 +62,15 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
-            if previous_mode != 'EDIT':
-                bpy.ops.object.editmode_toggle()
-            else:
-                # else we could already be in edit mode with some stale
-                # updates, exiting and reentering forces an update
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.object.editmode_toggle()
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
 
             # Get global coordinate data for each geometry item, with
             # applicable modifiers applied. Grab either (A) directly from
@@ -188,11 +206,6 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                 return {'CANCELLED'}
             scale_factor = dest_edge.length/src_edge.length
 
-            multi_edit_targets = [
-                model for model in bpy.context.scene.objects if (
-                    maplus_geom.get_select_state(model) and model.type == 'MESH'
-                )
-            ]
             if self.target == 'OBJECT':
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
@@ -296,9 +309,13 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
             bpy.ops.object.mode_set(mode=previous_mode)
 
         else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
             self.report(
                 {'ERROR'},
-                'Cannot transform: non-mesh or no active object.'
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
             )
             return {'CANCELLED'}
 
