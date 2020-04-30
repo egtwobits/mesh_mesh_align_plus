@@ -109,7 +109,7 @@ class MAPLUS_OT_DirectionalSlideBase(bpy.types.Operator):
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Make the vector specifying the direction and
                     # magnitude to slide in
@@ -125,7 +125,7 @@ class MAPLUS_OT_DirectionalSlideBase(bpy.types.Operator):
 
                     item.location += direction
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -165,13 +165,20 @@ class MAPLUS_OT_DirectionalSlideBase(bpy.types.Operator):
                     direction_loc *= active_item.ds_multiplier
                     dir_slide = mathutils.Matrix.Translation(direction_loc)
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             dir_slide,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(dir_slide)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(dir_slide.inverted())
 
                     # write and then release the mesh data
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -208,6 +215,22 @@ class MAPLUS_OT_QuickDirectionalSlideObject(MAPLUS_OT_DirectionalSlideBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickDirectionalSlideObjectOrigin(MAPLUS_OT_DirectionalSlideBase):
+    bl_idname = "maplus.quickdirectionalslideobjectorigin"
+    bl_label = "Directional Slide Object Origin"
+    bl_description = "Translates a target object (moves in a direction)"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_DirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslidemeshselected"
     bl_label = "Directional Slide Mesh Piece"
@@ -215,7 +238,7 @@ class MAPLUS_OT_DirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
         "Translates a target mesh piece (moves selected verts in a direction)"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -230,7 +253,7 @@ class MAPLUS_OT_DirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -245,7 +268,7 @@ class MAPLUS_OT_QuickDirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -261,7 +284,7 @@ class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_label = "Directional Slide Mesh"
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -468,12 +491,17 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        ds_apply_items = ds_gui.split(factor=.33)
-        ds_apply_items.operator(
+        ds_apply_items = ds_gui.row()
+        ds_to_object_and_origin = ds_apply_items.column()
+        ds_to_object_and_origin.operator(
             "maplus.quickdirectionalslideobject",
             text="Object"
         )
-        ds_mesh_apply_items = ds_apply_items.row(align=True)
+        ds_to_object_and_origin.operator(
+            "maplus.quickdirectionalslideobjectorigin",
+            text="Obj. Origin"
+        )
+        ds_mesh_apply_items = ds_apply_items.column(align=True)
         ds_mesh_apply_items.operator(
             "maplus.quickdirectionalslidemeshselected",
             text="Mesh Piece"

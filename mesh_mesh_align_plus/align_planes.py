@@ -157,43 +157,48 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                 dest_pln_ln_BA
             )
 
-            # TODO: Disabled until Blender 2.8 custom transform
-            #       orientations status is known
-            # # Create custom transform orientation, for sliding the user's
-            # # target along the destination face after it has been aligned.
-            # # We do this by making a basis matrix out of the dest plane
-            # # leading edge vector, the dest normal vector, and the cross
-            # # of those two (each vector is normalized first)
-            # vdest = dest_pln_ln_BA.copy()
-            # vdest.normalize()
-            # vnorm = dest_normal.copy()
-            # vnorm.normalize()
-            # # vnorm.negate()
-            # vcross = vdest.cross(vnorm)
-            # vcross.normalize()
-            # vcross.negate()
-            # custom_orientation = mathutils.Matrix(
-            #     [
-            #         [vcross[0], vnorm[0], vdest[0]],
-            #         [vcross[1], vnorm[1], vdest[1]],
-            #         [vcross[2], vnorm[2], vdest[2]]
-            #     ]
-            # )
-            # bpy.ops.transform.create_orientation(
-            #     name='MAPlus',
-            #     use=active_item.apl_use_custom_orientation,
-            #     overwrite=True
-            # )
-            # bpy.context.scene.orientations['MAPlus'].matrix = (
-            #     custom_orientation
-            # )
+            # Create custom transform orientation, for sliding the user's
+            # target along the destination face after it has been aligned.
+            # We do this by making a basis matrix out of the dest plane
+            # leading edge vector, the dest normal vector, and the cross
+            # of those two (each vector is normalized first)
+            vdest = dest_pln_ln_BA.copy()
+            vdest.normalize()
+            vnorm = dest_normal.copy()
+            vnorm.normalize()
+            # vnorm.negate()
+            vcross = vdest.cross(vnorm)
+            vcross.normalize()
+            vcross.negate()
+            orthonormal_basis_matrix = mathutils.Matrix(
+                [
+                    [vcross[0], vnorm[0], vdest[0]],
+                    [vcross[1], vnorm[1], vdest[1]],
+                    [vcross[2], vnorm[2], vdest[2]]
+                ]
+            )
+            bpy.ops.transform.create_orientation(
+                name='MAPlus',
+                use=active_item.apl_use_custom_orientation,
+                overwrite=True
+            )
+            orient_slot = [
+                slot for slot in
+                bpy.context.scene.transform_orientation_slots
+                if slot.custom_orientation
+                   and slot.custom_orientation.name == 'MAPlus'
+            ]
+            if orient_slot:
+                orient_slot[0].custom_orientation.matrix = orthonormal_basis_matrix
+            else:
+                print('Error: Could not find MAPlus transform orientation...')
 
             multi_edit_targets = [
                 model for model in bpy.context.scene.objects if (
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
@@ -241,7 +246,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -316,13 +321,20 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                         src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             mesh_coplanar,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(mesh_coplanar)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(mesh_coplanar.inverted())
 
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(item.data)
@@ -357,12 +369,28 @@ class MAPLUS_OT_QuickAlignPlanesObject(MAPLUS_OT_AlignPlanesBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAlignPlanesObjectOrigin(MAPLUS_OT_AlignPlanesBase):
+    bl_idname = "maplus.jjjquickalignplanesobjectorigin"
+    bl_label = "Align Planes"
+    bl_description = "Makes planes coplanar (flat against each other)"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplanesmeshselected"
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -377,7 +405,7 @@ class MAPLUS_OT_AlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -392,7 +420,7 @@ class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -408,7 +436,7 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_label = "Align Planes"
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -757,12 +785,17 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        apl_apply_items = apl_gui.split(factor=.33)
-        apl_apply_items.operator(
+        apl_apply_items = apl_gui.row()
+        apl_to_object_and_origin = apl_apply_items.column()
+        apl_to_object_and_origin.operator(
             "maplus.quickalignplanesobject",
             text="Object"
         )
-        apl_mesh_apply_items = apl_apply_items.row(align=True)
+        apl_to_object_and_origin.operator(
+            "maplus.jjjquickalignplanesobjectorigin",
+            text="Obj. Origin"
+        )
+        apl_mesh_apply_items = apl_apply_items.column(align=True)
         apl_mesh_apply_items.operator(
             "maplus.quickalignplanesmeshselected",
             text="Mesh Piece"

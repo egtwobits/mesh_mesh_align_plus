@@ -123,7 +123,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     maplus_geom.get_select_state(model) and model.type == 'MESH'
                 )
             ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
@@ -171,7 +171,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -229,13 +229,20 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                         src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             loc_make_collinear,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(loc_make_collinear)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(loc_make_collinear.inverted())
 
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(item.data)
@@ -271,12 +278,28 @@ class MAPLUS_OT_QuickAlignLinesObject(MAPLUS_OT_AlignLinesBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAlignLinesObjectOrigin(MAPLUS_OT_AlignLinesBase):
+    bl_idname = "maplus.quickalignlinesobjectorigin"
+    bl_label = "Align Lines"
+    bl_description = "Makes lines collinear (in line with each other)"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -291,7 +314,7 @@ class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -306,7 +329,7 @@ class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -322,7 +345,7 @@ class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -654,12 +677,17 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        aln_apply_items = aln_gui.split(factor=.33)
-        aln_apply_items.operator(
+        aln_apply_items = aln_gui.row()
+        aln_to_object_and_origin = aln_apply_items.column()
+        aln_to_object_and_origin.operator(
             "maplus.quickalignlinesobject",
             text="Object"
         )
-        aln_mesh_apply_items = aln_apply_items.row(align=True)
+        aln_to_object_and_origin.operator(
+            "maplus.quickalignlinesobjectorigin",
+            text="Obj. Origin"
+        )
+        aln_mesh_apply_items = aln_apply_items.column(align=True)
         aln_mesh_apply_items.operator(
             "maplus.quickalignlinesmeshselected",
             text="Mesh Piece"
