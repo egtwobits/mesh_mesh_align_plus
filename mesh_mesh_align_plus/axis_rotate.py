@@ -51,7 +51,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
         ]
         # Proceed only if selected Blender objects are compatible with the transform target
         # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-        if not (self.target in {'MESHSELECTED', 'WHOLEMESH'}
+        if not (self.target in {'MESHSELECTED', 'WHOLEMESH', 'OBJECT_ORIGIN'}
                 and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):

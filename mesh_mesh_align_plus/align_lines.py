@@ -135,7 +135,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
-            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
