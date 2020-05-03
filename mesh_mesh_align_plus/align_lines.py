@@ -49,7 +49,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
         ]
         # Proceed only if selected Blender objects are compatible with the transform target
         # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-        if not (self.target in {'MESHSELECTED', 'WHOLEMESH'}
+        if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
                 and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
@@ -135,7 +135,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
             inverse_active = active_obj_transf.copy()
             inverse_active.invert()
 
-            if self.target in {'OBJECT', 'OBJECT_ORIGIN', 'OBJECT_ORIGIN'}:
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()

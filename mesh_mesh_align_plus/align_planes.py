@@ -48,7 +48,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
         ]
         # Proceed only if selected Blender objects are compatible with the transform target
         # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-        if not (self.target in {'MESHSELECTED', 'WHOLEMESH', 'OBJECT_ORIGIN'}
+        if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
                 and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
