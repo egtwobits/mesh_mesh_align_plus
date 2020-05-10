@@ -167,6 +167,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                     pivot_to_dest = axis_start - new_pivot_loc_global
 
                     item.location += pivot_to_dest
+                    bpy.context.view_layer.update()
 
             if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
