@@ -17,13 +17,6 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not (maplus_geom.get_active_object() and maplus_geom.get_select_state(maplus_geom.get_active_object())):
-            self.report(
-                {'ERROR'},
-                ('Cannot complete: need at least'
-                 ' one active (and selected) object.')
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
@@ -31,21 +24,39 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_align_planes_transf
-        if (addon_data.quick_align_planes_auto_grab_src
-                and maplus_geom.get_active_object().type != 'MESH'):
-            self.report(
-                {'ERROR'},
-                ('Cannot complete: cannot auto-grab source verts '
-                 ' from a non-mesh object.')
-            )
-            return {'CANCELLED'}
-
         # Gather selected Blender object(s) to apply the transform to
         multi_edit_targets = [
             item for item in bpy.context.scene.objects if (
-                    maplus_geom.get_select_state(item)
+                maplus_geom.get_select_state(item)
             )
         ]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (self.target != 'OBJECT' and not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Check auto grab prerequisites
+        if addon_data.quick_align_planes_auto_grab_src:
+            if not (maplus_geom.get_active_object()
+                    and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' without an active (and selected) object.')
+                )
+                return {'CANCELLED'}
+            if maplus_geom.get_active_object().type != 'MESH':
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' from a non-mesh object.')
+                )
+                return {'CANCELLED'}
+
         # Proceed only if selected Blender objects are compatible with the transform target
         # (Do not allow mesh-level transforms when there are non-mesh objects selected)
         if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
@@ -141,11 +152,6 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                 dest_pt_a = dest_global_data[0]
                 dest_pt_b = dest_global_data[1]
             dest_pt_c = dest_global_data[2]
-
-            # create common vars needed for object and for mesh level transfs
-            active_obj_transf = maplus_geom.get_active_object().matrix_world.copy()
-            inverse_active = active_obj_transf.copy()
-            inverse_active.invert()
 
             # We need global data for the object operation and for creation
             # of a custom transform orientation if the user enables it.
