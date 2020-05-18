@@ -87,7 +87,8 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
             # (for quick ops), or from the MAPlus primitives
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
-                if addon_data.quick_align_planes_auto_grab_src:
+                if (addon_data.quick_align_planes_auto_grab_src
+                        and not addon_data.quick_align_planes_set_origin_mode):
                     vert_attribs_to_set = (
                         'plane_pt_a',
                         'plane_pt_b',
@@ -216,10 +217,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
             else:
                 print('Error: Could not find MAPlus transform orientation...')
 
-            X = True
-            if X:
-                # TODO: case here *IS* set origin operation/mode, fix condition above
-
+            if hasattr(self, 'quick_op_target') and addon_data.quick_align_planes_set_origin_mode:
                 # TODO: Refactor this feature or possibly make it a new full operator
 
                 # This entire block is for *Set Origin* mode. It is equivalent to an
@@ -244,6 +242,32 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                         item.matrix_world
                         @ mathutils.Vector((0.0, 1, 0.0))
                     )
+
+                    # We have a separate/alternate storage plane for this data
+                    dest_data_set_origin_mode = maplus_geom.get_modified_global_coords(
+                        geometry=addon_data.quick_align_planes_set_origin_mode_dest,
+                        kind='PLANE'
+                    )
+                    dest_pt_a = dest_data_set_origin_mode[0]
+                    dest_pt_b = dest_data_set_origin_mode[1]
+                    dest_pt_c = dest_data_set_origin_mode[2]
+
+                    # TODO: Fix
+                    # if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
+                    #     # *Set Origin* mode uses a set of 3 pts at the object's origin
+                    #     src_pt_a = (
+                    #             item.matrix_world
+                    #             @ mathutils.Vector((1, 0.0, 0.0))
+                    #     )
+                    #     src_pt_b = (
+                    #             item.matrix_world
+                    #             @ mathutils.Vector((0.0, 0.0, 0.0))
+                    #     )
+                    #     src_pt_c = (
+                    #             item.matrix_world
+                    #             @ mathutils.Vector((0.0, 1, 0.0))
+                    #     )
+                    #     dest_pt_a, dest_pt_b = dest_pt_b, dest_pt_a
 
                     # We need global data for the object operation and for creation
                     # of a custom transform orientation if the user enables it.
@@ -566,6 +590,13 @@ class MAPLUS_OT_QuickAlignPlanesObject(MAPLUS_OT_AlignPlanesBase):
     target = 'OBJECT'
     quick_op_target = True
 
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if addon_data.quick_align_planes_set_origin_mode:
+            return False
+        return True
+
 
 class MAPLUS_OT_QuickAlignPlanesObjectOrigin(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.jjjquickalignplanesobjectorigin"
@@ -626,6 +657,8 @@ class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
         addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
+        if addon_data.quick_align_planes_set_origin_mode:
+            return False
         return True
 
 
@@ -641,6 +674,8 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
+            return False
+        if addon_data.quick_align_planes_set_origin_mode:
             return False
         return True
 
@@ -976,6 +1011,26 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             'apl_alternate_pivot',
             text='Pivot is A'
         )
+
+        apl_gui.prop(
+            addon_data,
+            'quick_align_planes_set_origin_mode',
+            text='Pick origin mode'
+        )
+        if addon_data.quick_align_planes_set_origin_mode:
+            apl_set_origin_mode_settings = apl_gui.box()
+            apl_set_origin_sett_row1 = apl_set_origin_mode_settings.row()
+            apl_set_origin_sett_row1.operator(
+                "maplus.quickalignplanesgraboriginmodedest",
+                icon='OUTLINER_OB_MESH',
+                text="Grab Origin"
+            )
+            apl_set_origin_sett_row1.prop(
+                addon_data,
+                'quick_align_planes_set_origin_mode_alt_pivot',
+                text='Pivot is A'
+            )
+
         apl_apply_header = apl_gui.row()
         apl_apply_header.label(text="Apply to:")
         apl_apply_header.prop(
@@ -1002,3 +1057,10 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             "maplus.quickalignplaneswholemesh",
             text="Whole Mesh"
         )
+
+        # Disable relevant items depending on whether set origin mode
+        # is enabled or not
+        if addon_data.quick_align_planes_set_origin_mode:
+            apl_grab_col.enabled = False
+            apl_mods.enabled = False
+

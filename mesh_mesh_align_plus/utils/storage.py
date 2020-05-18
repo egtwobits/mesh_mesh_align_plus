@@ -524,12 +524,28 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_align_planes_auto_grab_src: bpy.props.BoolProperty(
         description=(
-            "Automatically grab source plane from selected geometry"
+            "Automatically grab source plane from selected geometry."
+        ),
+        default=True
+    )
+    quick_align_planes_set_origin_mode: bpy.props.BoolProperty(
+        description=(
+            "Alternative mode: Directly sets the object origin"
+            " using the supplied destination verts."
+        ),
+        default=False
+    )
+    quick_align_planes_set_origin_mode_alt_pivot: bpy.props.BoolProperty(
+        description=(
+            "Make the first point (A) the pivot (The first point selected on"
+            " each plane will be aligned to each other). Turn this off for"
+            " 'classic'/'old-style' behavior, where point B is the pivot."
         ),
         default=True
     )
     quick_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_set_origin_mode_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )

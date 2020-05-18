@@ -292,6 +292,8 @@ class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+            elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+                active_item = addon_data.quick_align_planes_set_origin_mode_dest
 
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
@@ -3690,6 +3692,18 @@ class MAPLUS_OT_QuickAlignPlanesGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
     multiply_by_world_matrix = True
     quick_op_target = "APLDEST"
+
+
+class MAPLUS_OT_QuickAlignPlanesGrabSetOriginModeDest(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignplanesgraboriginmodedest"
+    bl_label = "Grab Plane Global Coordinates from Selected Verts"
+    bl_description = (
+        "Grabs plane global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+    multiply_by_world_matrix = True
+    quick_op_target = "APL_SET_ORIGIN_MODE_DEST"
 
 
 class MAPLUS_OT_QuickAlignPlanesGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):

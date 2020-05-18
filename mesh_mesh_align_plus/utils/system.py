@@ -389,6 +389,7 @@ classes = (
     maplus_geom.MAPLUS_OT_GrabPlaneCalcResult,
     maplus_geom.MAPLUS_OT_QuickAlignPlanesGrabSrc,
     maplus_geom.MAPLUS_OT_QuickAlignPlanesGrabDest,
+    maplus_geom.MAPLUS_OT_QuickAlignPlanesGrabSetOriginModeDest,
     maplus_geom.MAPLUS_OT_QuickAlignPlanesGrabSrcLoc,
     maplus_geom.MAPLUS_OT_QuickAlignPlanesGrabDestLoc,
     maplus_geom.MAPLUS_OT_SwapPointsBase,
