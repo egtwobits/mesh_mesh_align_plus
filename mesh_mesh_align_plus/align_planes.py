@@ -252,22 +252,16 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     dest_pt_b = dest_data_set_origin_mode[1]
                     dest_pt_c = dest_data_set_origin_mode[2]
 
-                    # TODO: Fix
-                    # if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
-                    #     # *Set Origin* mode uses a set of 3 pts at the object's origin
-                    #     src_pt_a = (
-                    #             item.matrix_world
-                    #             @ mathutils.Vector((1, 0.0, 0.0))
-                    #     )
-                    #     src_pt_b = (
-                    #             item.matrix_world
-                    #             @ mathutils.Vector((0.0, 0.0, 0.0))
-                    #     )
-                    #     src_pt_c = (
-                    #             item.matrix_world
-                    #             @ mathutils.Vector((0.0, 1, 0.0))
-                    #     )
-                    #     dest_pt_a, dest_pt_b = dest_pt_b, dest_pt_a
+                    # Set the pivot point here (co-located points on src/dest after alignment)
+                    src_pivot = src_pt_b
+                    dest_pivot = dest_pt_b
+                    if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
+                        print('AAA')
+                        # *Set Origin* mode uses a set of 3 pts at the object's origin
+                        src_pt_a, src_pt_b = src_pt_b, src_pt_a
+
+                        src_pivot = src_pt_a
+                        dest_pivot = dest_pt_a
 
                     # We need global data for the object operation and for creation
                     # of a custom transform orientation if the user enables it.
@@ -315,7 +309,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     # relative to the active object's origin by reversing
                     # the active object's transf from the pivot's coords
                     local_src_pivot_coords = (
-                        unaltered_inverse @ src_pt_b
+                        unaltered_inverse @ src_pivot
                     )
 
                     # find the new global location of the pivot (we access
@@ -330,7 +324,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     # first vector is the global/absolute distance
                     # between the two pivots
                     pivot_to_dest = (
-                        dest_pt_b -
+                        dest_pivot -
                         new_global_src_pivot_coords
                     )
                     item.location = (
@@ -370,11 +364,20 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     dest_bc_loc = dest_c_loc - dest_b_loc
                     dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
 
+                    # Set the pivot point here (co-located points on src/dest after alignment)
+                    src_pivot_loc = src_b_loc
+                    dest_pivot_loc = dest_b_loc
+                    if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
+                        # *Set Origin* mode uses a set of 3 pts at the object's origin
+                        print('BBB')
+                        src_pivot_loc = src_a_loc
+                        dest_pivot_loc = dest_a_loc
+
                     # Get translation, move source pivot to local origin
-                    src_b_inv = src_b_loc.copy()
-                    src_b_inv.negate()
+                    src_pivot_inv = src_pivot_loc.copy()
+                    src_pivot_inv.negate()
                     src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                        src_b_inv
+                        src_pivot_inv
                     )
 
                     # Get rotational diff between planes
@@ -398,7 +401,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
 
                     # Get translation, move pivot to destination
                     pivot_to_dest_loc = mathutils.Matrix.Translation(
-                        dest_b_loc
+                        dest_pivot_loc
                     )
 
                     mesh_coplanar = (
