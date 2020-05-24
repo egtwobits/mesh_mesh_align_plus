@@ -637,7 +637,7 @@ class MAPLUS_OT_GrabFromCursorBase(bpy.types.Operator):
         setattr(
             active_item,
             self.vert_attrib_to_set,
-            bpy.context.scene.cursor_location
+            bpy.context.scene.cursor.location
         )
         return {'FINISHED'}
 
@@ -693,7 +693,7 @@ class MAPLUS_OT_SendCoordToCursorBase(bpy.types.Operator):
         else:
             active_item = prims[addon_data.active_list_item]
 
-        bpy.context.scene.cursor_location = getattr(
+        bpy.context.scene.cursor.location = getattr(
             active_item,
             self.source_coord_attrib
         )
