@@ -206,6 +206,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                 use=active_item.apl_use_custom_orientation,
                 overwrite=True
             )
+            bpy.context.view_layer.update()
             orient_slot = [
                 slot for slot in
                 bpy.context.scene.transform_orientation_slots
