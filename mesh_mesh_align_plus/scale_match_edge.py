@@ -18,13 +18,6 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (maplus_geom.get_active_object() and maplus_geom.get_select_state(maplus_geom.get_active_object())):
-            self.report(
-                {'ERROR'},
-                ('Cannot complete: need at least one active'
-                 ' (and selected) object.')
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
@@ -32,9 +25,43 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
             active_item = addon_data.quick_scale_match_edge_transf
         else:
             active_item = prims[addon_data.active_list_item]
+        # Gather selected Blender object(s) to apply the transform to
+        multi_edit_targets = [
+            item for item in bpy.context.scene.objects if (
+                maplus_geom.get_select_state(item)
+            )
+        ]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (self.target != 'OBJECT' and not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Check auto grab prerequisites
+        if addon_data.quick_scale_match_edge_auto_grab_src or addon_data.quick_sme_numeric_auto:
+            if not (maplus_geom.get_active_object()
+                    and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' without an active (and selected) object.')
+                )
+                return {'CANCELLED'}
+            if maplus_geom.get_active_object().type != 'MESH':
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' from a non-mesh object.')
+                )
+                return {'CANCELLED'}
 
-        if (maplus_geom.get_active_object() and
-                type(maplus_geom.get_active_object().data) == bpy.types.Mesh):
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.sme_edge_one].kind != 'LINE' or
@@ -46,13 +73,15 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
-            if previous_mode != 'EDIT':
-                bpy.ops.object.editmode_toggle()
-            else:
-                # else we could already be in edit mode with some stale
-                # updates, exiting and reentering forces an update
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.object.editmode_toggle()
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
 
             # Get global coordinate data for each geometry item, with
             # applicable modifiers applied. Grab either (A) directly from
@@ -170,12 +199,6 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
             dest_start = dest_global_data[0]
             dest_end = dest_global_data[1]
 
-            # create common vars needed for object and for mesh
-            # level transforms
-            active_obj_transf = maplus_geom.get_active_object().matrix_world.copy()
-            inverse_active = active_obj_transf.copy()
-            inverse_active.invert()
-
             # Construct vectors for each edge from the global point coord data
             src_edge = src_end - src_start
             dest_edge = dest_end - dest_start
@@ -188,12 +211,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                 return {'CANCELLED'}
             scale_factor = dest_edge.length/src_edge.length
 
-            multi_edit_targets = [
-                model for model in bpy.context.scene.objects if (
-                    maplus_geom.get_select_state(model) and model.type == 'MESH'
-                )
-            ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
@@ -229,7 +247,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # (Note that there are no transformation modifiers for this
                     # transformation type, so that section is omitted here)
@@ -279,13 +297,20 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     # Get combined scale + move
                     match_transf = new_to_old_pivot @ scaling_match
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             match_transf,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(match_transf)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(match_transf.inverted())
 
                     # write and then release the mesh data
                     bpy.ops.object.mode_set(mode='OBJECT')
@@ -296,9 +321,13 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
             bpy.ops.object.mode_set(mode=previous_mode)
 
         else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
             self.report(
                 {'ERROR'},
-                'Cannot transform: non-mesh or no active object.'
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
             )
             return {'CANCELLED'}
 
@@ -326,6 +355,24 @@ class MAPLUS_OT_QuickScaleMatchEdgeObject(MAPLUS_OT_ScaleMatchEdgeBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickScaleMatchEdgeObjectOrigin(MAPLUS_OT_ScaleMatchEdgeBase):
+    bl_idname = "maplus.quickscalematchedgeobjectorigin"
+    bl_label = "Scale Match Edge Object Origin"
+    bl_description = (
+        "Scale source object so that source edge matches length of dest edge"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgemeshselected"
     bl_label = "Scale Match Edge Mesh Selected"
@@ -334,7 +381,7 @@ class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -352,7 +399,7 @@ class MAPLUS_OT_QuickScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -371,7 +418,7 @@ class MAPLUS_OT_ScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -389,7 +436,7 @@ class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
         "of dest edge"
     )
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -734,12 +781,17 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        sme_apply_items = sme_gui.split(factor=.33)
-        sme_apply_items.operator(
+        sme_apply_items = sme_gui.row()
+        sme_to_object_and_origin = sme_apply_items.column()
+        sme_to_object_and_origin.operator(
             "maplus.quickscalematchedgeobject",
             text="Object"
         )
-        sme_mesh_apply_items = sme_apply_items.row(align=True)
+        sme_to_object_and_origin.operator(
+            "maplus.quickscalematchedgeobjectorigin",
+            text="Obj. Origin"
+        )
+        sme_mesh_apply_items = sme_apply_items.column(align=True)
         sme_mesh_apply_items.operator(
             "maplus.quickscalematchedgemeshselected",
             text="Mesh Piece"

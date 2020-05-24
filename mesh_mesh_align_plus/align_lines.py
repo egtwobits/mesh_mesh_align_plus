@@ -18,13 +18,6 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (maplus_geom.get_active_object() and maplus_geom.get_select_state(maplus_geom.get_active_object())):
-            self.report(
-                {'ERROR'},
-                ('Cannot complete: need at least'
-                 ' one active (and selected) object.')
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
@@ -32,9 +25,43 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
             active_item = addon_data.quick_align_lines_transf
         else:
             active_item = prims[addon_data.active_list_item]
+        # Gather selected Blender object(s) to apply the transform to
+        multi_edit_targets = [
+            item for item in bpy.context.scene.objects if (
+                maplus_geom.get_select_state(item)
+            )
+        ]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (self.target != 'OBJECT' and not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Check auto grab prerequisites
+        if addon_data.quick_align_lines_auto_grab_src:
+            if not (maplus_geom.get_active_object()
+                    and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' without an active (and selected) object.')
+                )
+                return {'CANCELLED'}
+            if maplus_geom.get_active_object().type != 'MESH':
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' from a non-mesh object.')
+                )
+                return {'CANCELLED'}
 
-        if (maplus_geom.get_active_object() and
-                type(maplus_geom.get_active_object().data) == bpy.types.Mesh):
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
                 if (prims[active_item.aln_src_line].kind != 'LINE' or
@@ -46,14 +73,15 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
-            # a bmesh can only be initialized in edit mode...
-            if previous_mode != 'EDIT':
-                bpy.ops.object.editmode_toggle()
-            else:
-                # else we could already be in edit mode with some stale
-                # updates, exiting and reentering forces an update
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.object.editmode_toggle()
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
 
             # Get global coordinate data for each geometry item, with
             # modifiers applied. Grab either directly from the scene data
@@ -112,18 +140,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
             dest_start = dest_global_data[0]
             dest_end = dest_global_data[1]
 
-            # create common vars needed for object and for mesh
-            # level transforms
-            active_obj_transf = maplus_geom.get_active_object().matrix_world.copy()
-            inverse_active = active_obj_transf.copy()
-            inverse_active.invert()
-
-            multi_edit_targets = [
-                model for model in bpy.context.scene.objects if (
-                    maplus_geom.get_select_state(model) and model.type == 'MESH'
-                )
-            ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
@@ -171,7 +188,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -229,13 +246,20 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                         src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             loc_make_collinear,
                             filter={'SELECT'}
                         )
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(loc_make_collinear)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(loc_make_collinear.inverted())
 
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(item.data)
@@ -245,9 +269,13 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
             bpy.ops.object.mode_set(mode=previous_mode)
 
         else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
             self.report(
                 {'ERROR'},
-                'Cannot transform: non-mesh or no active object.'
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
             )
             return {'CANCELLED'}
 
@@ -271,12 +299,28 @@ class MAPLUS_OT_QuickAlignLinesObject(MAPLUS_OT_AlignLinesBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAlignLinesObjectOrigin(MAPLUS_OT_AlignLinesBase):
+    bl_idname = "maplus.quickalignlinesobjectorigin"
+    bl_label = "Align Lines"
+    bl_description = "Makes lines collinear (in line with each other)"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesmeshselected"
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -291,7 +335,7 @@ class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -306,7 +350,7 @@ class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -322,7 +366,7 @@ class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_label = "Align Lines"
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -654,12 +698,17 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        aln_apply_items = aln_gui.split(factor=.33)
-        aln_apply_items.operator(
+        aln_apply_items = aln_gui.row()
+        aln_to_object_and_origin = aln_apply_items.column()
+        aln_to_object_and_origin.operator(
             "maplus.quickalignlinesobject",
             text="Object"
         )
-        aln_mesh_apply_items = aln_apply_items.row(align=True)
+        aln_to_object_and_origin.operator(
+            "maplus.quickalignlinesobjectorigin",
+            text="Obj. Origin"
+        )
+        aln_mesh_apply_items = aln_apply_items.column(align=True)
         aln_mesh_apply_items.operator(
             "maplus.quickalignlinesmeshselected",
             text="Mesh Piece"

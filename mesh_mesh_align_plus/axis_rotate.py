@@ -20,13 +20,6 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
     target = None
 
     def execute(self, context):
-        if not (maplus_geom.get_active_object() and maplus_geom.get_select_state(maplus_geom.get_active_object())):
-            self.report(
-                {'ERROR'},
-                ('Cannot complete: need at least'
-                 ' one active (and selected) object.')
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
@@ -34,9 +27,43 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
             active_item = prims[addon_data.active_list_item]
         else:
             active_item = addon_data.quick_axis_rotate_transf
+        # Gather selected Blender object(s) to apply the transform to
+        multi_edit_targets = [
+            item for item in bpy.context.scene.objects if (
+                maplus_geom.get_select_state(item)
+            )
+        ]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (self.target != 'OBJECT' and not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Check auto grab prerequisites
+        if addon_data.quick_axis_rotate_auto_grab_src:
+            if not (maplus_geom.get_active_object()
+                    and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' without an active (and selected) object.')
+                )
+                return {'CANCELLED'}
+            if maplus_geom.get_active_object().type != 'MESH':
+                self.report(
+                    {'ERROR'},
+                    ('Cannot complete: cannot auto-grab source verts '
+                     ' from a non-mesh object.')
+                )
+                return {'CANCELLED'}
 
-        if (maplus_geom.get_active_object() and
-                type(maplus_geom.get_active_object().data) == bpy.types.Mesh):
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
 
             if not hasattr(self, "quick_op_target"):
                 if prims[active_item.axr_axis].kind != 'LINE':
@@ -47,14 +74,15 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
-            # a bmesh can only be initialized in edit mode...
-            if previous_mode != 'EDIT':
-                bpy.ops.object.editmode_toggle()
-            else:
-                # else we could already be in edit mode with some stale
-                # updates, exiting and reentering forces an update
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.object.editmode_toggle()
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
 
             # Get global coordinate data for each geometry item, with
             # modifiers applied. Grab either directly from the scene data
@@ -108,18 +136,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
             else:
                 converted_rot_amount = math.radians(active_item.axr_amount)
 
-            # create common vars needed for object and for mesh
-            # level transforms
-            active_obj_transf = maplus_geom.get_active_object().matrix_world.copy()
-            inverse_active = active_obj_transf.copy()
-            inverse_active.invert()
-
-            multi_edit_targets = [
-                model for model in bpy.context.scene.objects if (
-                    maplus_geom.get_select_state(model) and model.type == 'MESH'
-                )
-            ]
-            if self.target == 'OBJECT':
+            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     # (Note that there are no transformation modifiers for this
                     # transformation type, so that section is omitted here)
@@ -155,8 +172,9 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                     pivot_to_dest = axis_start - new_pivot_loc_global
 
                     item.location += pivot_to_dest
+                    bpy.context.view_layer.update()
 
-            else:
+            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
@@ -210,27 +228,36 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                         src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESHSELECTED':
+                    if self.target == 'MESH_SELECTED':
                         src_mesh.transform(
                             axis_rotate_loc,
                             filter={'SELECT'}
                         )
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(item.data)
-                    elif self.target == 'WHOLEMESH':
+                    elif self.target == 'WHOLE_MESH':
                         src_mesh.transform(axis_rotate_loc)
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(item.data)
+                    elif self.target == 'OBJECT_ORIGIN':
+                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                        # to performing an object transf. + an inverse
+                        # whole mesh level transf. To the user,
+                        # the object appears to stay in the same place,
+                        # while only the object's origin moves.
+                        src_mesh.transform(axis_rotate_loc.inverted())
 
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
                     src_mesh.free()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
 
         else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
             self.report(
                 {'ERROR'},
-                'Cannot transform: non-mesh or no active object.'
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
             )
             return {'CANCELLED'}
 
@@ -254,12 +281,28 @@ class MAPLUS_OT_QuickAxisRotateObject(MAPLUS_OT_AxisRotateBase):
     quick_op_target = True
 
 
+class MAPLUS_OT_QuickAxisRotateObjectOrigin(MAPLUS_OT_AxisRotateBase):
+    bl_idname = "maplus.quickaxisrotateobjectorigin"
+    bl_label = "Axis Rotate"
+    bl_description = "Rotates around an axis"
+    bl_options = {'REGISTER', 'UNDO'}
+    target = 'OBJECT_ORIGIN'
+    quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if not addon_data.use_experimental:
+            return False
+        return True
+
+
 class MAPLUS_OT_AxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatemeshselected"
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
 
     @classmethod
     def poll(cls, context):
@@ -274,7 +317,7 @@ class MAPLUS_OT_AxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
 
     @classmethod
     def poll(cls, context):
@@ -289,7 +332,7 @@ class MAPLUS_OT_QuickAxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'MESHSELECTED'
+    target = 'MESH_SELECTED'
     quick_op_target = True
 
     @classmethod
@@ -305,7 +348,7 @@ class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_label = "Axis Rotate"
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
-    target = 'WHOLEMESH'
+    target = 'WHOLE_MESH'
     quick_op_target = True
 
     @classmethod
@@ -501,12 +544,17 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             'use_experimental',
             text='Enable Experimental Mesh Ops.'
         )
-        axr_apply_items = axr_gui.split(factor=.33)
-        axr_apply_items.operator(
+        axr_apply_items = axr_gui.row()
+        axr_to_object_and_origin = axr_apply_items.column()
+        axr_to_object_and_origin.operator(
             "maplus.quickaxisrotateobject",
             text="Object"
         )
-        axr_mesh_apply_items = axr_apply_items.row(align=True)
+        axr_to_object_and_origin.operator(
+            "maplus.quickaxisrotateobjectorigin",
+            text="Obj. Origin"
+        )
+        axr_mesh_apply_items = axr_apply_items.column(align=True)
         axr_mesh_apply_items.operator(
             "maplus.quickaxisrotatemeshselected",
             text="Mesh Piece"

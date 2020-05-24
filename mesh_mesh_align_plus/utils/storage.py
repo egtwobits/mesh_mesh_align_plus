@@ -522,14 +522,37 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=False
     )
+    quick_apl_show_set_origin_mode_dest_geom: bpy.props.BoolProperty(
+        description=(
+            "Expand/collapse the destination geometry editor"
+            " in the quick tools panel."
+        ),
+        default=False
+    )
     quick_align_planes_auto_grab_src: bpy.props.BoolProperty(
         description=(
-            "Automatically grab source plane from selected geometry"
+            "Automatically grab source plane from selected geometry."
+        ),
+        default=True
+    )
+    quick_align_planes_set_origin_mode: bpy.props.BoolProperty(
+        description=(
+            "Alternative mode: Directly sets the object origin"
+            " using the supplied destination verts."
+        ),
+        default=False
+    )
+    quick_align_planes_set_origin_mode_alt_pivot: bpy.props.BoolProperty(
+        description=(
+            "Make the first point (A) the pivot (The first point selected on"
+            " each plane will be aligned to each other). Turn this off for"
+            " 'classic'/'old-style' behavior, where point B is the pivot."
         ),
         default=True
     )
     quick_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_align_planes_set_origin_mode_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
@@ -642,6 +665,10 @@ class MAPLUS_OT_CopyToOtherBase(bpy.types.Operator):
             },
             'APLDEST': {
                 "item": addon_data.quick_align_planes_dest,
+                "geom_mode": 'PLANE',
+            },
+            'APL_SET_ORIGIN_MODE_DEST': {
+                "item": addon_data.quick_align_planes_set_origin_mode_dest,
                 "geom_mode": 'PLANE',
             },
             'AXRSRC': {
@@ -910,6 +937,15 @@ class MAPLUS_OT_PasteIntoAplDest(MAPLUS_OT_CopyToOtherBase):
     source_dest_pair = ('INTERNALCLIPBOARD', 'APLDEST')
 
 
+class MAPLUS_OT_PasteIntoAplSetOriginModeDest(MAPLUS_OT_CopyToOtherBase):
+    bl_idname = "maplus.pasteintoaplsetoriginmodedest"
+    bl_label = "Paste into this item"
+    bl_description = "Pastes from the internal clipboard into this item"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('INTERNALCLIPBOARD', 'APL_SET_ORIGIN_MODE_DEST')
+
+
 class MAPLUS_OT_CopyFromAplDest(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.copyfromapldest"
     bl_label = "Copy from this item"
@@ -917,6 +953,15 @@ class MAPLUS_OT_CopyFromAplDest(MAPLUS_OT_CopyToOtherBase):
     bl_options = {'REGISTER', 'UNDO'}
     # A tuple of strings indicating the source and destination
     source_dest_pair = ('APLDEST', 'INTERNALCLIPBOARD')
+
+
+class MAPLUS_OT_CopyFromAplSetOriginModeDest(MAPLUS_OT_CopyToOtherBase):
+    bl_idname = "maplus.copyfromaplsetoriginmodedest"
+    bl_label = "Copy from this item"
+    bl_description = "Copies this item into the internal clipboard"
+    bl_options = {'REGISTER', 'UNDO'}
+    # A tuple of strings indicating the source and destination
+    source_dest_pair = ('APL_SET_ORIGIN_MODE_DEST', 'INTERNALCLIPBOARD')
 
 
 class MAPLUS_OT_PasteIntoAxrSrc(MAPLUS_OT_CopyToOtherBase):
