@@ -1018,16 +1018,151 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
         apl_gui.prop(
             addon_data,
             'quick_align_planes_set_origin_mode',
-            text='Pick origin mode'
+            text='Align origin mode'
         )
         if addon_data.quick_align_planes_set_origin_mode:
+            apl_set_origin_mode_dest_geom_top = apl_gui.row(align=True)
+            if not addon_data.quick_apl_show_set_origin_mode_dest_geom:
+                apl_set_origin_mode_dest_geom_top.operator(
+                    "maplus.showhidequickaplsetoriginmodedestgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
+                )
+                preserve_button_roundedge = apl_set_origin_mode_dest_geom_top.row()
+                preserve_button_roundedge.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdest",
+                    icon='OUTLINER_OB_MESH',
+                    text="Grab Origin"
+                )
+            else:
+                apl_set_origin_mode_dest_geom_top.operator(
+                    "maplus.showhidequickaplsetoriginmodedestgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+                )
+                apl_set_origin_mode_dest_geom_top.label(
+                    text="Origin Coordinates",
+                    icon="OUTLINER_OB_MESH"
+                )
+
+                apl_set_origin_mode_dest_geom_editor = apl_gui.box()
+                plane_grab_all = apl_set_origin_mode_dest_geom_editor.row(align=True)
+                plane_grab_all.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdestloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                plane_grab_all.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdest",
+                    icon='WORLD',
+                    text="Grab All Global"
+                )
+                special_grabs = apl_set_origin_mode_dest_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromaplsetoriginmodedest",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoaplsetoriginmodedest",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplsetoriginmodegrabavgdestplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplanec",
+                        "C"
+                    )
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. B:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplgrabavgsetoriginmodedestplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplanebplanec",
+                        "C"
+                    )
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplsetoriginmodegrabavgdestplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplanebplanec",
+                        "B"
+                    )
+                )
+
             apl_set_origin_mode_settings = apl_gui.box()
             apl_set_origin_sett_row1 = apl_set_origin_mode_settings.row()
-            apl_set_origin_sett_row1.operator(
-                "maplus.quickalignplanesgraboriginmodedest",
-                icon='OUTLINER_OB_MESH',
-                text="Grab Origin"
-            )
             apl_set_origin_sett_row1.prop(
                 addon_data,
                 'quick_align_planes_set_origin_mode_alt_pivot',

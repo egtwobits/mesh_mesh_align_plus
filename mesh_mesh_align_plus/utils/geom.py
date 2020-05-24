@@ -481,6 +481,8 @@ class MAPLUS_OT_GrabAverageLocationBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+            elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+                active_item = addon_data.quick_align_planes_set_origin_mode_dest
 
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
@@ -619,6 +621,8 @@ class MAPLUS_OT_GrabFromCursorBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+            elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+                active_item = addon_data.quick_align_planes_set_origin_mode_dest
 
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
@@ -676,6 +680,8 @@ class MAPLUS_OT_SendCoordToCursorBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+            elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+                active_item = addon_data.quick_align_planes_set_origin_mode_dest
 
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
@@ -2759,6 +2765,15 @@ class MAPLUS_OT_QuickAplDestGrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneAFromCursor(MAPLUS_OT_GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplaneafromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_a'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_GrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.grabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -3129,6 +3144,18 @@ class MAPLUS_OT_QuickAplGrabAvgDestPlaneA(MAPLUS_OT_GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
+class MAPLUS_OT_QuickAplSetOriginModeGrabAvgDestPlaneA(MAPLUS_OT_GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplsetoriginmodegrabavgdestplanea"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APL_SET_ORIGIN_MODE_DEST"
+
+
 class MAPLUS_OT_QuickAplSrcGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplaneafromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -3165,6 +3192,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometry
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneAFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplaneafromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_QuickAplDestGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplaneafromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
@@ -3175,6 +3214,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometr
     vert_attribs_to_set = ('plane_pt_a',)
     multiply_by_world_matrix = True
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneAFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplaneafromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_SendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
@@ -3284,6 +3335,15 @@ class MAPLUS_OT_QuickAplDestSendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestSendPlaneAToCursor(MAPLUS_OT_SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestsendplaneatocursor"
+    bl_label = "Sends Plane Point A to Cursor"
+    bl_description = "Sends Plane Point A Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_a'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_GrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabplanebfromcursor"
     bl_label = "Grab From Cursor"
@@ -3308,6 +3368,15 @@ class MAPLUS_OT_QuickAplDestGrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'plane_pt_b'
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneBFromCursor(MAPLUS_OT_GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanebfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_b'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_GrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
@@ -3356,6 +3425,18 @@ class MAPLUS_OT_QuickAplGrabAvgDestPlaneB(MAPLUS_OT_GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
+class MAPLUS_OT_QuickAplGrabAvgSetOriginModeDestPlaneB(MAPLUS_OT_GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplgrabavgsetoriginmodedestplaneb"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APL_SET_ORIGIN_MODE_DEST"
+
+
 class MAPLUS_OT_QuickAplSrcGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanebfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -3392,6 +3473,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometry
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneBFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanebfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_QuickAplDestGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanebfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
@@ -3402,6 +3495,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometr
     vert_attribs_to_set = ('plane_pt_b',)
     multiply_by_world_matrix = True
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneBFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanebfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_b',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_SendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
@@ -3430,6 +3535,15 @@ class MAPLUS_OT_QuickAplDestSendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestSendPlaneBToCursor(MAPLUS_OT_SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestsendplanebtocursor"
+    bl_label = "Sends Plane Point B to Cursor"
+    bl_description = "Sends Plane Point B Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_b'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_GrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.grabplanecfromcursor"
     bl_label = "Grab From Cursor"
@@ -3454,6 +3568,15 @@ class MAPLUS_OT_QuickAplDestGrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'plane_pt_c'
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneCFromCursor(MAPLUS_OT_GrabFromCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanecfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'plane_pt_c'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_GrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
@@ -3502,6 +3625,18 @@ class MAPLUS_OT_QuickAplGrabAvgDestPlaneC(MAPLUS_OT_GrabAverageLocationBase):
     quick_op_target = "APLDEST"
 
 
+class MAPLUS_OT_QuickAplSetOriginModeGrabAvgDestPlaneC(MAPLUS_OT_GrabAverageLocationBase):
+    bl_idname = "maplus.quickaplsetoriginmodegrabavgdestplanec"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = "APL_SET_ORIGIN_MODE_DEST"
+
+
 class MAPLUS_OT_QuickAplSrcGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickaplsrcgrabplanecfromactivelocal"
     bl_label = "Grab Local Coordinates From Active Point"
@@ -3538,6 +3673,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometry
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneCFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanecfromactivelocal"
+    bl_label = "Grab Local Coordinates From Active Point"
+    bl_description = (
+        "Grabs local coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_QuickAplDestGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickapldestgrabplanecfromactiveglobal"
     bl_label = "Grab Global Coordinates From Active Point"
@@ -3548,6 +3695,18 @@ class MAPLUS_OT_QuickAplDestGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometr
     vert_attribs_to_set = ('plane_pt_c',)
     multiply_by_world_matrix = True
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestGrabPlaneCFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestgrabplanecfromactiveglobal"
+    bl_label = "Grab Global Coordinates From Active Point"
+    bl_description = (
+        "Grabs global coordinates from selected vertex in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_c',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_SendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
@@ -3574,6 +3733,15 @@ class MAPLUS_OT_QuickAplDestSendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'plane_pt_c'
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestSendPlaneCToCursor(MAPLUS_OT_SendCoordToCursorBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestsendplanectocursor"
+    bl_label = "Sends Plane Point C to Cursor"
+    bl_description = "Sends Plane Point C Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'plane_pt_c'
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_GrabAllVertsPlaneLocal(MAPLUS_OT_GrabFromGeometryBase):
@@ -3694,8 +3862,8 @@ class MAPLUS_OT_QuickAlignPlanesGrabDest(MAPLUS_OT_GrabFromGeometryBase):
     quick_op_target = "APLDEST"
 
 
-class MAPLUS_OT_QuickAlignPlanesGrabSetOriginModeDest(MAPLUS_OT_GrabFromGeometryBase):
-    bl_idname = "maplus.quickalignplanesgraboriginmodedest"
+class MAPLUS_OT_QuickAlignPlanesSetOriginModeGrabDest(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignplanessetoriginmodegrabdest"
     bl_label = "Grab Plane Global Coordinates from Selected Verts"
     bl_description = (
         "Grabs plane global coordinates from selected vertices in edit mode"
@@ -3728,6 +3896,18 @@ class MAPLUS_OT_QuickAlignPlanesGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
     vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
     multiply_by_world_matrix = False
     quick_op_target = "APLDEST"
+
+
+class MAPLUS_OT_QuickAlignPlanesSetOriginModeGrabDestLoc(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickalignplanessetoriginmodegrabdestloc"
+    bl_label = "Grab Plane Local Coordinates from Selected Verts"
+    bl_description = (
+        "Grabs plane local coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('plane_pt_a', 'plane_pt_b', 'plane_pt_c')
+    multiply_by_world_matrix = False
+    quick_op_target = "APL_SET_ORIGIN_MODE_DEST"
 
 
 # Coordinate swapper, present on all geometry primitives
@@ -3763,6 +3943,8 @@ class MAPLUS_OT_SwapPointsBase(bpy.types.Operator):
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
                 active_item = addon_data.quick_align_planes_dest
+            elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+                active_item = addon_data.quick_align_planes_set_origin_mode_dest
 
             elif self.quick_op_target == "SLOT1":
                 active_item = addon_data.internal_storage_slot_1
@@ -4030,6 +4212,15 @@ class MAPLUS_OT_QuickAplDestSwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestSwapPlaneAPlaneB(MAPLUS_OT_SwapPointsBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestswapplaneaplaneb"
+    bl_label = "Swap Plane Point A with Plane Point B"
+    bl_description = "Swap plane points A and B"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_b')
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_QuickAplDestSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickapldestswapplaneaplanec"
     bl_label = "Swap Plane Point A with Plane Point C"
@@ -4039,6 +4230,15 @@ class MAPLUS_OT_QuickAplDestSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
     quick_op_target = 'APLDEST'
 
 
+class MAPLUS_OT_QuickAplSetOriginModeDestSwapPlaneAPlaneC(MAPLUS_OT_SwapPointsBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestswapplaneaplanec"
+    bl_label = "Swap Plane Point A with Plane Point C"
+    bl_description = "Swap plane points A and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_a', 'plane_pt_c')
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
+
+
 class MAPLUS_OT_QuickAplDestSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_idname = "maplus.quickapldestswapplanebplanec"
     bl_label = "Swap Plane Point B with Plane Point C"
@@ -4046,6 +4246,15 @@ class MAPLUS_OT_QuickAplDestSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('plane_pt_b', 'plane_pt_c')
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_QuickAplSetOriginModeDestSwapPlaneBPlaneC(MAPLUS_OT_SwapPointsBase):
+    bl_idname = "maplus.quickaplsetoriginmodedestswapplanebplanec"
+    bl_label = "Swap Plane Point B with Plane Point C"
+    bl_description = "Swap plane points B and C"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('plane_pt_b', 'plane_pt_c')
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 # Every x/y/z coordinate component has these functions on each of the
@@ -4606,6 +4815,10 @@ class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
             addon_data.quick_apl_show_dest_geom = (
                 not addon_data.quick_apl_show_dest_geom
             )
+        elif self.quick_op_target == "APL_SET_ORIGIN_MODE_DEST":
+            addon_data.quick_apl_show_set_origin_mode_dest_geom = (
+                not addon_data.quick_apl_show_set_origin_mode_dest_geom
+            )
         elif self.quick_op_target == "SLOT1":
             addon_data.quick_calc_show_slot1_geom = (
                 not addon_data.quick_calc_show_slot1_geom
@@ -4692,6 +4905,14 @@ class MAPLUS_OT_ShowHideQuickAplDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
     bl_description = "Show/hide quick align planes destination geometry"
     bl_options = {'REGISTER', 'UNDO'}
     quick_op_target = 'APLDEST'
+
+
+class MAPLUS_OT_ShowHideQuickAplSetOriginModeDestGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidequickaplsetoriginmodedestgeom"
+    bl_label = "Show/hide quick align planes destination geometry"
+    bl_description = "Show/hide quick align planes destination geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'APL_SET_ORIGIN_MODE_DEST'
 
 
 class MAPLUS_OT_ShowHideQuickAxrSrcGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
