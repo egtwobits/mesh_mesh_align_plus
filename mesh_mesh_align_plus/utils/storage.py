@@ -668,7 +668,7 @@ class MAPLUS_OT_CopyToOtherBase(bpy.types.Operator):
                 "geom_mode": 'PLANE',
             },
             'APL_SET_ORIGIN_MODE_DEST': {
-                "item": addon_data.quick_apl_show_set_origin_mode_dest_geom,
+                "item": addon_data.quick_align_planes_set_origin_mode_dest,
                 "geom_mode": 'PLANE',
             },
             'AXRSRC': {
