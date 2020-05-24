@@ -16,7 +16,6 @@ Mesh Align Plus is designed to provide precision modeling capabilities, especial
 
 ![alt](https://i.imgur.com/r6eBnKN.gif)
 ![alt](https://i.postimg.cc/4yhvz7x2/face-align-4.gif)
-![alt](https://i.imgur.com/uuHKHZQ.gif)
 ![alt](http://i.imgur.com/VSkjGdN.gif)
 ![alt](http://i.imgur.com/qlUZwPC.gif)
 ![alt](http://i.imgur.com/JOa7Fcd.gif)
