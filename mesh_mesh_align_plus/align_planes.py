@@ -87,7 +87,8 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
             # (for quick ops), or from the MAPlus primitives
             # CollectionProperty on the scene data (for advanced tools)
             if hasattr(self, "quick_op_target"):
-                if addon_data.quick_align_planes_auto_grab_src:
+                if (addon_data.quick_align_planes_auto_grab_src
+                        and not addon_data.quick_align_planes_set_origin_mode):
                     vert_attribs_to_set = (
                         'plane_pt_a',
                         'plane_pt_b',
@@ -216,8 +217,76 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
             else:
                 print('Error: Could not find MAPlus transform orientation...')
 
-            if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
+            if hasattr(self, 'quick_op_target') and addon_data.quick_align_planes_set_origin_mode:
+                # TODO: Refactor this feature or possibly make it a new full operator
+
+                # This entire block is for *Set Origin* mode. It is equivalent to an
+                # OBJECT_ORIGIN transformation (both OBJECT and WHOLE_MESH transforms,
+                # with the mesh level transf. inverted), with a special set of SOURCE
+                # verts (a triangle at the current object's origin per object)
+
                 for item in multi_edit_targets:
+
+                    ######## COMMON DATA ########
+
+                    # *Set Origin* mode uses a set of 3 pts at the object's origin
+                    src_pt_a = (
+                        item.matrix_world
+                        @ mathutils.Vector((1, 0.0, 0.0))
+                    )
+                    src_pt_b = (
+                        item.matrix_world
+                        @ mathutils.Vector((0.0, 0.0, 0.0))
+                    )
+                    src_pt_c = (
+                        item.matrix_world
+                        @ mathutils.Vector((0.0, 1, 0.0))
+                    )
+
+                    # We have a separate/alternate storage plane for this data
+                    dest_data_set_origin_mode = maplus_geom.get_modified_global_coords(
+                        geometry=addon_data.quick_align_planes_set_origin_mode_dest,
+                        kind='PLANE'
+                    )
+                    dest_pt_a = dest_data_set_origin_mode[0]
+                    dest_pt_b = dest_data_set_origin_mode[1]
+                    dest_pt_c = dest_data_set_origin_mode[2]
+
+                    # Set the pivot point here (co-located points on src/dest after alignment)
+                    src_pivot = src_pt_b
+                    dest_pivot = dest_pt_b
+                    if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
+                        print('AAA')
+                        # *Set Origin* mode uses a set of 3 pts at the object's origin
+                        src_pt_a, src_pt_b = src_pt_b, src_pt_a
+
+                        src_pivot = src_pt_a
+                        dest_pivot = dest_pt_a
+
+                    # We need global data for the object operation and for creation
+                    # of a custom transform orientation if the user enables it.
+                    # construct normal vector for first (source) plane
+                    src_pln_ln_BA = src_pt_a - src_pt_b
+                    src_pln_ln_BC = src_pt_c - src_pt_b
+                    src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+
+                    # construct normal vector for second (destination) plane
+                    dest_pln_ln_BA = dest_pt_a - dest_pt_b
+                    dest_pln_ln_BC = dest_pt_c - dest_pt_b
+                    dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
+
+                    # find rotational difference between source and dest planes
+                    rotational_diff = src_normal.rotation_difference(dest_normal)
+
+                    # Set up edge alignment (BA plane1 to BA plane2)
+                    new_lead_edge_orientation = src_pln_ln_BA.copy()
+                    new_lead_edge_orientation.rotate(rotational_diff)
+                    parallelize_edges = new_lead_edge_orientation.rotation_difference(
+                        dest_pln_ln_BA
+                    )
+
+                    ######## OBJECT ########
+
                     # Get the object world matrix before we modify it here
                     item_matrix_unaltered = item.matrix_world.copy()
                     unaltered_inverse = item_matrix_unaltered.copy()
@@ -240,7 +309,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     # relative to the active object's origin by reversing
                     # the active object's transf from the pivot's coords
                     local_src_pivot_coords = (
-                        unaltered_inverse @ src_pt_b
+                        unaltered_inverse @ src_pivot
                     )
 
                     # find the new global location of the pivot (we access
@@ -255,7 +324,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     # first vector is the global/absolute distance
                     # between the two pivots
                     pivot_to_dest = (
-                        dest_pt_b -
+                        dest_pivot -
                         new_global_src_pivot_coords
                     )
                     item.location = (
@@ -264,8 +333,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     )
                     bpy.context.view_layer.update()
 
-            if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
-                for item in multi_edit_targets:
+                    ######## MESH ########
                     self.report(
                         {'WARNING'},
                         ('Warning/Experimental: mesh transforms'
@@ -292,20 +360,24 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     src_bc_loc = src_c_loc - src_b_loc
                     src_normal_loc = src_ba_loc.cross(src_bc_loc)
 
-                    # Take modifiers on the transformation item into account,
-                    # in local (mesh) space
-                    if active_item.apl_flip_normal:
-                        src_normal_loc.negate()
-
                     dest_ba_loc = dest_a_loc - dest_b_loc
                     dest_bc_loc = dest_c_loc - dest_b_loc
                     dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
 
+                    # Set the pivot point here (co-located points on src/dest after alignment)
+                    src_pivot_loc = src_b_loc
+                    dest_pivot_loc = dest_b_loc
+                    if addon_data.quick_align_planes_set_origin_mode_alt_pivot:
+                        # *Set Origin* mode uses a set of 3 pts at the object's origin
+                        print('BBB')
+                        src_pivot_loc = src_a_loc
+                        dest_pivot_loc = dest_a_loc
+
                     # Get translation, move source pivot to local origin
-                    src_b_inv = src_b_loc.copy()
-                    src_b_inv.negate()
+                    src_pivot_inv = src_pivot_loc.copy()
+                    src_pivot_inv.negate()
                     src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                        src_b_inv
+                        src_pivot_inv
                     )
 
                     # Get rotational diff between planes
@@ -317,7 +389,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
 
                     # Get edge alignment rotation (align leading plane edges)
                     new_lead_edge_ornt_loc = (
-                        parallelize_planes_loc @ src_ba_loc
+                            parallelize_planes_loc @ src_ba_loc
                     )
                     edge_align_loc = (
                         new_lead_edge_ornt_loc.rotation_difference(
@@ -329,33 +401,164 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
 
                     # Get translation, move pivot to destination
                     pivot_to_dest_loc = mathutils.Matrix.Translation(
-                        dest_b_loc
+                        dest_pivot_loc
                     )
 
                     mesh_coplanar = (
-                        pivot_to_dest_loc @
-                        parallelize_edges_loc @
-                        parallelize_planes_loc @
-                        src_pivot_to_loc_origin
+                            pivot_to_dest_loc @
+                            parallelize_edges_loc @
+                            parallelize_planes_loc @
+                            src_pivot_to_loc_origin
                     )
 
-                    if self.target == 'MESH_SELECTED':
-                        src_mesh.transform(
-                            mesh_coplanar,
-                            filter={'SELECT'}
-                        )
-                    elif self.target == 'WHOLE_MESH':
-                        src_mesh.transform(mesh_coplanar)
-                    elif self.target == 'OBJECT_ORIGIN':
-                        # Note: a target of 'OBJECT_ORIGIN' is equivalent
-                        # to performing an object transf. + an inverse
-                        # whole mesh level transf. To the user,
-                        # the object appears to stay in the same place,
-                        # while only the object's origin moves.
-                        src_mesh.transform(mesh_coplanar.inverted())
+                    # Special *Set Origin* mode needs only a
+                    # mesh level OBJECT_ORIGIN transform only
+                    src_mesh.transform(mesh_coplanar.inverted())
 
                     bpy.ops.object.mode_set(mode='OBJECT')
                     src_mesh.to_mesh(item.data)
+
+            else:
+                if self.target in {'OBJECT', 'OBJECT_ORIGIN'}:
+                    for item in multi_edit_targets:
+                        # Get the object world matrix before we modify it here
+                        item_matrix_unaltered = item.matrix_world.copy()
+                        unaltered_inverse = item_matrix_unaltered.copy()
+                        unaltered_inverse.invert()
+
+                        # Try to rotate the object by the rotational_diff
+                        item.rotation_euler.rotate(
+                            rotational_diff
+                        )
+                        bpy.context.view_layer.update()
+
+                        # Parallelize the leading edges
+                        item.rotation_euler.rotate(
+                            parallelize_edges
+                        )
+                        bpy.context.view_layer.update()
+
+                        # get local coords using active object as basis, in
+                        # other words, determine coords of the source pivot
+                        # relative to the active object's origin by reversing
+                        # the active object's transf from the pivot's coords
+                        local_src_pivot_coords = (
+                            unaltered_inverse @ src_pt_b
+                        )
+
+                        # find the new global location of the pivot (we access
+                        # the item's matrix_world directly here since we
+                        # changed/updated it earlier)
+                        new_global_src_pivot_coords = (
+                            item.matrix_world @ local_src_pivot_coords
+                        )
+                        # figure out how to translate the object (the translation
+                        # vector) so that the source pivot sits on the destination
+                        # pivot's location
+                        # first vector is the global/absolute distance
+                        # between the two pivots
+                        pivot_to_dest = (
+                            dest_pt_b -
+                            new_global_src_pivot_coords
+                        )
+                        item.location = (
+                            item.location +
+                            pivot_to_dest
+                        )
+                        bpy.context.view_layer.update()
+
+                if self.target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
+                    for item in multi_edit_targets:
+                        self.report(
+                            {'WARNING'},
+                            ('Warning/Experimental: mesh transforms'
+                             ' on objects with non-uniform scaling'
+                             ' are not currently supported.')
+                        )
+                        src_mesh = bmesh.new()
+                        src_mesh.from_mesh(item.data)
+
+                        item_matrix_unaltered_loc = item.matrix_world.copy()
+                        unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                        unaltered_inverse_loc.invert()
+
+                        # Stored geom data in local coords
+                        src_a_loc = unaltered_inverse_loc @ src_pt_a
+                        src_b_loc = unaltered_inverse_loc @ src_pt_b
+                        src_c_loc = unaltered_inverse_loc @ src_pt_c
+
+                        dest_a_loc = unaltered_inverse_loc @ dest_pt_a
+                        dest_b_loc = unaltered_inverse_loc @ dest_pt_b
+                        dest_c_loc = unaltered_inverse_loc @ dest_pt_c
+
+                        src_ba_loc = src_a_loc - src_b_loc
+                        src_bc_loc = src_c_loc - src_b_loc
+                        src_normal_loc = src_ba_loc.cross(src_bc_loc)
+
+                        # Take modifiers on the transformation item into account,
+                        # in local (mesh) space
+                        if active_item.apl_flip_normal:
+                            src_normal_loc.negate()
+
+                        dest_ba_loc = dest_a_loc - dest_b_loc
+                        dest_bc_loc = dest_c_loc - dest_b_loc
+                        dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
+
+                        # Get translation, move source pivot to local origin
+                        src_b_inv = src_b_loc.copy()
+                        src_b_inv.negate()
+                        src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                            src_b_inv
+                        )
+
+                        # Get rotational diff between planes
+                        loc_rot_diff = src_normal_loc.rotation_difference(
+                            dest_normal_loc
+                        )
+                        parallelize_planes_loc = loc_rot_diff.to_matrix()
+                        parallelize_planes_loc.resize_4x4()
+
+                        # Get edge alignment rotation (align leading plane edges)
+                        new_lead_edge_ornt_loc = (
+                            parallelize_planes_loc @ src_ba_loc
+                        )
+                        edge_align_loc = (
+                            new_lead_edge_ornt_loc.rotation_difference(
+                                dest_ba_loc
+                            )
+                        )
+                        parallelize_edges_loc = edge_align_loc.to_matrix()
+                        parallelize_edges_loc.resize_4x4()
+
+                        # Get translation, move pivot to destination
+                        pivot_to_dest_loc = mathutils.Matrix.Translation(
+                            dest_b_loc
+                        )
+
+                        mesh_coplanar = (
+                            pivot_to_dest_loc @
+                            parallelize_edges_loc @
+                            parallelize_planes_loc @
+                            src_pivot_to_loc_origin
+                        )
+
+                        if self.target == 'MESH_SELECTED':
+                            src_mesh.transform(
+                                mesh_coplanar,
+                                filter={'SELECT'}
+                            )
+                        elif self.target == 'WHOLE_MESH':
+                            src_mesh.transform(mesh_coplanar)
+                        elif self.target == 'OBJECT_ORIGIN':
+                            # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                            # to performing an object transf. + an inverse
+                            # whole mesh level transf. To the user,
+                            # the object appears to stay in the same place,
+                            # while only the object's origin moves.
+                            src_mesh.transform(mesh_coplanar.inverted())
+
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        src_mesh.to_mesh(item.data)
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
@@ -389,6 +592,13 @@ class MAPLUS_OT_QuickAlignPlanesObject(MAPLUS_OT_AlignPlanesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'OBJECT'
     quick_op_target = True
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+        if addon_data.quick_align_planes_set_origin_mode:
+            return False
+        return True
 
 
 class MAPLUS_OT_QuickAlignPlanesObjectOrigin(MAPLUS_OT_AlignPlanesBase):
@@ -450,6 +660,8 @@ class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
         addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
             return False
+        if addon_data.quick_align_planes_set_origin_mode:
+            return False
         return True
 
 
@@ -465,6 +677,8 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
         if not addon_data.use_experimental:
+            return False
+        if addon_data.quick_align_planes_set_origin_mode:
             return False
         return True
 
@@ -800,6 +1014,161 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             'apl_alternate_pivot',
             text='Pivot is A'
         )
+
+        apl_gui.prop(
+            addon_data,
+            'quick_align_planes_set_origin_mode',
+            text='Align origin mode'
+        )
+        if addon_data.quick_align_planes_set_origin_mode:
+            apl_set_origin_mode_dest_geom_top = apl_gui.row(align=True)
+            if not addon_data.quick_apl_show_set_origin_mode_dest_geom:
+                apl_set_origin_mode_dest_geom_top.operator(
+                    "maplus.showhidequickaplsetoriginmodedestgeom",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
+                )
+                preserve_button_roundedge = apl_set_origin_mode_dest_geom_top.row()
+                preserve_button_roundedge.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdest",
+                    icon='OUTLINER_OB_MESH',
+                    text="Grab Origin"
+                )
+            else:
+                apl_set_origin_mode_dest_geom_top.operator(
+                    "maplus.showhidequickaplsetoriginmodedestgeom",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+                )
+                apl_set_origin_mode_dest_geom_top.label(
+                    text="Origin Coordinates",
+                    icon="OUTLINER_OB_MESH"
+                )
+
+                apl_set_origin_mode_dest_geom_editor = apl_gui.box()
+                plane_grab_all = apl_set_origin_mode_dest_geom_editor.row(align=True)
+                plane_grab_all.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdestloc",
+                    icon='VERTEXSEL',
+                    text="Grab All Local"
+                )
+                plane_grab_all.operator(
+                    "maplus.quickalignplanessetoriginmodegrabdest",
+                    icon='WORLD',
+                    text="Grab All Global"
+                )
+                special_grabs = apl_set_origin_mode_dest_geom_editor.row(align=True)
+                special_grabs.operator(
+                    "maplus.copyfromaplsetoriginmodedest",
+                    icon='COPYDOWN',
+                    text="Copy (To Clipboard)"
+                )
+                special_grabs.operator(
+                    "maplus.pasteintoaplsetoriginmodedest",
+                    icon='PASTEDOWN',
+                    text="Paste (From Clipboard)"
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. A:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplsetoriginmodegrabavgdestplanea"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplaneafromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_a",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplaneatocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplaneb",
+                        "B"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplanec",
+                        "C"
+                    )
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. B:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplgrabavgsetoriginmodedestplaneb"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanebfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_b",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplanebtocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplaneb",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplanebplanec",
+                        "C"
+                    )
+                )
+
+                maplus_guitools.layout_coordvec(
+                    parent_layout=apl_set_origin_mode_dest_geom_editor,
+                    coordvec_label="Pt. C:",
+                    op_id_cursor_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromcursor"
+                    ),
+                    op_id_avg_grab=(
+                        "maplus.quickaplsetoriginmodegrabavgdestplanec"
+                    ),
+                    op_id_local_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromactivelocal"
+                    ),
+                    op_id_global_grab=(
+                        "maplus.quickaplsetoriginmodedestgrabplanecfromactiveglobal"
+                    ),
+                    coord_container=addon_data.quick_align_planes_set_origin_mode_dest,
+                    coord_attribute="plane_pt_c",
+                    op_id_cursor_send=(
+                        "maplus.quickaplsetoriginmodedestsendplanectocursor"
+                    ),
+                    op_id_text_tuple_swap_first=(
+                        "maplus.quickaplsetoriginmodedestswapplaneaplanec",
+                        "A"
+                    ),
+                    op_id_text_tuple_swap_second=(
+                        "maplus.quickaplsetoriginmodedestswapplanebplanec",
+                        "B"
+                    )
+                )
+
+            apl_set_origin_mode_settings = apl_gui.box()
+            apl_set_origin_sett_row1 = apl_set_origin_mode_settings.row()
+            apl_set_origin_sett_row1.prop(
+                addon_data,
+                'quick_align_planes_set_origin_mode_alt_pivot',
+                text='Pivot is A'
+            )
+
         apl_apply_header = apl_gui.row()
         apl_apply_header.label(text="Apply to:")
         apl_apply_header.prop(
@@ -826,3 +1195,10 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             "maplus.quickalignplaneswholemesh",
             text="Whole Mesh"
         )
+
+        # Disable relevant items depending on whether set origin mode
+        # is enabled or not
+        if addon_data.quick_align_planes_set_origin_mode:
+            apl_grab_col.enabled = False
+            apl_mods.enabled = False
+
