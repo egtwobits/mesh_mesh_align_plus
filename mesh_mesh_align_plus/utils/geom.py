@@ -4730,25 +4730,17 @@ class MAPLUS_OT_ApplyGeomModifiers(bpy.types.Operator):
         return {'FINISHED'}
 
 
-# # TODO: Remove, 2.7x/2.8x cross compatibility no longer supported
-# # Blender 2.8 API compatibility var
-# if str(bpy.app.version[1]).startswith('8'):
-#     BLENDER_28_PY_API = True
-# else:
-#     BLENDER_28_PY_API = False
-
-
-# Blender 2.8 API compatibility func
+# TODO: Refactor from old deprecated 2.7x compatibility design
 def get_active_object():
     return bpy.context.view_layer.objects.active
 
 
-# Blender 2.8 API compatibility func
+# TODO: Refactor from old deprecated 2.7x compatibility design
 def get_select_state(item):
     return item.select_get()
 
 
-# Blender 2.8 API compatibility func
+# TODO: Refactor from old deprecated 2.7x compatibility design
 def set_select_state(state, item):
     item.select_set(state)
 
