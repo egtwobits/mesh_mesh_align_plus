@@ -7,6 +7,7 @@ import mesh_mesh_align_plus.advanced_tools as maplus_adv_tools
 import mesh_mesh_align_plus.align_points as maplus_apt
 import mesh_mesh_align_plus.align_lines as maplus_aln
 import mesh_mesh_align_plus.align_objects as maplus_aobjects
+import mesh_mesh_align_plus.distribute_objects as maplus_dobjects
 import mesh_mesh_align_plus.align_planes as maplus_apl
 import mesh_mesh_align_plus.axis_rotate as maplus_axr
 import mesh_mesh_align_plus.calculate_compose as maplus_calc_compose
@@ -74,6 +75,7 @@ classes = (
     maplus_axr.MAPLUS_OT_QuickAxisRotateWholeMesh,
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
+    maplus_dobjects.MAPLUS_OT_QuickDistributeObjects,
 
     maplus_calc_compose.MAPLUS_OT_CalcLineLengthBase,
     maplus_calc_compose.MAPLUS_OT_CalcLineLength,
@@ -571,7 +573,9 @@ classes = (
     maplus_ds.MAPLUS_PT_QuickDirectionalSlideGUI,
     maplus_sme.MAPLUS_PT_QuickSMEGUI,
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
+    maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
+
 
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,
