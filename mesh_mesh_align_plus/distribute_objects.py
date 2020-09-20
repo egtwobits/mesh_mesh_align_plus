@@ -165,6 +165,7 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
         dist_between_obj_top = layout.row()
         dist_between_obj_top.label(
             text="Distribute Between First/Last Objects",
+            icon="NODE_INSERT_OFF",
         )
         dist_obj_between_gui = layout.box()
         dist_obj_between_gui.operator(
@@ -178,6 +179,7 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
         dist_obj_along_line_top = layout.row()
         dist_obj_along_line_top.label(
             text="Distribute Objects Along Line",
+            icon="MOD_ARRAY",
         )
         dist_obj_along_line_gui = layout.box()
 
@@ -196,7 +198,7 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             preserve_button_roundedge = dist_obj_along_line_geom_top.row()
             preserve_button_roundedge.operator(
                 "maplus.distobjalonglinegrabsrc",
-                icon='LIGHT_SUN',
+                icon='CURVE_PATH',
                 text="Grab Line"
             )
             preserve_button_roundedge.operator(
@@ -213,7 +215,7 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             )
             dist_obj_along_line_geom_top.label(
                 text="Source Coordinates",
-                icon="LIGHT_SUN"
+                icon="CURVE_PATH"
             )
 
             dist_obj_along_line_geom_editor = dist_obj_along_line_grab_col.box()
