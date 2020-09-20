@@ -75,7 +75,8 @@ classes = (
     maplus_axr.MAPLUS_OT_QuickAxisRotateWholeMesh,
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
-    maplus_dobjects.MAPLUS_OT_QuickDistributeObjects,
+    maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsBetween,
+    maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsAlongLine,
 
     maplus_calc_compose.MAPLUS_OT_CalcLineLengthBase,
     maplus_calc_compose.MAPLUS_OT_CalcLineLength,
@@ -292,6 +293,7 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickScaleMatchEdgeGrabDestLoc,
     maplus_geom.MAPLUS_OT_QuickAxisRotateGrabSrc,
     maplus_geom.MAPLUS_OT_QuickAxisRotateGrabSrcLoc,
+    maplus_geom.MAPLUS_OT_DistObjAlongLineGrabSrc,
     maplus_geom.MAPLUS_OT_QuickDirectionalSlideGrabSrc,
     maplus_geom.MAPLUS_OT_QuickDirectionalSlideGrabSrcLoc,
     maplus_geom.MAPLUS_OT_GrabPlaneAFromCursor,
@@ -495,6 +497,7 @@ classes = (
     maplus_geom.MAPLUS_OT_ShowHideQuickDsSrcGeom,
     maplus_geom.MAPLUS_OT_ShowHideQuickSmeSrcGeom,
     maplus_geom.MAPLUS_OT_ShowHideQuickSmeDestGeom,
+    maplus_geom.MAPLUS_OT_ShowHideDistAlongLineGeom,
 
     maplus_storage.MAPlusPrimitive,
     maplus_storage.MAPlusData,
@@ -575,7 +578,6 @@ classes = (
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
-
 
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,

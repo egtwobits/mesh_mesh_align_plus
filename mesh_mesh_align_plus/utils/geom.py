@@ -288,6 +288,9 @@ class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
@@ -2634,6 +2637,18 @@ class MAPLUS_OT_QuickAxisRotateGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     quick_op_target = "AXRSRC"
 
 
+class MAPLUS_OT_DistObjAlongLineGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.distobjalonglinegrabsrc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "DISTRIB_OBJ_ALONG_LINE_SRC"
+
+
 class MAPLUS_OT_QuickDirectionalSlideGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdirectionalslidegrabsrc"
     bl_label = "Grab Line from Selected Verts"
@@ -4802,6 +4817,10 @@ class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
             addon_data.quick_apl_show_set_origin_mode_dest_geom = (
                 not addon_data.quick_apl_show_set_origin_mode_dest_geom
             )
+        elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+            addon_data.quick_dist_obj_along_line_show_src_geom = (
+                not addon_data.quick_dist_obj_along_line_show_src_geom
+            )
         elif self.quick_op_target == "SLOT1":
             addon_data.quick_calc_show_slot1_geom = (
                 not addon_data.quick_calc_show_slot1_geom
@@ -4816,6 +4835,14 @@ class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
             )
 
         return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideDistAlongLineGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidedistalonglinegeom"
+    bl_label = "Show/hide \"distribute along line\" geometry"
+    bl_description = "Show/hide \"distribute along line\" geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_ShowHideQuickCalcSlot1Geom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
