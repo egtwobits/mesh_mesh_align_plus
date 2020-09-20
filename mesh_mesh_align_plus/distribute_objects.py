@@ -11,7 +11,7 @@ import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
     bl_idname = "maplus.quickdistributeobjectsbetween"
     bl_label = "Distribute Objects"
-    bl_description = "Distribute Objects"
+    bl_description = "Distribute Objects Between First and Last Selected"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -80,7 +80,7 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
 class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
     bl_idname = "maplus.quickdistributeobjectsalongline"
     bl_label = "Distribute Objects"
-    bl_description = "Distribute Objects"
+    bl_description = "Distribute Objects Along a Specified Line"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -109,8 +109,6 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
         ]
         if len(selected) >= 3:
-            last_selected_obj = selected[-1]
-            first_selected_obj = selected[0]
 
             # Get global coordinate data for each geometry item, with
             # modifiers applied.
@@ -221,7 +219,7 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             dist_obj_along_line_geom_editor = dist_obj_along_line_grab_col.box()
             ln_grab_all = dist_obj_along_line_geom_editor.row(align=True)
             ln_grab_all.operator(
-                "maplus.quickaxisrotategrabsrcloc",
+                "maplus.distobjalonglinegrabsrcloc",
                 icon='VERTEXSEL',
                 text="Grab All Local"
             )
@@ -259,24 +257,24 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
                 parent_layout=dist_obj_along_line_geom_editor,
                 coordvec_label="Start:",
                 op_id_cursor_grab=(
-                    "maplus.quickaxrsrcgrablinestartfromcursor"
+                    "maplus.quickdistobjalonglinesrcgrablinestartfromcursor"
                 ),
                 op_id_avg_grab=(
-                    "maplus.quickaxrgrabavgsrclinestart"
+                    "maplus.quickdistobjalonglinegrabavgsrclinestart"
                 ),
                 op_id_local_grab=(
-                    "maplus.quickaxrsrcgrablinestartfromactivelocal"
+                    "maplus.quickdistobjalonglinesrcgrablinestartfromactivelocal"
                 ),
                 op_id_global_grab=(
-                    "maplus.quickaxrsrcgrablinestartfromactiveglobal"
+                    "maplus.quickdistobjalonglinesrcgrablinestartfromactiveglobal"
                 ),
                 coord_container=addon_data.quick_dist_obj_along_line_src,
                 coord_attribute="line_start",
                 op_id_cursor_send=(
-                    "maplus.quickaxrsrcsendlinestarttocursor"
+                    "maplus.quickdistobjalonglinesrcsendlinestarttocursor"
                 ),
                 op_id_text_tuple_swap_first=(
-                    "maplus.quickaxrsrcswaplinepoints",
+                    "maplus.quickdistobjalonglinesrcswaplinepoints",
                     "End"
                 )
             )
@@ -285,27 +283,52 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
                 parent_layout=dist_obj_along_line_geom_editor,
                 coordvec_label="End:",
                 op_id_cursor_grab=(
-                    "maplus.quickaxrsrcgrablineendfromcursor"
+                    "maplus.quickdistobjalonglinesrcgrablineendfromcursor"
                 ),
                 op_id_avg_grab=(
-                    "maplus.quickaxrgrabavgsrclineend"
+                    "maplus.quickdistobjalonglinegrabavgsrclineend"
                 ),
                 op_id_local_grab=(
-                    "maplus.quickaxrsrcgrablineendfromactivelocal"
+                    "maplus.quickdistobjalonglinesrcgrablineendfromactivelocal"
                 ),
                 op_id_global_grab=(
-                    "maplus.quickaxrsrcgrablineendfromactiveglobal"
+                    "maplus.quickdistobjalonglinesrcgrablineendfromactiveglobal"
                 ),
                 coord_container=addon_data.quick_dist_obj_along_line_src,
                 coord_attribute="line_end",
                 op_id_cursor_send=(
-                    "maplus.quickaxrsrcsendlineendtocursor"
+                    "maplus.quickdistobjalonglinesrcsendlineendtocursor"
                 ),
                 op_id_text_tuple_swap_first=(
-                    "maplus.quickaxrsrcswaplinepoints",
+                    "maplus.quickdistobjalonglinesrcswaplinepoints",
                     "Start"
                 )
             )
+            # maplus_guitools.layout_coordvec(
+            #     parent_layout=dist_obj_along_line_geom_editor,
+            #     coordvec_label="End:",
+            #     op_id_cursor_grab=(
+            #         "maplus.quickaxrsrcgrablineendfromcursor"
+            #     ),
+            #     op_id_avg_grab=(
+            #         "maplus.quickaxrgrabavgsrclineend"
+            #     ),
+            #     op_id_local_grab=(
+            #         "maplus.quickaxrsrcgrablineendfromactivelocal"
+            #     ),
+            #     op_id_global_grab=(
+            #         "maplus.quickaxrsrcgrablineendfromactiveglobal"
+            #     ),
+            #     coord_container=addon_data.quick_dist_obj_along_line_src,
+            #     coord_attribute="line_end",
+            #     op_id_cursor_send=(
+            #         "maplus.quickaxrsrcsendlineendtocursor"
+            #     ),
+            #     op_id_text_tuple_swap_first=(
+            #         "maplus.quickaxrsrcswaplinepoints",
+            #         "Start"
+            #     )
+            # )
         dist_obj_along_line_gui.operator(
             "maplus.quickdistributeobjectsalongline",
             text="Distribute Along Line"
