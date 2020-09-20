@@ -270,6 +270,7 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickAlnDestSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickAxrSrcSendLineEndToCursor,
+    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickDsSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickDsDestSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickSmeSrcSendLineEndToCursor,
