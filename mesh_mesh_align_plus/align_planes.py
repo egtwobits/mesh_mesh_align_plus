@@ -703,7 +703,7 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
         apl_gui = layout.box()
         apl_top.label(
             text="Align Planes",
-            icon="MOD_ARRAY"
+            icon="FACESEL",
         )
         apl_grab_col = apl_gui.column()
         apl_grab_col.prop(

@@ -417,7 +417,7 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
                 preserve_button_roundedge = aln_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickalignlinesgrabsrc",
-                        icon='LIGHT_SUN',
+                        icon='CURVE_PATH',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
@@ -434,7 +434,7 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
                 )
                 aln_src_geom_top.label(
                     text="Source Coordinates",
-                    icon="LIGHT_SUN"
+                    icon="CURVE_PATH"
                 )
 
                 aln_src_geom_editor = aln_grab_col.box()
@@ -557,7 +557,7 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             preserve_button_roundedge = aln_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickalignlinesgrabdest",
-                    icon='LIGHT_SUN',
+                    icon='CURVE_PATH',
                     text="Grab Destination"
             )
             preserve_button_roundedge.operator(
@@ -574,7 +574,7 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             )
             aln_dest_geom_top.label(
                 text="Destination Coordinates",
-                icon="LIGHT_SUN"
+                icon="CURVE_PATH"
             )
 
             aln_dest_geom_editor = aln_grab_col.box()
