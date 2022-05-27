@@ -287,10 +287,7 @@ class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
 
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
-<<<<<<< HEAD
-=======
 
->>>>>>> parent of 8c56c21 (Added WIP/unfinished "distibute along line" feature.)
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
