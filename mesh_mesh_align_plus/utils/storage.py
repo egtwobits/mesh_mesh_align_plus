@@ -557,17 +557,6 @@ class MAPlusData(bpy.types.PropertyGroup):
         type=MAPlusPrimitive
     )
 
-    # Quick distribute objects settings
-    quick_dist_obj_along_line_show_src_geom: bpy.props.BoolProperty(
-        description=(
-            "Expand/collapse the source geometry editor"
-            " for \"Distribute Objects Along Line\" in the"
-            " \"Distribute Objects\" panel."
-        ),
-        default=False
-    )
-    quick_dist_obj_along_line_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
-
     # Calculation global settings
     calc_result_to_clipboard: bpy.props.BoolProperty(
         description=(

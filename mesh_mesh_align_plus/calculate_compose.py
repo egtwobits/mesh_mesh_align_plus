@@ -2068,17 +2068,17 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefromorigin",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="New Line from Origin"
         )
         calc_gui.operator(
             "maplus.quickcomposenormalfromplane",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="Get Plane Normal (Normalized)"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefrompoint",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="New Line from Point"
         )
         calc_gui.operator(
@@ -2087,22 +2087,22 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         )
         calc_gui.operator(
             "maplus.quickcomposenewlineatpointlocation",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="New Line at Point"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefrompoints",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="New Line from Points"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinevectoraddition",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="Add Lines"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinevectorsubtraction",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text="Subtract Lines"
         )
         calc_gui.operator(

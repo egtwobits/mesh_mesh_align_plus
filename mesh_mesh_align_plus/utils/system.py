@@ -7,7 +7,6 @@ import mesh_mesh_align_plus.advanced_tools as maplus_adv_tools
 import mesh_mesh_align_plus.align_points as maplus_apt
 import mesh_mesh_align_plus.align_lines as maplus_aln
 import mesh_mesh_align_plus.align_objects as maplus_aobjects
-import mesh_mesh_align_plus.distribute_objects as maplus_dobjects
 import mesh_mesh_align_plus.align_planes as maplus_apl
 import mesh_mesh_align_plus.axis_rotate as maplus_axr
 import mesh_mesh_align_plus.calculate_compose as maplus_calc_compose
@@ -75,8 +74,6 @@ classes = (
     maplus_axr.MAPLUS_OT_QuickAxisRotateWholeMesh,
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
-    maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsBetween,
-    maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsAlongLine,
 
     maplus_calc_compose.MAPLUS_OT_CalcLineLengthBase,
     maplus_calc_compose.MAPLUS_OT_CalcLineLength,
@@ -169,7 +166,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcGrabLineStartFromCursor,
     maplus_geom.MAPLUS_OT_QuickAlnDestGrabLineStartFromCursor,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineStartFromCursor,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromCursor,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineStartFromCursor,
     maplus_geom.MAPLUS_OT_QuickDsDestGrabLineStartFromCursor,
     maplus_geom.MAPLUS_OT_QuickSmeSrcGrabLineStartFromCursor,
@@ -200,8 +196,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnGrabAvgDestLineEnd,
     maplus_geom.MAPLUS_OT_QuickAxrGrabAvgSrcLineStart,
     maplus_geom.MAPLUS_OT_QuickAxrGrabAvgSrcLineEnd,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineGrabAvgSrcLineStart,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineGrabAvgSrcLineEnd,
     maplus_geom.MAPLUS_OT_QuickDsGrabAvgSrcLineStart,
     maplus_geom.MAPLUS_OT_QuickDsGrabAvgSrcLineEnd,
     maplus_geom.MAPLUS_OT_QuickSmeGrabAvgSrcLineStart,
@@ -214,8 +208,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnDestGrabLineStartFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveLocal,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveGlobal,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromActiveLocal,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineStartFromActiveLocal,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineStartFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickDsDestGrabLineStartFromActiveLocal,
@@ -234,7 +226,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcSendLineStartToCursor,
     maplus_geom.MAPLUS_OT_QuickAlnDestSendLineStartToCursor,
     maplus_geom.MAPLUS_OT_QuickAxrSrcSendLineStartToCursor,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcSendLineStartToCursor,
     maplus_geom.MAPLUS_OT_QuickDsSrcSendLineStartToCursor,
     maplus_geom.MAPLUS_OT_QuickDsDestSendLineStartToCursor,
     maplus_geom.MAPLUS_OT_QuickSmeSrcSendLineStartToCursor,
@@ -243,7 +234,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcGrabLineEndFromCursor,
     maplus_geom.MAPLUS_OT_QuickAlnDestGrabLineEndFromCursor,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineEndFromCursor,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromCursor,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineEndFromCursor,
     maplus_geom.MAPLUS_OT_QuickDsDestGrabLineEndFromCursor,
     maplus_geom.MAPLUS_OT_QuickSmeSrcGrabLineEndFromCursor,
@@ -256,8 +246,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnDestGrabLineEndFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineEndFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickAxrSrcGrabLineEndFromActiveLocal,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromActiveGlobal,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromActiveLocal,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineEndFromActiveLocal,
     maplus_geom.MAPLUS_OT_QuickDsSrcGrabLineEndFromActiveGlobal,
     maplus_geom.MAPLUS_OT_QuickDsDestGrabLineEndFromActiveLocal,
@@ -270,7 +258,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickAlnDestSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickAxrSrcSendLineEndToCursor,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickDsSrcSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickDsDestSendLineEndToCursor,
     maplus_geom.MAPLUS_OT_QuickSmeSrcSendLineEndToCursor,
@@ -303,8 +290,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickScaleMatchEdgeGrabDestLoc,
     maplus_geom.MAPLUS_OT_QuickAxisRotateGrabSrc,
     maplus_geom.MAPLUS_OT_QuickAxisRotateGrabSrcLoc,
-    maplus_geom.MAPLUS_OT_DistObjAlongLineGrabSrc,
-    maplus_geom.MAPLUS_OT_DistObjAlongLineGrabSrcLoc,
     maplus_geom.MAPLUS_OT_QuickDirectionalSlideGrabSrc,
     maplus_geom.MAPLUS_OT_QuickDirectionalSlideGrabSrcLoc,
     maplus_geom.MAPLUS_OT_GrabPlaneAFromCursor,
@@ -431,7 +416,6 @@ classes = (
     maplus_geom.MAPLUS_OT_QuickAlnSrcSwapLinePoints,
     maplus_geom.MAPLUS_OT_QuickAlnDestSwapLinePoints,
     maplus_geom.MAPLUS_OT_QuickAxrSrcSwapLinePoints,
-    maplus_geom.MAPLUS_OT_QuickDistObjAlongLineSrcSwapLinePoints,
     maplus_geom.MAPLUS_OT_QuickDsSrcSwapLinePoints,
     maplus_geom.MAPLUS_OT_QuickSmeSrcSwapLinePoints,
     maplus_geom.MAPLUS_OT_QuickSmeDestSwapLinePoints,
@@ -509,7 +493,6 @@ classes = (
     maplus_geom.MAPLUS_OT_ShowHideQuickDsSrcGeom,
     maplus_geom.MAPLUS_OT_ShowHideQuickSmeSrcGeom,
     maplus_geom.MAPLUS_OT_ShowHideQuickSmeDestGeom,
-    maplus_geom.MAPLUS_OT_ShowHideDistAlongLineGeom,
 
     maplus_storage.MAPlusPrimitive,
     maplus_storage.MAPlusData,
@@ -588,7 +571,6 @@ classes = (
     maplus_ds.MAPLUS_PT_QuickDirectionalSlideGUI,
     maplus_sme.MAPLUS_PT_QuickSMEGUI,
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
-    maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
 
     # maplus_except.UniqueNameError,

@@ -61,6 +61,7 @@ class MAPLUS_PT_QuickAlignObjectsGUI(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
+    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):

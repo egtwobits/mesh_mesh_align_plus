@@ -399,7 +399,7 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
                 preserve_button_roundedge = axr_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickaxisrotategrabsrc",
-                        icon='CURVE_PATH',
+                        icon='LIGHT_SUN',
                         text="Grab Axis"
                 )
                 preserve_button_roundedge.operator(
@@ -416,7 +416,7 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
                 )
                 axr_src_geom_top.label(
                     text="Source Coordinates",
-                    icon="CURVE_PATH"
+                    icon="LIGHT_SUN"
                 )
 
                 axr_src_geom_editor = axr_grab_col.box()

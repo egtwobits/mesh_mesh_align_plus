@@ -29,7 +29,7 @@ class MAPLUS_UL_MAPlusList(bpy.types.UIList):
         if item.kind == 'POINT':
             layout.label(text=item.name, icon="LAYER_ACTIVE")
         elif item.kind == 'LINE':
-            layout.label(text=item.name, icon="CURVE_PATH")
+            layout.label(text=item.name, icon="LIGHT_SUN")
         elif item.kind == 'PLANE':
             layout.label(text=item.name, icon="OUTLINER_OB_MESH")
         elif item.kind == 'CALCULATION':
@@ -617,7 +617,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         )
         add_new_items.operator(
             "maplus.addnewline",
-            icon='CURVE_PATH',
+            icon='LIGHT_SUN',
             text=""
         )
         add_new_items.operator(
@@ -1053,7 +1053,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                         if calc_target.kind == 'POINT':
                             item_info_col.operator(
                                 "maplus.composenewlinefrompoint",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="New Line from Point"
                             )
                         elif calc_target.kind == 'LINE':
@@ -1063,13 +1063,13 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinefromorigin",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="New Line from Origin"
                             )
                         elif calc_target.kind == 'PLANE':
                             item_info_col.operator(
                                 "maplus.composenormalfromplane",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="Get Plane Normal (Normalized)"
                             )
                 elif active_item.calc_type == 'MULTIITEM':
@@ -1129,7 +1129,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                                 calc_target_two.kind == 'POINT'):
                             item_info_col.operator(
                                 "maplus.composenewlinefrompoints",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="New Line from Points"
                             )
                             item_info_col.operator(
@@ -1144,18 +1144,18 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinevectoraddition",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="Add Lines"
                             )
                             item_info_col.operator(
                                 "maplus.composenewlinevectorsubtraction",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="Subtract Lines"
                             )
                         elif 'POINT' in type_combo and 'LINE' in type_combo:
                             item_info_col.operator(
                                 "maplus.composenewlineatpointlocation",
-                                icon='CURVE_PATH',
+                                icon='LIGHT_SUN',
                                 text="New Line at Point"
                             )
                         elif 'LINE' in type_combo and 'PLANE' in type_combo:
@@ -1180,7 +1180,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                 )
                 transf_types.operator(
                     "maplus.changetransftoalignplanes",
-                    icon='FACESEL',
+                    icon='MOD_ARRAY',
                     text="Align Planes"
                 )
                 transf_types.operator(

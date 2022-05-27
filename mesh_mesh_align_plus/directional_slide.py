@@ -357,7 +357,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
                 preserve_button_roundedge = ds_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickdirectionalslidegrabsrc",
-                        icon='CURVE_PATH',
+                        icon='LIGHT_SUN',
                         text="Grab Source"
                 )
                 preserve_button_roundedge.operator(
@@ -375,7 +375,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
                 )
                 ds_src_geom_top.label(
                     text="Source Coordinates",
-                    icon="CURVE_PATH"
+                    icon="LIGHT_SUN"
                 )
 
                 ds_src_geom_editor = ds_grab_col.box()
