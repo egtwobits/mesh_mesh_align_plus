@@ -573,6 +573,7 @@ classes = (
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
 
+
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,
     # maplus_except.InsufficientSelectionError,
