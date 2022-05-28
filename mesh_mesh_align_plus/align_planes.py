@@ -201,22 +201,44 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     [vcross[2], vnorm[2], vdest[2]]
                 ]
             )
-            bpy.ops.transform.create_orientation(
-                name='MAPlus',
-                use=active_item.apl_use_custom_orientation,
-                overwrite=True
-            )
-            bpy.context.view_layer.update()
-            orient_slot = [
-                slot for slot in
-                bpy.context.scene.transform_orientation_slots
-                if slot.custom_orientation
-                   and slot.custom_orientation.name == 'MAPlus'
-            ]
-            if orient_slot:
-                orient_slot[0].custom_orientation.matrix = orthonormal_basis_matrix
-            else:
-                print('Error: Could not find MAPlus transform orientation...')
+            print('FOOBARFOOBAr')
+            print(bpy.context.mode)
+            print(dict(bpy.context.copy()))
+            print(orthonormal_basis_matrix)
+            try:
+                print('AAAA')
+                override = bpy.context.copy()
+                print(__class__)
+                override['active_operator'] = __class__
+                bpy.ops.transform.create_orientation(
+                    override,
+                    'INVOKE_DEFAULT',
+                    name='MAPlus',
+                    use=active_item.apl_use_custom_orientation,
+                    overwrite=True
+                )
+                print('BBBB')
+                bpy.context.view_layer.update()
+                print('CCCC')
+                orient_slot = [
+                    slot for slot in
+                    bpy.context.scene.transform_orientation_slots
+                    if slot.custom_orientation
+                       and slot.custom_orientation.name == 'MAPlus'
+                ]
+                print('DDDD')
+                if orient_slot:
+                    print('EEEE')
+                    orient_slot[0].custom_orientation.matrix = orthonormal_basis_matrix
+                else:
+                    print('Error: Could not find MAPlus transform orientation...')
+            except RuntimeError:
+                import traceback
+                traceback.print_exc()
+                self.report(
+                    {'WARNING'},
+                    ('Warning: Failed to create orientation for destination plane!')
+                )
 
             if hasattr(self, 'quick_op_target') and addon_data.quick_align_planes_set_origin_mode:
                 # TODO: Refactor this feature or possibly make it a new full operator
