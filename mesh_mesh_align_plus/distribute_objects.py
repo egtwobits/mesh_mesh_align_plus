@@ -41,20 +41,25 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
             return {'CANCELLED'}
         start_object = bpy.data.objects[start_obj_name]
         end_object = bpy.data.objects[end_obj_name]
+        start_location = start_object.location
+        end_location = end_object.location
 
         # Apply distribute-between to the selected objects
         selected = [
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
         ]
+        sort_func = lambda item: maplus_geom.pt_distance_in_direction(
+            start_location,
+            end_location,
+            item.location
+        )
+        selected.sort(key=sort_func)
         # TODO: Sort items by distance from start object, in direction of end object
         if len(selected) >= 1:
-            start_location = start_object.location
-            end_location = end_object.location
             distribute_vector = (end_location - start_location) / (len(selected) + 1)
 
             for index, item in enumerate(selected):
-
                 new_position = start_location + (distribute_vector * (index + 1))
                 item.location = new_position
 
@@ -143,7 +148,7 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
         ]
-        if len(selected) >= 3:
+        if len(selected) >= 3:  # TODO: This is dumb, fix it
 
             # Get global coordinate data for each geometry item, with
             # modifiers applied.

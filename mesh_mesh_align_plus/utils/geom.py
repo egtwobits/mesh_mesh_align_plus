@@ -2,12 +2,34 @@
 
 
 import collections
+import math
 
 import bmesh
 import bpy
 import mathutils
 
 import mesh_mesh_align_plus.utils.exceptions as maplus_except
+
+
+def scalar_project(vec1, other):
+    """Get scalar projection of other onto vec1"""
+    vec_project = other.project(vec1)
+    length = vec_project.length
+
+    # Return negative length if pointing in other direction
+    if vec1.angle(other, 0) == math.pi / 2:
+        return 0
+    if vec1.angle(other, 0) > math.pi / 2:
+        return length * -1
+    return length
+
+
+def pt_distance_in_direction(start_pt, end_pt, other_pt):
+    """Get distance from start (pt) to other (pt) in direction of end (pt)"""
+    direction = mathutils.Vector(end_pt - start_pt)
+    direction_other = mathutils.Vector(other_pt - start_pt)
+
+    return scalar_project(direction, direction_other)
 
 
 def set_item_coords(item, coords_to_set, coords):
