@@ -11,10 +11,14 @@ import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
 class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
     bl_idname = "maplus.quickdistributeobjectsbetween"
     bl_label = "Distribute Objects"
-    bl_description = "Distribute Objects Between First and Last Selected"
+    bl_description = "Distribute Objects Between Start and End Objects"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        """User picks a start object and end object, then we align all
+        selected objects between the start object's location and the end
+        object's location, ordered by distance from the start object in
+        the direction of the end object"""
         if not maplus_geom.get_active_object():
             self.report(
                 {'ERROR'},
@@ -25,34 +29,51 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
 
-        # Get active (target) transformation matrix components
-        active_mat = maplus_geom.get_active_object().matrix_world
-        active_trs = [
-            mathutils.Matrix.Translation(active_mat.decompose()[0]),
-            active_mat.decompose()[1].to_matrix(),
-            mathutils.Matrix.Scale(active_mat.decompose()[2][0], 4),
-        ]
-        active_trs[1].resize_4x4()
+        start_obj_name = addon_data.quick_dist_obj_bet_start
+        end_obj_name = addon_data.quick_dist_obj_bet_end
+        # The user picked a start object and we stored a name,
+        # make sure an object with that name still exists
+        if start_obj_name not in bpy.data.objects:
+            self.report(
+                {'ERROR'},
+                f'Cannot complete: Start object "{start_obj_name}" does not exist'
+            )
+            return {'CANCELLED'}
+        # The user picked an end object and we stored a name,
+        # make sure an object with that name still exists
+        if end_obj_name not in bpy.data.objects:
+            self.report(
+                {'ERROR'},
+                f'Cannot complete: End object "{end_obj_name}" does not exist'
+            )
+            return {'CANCELLED'}
+        start_object = bpy.data.objects[start_obj_name]
+        end_object = bpy.data.objects[end_obj_name]
+
+        # TODO remove this
+        # # Get active (target) transformation matrix components
+        # active_mat = maplus_geom.get_active_object().matrix_world
+        # active_trs = [
+        #     mathutils.Matrix.Translation(active_mat.decompose()[0]),
+        #     active_mat.decompose()[1].to_matrix(),
+        #     mathutils.Matrix.Scale(active_mat.decompose()[2][0], 4),
+        # ]
+        # active_trs[1].resize_4x4()
 
         # Copy the transform components from the target to the current object
         selected = [
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
         ]
-        if len(selected) >= 3:
-            last_selected_obj = selected[-1]
-            first_selected_obj = selected[0]
-
-            start_location = first_selected_obj.location
-            end_location = last_selected_obj.location
-            distribute_vector = (end_location - start_location) / (len(selected) - 1)
+        # TODO: Sort items by distance from start object, in direction of end object
+        if len(selected) >= 1:
+            start_location = start_object.location
+            end_location = end_object.location
+            distribute_vector = (end_location - start_location) / (len(selected) + 1)
 
             for index, item in enumerate(selected):
-                if index == 0 or index == len(selected) - 1:
-                    # Start and endpoint objects don't change location
-                    continue
 
-                new_position = start_location + (distribute_vector * index)
+                new_position = start_location + (distribute_vector * (index + 1))
                 item.location = new_position
 
                 # current_mat = item.matrix_world
@@ -70,9 +91,53 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         else:
             self.report(
                 {'ERROR'},
-                'Cannot complete: need at least 3 objects to distribute.'
+                'Cannot complete: need at least 1 object to distribute.'
             )
             return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_QuickDistObjBetweenGrabStart(bpy.types.Operator):
+    bl_idname = "maplus.quickdistobjbetweengrabstart"
+    bl_label = "Grab Start"
+    bl_description = "Grab the Starting Object"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        if not maplus_geom.get_active_object():
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
+        addon_data = bpy.context.scene.maplus_data
+
+        # Store the name of the start object, we grab its location
+        # as the starting point of the distribute operation
+        addon_data.quick_dist_obj_bet_start = maplus_geom.get_active_object().name
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_QuickDistObjBetweenGrabEnd(bpy.types.Operator):
+    bl_idname = "maplus.quickdistobjbetweengrabend"
+    bl_label = "Grab End"
+    bl_description = "Grab the Ending Object"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        if not maplus_geom.get_active_object():
+            self.report(
+                {'ERROR'},
+                'Cannot complete: no active object.'
+            )
+            return {'CANCELLED'}
+        addon_data = bpy.context.scene.maplus_data
+
+        # Store the name of the start object, we grab its location
+        # as the starting point of the distribute operation
+        addon_data.quick_dist_obj_bet_end = maplus_geom.get_active_object().name
 
         return {'FINISHED'}
 
@@ -80,7 +145,7 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
 class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
     bl_idname = "maplus.quickdistributeobjectsalongline"
     bl_label = "Distribute Objects"
-    bl_description = "Distribute Objects Along a Specified Line"
+    bl_description = "Distribute Objects Randomly Along a Specified Line"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -164,10 +229,31 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
 
         dist_between_obj_top = layout.row()
         dist_between_obj_top.label(
-            text="Distribute Between First/Last Objects",
+            text="Distribute Between Start/End Objects",
             icon="NODE_INSERT_OFF",
         )
         dist_obj_between_gui = layout.box()
+        dist_obj_between_gui.label(text="Grab:")
+        start_object_name = dist_obj_between_gui.row()
+        start_object_name.operator(
+            "maplus.quickdistobjbetweengrabstart",
+            text="Start"
+        )
+        start_object_name.prop(
+            addon_data,
+            'quick_dist_obj_bet_start',
+            text=""
+        )
+        end_object_name = dist_obj_between_gui.row()
+        end_object_name.operator(
+            "maplus.quickdistobjbetweengrabend",
+            text="End"
+        )
+        end_object_name.prop(
+            addon_data,
+            'quick_dist_obj_bet_end',
+            text=""
+        )
         dist_obj_between_gui.operator(
             "maplus.quickdistributeobjectsbetween",
             text="Distribute Between"
@@ -333,5 +419,5 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             # )
         dist_obj_along_line_gui.operator(
             "maplus.quickdistributeobjectsalongline",
-            text="Distribute Along Line"
+            text="Distribute Along Line Randomly"
         )

@@ -76,6 +76,8 @@ classes = (
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
     maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsBetween,
+    maplus_dobjects.MAPLUS_OT_QuickDistObjBetweenGrabStart,
+    maplus_dobjects.MAPLUS_OT_QuickDistObjBetweenGrabEnd,
     maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsAlongLine,
 
     maplus_calc_compose.MAPLUS_OT_CalcLineLengthBase,

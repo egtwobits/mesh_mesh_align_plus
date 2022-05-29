@@ -557,7 +557,19 @@ class MAPlusData(bpy.types.PropertyGroup):
         type=MAPlusPrimitive
     )
 
-    # Quick distribute objects settings
+    # Quick distribute objects between settings
+    quick_dist_obj_bet_start: bpy.props.StringProperty(
+        name="Start Object",
+        description="The object to use as a starting location",
+        default=""
+    )
+    quick_dist_obj_bet_end: bpy.props.StringProperty(
+        name="End Object",
+        description="The object to use as an ending location",
+        default=""
+    )
+
+    # Quick distribute objects along line settings
     quick_dist_obj_along_line_show_src_geom: bpy.props.BoolProperty(
         description=(
             "Expand/collapse the source geometry editor"
