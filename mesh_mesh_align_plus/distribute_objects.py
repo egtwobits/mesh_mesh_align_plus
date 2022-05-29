@@ -156,6 +156,8 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
             )
             return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        previous_mode = maplus_geom.get_active_object().mode
 
         # Get active (target) transformation matrix components
         active_mat = maplus_geom.get_active_object().matrix_world
@@ -166,7 +168,7 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         ]
         active_trs[1].resize_4x4()
 
-        # Apply the distribute-between operation to the selected objects
+        # Copy the transform components from the target to the current object
         selected = [
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
@@ -187,6 +189,18 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
                 new_position = start_location + (distribute_vector * index)
                 item.location = new_position
 
+                # current_mat = item.matrix_world
+                # current_trs = [
+                #     mathutils.Matrix.Translation(current_mat.decompose()[0]),
+                #     current_mat.decompose()[1].to_matrix(),
+                #     mathutils.Matrix.Scale(current_mat.decompose()[2][0], 4),
+                # ]
+                # current_trs[1].resize_4x4()
+                # item.matrix_world = (
+                #     active_trs[0] @
+                #     active_trs[1] @
+                #     current_trs[2]
+                # )
         else:
             self.report(
                 {'ERROR'},
