@@ -19,15 +19,7 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         selected objects between the start object's location and the end
         object's location, ordered by distance from the start object in
         the direction of the end object"""
-        if not maplus_geom.get_active_object():
-            self.report(
-                {'ERROR'},
-                'Cannot complete: no active object.'
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
-        prims = addon_data.prim_list
-        previous_mode = maplus_geom.get_active_object().mode
 
         start_obj_name = addon_data.quick_dist_obj_bet_start
         end_obj_name = addon_data.quick_dist_obj_bet_end
@@ -397,5 +389,5 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             # )
         dist_obj_along_line_gui.operator(
             "maplus.quickdistributeobjectsalongline",
-            text="Distribute Along Line Randomly"
+            text="Distribute Along Line"
         )
