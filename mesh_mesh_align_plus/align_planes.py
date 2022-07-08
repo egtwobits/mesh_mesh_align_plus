@@ -1,6 +1,8 @@
 """Align Planes tool, internals & UI."""
 
 
+import traceback
+
 import bmesh
 import bpy
 import mathutils
@@ -181,64 +183,58 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                 dest_pln_ln_BA
             )
 
-            # Create custom transform orientation, for sliding the user's
-            # target along the destination face after it has been aligned.
-            # We do this by making a basis matrix out of the dest plane
-            # leading edge vector, the dest normal vector, and the cross
-            # of those two (each vector is normalized first)
-            vdest = dest_pln_ln_BA.copy()
-            vdest.normalize()
-            vnorm = dest_normal.copy()
-            vnorm.normalize()
-            # vnorm.negate()
-            vcross = vdest.cross(vnorm)
-            vcross.normalize()
-            vcross.negate()
-            orthonormal_basis_matrix = mathutils.Matrix(
-                [
-                    [vcross[0], vnorm[0], vdest[0]],
-                    [vcross[1], vnorm[1], vdest[1]],
-                    [vcross[2], vnorm[2], vdest[2]]
-                ]
-            )
-            print('FOOBARFOOBAr')
-            print(bpy.context.mode)
-            print(dict(bpy.context.copy()))
-            print(orthonormal_basis_matrix)
-            try:
-                print('AAAA')
-                override = bpy.context.copy()
-                print(__class__)
-                override['active_operator'] = __class__
-                bpy.ops.transform.create_orientation(
-                    override,
-                    'INVOKE_DEFAULT',
-                    name='MAPlus',
-                    use=active_item.apl_use_custom_orientation,
-                    overwrite=True
-                )
-                print('BBBB')
-                bpy.context.view_layer.update()
-                print('CCCC')
-                orient_slot = [
-                    slot for slot in
-                    bpy.context.scene.transform_orientation_slots
-                    if slot.custom_orientation
-                       and slot.custom_orientation.name == 'MAPlus'
-                ]
-                print('DDDD')
-                if orient_slot:
-                    print('EEEE')
-                    orient_slot[0].custom_orientation.matrix = orthonormal_basis_matrix
-                else:
-                    print('Error: Could not find MAPlus transform orientation...')
-            except RuntimeError:
-                import traceback
-                traceback.print_exc()
-                self.report(
-                    {'WARNING'},
-                    ('Warning: Failed to create orientation for destination plane!')
-                )
+            # # ############################################################
+            # # TODO: Create custom transform orientation for destination
+            # # plane. This is disabled until a solution can be found.
+            # # ############################################################
+            # # Create custom transform orientation, for sliding the user's
+            # # target along the destination face after it has been aligned.
+            # # We do this by making a basis matrix out of the dest plane
+            # # leading edge vector, the dest normal vector, and the cross
+            # # of those two (each vector is normalized first)
+            # vdest = dest_pln_ln_BA.copy()
+            # vdest.normalize()
+            # vnorm = dest_normal.copy()
+            # vnorm.normalize()
+            # # vnorm.negate()
+            # vcross = vdest.cross(vnorm)
+            # vcross.normalize()
+            # vcross.negate()
+            # orthonormal_basis_matrix = mathutils.Matrix(
+            #     [
+            #         [vcross[0], vnorm[0], vdest[0]],
+            #         [vcross[1], vnorm[1], vdest[1]],
+            #         [vcross[2], vnorm[2], vdest[2]]
+            #     ]
+            # )
+            # try:
+            #     bpy.ops.transform.create_orientation(
+            #         name='MAPlus',
+            #         use=active_item.apl_use_custom_orientation,
+            #         overwrite=True
+            #     )
+            #     bpy.context.view_layer.update()
+            #     orient_slot = [
+            #         slot for slot in
+            #         bpy.context.scene.transform_orientation_slots
+            #         if slot.custom_orientation
+            #            and slot.custom_orientation.name == 'MAPlus'
+            #     ]
+            #     if orient_slot:
+            #         orient_slot[0].custom_orientation.matrix = orthonormal_basis_matrix
+            #     else:
+            #         print('Error: Could not find MAPlus transform orientation...')
+            #         self.report(
+            #             {'WARNING'},
+            #             ('Warning: Failed to create orientation for destination plane!')
+            #         )
+            # except RuntimeError:
+            #     traceback.print_exc()
+            #     print('\nError: Runtime error creating transform orientation (see above)...')
+            #     self.report(
+            #         {'WARNING'},
+            #         ('Warning: Failed to create orientation for destination plane!')
+            #     )
 
             if hasattr(self, 'quick_op_target') and addon_data.quick_align_planes_set_origin_mode:
                 # TODO: Refactor this feature or possibly make it a new full operator
