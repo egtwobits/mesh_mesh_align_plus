@@ -55,12 +55,33 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
             item.location
         )
         selected.sort(key=sort_func)
-        # TODO: Sort items by distance from start object, in direction of end object
+
+        total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
+        span = end_location - start_location
+        start_index = 0
+
+        if addon_data.quick_dist_obj_bet_offset_start:
+            start_index += 1
+            total_gaps += 1 if len(selected) > 1 else 0
+
+            # #### OLD ####
+            # # If user offsets from start, first item gets shifted 1 space
+            # index_modifier = 1
+            # total_gaps_between_items += 1
+            # # TODO: Generalize this to offset by n spaces by multiplying by n
+        if addon_data.quick_dist_obj_bet_offset_end:
+            total_gaps += 1
+
+            # #### OLD ####
+            # # If user offsets from end, pretend there's an extra item
+            # # so the last item falls short 1 space of the end point
+            # total_gaps_between_items += 1
+            # # TODO: Generalize this to offset by n spaces by multiplying by n
+        gap_length = span / total_gaps
         if len(selected) >= 1:
-            distribute_vector = (end_location - start_location) / (len(selected) + 1)
 
             for index, item in enumerate(selected):
-                new_position = start_location + (distribute_vector * (index + 1))
+                new_position = start_location + (gap_length * (index + start_index))
                 item.location = new_position
 
         else:
@@ -228,6 +249,16 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             addon_data,
             'quick_dist_obj_bet_end',
             text=""
+        )
+        dist_obj_between_gui.prop(
+            addon_data,
+            'quick_dist_obj_bet_offset_start',
+            text="Offset Start"
+        )
+        dist_obj_between_gui.prop(
+            addon_data,
+            'quick_dist_obj_bet_offset_end',
+            text="Offset End"
         )
         dist_obj_between_gui.operator(
             "maplus.quickdistributeobjectsbetween",

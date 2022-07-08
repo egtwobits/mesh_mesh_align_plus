@@ -568,6 +568,18 @@ class MAPlusData(bpy.types.PropertyGroup):
         description="The object to use as an ending location",
         default=""
     )
+    quick_dist_obj_bet_offset_start: bpy.props.BoolProperty(
+        description=(
+            "Offset the first object from the start point"
+        ),
+        default=True
+    )
+    quick_dist_obj_bet_offset_end: bpy.props.BoolProperty(
+        description=(
+            "Offset the last object from the end point"
+        ),
+        default=True
+    )
 
     # Quick distribute objects along line settings
     quick_dist_obj_along_line_show_src_geom: bpy.props.BoolProperty(
@@ -575,6 +587,18 @@ class MAPlusData(bpy.types.PropertyGroup):
             "Expand/collapse the source geometry editor"
             " for \"Distribute Objects Along Line\" in the"
             " \"Distribute Objects\" panel."
+        ),
+        default=False
+    )
+    quick_dist_obj_along_line_offset_start: bpy.props.BoolProperty(
+        description=(
+            "Offset the first object from the start point"
+        ),
+        default=False
+    )
+    quick_dist_obj_along_line_offset_end: bpy.props.BoolProperty(
+        description=(
+            "Offset the last object from the end point"
         ),
         default=False
     )
