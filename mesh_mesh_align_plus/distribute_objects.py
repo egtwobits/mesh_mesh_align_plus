@@ -223,42 +223,45 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
 
         # GUI for "Distribute Between First/Last Objects"
 
-        dist_between_obj_top = layout.row()
+        dist_between_obj_top = layout.column()
         dist_between_obj_top.label(
             text="Distribute Between Start/End Objects",
             icon="NODE_INSERT_OFF",
         )
         dist_obj_between_gui = layout.box()
-        dist_obj_between_gui.label(text="Grab:")
-        start_object_name = dist_obj_between_gui.row()
-        start_object_name.operator(
+        dist_obj_bet_grab_start = dist_obj_between_gui.column(align=True)
+        dist_obj_bet_grab_start.operator(
             "maplus.quickdistobjbetweengrabstart",
-            text="Start"
+            text="Grab Start"
         )
-        start_object_name.prop(
+        dist_obj_bet_grab_start.prop(
             addon_data,
             'quick_dist_obj_bet_start',
             text=""
         )
-        end_object_name = dist_obj_between_gui.row()
-        end_object_name.operator(
+        dist_obj_bet_grab_end = dist_obj_between_gui.column(align=True)
+        dist_obj_bet_grab_end.operator(
             "maplus.quickdistobjbetweengrabend",
-            text="End"
+            text="Grab End"
         )
-        end_object_name.prop(
+        dist_obj_bet_grab_end.prop(
             addon_data,
             'quick_dist_obj_bet_end',
             text=""
         )
-        dist_obj_between_gui.prop(
+        dist_obj_between_settings_area = dist_obj_between_gui.column(align=True)
+        dist_obj_between_settings_area.label(text="Operator settings:", icon="PREFERENCES")
+        dist_obj_between_settings = dist_obj_between_settings_area.box()
+        dist_obj_bet_offsets = dist_obj_between_settings.row()
+        dist_obj_bet_offsets.prop(
             addon_data,
             'quick_dist_obj_bet_offset_start',
-            text="Offset Start"
+            text="Start Offset"
         )
-        dist_obj_between_gui.prop(
+        dist_obj_bet_offsets.prop(
             addon_data,
             'quick_dist_obj_bet_offset_end',
-            text="Offset End"
+            text="End Offset"
         )
         dist_obj_between_gui.operator(
             "maplus.quickdistributeobjectsbetween",
