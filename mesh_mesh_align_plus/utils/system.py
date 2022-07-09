@@ -513,6 +513,7 @@ classes = (
     maplus_geom.MAPLUS_OT_ShowHideQuickSmeDestGeom,
     maplus_geom.MAPLUS_OT_ShowHideDistAlongLineGeom,
 
+    maplus_storage.BasicVariant,
     maplus_storage.MAPlusPrimitive,
     maplus_storage.MAPlusData,
     maplus_storage.MAPLUS_OT_CopyToOtherBase,

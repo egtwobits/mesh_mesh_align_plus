@@ -4,6 +4,17 @@
 import bpy
 
 
+# CollectionProperty is a list-like data structure that can hold instances of
+# PropertyGroup subclasses. This lightweight container allows us to store and
+# serialize basic lists of data in the blend file. In other words, an instance
+# of this class functions as a list item (inside of a CollectionProperty).
+class BasicVariant(bpy.types.PropertyGroup):
+    """Holds basic data types for use with CollectionProperty"""
+    val_str: bpy.props.StringProperty(
+        default=""
+    )
+
+
 # This is the basic data structure for the addon. The item can be a point,
 # line, plane, calc, or transf (only one at a time), chosen by the user
 # (defaults to point). A MAPlusPrimitive always has data slots for each of
@@ -580,6 +591,21 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    quick_dist_obj_bet_last_selected: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of the objects that were selected"
+            " last time the operator was run"
+        )
+    )
+    quick_dist_obj_bet_use_last_selection: bpy.props.BoolProperty(
+        description=(
+            "Operate on items selected during the last run of the operator"
+            " (and maintain original ordering) instead of the currently"
+            " selected objects"
+        ),
+        default=False
+    )
 
     # Quick distribute objects along line settings
     quick_dist_obj_along_line_show_src_geom: bpy.props.BoolProperty(
@@ -603,6 +629,21 @@ class MAPlusData(bpy.types.PropertyGroup):
         default=True
     )
     quick_dist_obj_along_line_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    quick_dist_obj_along_line_last_selected: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of the objects that were selected"
+            " last time the operator was run"
+        )
+    )
+    quick_dist_obj_along_line_use_last_selection: bpy.props.BoolProperty(
+        description=(
+            "Operate on items selected during the last run of the operator"
+            " (and maintain original ordering) instead of the currently"
+            " selected objects"
+        ),
+        default=False
+    )
 
     # Calculation global settings
     calc_result_to_clipboard: bpy.props.BoolProperty(

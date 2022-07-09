@@ -45,16 +45,28 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         end_location = end_object.location
 
         # Apply distribute-between to the selected objects
-        selected = [
-            item
-            for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
-        ]
+        last_selected = addon_data.quick_dist_obj_bet_last_selected
+        if addon_data.quick_dist_obj_bet_use_last_selection:
+            valid = [
+                item
+                for item in last_selected
+                    if item.val_str in bpy.context.scene.objects
+            ]
+            selected = [bpy.context.scene.objects[name.val_str] for name in valid]
+        else:
+            selected = [
+                item
+                for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+            ]
         sort_func = lambda item: maplus_geom.pt_distance_in_direction(
             start_location,
             end_location,
             item.location
         )
-        selected.sort(key=sort_func)
+        if not addon_data.quick_dist_obj_bet_use_last_selection:
+            # Only do a sort if use last selected was not checked
+            # (maintains ordering previously used on last run)
+            selected.sort(key=sort_func)
 
         total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
         span = end_location - start_location
@@ -67,9 +79,13 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         gap_length = span / total_gaps
         if len(selected) >= 1:
 
+            last_selected.clear()
             for index, item in enumerate(selected):
                 new_position = start_location + (gap_length * (index + start_index))
                 item.location = new_position
+
+                obj_selection_history_item = last_selected.add()
+                obj_selection_history_item.val_str = item.name
 
         else:
             self.report(
@@ -132,15 +148,7 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        if not maplus_geom.get_active_object():
-            self.report(
-                {'ERROR'},
-                'Cannot complete: no active object.'
-            )
-            return {'CANCELLED'}
         addon_data = bpy.context.scene.maplus_data
-        prims = addon_data.prim_list
-        previous_mode = maplus_geom.get_active_object().mode
 
         # Get global coordinate data for each geometry item, with
         # modifiers applied.
@@ -151,16 +159,29 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         start_location = src_global_data[0]
         end_location = src_global_data[1]
 
-        selected = [
-            item
-            for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
-        ]
+        # Apply distribute-between to the selected objects
+        last_selected = addon_data.quick_dist_obj_along_line_last_selected
+        if addon_data.quick_dist_obj_along_line_use_last_selection:
+            valid = [
+                item
+                for item in last_selected
+                if item.val_str in bpy.context.scene.objects
+            ]
+            selected = [bpy.context.scene.objects[name.val_str] for name in valid]
+        else:
+            selected = [
+                item
+                for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+            ]
         sort_func = lambda item: maplus_geom.pt_distance_in_direction(
             start_location,
             end_location,
             item.location
         )
-        selected.sort(key=sort_func)
+        if not addon_data.quick_dist_obj_along_line_use_last_selection:
+            # Only do a sort if use last selected was not checked
+            # (maintains ordering previously used on last run)
+            selected.sort(key=sort_func)
 
         total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
         span = end_location - start_location
@@ -173,14 +194,18 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         gap_length = span / total_gaps
         if len(selected) >= 1:
 
+            last_selected.clear()
             for index, item in enumerate(selected):
                 new_position = start_location + (gap_length * (index + start_index))
                 item.location = new_position
 
+                obj_selection_history_item = last_selected.add()
+                obj_selection_history_item.val_str = item.name
+
         else:
             self.report(
                 {'ERROR'},
-                'Cannot complete: need at least 3 objects to distribute.'
+                'Cannot complete: need at least 1 object to distribute.'
             )
             return {'CANCELLED'}
 
@@ -233,6 +258,11 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
         dist_obj_between_settings_area.label(text="Operator settings:", icon="PREFERENCES")
         dist_obj_between_settings = dist_obj_between_settings_area.box()
         dist_obj_bet_offsets = dist_obj_between_settings.row()
+        dist_obj_between_settings.prop(
+            addon_data,
+            'quick_dist_obj_bet_use_last_selection',
+            text="Use Last Selection"
+        )
         dist_obj_bet_offsets.prop(
             addon_data,
             'quick_dist_obj_bet_offset_start',
@@ -419,6 +449,11 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             addon_data,
             'quick_dist_obj_along_line_offset_end',
             text="End Offset"
+        )
+        dist_obj_along_settings.prop(
+            addon_data,
+            'quick_dist_obj_along_line_use_last_selection',
+            text="Use Last Selection"
         )
         dist_obj_along_line_gui.operator(
             "maplus.quickdistributeobjectsalongline",
