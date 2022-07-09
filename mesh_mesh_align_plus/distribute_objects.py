@@ -164,39 +164,55 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         ]
         active_trs[1].resize_4x4()
 
-        # Copy the transform components from the target to the current object
+        # Get global coordinate data for each geometry item, with
+        # modifiers applied.
+        src_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.quick_dist_obj_along_line_src,
+            kind='LINE'
+        )
+        start_location = src_global_data[0]
+        end_location = src_global_data[1]
+
         selected = [
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
         ]
-        if len(selected) >= 3:  # TODO: This is dumb, fix it
+        sort_func = lambda item: maplus_geom.pt_distance_in_direction(
+            start_location,
+            end_location,
+            item.location
+        )
+        selected.sort(key=sort_func)
 
-            # Get global coordinate data for each geometry item, with
-            # modifiers applied.
-            src_global_data = maplus_geom.get_modified_global_coords(
-                geometry=addon_data.quick_dist_obj_along_line_src,
-                kind='LINE'
-            )
-            start_location = src_global_data[0]
-            end_location = src_global_data[1]
-            distribute_vector = (end_location - start_location) / (len(selected) - 1)
+        total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
+        span = end_location - start_location
+        start_index = 0
+
+        if addon_data.quick_dist_obj_along_line_offset_start:
+            start_index += 1
+            total_gaps += 1 if len(selected) > 1 else 0
+
+            # #### OLD ####
+            # # If user offsets from start, first item gets shifted 1 space
+            # index_modifier = 1
+            # total_gaps_between_items += 1
+            # # TODO: Generalize this to offset by n spaces by multiplying by n
+        if addon_data.quick_dist_obj_along_line_offset_end:
+            total_gaps += 1
+
+            # #### OLD ####
+            # # If user offsets from end, pretend there's an extra item
+            # # so the last item falls short 1 space of the end point
+            # total_gaps_between_items += 1
+            # # TODO: Generalize this to offset by n spaces by multiplying by n
+        gap_length = span / total_gaps
+
+        if len(selected) >= 1:  # TODO: This is dumb, fix it
 
             for index, item in enumerate(selected):
-                new_position = start_location + (distribute_vector * index)
+                new_position = start_location + (gap_length * (index + start_index))
                 item.location = new_position
 
-                # current_mat = item.matrix_world
-                # current_trs = [
-                #     mathutils.Matrix.Translation(current_mat.decompose()[0]),
-                #     current_mat.decompose()[1].to_matrix(),
-                #     mathutils.Matrix.Scale(current_mat.decompose()[2][0], 4),
-                # ]
-                # current_trs[1].resize_4x4()
-                # item.matrix_world = (
-                #     active_trs[0] @
-                #     active_trs[1] @
-                #     current_trs[2]
-                # )
         else:
             self.report(
                 {'ERROR'},
@@ -426,6 +442,20 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             #         "Start"
             #     )
             # )
+        dist_obj_along_settings_area = dist_obj_along_line_gui.column(align=True)
+        dist_obj_along_settings_area.label(text="Operator settings:", icon="PREFERENCES")
+        dist_obj_along_settings = dist_obj_along_settings_area.box()
+        dist_obj_along_offsets = dist_obj_along_settings.row()
+        dist_obj_along_offsets.prop(
+            addon_data,
+            'quick_dist_obj_along_line_offset_start',
+            text="Start Offset"
+        )
+        dist_obj_along_offsets.prop(
+            addon_data,
+            'quick_dist_obj_along_line_offset_end',
+            text="End Offset"
+        )
         dist_obj_along_line_gui.operator(
             "maplus.quickdistributeobjectsalongline",
             text="Distribute Along Line"

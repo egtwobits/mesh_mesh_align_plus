@@ -594,13 +594,13 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Offset the first object from the start point"
         ),
-        default=False
+        default=True
     )
     quick_dist_obj_along_line_offset_end: bpy.props.BoolProperty(
         description=(
             "Offset the last object from the end point"
         ),
-        default=False
+        default=True
     )
     quick_dist_obj_along_line_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
 
