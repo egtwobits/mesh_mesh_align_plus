@@ -59,24 +59,11 @@ class MAPLUS_OT_QuickDistributeObjectsBetween(bpy.types.Operator):
         total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
         span = end_location - start_location
         start_index = 0
-
         if addon_data.quick_dist_obj_bet_offset_start:
             start_index += 1
             total_gaps += 1 if len(selected) > 1 else 0
-
-            # #### OLD ####
-            # # If user offsets from start, first item gets shifted 1 space
-            # index_modifier = 1
-            # total_gaps_between_items += 1
-            # # TODO: Generalize this to offset by n spaces by multiplying by n
         if addon_data.quick_dist_obj_bet_offset_end:
             total_gaps += 1
-
-            # #### OLD ####
-            # # If user offsets from end, pretend there's an extra item
-            # # so the last item falls short 1 space of the end point
-            # total_gaps_between_items += 1
-            # # TODO: Generalize this to offset by n spaces by multiplying by n
         gap_length = span / total_gaps
         if len(selected) >= 1:
 
@@ -155,15 +142,6 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         prims = addon_data.prim_list
         previous_mode = maplus_geom.get_active_object().mode
 
-        # Get active (target) transformation matrix components
-        active_mat = maplus_geom.get_active_object().matrix_world
-        active_trs = [
-            mathutils.Matrix.Translation(active_mat.decompose()[0]),
-            active_mat.decompose()[1].to_matrix(),
-            mathutils.Matrix.Scale(active_mat.decompose()[2][0], 4),
-        ]
-        active_trs[1].resize_4x4()
-
         # Get global coordinate data for each geometry item, with
         # modifiers applied.
         src_global_data = maplus_geom.get_modified_global_coords(
@@ -187,27 +165,13 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
         total_gaps = len(selected) - (1 if len(selected) > 1 else 0)
         span = end_location - start_location
         start_index = 0
-
         if addon_data.quick_dist_obj_along_line_offset_start:
             start_index += 1
             total_gaps += 1 if len(selected) > 1 else 0
-
-            # #### OLD ####
-            # # If user offsets from start, first item gets shifted 1 space
-            # index_modifier = 1
-            # total_gaps_between_items += 1
-            # # TODO: Generalize this to offset by n spaces by multiplying by n
         if addon_data.quick_dist_obj_along_line_offset_end:
             total_gaps += 1
-
-            # #### OLD ####
-            # # If user offsets from end, pretend there's an extra item
-            # # so the last item falls short 1 space of the end point
-            # total_gaps_between_items += 1
-            # # TODO: Generalize this to offset by n spaces by multiplying by n
         gap_length = span / total_gaps
-
-        if len(selected) >= 1:  # TODO: This is dumb, fix it
+        if len(selected) >= 1:
 
             for index, item in enumerate(selected):
                 new_position = start_location + (gap_length * (index + start_index))
