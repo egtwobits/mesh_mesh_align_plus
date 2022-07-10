@@ -1256,7 +1256,7 @@ class MAPLUS_OT_QuickAxrSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase)
 
 
 class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
-    bl_idname = "maplus.distobjalonglinesrcgrablinestartfromcursor"
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablinestartfromcursor"
     bl_label = "Grab Line Start From Cursor"
     bl_description = "Grabs line start coordinates from the 3D cursor"
     bl_options = {'REGISTER', 'UNDO'}
