@@ -2,12 +2,34 @@
 
 
 import collections
+import math
 
 import bmesh
 import bpy
 import mathutils
 
 import mesh_mesh_align_plus.utils.exceptions as maplus_except
+
+
+def scalar_project(vec1, other):
+    """Get scalar projection of other onto vec1"""
+    vec_project = other.project(vec1)
+    length = vec_project.length
+
+    # Return negative length if pointing in other direction
+    if vec1.angle(other, 0) == math.pi / 2:
+        return 0
+    if vec1.angle(other, 0) > math.pi / 2:
+        return length * -1
+    return length
+
+
+def pt_distance_in_direction(start_pt, end_pt, other_pt):
+    """Get distance from start (pt) to other (pt) in direction of end (pt)"""
+    direction = mathutils.Vector(end_pt - start_pt)
+    direction_other = mathutils.Vector(other_pt - start_pt)
+
+    return scalar_project(direction, direction_other)
 
 
 def set_item_coords(item, coords_to_set, coords):
@@ -288,6 +310,12 @@ class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
@@ -477,6 +505,9 @@ class MAPLUS_OT_GrabAverageLocationBase(bpy.types.Operator):
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
@@ -617,6 +648,9 @@ class MAPLUS_OT_GrabFromCursorBase(bpy.types.Operator):
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
@@ -675,6 +709,9 @@ class MAPLUS_OT_SendCoordToCursorBase(bpy.types.Operator):
 
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
+
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
 
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
@@ -1218,6 +1255,15 @@ class MAPLUS_OT_QuickAxrSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase)
     quick_op_target = 'AXRSRC'
 
 
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablinestartfromcursor"
+    bl_label = "Grab Line Start From Cursor"
+    bl_description = "Grabs line start coordinates from the 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_start'
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
+
+
 class MAPLUS_OT_QuickDsSrcGrabLineStartFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_idname = "maplus.quickdssrcgrablinestartfromcursor"
     bl_label = "Grab From Cursor"
@@ -1578,6 +1624,30 @@ class MAPLUS_OT_QuickAxrGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
     quick_op_target = "AXRSRC"
 
 
+class MAPLUS_OT_QuickDistObjAlongLineGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
+    bl_idname = "maplus.quickdistobjalonglinegrabavgsrclinestart"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = "DISTRIB_OBJ_ALONG_LINE_SRC"
+
+
+class MAPLUS_OT_QuickDistObjAlongLineGrabAvgSrcLineEnd(MAPLUS_OT_GrabAverageLocationBase):
+    bl_idname = "maplus.quickdistobjalonglinegrabavgsrclineend"
+    bl_label = "Grab Average Global Coordinates From Selected Points"
+    bl_description = (
+        "Grabs average global coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = "DISTRIB_OBJ_ALONG_LINE_SRC"
+
+
 class MAPLUS_OT_QuickDsGrabAvgSrcLineStart(MAPLUS_OT_GrabAverageLocationBase):
     bl_idname = "maplus.quickdsgrabavgsrclinestart"
     bl_label = "Grab Average Global Coordinates From Selected Points"
@@ -1713,6 +1783,34 @@ class MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeomet
     vert_attribs_to_set = ('line_start',)
     multiply_by_world_matrix = False
     quick_op_target = 'AXRSRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromActiveGlobal(
+        MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablinestartfromactiveglobal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromActiveLocal(
+        MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablinestartfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line start from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
@@ -1921,6 +2019,15 @@ class MAPLUS_OT_QuickAxrSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase
     quick_op_target = 'AXRSRC'
 
 
+class MAPLUS_OT_QuickDistObjAlongLineSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcsendlinestarttocursor"
+    bl_label = "Sends Line Start to Cursor"
+    bl_description = "Sends Line Start Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_start'
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
+
+
 class MAPLUS_OT_QuickDsSrcSendLineStartToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_idname = "maplus.quickdssrcsendlinestarttocursor"
     bl_label = "Sends Line Start to Cursor"
@@ -1990,6 +2097,15 @@ class MAPLUS_OT_QuickAxrSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     vert_attrib_to_set = 'line_end'
     quick_op_target = 'AXRSRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablineendfromcursor"
+    bl_label = "Grab From Cursor"
+    bl_description = "Grabs coordinates from 3D cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attrib_to_set = 'line_end'
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_QuickDsSrcGrabLineEndFromCursor(MAPLUS_OT_GrabFromCursorBase):
@@ -2124,6 +2240,32 @@ class MAPLUS_OT_QuickAxrSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometry
     vert_attribs_to_set = ('line_end',)
     multiply_by_world_matrix = False
     quick_op_target = 'AXRSRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromActiveGlobal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablineendfromactiveglobal"
+    bl_label = "Grab Global Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs global coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = True
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcgrablineendfromactivelocal"
+    bl_label = "Grab Local Coordinate for Line End From Active Point"
+    bl_description = (
+        "Grabs local coordinates for line end from selected vertex"
+        "in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_end',)
+    multiply_by_world_matrix = False
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_QuickDsSrcGrabLineEndFromActiveLocal(MAPLUS_OT_GrabFromGeometryBase):
@@ -2263,6 +2405,15 @@ class MAPLUS_OT_QuickAxrSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
     bl_options = {'REGISTER', 'UNDO'}
     source_coord_attrib = 'line_end'
     quick_op_target = 'AXRSRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcsendlineendtocursor"
+    bl_label = "Sends Line End to Cursor"
+    bl_description = "Sends Line End Coordinates to 3D Cursor"
+    bl_options = {'REGISTER', 'UNDO'}
+    source_coord_attrib = 'line_end'
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_QuickDsSrcSendLineEndToCursor(MAPLUS_OT_SendCoordToCursorBase):
@@ -2632,6 +2783,30 @@ class MAPLUS_OT_QuickAxisRotateGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
     vert_attribs_to_set = ('line_start', 'line_end')
     multiply_by_world_matrix = False
     quick_op_target = "AXRSRC"
+
+
+class MAPLUS_OT_DistObjAlongLineGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.distobjalonglinegrabsrc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "DISTRIB_OBJ_ALONG_LINE_SRC"
+
+
+class MAPLUS_OT_DistObjAlongLineGrabSrcLoc(MAPLUS_OT_GrabFromGeometryBase):
+    bl_idname = "maplus.distobjalonglinegrabsrcloc"
+    bl_label = "Grab Line from Selected Verts"
+    bl_description = (
+        "Grabs line coordinates from selected vertices in edit mode"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+    vert_attribs_to_set = ('line_start', 'line_end')
+    multiply_by_world_matrix = True
+    quick_op_target = "DISTRIB_OBJ_ALONG_LINE_SRC"
 
 
 class MAPLUS_OT_QuickDirectionalSlideGrabSrc(MAPLUS_OT_GrabFromGeometryBase):
@@ -3939,6 +4114,9 @@ class MAPLUS_OT_SwapPointsBase(bpy.types.Operator):
             elif self.quick_op_target == "AXRSRC":
                 active_item = addon_data.quick_axis_rotate_src
 
+            elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+                active_item = addon_data.quick_dist_obj_along_line_src
+
             elif self.quick_op_target == "APLSRC":
                 active_item = addon_data.quick_align_planes_src
             elif self.quick_op_target == "APLDEST":
@@ -4042,6 +4220,15 @@ class MAPLUS_OT_QuickAxrSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     targets = ('line_start', 'line_end')
     quick_op_target = 'AXRSRC'
+
+
+class MAPLUS_OT_QuickDistObjAlongLineSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
+    bl_idname = "maplus.quickdistobjalonglinesrcswaplinepoints"
+    bl_label = "Swap Line Points"
+    bl_description = "Swap line points"
+    bl_options = {'REGISTER', 'UNDO'}
+    targets = ('line_start', 'line_end')
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_QuickDsSrcSwapLinePoints(MAPLUS_OT_SwapPointsBase):
@@ -4802,6 +4989,10 @@ class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
             addon_data.quick_apl_show_set_origin_mode_dest_geom = (
                 not addon_data.quick_apl_show_set_origin_mode_dest_geom
             )
+        elif self.quick_op_target == "DISTRIB_OBJ_ALONG_LINE_SRC":
+            addon_data.quick_dist_obj_along_line_show_src_geom = (
+                not addon_data.quick_dist_obj_along_line_show_src_geom
+            )
         elif self.quick_op_target == "SLOT1":
             addon_data.quick_calc_show_slot1_geom = (
                 not addon_data.quick_calc_show_slot1_geom
@@ -4816,6 +5007,14 @@ class MAPLUS_OT_ShowHideQuickGeomBaseClass(bpy.types.Operator):
             )
 
         return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideDistAlongLineGeom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
+    bl_idname = "maplus.showhidedistalonglinegeom"
+    bl_label = "Show/hide \"distribute along line\" geometry"
+    bl_description = "Show/hide \"distribute along line\" geometry"
+    bl_options = {'REGISTER', 'UNDO'}
+    quick_op_target = 'DISTRIB_OBJ_ALONG_LINE_SRC'
 
 
 class MAPLUS_OT_ShowHideQuickCalcSlot1Geom(MAPLUS_OT_ShowHideQuickGeomBaseClass):
