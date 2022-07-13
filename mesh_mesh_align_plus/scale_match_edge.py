@@ -487,7 +487,7 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
                 preserve_button_roundedge = sme_src_geom_top.row()
                 preserve_button_roundedge.operator(
                         "maplus.quickscalematchedgegrabsrc",
-                        icon='LIGHT_SUN',
+                        icon='CURVE_PATH',
                         text="Grab Source"
                 )
             else:
@@ -499,7 +499,7 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
                 )
                 sme_src_geom_top.label(
                     text="Source Coordinates",
-                    icon="LIGHT_SUN"
+                    icon="CURVE_PATH"
                 )
 
                 sme_src_geom_editor = sme_grab_col.box()
@@ -623,7 +623,7 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
             preserve_button_roundedge = sme_dest_geom_top.row()
             preserve_button_roundedge.operator(
                     "maplus.quickscalematchedgegrabdest",
-                    icon='LIGHT_SUN',
+                    icon='CURVE_PATH',
                     text="Grab Destination"
             )
         else:
@@ -635,7 +635,7 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
             )
             sme_dest_geom_top.label(
                 text="Destination Coordinates",
-                icon="LIGHT_SUN"
+                icon="CURVE_PATH"
             )
 
             sme_dest_geom_editor = sme_grab_col.box()
