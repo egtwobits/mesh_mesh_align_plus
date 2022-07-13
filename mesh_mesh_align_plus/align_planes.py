@@ -1022,11 +1022,16 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             'apl_flip_normal',
             text='Flip Normal'
         )
-        apl_mods_row1.prop(
+        # Pop the trans. orientation checkbox into its
+        # own sublayout and disable it (either fix and
+        # re-enable or remove this if no longer supported)
+        transf_orientation_area = apl_mods_row1.row()
+        transf_orientation_area.prop(
             addon_data.quick_align_planes_transf,
             'apl_use_custom_orientation',
             text='Use Transf. Orientation'
         )
+        transf_orientation_area.enabled = False
         apl_mods_row2 = apl_mods.row()
         apl_mods_row2.prop(
             addon_data.quick_align_planes_transf,
