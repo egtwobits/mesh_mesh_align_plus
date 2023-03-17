@@ -46,6 +46,8 @@ classes = (
     maplus_apl.MAPLUS_OT_AlignPlanesWholeMesh,
     maplus_apl.MAPLUS_OT_QuickAlignPlanesMeshSelected,
     maplus_apl.MAPLUS_OT_QuickAlignPlanesWholeMesh,
+    maplus_apl.MAPLUS_OT_EasyAlignPlanes,
+    maplus_apl.MAPLUS_OT_ClearEasyAlignPlanes,
 
     maplus_ds.MAPLUS_OT_DirectionalSlideBase,
     maplus_ds.MAPLUS_OT_DirectionalSlideObject,

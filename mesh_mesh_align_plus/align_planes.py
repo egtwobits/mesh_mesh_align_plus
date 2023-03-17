@@ -702,6 +702,393 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
         return True
 
 
+# TODO: Add a clear operator that resets source data and first click flag
+class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
+    bl_idname = "maplus.cleareasyalignplanes"
+    bl_label = "Clear Easy Align Planes"
+    bl_description = "Clear Easy Align Planes"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        # TODO: Add docs, >:(
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_apl_is_first_press = True
+        # addon_data.easy_apl_target = FOO
+        addon_data.easy_apl_target_list.clear()
+        # addon_data.easy_apl_src = FOO
+        # addon_data.easy_apl_dest = FOO
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
+    bl_idname = "maplus.easyalignplanes"
+    bl_label = "Easy Align Planes"
+    bl_description = "Easy Align Planes"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        # TODO: Add docs, >:(
+        addon_data = bpy.context.scene.maplus_data
+        previous_mode = maplus_geom.get_active_object().mode
+        # Get valid objects from the target list
+        valid_targets = [
+            item
+            for item in addon_data.easy_apl_target_list
+                if item.val_str in bpy.context.scene.objects
+        ]
+        multi_edit_targets = [bpy.context.scene.objects[name.val_str] for name in valid_targets]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (addon_data.easy_apl_target != 'OBJECT' and not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Easy mode MUST auto-grab on first and second click: check auto grab prerequisites
+        if not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab source verts '
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        if maplus_geom.get_active_object().type != 'MESH':
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab source verts '
+                 ' from a non-mesh object.')
+            )
+            return {'CANCELLED'}
+
+        # TODO: Check/fix available modes
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (addon_data.easy_apl_target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
+
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
+
+            if addon_data.easy_apl_is_first_press:  # On first press, auto grab source verts # TODO: Implement this :)
+                # Get global coordinate data for each geometry item, with
+                # modifiers applied. Grab either directly from the scene data
+                # (for quick ops), or from the MAPlus primitives
+                # CollectionProperty on the scene data (for advanced tools)
+                # if hasattr(self, "quick_op_target"):  # TODO get rid of these conditionals
+                #     if (addon_data.quick_align_planes_auto_grab_src
+                #             and not addon_data.quick_align_planes_set_origin_mode):
+                vert_attribs_to_set = (
+                    'plane_pt_a',
+                    'plane_pt_b',
+                    'plane_pt_c'
+                )
+                try:
+                    vert_data = maplus_geom.return_selected_verts(
+                        maplus_geom.get_active_object(),
+                        len(vert_attribs_to_set),
+                        maplus_geom.get_active_object().matrix_world
+                    )
+                except maplus_except.InsufficientSelectionError:
+                    self.report({'ERROR'}, 'Not enough vertices selected.')
+                    return {'CANCELLED'}
+                except maplus_except.NonMeshGrabError:
+                    self.report(
+                        {'ERROR'},
+                        'Cannot grab coords: non-mesh or no active object.'
+                    )
+                    return {'CANCELLED'}
+
+                maplus_geom.set_item_coords(
+                    addon_data.easy_align_planes_src,
+                    vert_attribs_to_set,
+                    vert_data
+                )
+
+                # Go back to whatever mode we were in before doing this
+                bpy.ops.object.mode_set(mode=previous_mode)
+
+                # Get/store the objects selected during the first press
+                selected = [
+                    item
+                    for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+                ]
+                target_list = addon_data.easy_apl_target_list
+                target_list.clear()
+                for item in selected:
+                    target_list_item = target_list.add()
+                    target_list_item.val_str = item.name
+
+                addon_data.easy_apl_is_first_press = False
+
+                return {'FINISHED'}
+
+            # TODO: Write a high level description above of what's being done
+            else:  # This is NOT a first press --> auto grab dest and apply transform
+
+                # TODO: Fix this docs/refactor here
+                # Get DESTINATION global coordinate data for each geometry item, with
+                # modifiers applied. Grab either directly from the scene data
+                # (for quick ops), or from the MAPlus primitives
+                # CollectionProperty on the scene data (for advanced tools)
+                # if hasattr(self, "quick_op_target"):  # TODO get rid of these conditionals
+                #     if (addon_data.quick_align_planes_auto_grab_src
+                #             and not addon_data.quick_align_planes_set_origin_mode):
+                vert_attribs_to_set = (
+                    'plane_pt_a',
+                    'plane_pt_b',
+                    'plane_pt_c'
+                )
+                try:
+                    vert_data = maplus_geom.return_selected_verts(
+                        maplus_geom.get_active_object(),
+                        len(vert_attribs_to_set),
+                        maplus_geom.get_active_object().matrix_world
+                    )
+                except maplus_except.InsufficientSelectionError:
+                    self.report({'ERROR'}, 'Not enough vertices selected.')
+                    return {'CANCELLED'}
+                except maplus_except.NonMeshGrabError:
+                    self.report(
+                        {'ERROR'},
+                        'Cannot grab coords: non-mesh or no active object.'
+                    )
+                    return {'CANCELLED'}
+
+                maplus_geom.set_item_coords(
+                    addon_data.easy_align_planes_dest,
+                    vert_attribs_to_set,
+                    vert_data
+                )
+
+                src_global_data = maplus_geom.get_modified_global_coords(
+                    geometry=addon_data.easy_align_planes_src,
+                    kind='PLANE'
+                )
+                dest_global_data = maplus_geom.get_modified_global_coords(
+                    geometry=addon_data.easy_align_planes_dest,
+                    kind='PLANE'
+                )
+
+                # These global point coordinate vectors will be used to construct
+                # geometry and transformations in both object (global) space
+                # and mesh (local) space
+                if addon_data.easy_apl_transform_settings.apl_alternate_pivot:
+                    src_pt_a = src_global_data[1]
+                    src_pt_b = src_global_data[0]
+                else:
+                    src_pt_a = src_global_data[0]
+                    src_pt_b = src_global_data[1]
+                src_pt_c = src_global_data[2]
+
+                if addon_data.easy_apl_transform_settings.apl_alternate_pivot:
+                    dest_pt_a = dest_global_data[1]
+                    dest_pt_b = dest_global_data[0]
+                else:
+                    dest_pt_a = dest_global_data[0]
+                    dest_pt_b = dest_global_data[1]
+                dest_pt_c = dest_global_data[2]
+
+                # We need global data for the object operation and for creation
+                # of a custom transform orientation if the user enables it.
+                # construct normal vector for first (source) plane
+                src_pln_ln_BA = src_pt_a - src_pt_b
+                src_pln_ln_BC = src_pt_c - src_pt_b
+                src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+
+                # Take modifiers on the transformation item into account,
+                # in global (object) space
+                if addon_data.easy_apl_transform_settings.apl_flip_normal:
+                    src_normal.negate()
+
+                # construct normal vector for second (destination) plane
+                dest_pln_ln_BA = dest_pt_a - dest_pt_b
+                dest_pln_ln_BC = dest_pt_c - dest_pt_b
+                dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
+
+                # find rotational difference between source and dest planes
+                rotational_diff = src_normal.rotation_difference(dest_normal)
+
+                # Set up edge alignment (BA plane1 to BA plane2)
+                new_lead_edge_orientation = src_pln_ln_BA.copy()
+                new_lead_edge_orientation.rotate(rotational_diff)
+                parallelize_edges = new_lead_edge_orientation.rotation_difference(
+                    dest_pln_ln_BA
+                )
+
+                # TODO: Restructure/refactor, apply to object
+                if addon_data.easy_apl_target in {'OBJECT', 'OBJECT_ORIGIN'}:
+                    for item in multi_edit_targets:
+                        # Get the object world matrix before we modify it here
+                        item_matrix_unaltered = item.matrix_world.copy()
+                        unaltered_inverse = item_matrix_unaltered.copy()
+                        unaltered_inverse.invert()
+
+                        # Try to rotate the object by the rotational_diff
+                        item.rotation_euler.rotate(
+                            rotational_diff
+                        )
+                        bpy.context.view_layer.update()
+
+                        # Parallelize the leading edges
+                        item.rotation_euler.rotate(
+                            parallelize_edges
+                        )
+                        bpy.context.view_layer.update()
+
+                        # get local coords using active object as basis, in
+                        # other words, determine coords of the source pivot
+                        # relative to the active object's origin by reversing
+                        # the active object's transf from the pivot's coords
+                        local_src_pivot_coords = (
+                            unaltered_inverse @ src_pt_b
+                        )
+
+                        # find the new global location of the pivot (we access
+                        # the item's matrix_world directly here since we
+                        # changed/updated it earlier)
+                        new_global_src_pivot_coords = (
+                            item.matrix_world @ local_src_pivot_coords
+                        )
+                        # figure out how to translate the object (the translation
+                        # vector) so that the source pivot sits on the destination
+                        # pivot's location
+                        # first vector is the global/absolute distance
+                        # between the two pivots
+                        pivot_to_dest = (
+                            dest_pt_b -
+                            new_global_src_pivot_coords
+                        )
+                        item.location = (
+                            item.location +
+                            pivot_to_dest
+                        )
+                        bpy.context.view_layer.update()
+
+                if addon_data.easy_apl_target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
+                    for item in multi_edit_targets:
+                        self.report(
+                            {'WARNING'},
+                            ('Warning/Experimental: mesh transforms'
+                             ' on objects with non-uniform scaling'
+                             ' are not currently supported.')
+                        )
+                        src_mesh = bmesh.new()
+                        src_mesh.from_mesh(item.data)
+
+                        item_matrix_unaltered_loc = item.matrix_world.copy()
+                        unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                        unaltered_inverse_loc.invert()
+
+                        # Stored geom data in local coords
+                        src_a_loc = unaltered_inverse_loc @ src_pt_a
+                        src_b_loc = unaltered_inverse_loc @ src_pt_b
+                        src_c_loc = unaltered_inverse_loc @ src_pt_c
+
+                        dest_a_loc = unaltered_inverse_loc @ dest_pt_a
+                        dest_b_loc = unaltered_inverse_loc @ dest_pt_b
+                        dest_c_loc = unaltered_inverse_loc @ dest_pt_c
+
+                        src_ba_loc = src_a_loc - src_b_loc
+                        src_bc_loc = src_c_loc - src_b_loc
+                        src_normal_loc = src_ba_loc.cross(src_bc_loc)
+
+                        # Take modifiers on the transformation item into account,
+                        # in local (mesh) space
+                        if addon_data.easy_apl_transform_settings.apl_flip_normal:
+                            src_normal_loc.negate()
+
+                        dest_ba_loc = dest_a_loc - dest_b_loc
+                        dest_bc_loc = dest_c_loc - dest_b_loc
+                        dest_normal_loc = dest_ba_loc.cross(dest_bc_loc)
+
+                        # Get translation, move source pivot to local origin
+                        src_b_inv = src_b_loc.copy()
+                        src_b_inv.negate()
+                        src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                            src_b_inv
+                        )
+
+                        # Get rotational diff between planes
+                        loc_rot_diff = src_normal_loc.rotation_difference(
+                            dest_normal_loc
+                        )
+                        parallelize_planes_loc = loc_rot_diff.to_matrix()
+                        parallelize_planes_loc.resize_4x4()
+
+                        # Get edge alignment rotation (align leading plane edges)
+                        new_lead_edge_ornt_loc = (
+                            parallelize_planes_loc @ src_ba_loc
+                        )
+                        edge_align_loc = (
+                            new_lead_edge_ornt_loc.rotation_difference(
+                                dest_ba_loc
+                            )
+                        )
+                        parallelize_edges_loc = edge_align_loc.to_matrix()
+                        parallelize_edges_loc.resize_4x4()
+
+                        # Get translation, move pivot to destination
+                        pivot_to_dest_loc = mathutils.Matrix.Translation(
+                            dest_b_loc
+                        )
+
+                        mesh_coplanar = (
+                            pivot_to_dest_loc @
+                            parallelize_edges_loc @
+                            parallelize_planes_loc @
+                            src_pivot_to_loc_origin
+                        )
+
+                        if self.target == 'MESH_SELECTED':
+                            src_mesh.transform(
+                                mesh_coplanar,
+                                filter={'SELECT'}
+                            )
+                        elif self.target == 'WHOLE_MESH':
+                            src_mesh.transform(mesh_coplanar)
+                        elif self.target == 'OBJECT_ORIGIN':
+                            # Note: a target of 'OBJECT_ORIGIN' is equivalent
+                            # to performing an object transf. + an inverse
+                            # whole mesh level transf. To the user,
+                            # the object appears to stay in the same place,
+                            # while only the object's origin moves.
+                            src_mesh.transform(mesh_coplanar.inverted())
+
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        src_mesh.to_mesh(item.data)
+
+                # Clear stored source data once the transform is applied
+                addon_data.easy_apl_is_first_press = True
+                addon_data.easy_apl_target_list.clear()
+
+            # Go back to whatever mode we were in before doing this
+            bpy.ops.object.mode_set(mode=previous_mode)
+
+        else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAlignPlanesGUI"
     bl_label = "Quick Align Planes"
@@ -716,6 +1103,25 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
         maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
+
+        layout.label(text="Easy Align Planes")
+        easy_apl_controls = layout.row()
+        if addon_data.easy_apl_is_first_press:
+            easy_apl_controls.operator(
+                "maplus.easyalignplanes",
+                text="Start Alignment",
+            )
+        else:
+            easy_apl_controls.operator(
+                "maplus.easyalignplanes",
+                text="Align to Active",
+            )
+        easy_apl_controls.operator(
+            "maplus.cleareasyalignplanes",
+            text="",
+            icon="PANEL_CLOSE",
+        )
+        layout.separator()
 
         apl_top = layout.row()
         apl_gui = layout.box()

@@ -567,6 +567,29 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_align_planes_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
+    # Easy Align Planes settings
+    easy_apl_target_list: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Align Planes to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Align Planes (apl) settings already defined above
+    easy_apl_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_apl_target: bpy.props.StringProperty(
+        name="Foo",
+        description="",
+        default="OBJECT"  # TODO: Fix/finish
+    )
+    easy_apl_is_first_press: bpy.props.BoolProperty(
+        description=(
+            ""  # TODO: Fix
+        ),
+        default=True
+    )
 
     # Quick distribute objects between settings
     quick_dist_obj_bet_start: bpy.props.StringProperty(
