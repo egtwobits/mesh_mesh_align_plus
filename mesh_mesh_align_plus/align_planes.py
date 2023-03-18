@@ -706,7 +706,7 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
 class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.cleareasyalignplanes"
     bl_label = "Clear Easy Align Planes"
-    bl_description = "Clear Easy Align Planes"
+    bl_description = "Clear Easy Align Planes/start over"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -724,11 +724,53 @@ class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
 class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.easyalignplanes"
     bl_label = "Easy Align Planes"
-    bl_description = "Easy Align Planes"
+    bl_description = (
+        "Super simple two-stage surface-to-surface (mating) alignment."
+        " On first click, select some object(s) you want to move, then"
+        " on the active object pick some vertices defining your source plane."
+        " On second click, select an active object and pick some vertices"
+        " defining your destination place. All objects selected during stage"
+        " 1 will move so that the source key lays flat against the destination"
+        " key (a coplanar/mating operation). You must pick at least 3 verts"
+        " to define your source key and at least 3 verts for your destination"
+        " key (you can also select a face in face select mode as source or dest)."
+    )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        # TODO: Add docs, >:(
+        """Performs a super-simplified two-stage alignment operation.
+
+        Users see this button in the interface, and follow this workflow:
+
+            - Select object(s), enter edit mode, and select target vertices
+              on the active object
+                - User presses the button to run this operator
+                - This is called the "Start Alignment" phase (stage 1)
+                - All selected objects (object names) are stored during this
+                  first-stage button press as targets for the transform
+                - "Source key" verts are also auto grabbed from the active object
+                  during this step (selected verts on the active object)
+            - Select an active object, enter edit mode, and select vertices on
+              the active object
+                - User presses the button to run this operator again
+                - This is called the "Finish Alignment" phase (stage 2)
+                - "Dest key" verts are auto grabbed from the active object
+                  during this step (selected verts on the active object)
+                - The stage flag is reset to indicate that the operator is
+                  starting again on stage 1
+                - Stored object names/target list is cleared
+
+        Users should see the text of this operator's button change during stage 1
+        and stage 2 ("start alignment" and "Apply Alignment" or similar).
+
+        During the stage 1 (determined by a boolean stage flag), a list of objects
+        are stored, and source key verts are auto grabbed from the active/selected
+        object.
+
+        During the second stage, dest key verts are auto grabbed from the active/
+        selected object, the transformation is calculated, and then applied to each
+        object in the target list (stored as noted above during the stage 1).
+        """
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
         # Get valid objects from the target list
@@ -1104,7 +1146,16 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
-        layout.label(text="Easy Align Planes")
+        layout.label(
+            text="Easy Mode Align Planes",
+            icon="FACESEL",
+        )
+        easy_apl_options = layout.box()
+        easy_apl_options.prop(  # addon_data.easy_apl_transform_settings.apl_alternate_pivot
+            addon_data.easy_apl_transform_settings,
+            'apl_flip_normal',
+            text='Flip Normal'
+        )
         easy_apl_controls = layout.row()
         if addon_data.easy_apl_is_first_press:
             easy_apl_controls.operator(
