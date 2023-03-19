@@ -568,7 +568,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         type=MAPlusPrimitive
     )
     # Easy Align Planes settings
-    easy_apl_target_list: bpy.props.CollectionProperty(
+    easy_apl_designated_objects: bpy.props.CollectionProperty(
         type=BasicVariant,
         description=(
             "A list of objects to apply Easy Align Planes to."
@@ -579,14 +579,18 @@ class MAPlusData(bpy.types.PropertyGroup):
     easy_apl_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
     easy_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     easy_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
-    easy_apl_target: bpy.props.StringProperty(
-        name="Foo",
-        description="",
-        default="OBJECT"  # TODO: Fix/finish
+    easy_apl_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="How to apply the alignment"
     )
     easy_apl_is_first_press: bpy.props.BoolProperty(
         description=(
-            ""  # TODO: Fix
+            "Stage indicator flag for Easy Align Planes"
         ),
         default=True
     )

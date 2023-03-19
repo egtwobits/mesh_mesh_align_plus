@@ -702,21 +702,21 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
         return True
 
 
-# TODO: Add a clear operator that resets source data and first click flag
 class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.cleareasyalignplanes"
     bl_label = "Clear Easy Align Planes"
-    bl_description = "Clear Easy Align Planes/start over"
+    bl_description = "Clear/Restart Easy Align Planes"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        # TODO: Add docs, >:(
+        """Set the Easy Align Planes operator back to stage one"""
         addon_data = bpy.context.scene.maplus_data
         addon_data.easy_apl_is_first_press = True
-        # addon_data.easy_apl_target = FOO
-        addon_data.easy_apl_target_list.clear()
-        # addon_data.easy_apl_src = FOO
-        # addon_data.easy_apl_dest = FOO
+        addon_data.easy_apl_designated_objects.clear()
+        # TODO: Reset/clear other data (transf type, vert data etc)
+        # addon_data.easy_apl_transf_type = ...
+        # addon_data.easy_apl_src = ...
+        # addon_data.easy_apl_dest = ...
 
         return {'FINISHED'}
 
@@ -725,15 +725,10 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.easyalignplanes"
     bl_label = "Easy Align Planes"
     bl_description = (
-        "Super simple two-stage surface-to-surface (mating) alignment."
-        " On first click, select some object(s) you want to move, then"
-        " on the active object pick some vertices defining your source plane."
-        " On second click, select an active object and pick some vertices"
-        " defining your destination place. All objects selected during stage"
-        " 1 will move so that the source key lays flat against the destination"
-        " key (a coplanar/mating operation). You must pick at least 3 verts"
-        " to define your source key and at least 3 verts for your destination"
-        " key (you can also select a face in face select mode as source or dest)."
+        "Easy two-stage surface to surface (mating) alignment."
+        " Select some object(s) + a face (3+ verts) in edit mode,"
+        " then click start alignment. Next, pick another face (3+ verts)"
+        " in edit mode to align your objects TO, and hit apply."
     )
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -746,6 +741,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
               on the active object
                 - User presses the button to run this operator
                 - This is called the "Start Alignment" phase (stage 1)
+                - The current stage/behavior is determined by a boolean flag
                 - All selected objects (object names) are stored during this
                   first-stage button press as targets for the transform
                 - "Source key" verts are also auto grabbed from the active object
@@ -756,6 +752,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                 - This is called the "Finish Alignment" phase (stage 2)
                 - "Dest key" verts are auto grabbed from the active object
                   during this step (selected verts on the active object)
+                - The alignment operation is performed
                 - The stage flag is reset to indicate that the operator is
                   starting again on stage 1
                 - Stored object names/target list is cleared
@@ -776,13 +773,14 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
         # Get valid objects from the target list
         valid_targets = [
             item
-            for item in addon_data.easy_apl_target_list
+            for item in addon_data.easy_apl_designated_objects
                 if item.val_str in bpy.context.scene.objects
         ]
         multi_edit_targets = [bpy.context.scene.objects[name.val_str] for name in valid_targets]
         # Check prerequisites for mesh level transforms, need an active/selected object
-        if (addon_data.easy_apl_target != 'OBJECT' and not (maplus_geom.get_active_object()
-                and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+        if (addon_data.easy_apl_transf_type != 'OBJECT'
+                and not (maplus_geom.get_active_object()
+                         and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
             self.report(
                 {'ERROR'},
                 ('Cannot complete: cannot perform mesh-level transform'
@@ -794,24 +792,24 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                 and maplus_geom.get_select_state(maplus_geom.get_active_object())):
             self.report(
                 {'ERROR'},
-                ('Cannot complete: cannot auto-grab source verts '
+                ('Cannot complete: cannot auto-grab vert data'
                  ' without an active (and selected) object.')
             )
             return {'CANCELLED'}
         if maplus_geom.get_active_object().type != 'MESH':
             self.report(
                 {'ERROR'},
-                ('Cannot complete: cannot auto-grab source verts '
+                ('Cannot complete: cannot auto-grab vert data'
                  ' from a non-mesh object.')
             )
             return {'CANCELLED'}
 
-        # TODO: Check/fix available modes
         # Proceed only if selected Blender objects are compatible with the transform target
         # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-        if not (addon_data.easy_apl_target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}
+        if not (addon_data.easy_apl_transf_type in {'WHOLE_MESH'}
                 and [item for item in multi_edit_targets if item.type != 'MESH']):
 
+            # Make sure we're in edit mode with no stale data for proper vert-grabbing
             if maplus_geom.get_active_object().type == 'MESH':
                 # a bmesh can only be initialized in edit mode...
                 if previous_mode != 'EDIT':
@@ -822,14 +820,10 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                     bpy.ops.object.editmode_toggle()
                     bpy.ops.object.editmode_toggle()
 
-            if addon_data.easy_apl_is_first_press:  # On first press, auto grab source verts # TODO: Implement this :)
-                # Get global coordinate data for each geometry item, with
-                # modifiers applied. Grab either directly from the scene data
-                # (for quick ops), or from the MAPlus primitives
-                # CollectionProperty on the scene data (for advanced tools)
-                # if hasattr(self, "quick_op_target"):  # TODO get rid of these conditionals
-                #     if (addon_data.quick_align_planes_auto_grab_src
-                #             and not addon_data.quick_align_planes_set_origin_mode):
+            # Stage one (first-press) behavior
+            if addon_data.easy_apl_is_first_press:
+
+                # Auto-grab the SOURCE key from selected verts on the active obj
                 vert_attribs_to_set = (
                     'plane_pt_a',
                     'plane_pt_b',
@@ -851,6 +845,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
+                # Store the obtained vert data
                 maplus_geom.set_item_coords(
                     addon_data.easy_align_planes_src,
                     vert_attribs_to_set,
@@ -860,32 +855,29 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                 # Go back to whatever mode we were in before doing this
                 bpy.ops.object.mode_set(mode=previous_mode)
 
-                # Get/store the objects selected during the first press
+                # Get/store the objects selected during the first press, these
+                # are used later during stage two, where the alignment will be run
+                # against all of these objects
                 selected = [
                     item
                     for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
                 ]
-                target_list = addon_data.easy_apl_target_list
+                target_list = addon_data.easy_apl_designated_objects
                 target_list.clear()
                 for item in selected:
                     target_list_item = target_list.add()
                     target_list_item.val_str = item.name
 
+                # Stage one has finished, set the flag to indicate that the
+                # next run will follow stage-two behavior
                 addon_data.easy_apl_is_first_press = False
 
                 return {'FINISHED'}
 
-            # TODO: Write a high level description above of what's being done
-            else:  # This is NOT a first press --> auto grab dest and apply transform
+            # Stage two (second-press) behavior (apply the alignment)
+            else:
 
-                # TODO: Fix this docs/refactor here
-                # Get DESTINATION global coordinate data for each geometry item, with
-                # modifiers applied. Grab either directly from the scene data
-                # (for quick ops), or from the MAPlus primitives
-                # CollectionProperty on the scene data (for advanced tools)
-                # if hasattr(self, "quick_op_target"):  # TODO get rid of these conditionals
-                #     if (addon_data.quick_align_planes_auto_grab_src
-                #             and not addon_data.quick_align_planes_set_origin_mode):
+                # Auto-grab the DESTINATION key from selected verts on the active obj
                 vert_attribs_to_set = (
                     'plane_pt_a',
                     'plane_pt_b',
@@ -907,6 +899,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                     )
                     return {'CANCELLED'}
 
+                # Store the obtained vert data
                 maplus_geom.set_item_coords(
                     addon_data.easy_align_planes_dest,
                     vert_attribs_to_set,
@@ -968,8 +961,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                     dest_pln_ln_BA
                 )
 
-                # TODO: Restructure/refactor, apply to object
-                if addon_data.easy_apl_target in {'OBJECT', 'OBJECT_ORIGIN'}:
+                if addon_data.easy_apl_transf_type in {'OBJECT'}:
                     for item in multi_edit_targets:
                         # Get the object world matrix before we modify it here
                         item_matrix_unaltered = item.matrix_world.copy()
@@ -1017,14 +1009,9 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                         )
                         bpy.context.view_layer.update()
 
-                if addon_data.easy_apl_target in {'MESH_SELECTED', 'WHOLE_MESH', 'OBJECT_ORIGIN'}:
+                if addon_data.easy_apl_transf_type in {'WHOLE_MESH'}:
                     for item in multi_edit_targets:
-                        self.report(
-                            {'WARNING'},
-                            ('Warning/Experimental: mesh transforms'
-                             ' on objects with non-uniform scaling'
-                             ' are not currently supported.')
-                        )
+
                         src_mesh = bmesh.new()
                         src_mesh.from_mesh(item.data)
 
@@ -1092,27 +1079,14 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                             src_pivot_to_loc_origin
                         )
 
-                        if self.target == 'MESH_SELECTED':
-                            src_mesh.transform(
-                                mesh_coplanar,
-                                filter={'SELECT'}
-                            )
-                        elif self.target == 'WHOLE_MESH':
-                            src_mesh.transform(mesh_coplanar)
-                        elif self.target == 'OBJECT_ORIGIN':
-                            # Note: a target of 'OBJECT_ORIGIN' is equivalent
-                            # to performing an object transf. + an inverse
-                            # whole mesh level transf. To the user,
-                            # the object appears to stay in the same place,
-                            # while only the object's origin moves.
-                            src_mesh.transform(mesh_coplanar.inverted())
+                        src_mesh.transform(mesh_coplanar)
 
                         bpy.ops.object.mode_set(mode='OBJECT')
                         src_mesh.to_mesh(item.data)
 
                 # Clear stored source data once the transform is applied
                 addon_data.easy_apl_is_first_press = True
-                addon_data.easy_apl_target_list.clear()
+                addon_data.easy_apl_designated_objects.clear()
 
             # Go back to whatever mode we were in before doing this
             bpy.ops.object.mode_set(mode=previous_mode)
@@ -1150,13 +1124,17 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             text="Easy Mode Align Planes",
             icon="FACESEL",
         )
-        easy_apl_options = layout.box()
-        easy_apl_options.prop(  # addon_data.easy_apl_transform_settings.apl_alternate_pivot
+        easy_apl_layout = layout.box()
+        easy_apl_options = easy_apl_layout.box()
+        easy_apl_options.prop(
             addon_data.easy_apl_transform_settings,
             'apl_flip_normal',
             text='Flip Normal'
         )
-        easy_apl_controls = layout.row()
+        transf_type_controls = easy_apl_layout.row()
+        transf_type_controls.label(text='Align Mode:')
+        transf_type_controls.prop(addon_data, 'easy_apl_transf_type', expand=True)
+        easy_apl_controls = easy_apl_layout.row()
         if addon_data.easy_apl_is_first_press:
             easy_apl_controls.operator(
                 "maplus.easyalignplanes",
