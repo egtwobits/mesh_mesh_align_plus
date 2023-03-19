@@ -568,6 +568,10 @@ class MAPlusData(bpy.types.PropertyGroup):
         type=MAPlusPrimitive
     )
     # Easy Align Planes settings
+    easy_apl_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy align planes operator.",
+        default=True
+    )
     easy_apl_designated_objects: bpy.props.CollectionProperty(
         type=BasicVariant,
         description=(

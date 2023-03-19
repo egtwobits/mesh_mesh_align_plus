@@ -1114,6 +1114,21 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_ShowHideEasyApl(bpy.types.Operator):
+    bl_idname = "maplus.showhideeasyapl"
+    bl_label = "Show/hide easy align planes"
+    bl_description = "Expands/collapses the easy align planes UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_apl_show = (
+            not addon_data.easy_apl_show
+        )
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAlignPlanesGUI"
     bl_label = "Quick Align Planes"
@@ -1128,42 +1143,60 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
-        layout.label(
-            text="Easy Mode Align Planes",
-            icon="FACESEL",
-        )
-        easy_apl_layout = layout.box()
-        easy_apl_options = easy_apl_layout.box()
-        easy_apl_options.prop(
-            addon_data.easy_apl_transform_settings,
-            'apl_flip_normal',
-            text='Flip Normal'
-        )
-        transf_type_controls = easy_apl_layout.row()
-        transf_type_controls.label(text='Align Mode:')
-        transf_type_controls.prop(addon_data, 'easy_apl_transf_type', expand=True)
-        easy_apl_controls = easy_apl_layout.row()
-        if addon_data.easy_apl_is_first_press:
-            easy_apl_controls.operator(
-                "maplus.easyalignplanes",
-                text="Start Alignment",
+        easy_apl_top = layout.row()
+        if not addon_data.easy_apl_show:
+            easy_apl_top.operator(
+                "maplus.showhideeasyapl",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
             )
         else:
-            easy_apl_controls.operator(
-                "maplus.easyalignplanes",
-                text="Align to Active",
+            easy_apl_top.operator(
+                "maplus.showhideeasyapl",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
             )
-        easy_apl_controls.operator(
-            "maplus.cleareasyalignplanes",
-            text="",
-            icon="PANEL_CLOSE",
+        easy_apl_top.label(
+            text="Easy Align Planes",
+            icon="FACESEL",
         )
+
+        # If expanded, show the easy align planes GUI
+        if addon_data.easy_apl_show:
+            easy_apl_layout = layout.box()
+            easy_apl_options = easy_apl_layout.box()
+            easy_apl_options.prop(
+                addon_data.easy_apl_transform_settings,
+                'apl_flip_normal',
+                text='Flip Normal'
+            )
+            transf_type_controls = easy_apl_layout.row()
+            transf_type_controls.label(text='Align Mode:')
+            transf_type_controls.prop(addon_data, 'easy_apl_transf_type', expand=True)
+            easy_apl_controls = easy_apl_layout.row()
+            if addon_data.easy_apl_is_first_press:
+                easy_apl_controls.operator(
+                    "maplus.easyalignplanes",
+                    text="Start Alignment",
+                )
+            else:
+                easy_apl_controls.operator(
+                    "maplus.easyalignplanes",
+                    text="Align to Active",
+                )
+            easy_apl_controls.operator(
+                "maplus.cleareasyalignplanes",
+                text="",
+                icon="PANEL_CLOSE",
+            )
         layout.separator()
 
         apl_top = layout.row()
         apl_gui = layout.box()
         apl_top.label(
-            text="Align Planes",
+            text="Align Planes (Expert)",
             icon="FACESEL",
         )
         apl_grab_col = apl_gui.column()
