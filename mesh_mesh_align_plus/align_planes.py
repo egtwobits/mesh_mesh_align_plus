@@ -725,7 +725,6 @@ class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
             ('plane_pt_a', 'plane_pt_b', 'plane_pt_c'),
             [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
         )
-        addon_data.easy_apl_transform_settings.apl_alternate_pivot = False
 
         return {'FINISHED'}
 
@@ -924,6 +923,7 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                     kind='PLANE'
                 )
 
+                # TODO: Remove alt pivot option entirely for easy align planes?
                 # These global point coordinate vectors will be used to construct
                 # geometry and transformations in both object (global) space
                 # and mesh (local) space
