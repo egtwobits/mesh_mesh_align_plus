@@ -586,7 +586,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         ],
         name="Transformation Type",
         default='OBJECT',
-        description="How to apply the alignment"
+        description="The alignment mode (how to apply the alignment)"
     )
     easy_apl_is_first_press: bpy.props.BoolProperty(
         description=(

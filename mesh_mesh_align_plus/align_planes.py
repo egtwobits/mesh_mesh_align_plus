@@ -704,19 +704,28 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
 
 class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.cleareasyalignplanes"
-    bl_label = "Clear Easy Align Planes"
+    bl_label = "Reset Easy Align Planes"
     bl_description = "Clear/Restart Easy Align Planes"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        """Set the Easy Align Planes operator back to stage one"""
+        """Set the Easy Align Planes operator back to stage one, reset data"""
         addon_data = bpy.context.scene.maplus_data
         addon_data.easy_apl_is_first_press = True
         addon_data.easy_apl_designated_objects.clear()
-        # TODO: Reset/clear other data (transf type, vert data etc)
-        # addon_data.easy_apl_transf_type = ...
-        # addon_data.easy_apl_src = ...
-        # addon_data.easy_apl_dest = ...
+
+        addon_data.easy_apl_transf_type = 'OBJECT'
+        maplus_geom.set_item_coords(
+            addon_data.easy_align_planes_src,
+            ('plane_pt_a', 'plane_pt_b', 'plane_pt_c'),
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        )
+        maplus_geom.set_item_coords(
+            addon_data.easy_align_planes_dest,
+            ('plane_pt_a', 'plane_pt_b', 'plane_pt_c'),
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        )
+        addon_data.easy_apl_transform_settings.apl_alternate_pivot = False
 
         return {'FINISHED'}
 
@@ -1110,7 +1119,6 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
     bl_label = "Quick Align Planes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
