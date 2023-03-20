@@ -49,6 +49,7 @@ classes = (
     maplus_apl.MAPLUS_OT_EasyAlignPlanes,
     maplus_apl.MAPLUS_OT_ClearEasyAlignPlanes,
     maplus_apl.MAPLUS_OT_ShowHideEasyApl,
+    maplus_apl.MAPLUS_OT_ShowHideQuickApl,
 
     maplus_ds.MAPLUS_OT_DirectionalSlideBase,
     maplus_ds.MAPLUS_OT_DirectionalSlideObject,
