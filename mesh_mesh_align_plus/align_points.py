@@ -711,7 +711,7 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
             )
         apt_top.label(
             text="Align Points (Expert)",
-            icon="SNAP_EDGE",
+            icon="PIVOT_INDIVIDUAL",
         )
 
         # If expanded, show the quick align points GUI
