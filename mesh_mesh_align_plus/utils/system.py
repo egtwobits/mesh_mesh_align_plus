@@ -28,6 +28,10 @@ classes = (
     maplus_apt.MAPLUS_OT_QuickAlignPointsMeshSelected,
     maplus_apt.MAPLUS_OT_AlignPointsWholeMesh,
     maplus_apt.MAPLUS_OT_QuickAlignPointsWholeMesh,
+    maplus_apt.MAPLUS_OT_EasyAlignPoints,
+    maplus_apt.MAPLUS_OT_ClearEasyAlignPoints,
+    maplus_apt.MAPLUS_OT_ShowHideEasyApt,
+    maplus_apt.MAPLUS_OT_ShowHideQuickApt,
 
     maplus_aln.MAPLUS_OT_AlignLinesBase,
     maplus_aln.MAPLUS_OT_AlignLinesObject,
