@@ -714,7 +714,6 @@ class MAPLUS_OT_ClearEasyAlignPlanes(bpy.types.Operator):
         addon_data.easy_apl_is_first_press = True
         addon_data.easy_apl_designated_objects.clear()
 
-        addon_data.easy_apl_transf_type = 'OBJECT'
         maplus_geom.set_item_coords(
             addon_data.easy_align_planes_src,
             ('plane_pt_a', 'plane_pt_b', 'plane_pt_c'),

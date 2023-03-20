@@ -37,6 +37,10 @@ classes = (
     maplus_aln.MAPLUS_OT_AlignLinesWholeMesh,
     maplus_aln.MAPLUS_OT_QuickAlignLinesMeshSelected,
     maplus_aln.MAPLUS_OT_QuickAlignLinesWholeMesh,
+    maplus_aln.MAPLUS_OT_EasyAlignLines,
+    maplus_aln.MAPLUS_OT_ClearEasyAlignLines,
+    maplus_aln.MAPLUS_OT_ShowHideEasyAln,
+    maplus_aln.MAPLUS_OT_ShowHideQuickAln,
 
     maplus_apl.MAPLUS_OT_AlignPlanesBase,
     maplus_apl.MAPLUS_OT_AlignPlanesObject,
