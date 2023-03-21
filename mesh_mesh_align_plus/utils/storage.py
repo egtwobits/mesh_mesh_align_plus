@@ -488,6 +488,37 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_sme_numeric_dest: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
+    # Easy Scale Match Edge settings
+    easy_sme_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy scale match edge operator.",
+        default=True
+    )
+    easy_sme_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Scale Match Edge to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Scale Match Edge (apt) settings already defined above
+    easy_sme_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)  # TODO remove
+    easy_scale_match_edge_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_scale_match_edge_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_sme_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_sme_is_first_press: bpy.props.BoolProperty(
+        description=(
+            "Stage indicator flag for Easy Scale Match Edge"
+        ),
+        default=True
+    )
 
     quick_align_lines_show: bpy.props.BoolProperty(
         description=(

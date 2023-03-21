@@ -76,6 +76,10 @@ classes = (
     maplus_sme.MAPLUS_OT_QuickScaleMatchEdgeMeshSelected,
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeWholeMesh,
     maplus_sme.MAPLUS_OT_QuickScaleMatchEdgeWholeMesh,
+    maplus_sme.MAPLUS_OT_EasyScaleMatchEdge,
+    maplus_sme.MAPLUS_OT_ClearEasyScaleMatchEdge,
+    maplus_sme.MAPLUS_OT_ShowHideEasySme,
+    maplus_sme.MAPLUS_OT_ShowHideQuickSme,
 
     maplus_axr.MAPLUS_OT_AxisRotateBase,
     maplus_axr.MAPLUS_OT_AxisRotateObject,

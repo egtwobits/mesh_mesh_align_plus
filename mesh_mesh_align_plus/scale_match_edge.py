@@ -447,12 +447,349 @@ class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
         return True
 
 
+class MAPLUS_OT_ClearEasyScaleMatchEdge(bpy.types.Operator):
+    bl_idname = "maplus.cleareasyscalematchedge"
+    bl_label = "Reset Easy Scale Match Edge"
+    bl_description = "Clear/Restart Easy Scale Match Edge"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """Set the Easy Scale Match Edge operator back to stage one, reset data"""
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_sme_is_first_press = True
+        addon_data.easy_sme_designated_objects.clear()
+
+        maplus_geom.set_item_coords(
+            addon_data.easy_scale_match_edge_src,
+            ('line_start', 'line_end'),
+            [[0, 0, 0], [0, 0, 0]],
+        )
+        maplus_geom.set_item_coords(
+            addon_data.easy_scale_match_edge_dest,
+            ('line_start', 'line_end'),
+            [[0, 0, 0], [0, 0, 0]],
+        )
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_EasyScaleMatchEdge(bpy.types.Operator):
+    bl_idname = "maplus.easyscalematchedge"
+    bl_label = "Easy Scale Match Edge"
+    bl_description = (
+        # TODO fix
+        "Easy two-stage"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """TODO fix"""
+        addon_data = bpy.context.scene.maplus_data
+        previous_mode = maplus_geom.get_active_object().mode
+        # Get valid objects from the target list
+        valid_targets = [
+            item
+            for item in addon_data.easy_sme_designated_objects
+                if item.val_str in bpy.context.scene.objects
+        ]
+        multi_edit_targets = [bpy.context.scene.objects[name.val_str] for name in valid_targets]
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (addon_data.easy_sme_transf_type != 'OBJECT'
+                and not (maplus_geom.get_active_object()
+                         and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Easy mode MUST auto-grab on first and second click: check auto grab prerequisites
+        if not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        if maplus_geom.get_active_object().type != 'MESH':
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' from a non-mesh object.')
+            )
+            return {'CANCELLED'}
+
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (addon_data.easy_sme_transf_type in {'WHOLE_MESH'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
+
+            # Make sure we're in edit mode with no stale data for proper vert-grabbing
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
+
+            # Stage one (first-press) behavior
+            if addon_data.easy_sme_is_first_press:
+
+                # Auto-grab the SOURCE key from selected verts on the active obj
+                vert_attribs_to_set = (
+                    'line_start',
+                    'line_end'
+                )
+                try:
+                    vert_data = maplus_geom.return_selected_verts(
+                        maplus_geom.get_active_object(),
+                        len(vert_attribs_to_set),
+                        maplus_geom.get_active_object().matrix_world
+                    )
+                except maplus_except.InsufficientSelectionError:
+                    self.report({'ERROR'}, 'Not enough vertices selected.')
+                    return {'CANCELLED'}
+                except maplus_except.NonMeshGrabError:
+                    self.report(
+                        {'ERROR'},
+                        'Cannot grab coords: non-mesh or no active object.'
+                    )
+                    return {'CANCELLED'}
+
+                # Store the obtained vert data
+                maplus_geom.set_item_coords(
+                    addon_data.easy_scale_match_edge_src,
+                    vert_attribs_to_set,
+                    vert_data
+                )
+
+                # Go back to whatever mode we were in before doing this
+                bpy.ops.object.mode_set(mode=previous_mode)
+
+                # Get/store the objects selected during the first press, these
+                # are used later during stage two, where the alignment will be run
+                # against all of these objects
+                selected = [
+                    item
+                    for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+                ]
+                target_list = addon_data.easy_sme_designated_objects
+                target_list.clear()
+                for item in selected:
+                    target_list_item = target_list.add()
+                    target_list_item.val_str = item.name
+
+                # Stage one has finished, set the flag to indicate that the
+                # next run will follow stage-two behavior
+                addon_data.easy_sme_is_first_press = False
+
+                return {'FINISHED'}
+
+            # Stage two (second-press) behavior (apply the alignment)
+            else:
+
+                # Auto-grab the DESTINATION key from selected verts on the active obj
+                vert_attribs_to_set = (
+                    'line_start',
+                    'line_end'
+                )
+                try:
+                    vert_data = maplus_geom.return_selected_verts(
+                        maplus_geom.get_active_object(),
+                        len(vert_attribs_to_set),
+                        maplus_geom.get_active_object().matrix_world
+                    )
+                except maplus_except.InsufficientSelectionError:
+                    self.report({'ERROR'}, 'Not enough vertices selected.')
+                    return {'CANCELLED'}
+                except maplus_except.NonMeshGrabError:
+                    self.report(
+                        {'ERROR'},
+                        'Cannot grab coords: non-mesh or no active object.'
+                    )
+                    return {'CANCELLED'}
+
+                # Store the obtained vert data
+                maplus_geom.set_item_coords(
+                    addon_data.easy_scale_match_edge_dest,
+                    vert_attribs_to_set,
+                    vert_data
+                )
+
+                src_global_data = maplus_geom.get_modified_global_coords(
+                    geometry=addon_data.easy_scale_match_edge_src,
+                    kind='LINE'
+                )
+                dest_global_data = maplus_geom.get_modified_global_coords(
+                    geometry=addon_data.easy_scale_match_edge_dest,
+                    kind='LINE'
+                )
+
+                # These global point coordinate vectors will be used to construct
+                # geometry and transformations in both object (global) space
+                # and mesh (local) space
+                src_start = src_global_data[0]
+                src_end = src_global_data[1]
+
+                dest_start = dest_global_data[0]
+                dest_end = dest_global_data[1]
+
+                # Construct vectors for each edge from the global point coord data
+                src_edge = src_end - src_start
+                dest_edge = dest_end - dest_start
+
+                if dest_edge.length == 0 or src_edge.length == 0:
+                    self.report(
+                        {'ERROR'},
+                        'Divide by zero error: zero length edge encountered'
+                    )
+                    return {'CANCELLED'}
+                scale_factor = dest_edge.length / src_edge.length
+
+                if addon_data.easy_sme_transf_type in {'OBJECT'}:
+                    for item in multi_edit_targets:
+                        # Get the object world matrix before we modify it here
+                        item_matrix_unaltered = item.matrix_world.copy()
+                        unaltered_inverse = item_matrix_unaltered.copy()
+                        unaltered_inverse.invert()
+
+                        # (Note that there are no transformation modifiers for this
+                        # transformation type, so that section is omitted here)
+                        item.scale = [
+                            scale_factor * num
+                            for num in item.scale
+                        ]
+                        bpy.context.view_layer.update()
+
+                        # put the original line starting point (before the object
+                        # was transformed) into the local object space
+                        src_pivot_location_local = unaltered_inverse @ src_start
+
+                        # get final global position of pivot (source line
+                        # start coords) after object rotation
+                        new_global_src_pivot_coords = (
+                                item.matrix_world @
+                                src_pivot_location_local
+                        )
+
+                        # get translation, new to old (original) pivot location
+                        new_to_old_pivot = (
+                                src_start - new_global_src_pivot_coords
+                        )
+
+                        item.location = (
+                                item.location + new_to_old_pivot
+                        )
+                        bpy.context.view_layer.update()
+
+                if addon_data.easy_sme_transf_type in {'WHOLE_MESH'}:
+                    for item in multi_edit_targets:
+                        # Init source mesh
+                        src_mesh = bmesh.new()
+                        src_mesh.from_mesh(item.data)
+
+                        item_matrix_unaltered_loc = item.matrix_world.copy()
+                        unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                        unaltered_inverse_loc.invert()
+
+                        # Stored geom data in local coords
+                        src_start_loc = unaltered_inverse_loc @ src_start
+                        src_end_loc = unaltered_inverse_loc @ src_end
+
+                        dest_start_loc = unaltered_inverse_loc @ dest_start
+                        dest_end_loc = unaltered_inverse_loc @ dest_end
+
+                        # Construct vectors for each line in local space
+                        loc_src_line = src_end_loc - src_start_loc
+                        loc_dest_line = dest_end_loc - dest_start_loc
+
+                        # Get the scale match matrix
+                        scaling_match = mathutils.Matrix.Scale(
+                            scale_factor,
+                            4
+                        )
+
+                        # Get the new pivot location
+                        new_pivot_location_loc = scaling_match @ src_start_loc
+
+                        # Get the translation, new to old pivot location
+                        new_to_old_pivot_vec = (
+                                src_start_loc - new_pivot_location_loc
+                        )
+                        new_to_old_pivot = mathutils.Matrix.Translation(
+                            new_to_old_pivot_vec
+                        )
+
+                        # Get combined scale + move
+                        match_transf = new_to_old_pivot @ scaling_match
+
+                        src_mesh.transform(match_transf)
+
+                        # write and then release the mesh data
+                        bpy.ops.object.mode_set(mode='OBJECT')
+                        src_mesh.to_mesh(item.data)
+                        src_mesh.free()
+
+                # Clear stored source data once the transform is applied
+                addon_data.easy_sme_is_first_press = True
+                addon_data.easy_sme_designated_objects.clear()
+
+            # Go back to whatever mode we were in before doing this
+            bpy.ops.object.mode_set(mode=previous_mode)
+
+        else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideEasySme(bpy.types.Operator):
+    bl_idname = "maplus.showhideeasysme"
+    bl_label = "Show/hide easy scale match edge"
+    bl_description = "Expands/collapses the easy scale match edge UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_sme_show = (
+            not addon_data.easy_sme_show
+        )
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideQuickSme(bpy.types.Operator):
+    bl_idname = "maplus.showhidequicksme"
+    bl_label = "Show/hide quick scale match edge"
+    bl_description = "Expands/collapses the quick scale match edge UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.quick_scale_match_edge_show = (
+            not addon_data.quick_scale_match_edge_show
+        )
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickSMEGUI"
     bl_label = "Quick Scale Match Edge"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
@@ -461,6 +798,59 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
         maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
+
+        easy_sme_top = layout.row()
+        if not addon_data.easy_sme_show:
+            easy_sme_top.operator(
+                "maplus.showhideeasysme",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+        else:
+            easy_sme_top.operator(
+                "maplus.showhideeasysme",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+        easy_sme_top.label(
+            text="Easy Scale Match Edge",
+            icon="FULLSCREEN_ENTER",
+        )
+
+        # If expanded, show the easy scale match edge GUI
+        if addon_data.easy_sme_show:
+            easy_sme_layout = layout.box()
+            # TODO: Can add options later for numeric mode
+            # easy_sme_options = easy_sme_layout.box()
+            # easy_sme_options.prop(
+            #     addon_data.easy_sme_transform_settings,
+            #     'foo',
+            #     text='bar'
+            # )
+            transf_type_controls = easy_sme_layout.row()
+            transf_type_controls.label(text='Align Mode:')
+            transf_type_controls.prop(addon_data, 'easy_sme_transf_type', expand=True)
+            easy_sme_controls = easy_sme_layout.row()
+            if addon_data.easy_sme_is_first_press:
+                easy_sme_controls.operator(
+                    "maplus.easyscalematchedge",
+                    text="Start Match",
+                    icon="FULLSCREEN_ENTER",
+                )
+            else:
+                easy_sme_controls.operator(
+                    "maplus.easyscalematchedge",
+                    text="Match to Active",
+                    icon="FULLSCREEN_ENTER",
+                )
+            easy_sme_controls.operator(
+                "maplus.cleareasyscalematchedge",
+                text="",
+                icon="PANEL_CLOSE",
+            )
+        layout.separator()
 
         sme_top = layout.row()
         sme_gui = layout.box()
