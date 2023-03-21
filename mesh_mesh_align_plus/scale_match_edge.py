@@ -815,7 +815,7 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
                 emboss=False
             )
         easy_sme_top.label(
-            text="Easy Scale Match Edge",
+            text="Easy Match Edge Scale",
             icon="FULLSCREEN_ENTER",
         )
 
@@ -853,340 +853,357 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
         layout.separator()
 
         sme_top = layout.row()
-        sme_gui = layout.box()
-        sme_top.label(text=
-            "Match Edge Scale",
-            icon="FULLSCREEN_ENTER"
-        )
-        sme_grab_col = sme_gui.column()
-        sme_grab_col.prop(
-            addon_data,
-            'quick_scale_match_edge_auto_grab_src',
-            text='Auto Grab Source from Selected Vertices'
+        if not addon_data.quick_scale_match_edge_show:
+            sme_top.operator(
+                "maplus.showhidequicksme",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+        else:
+            sme_top.operator(
+                "maplus.showhidequicksme",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+        sme_top.label(
+            text="Match Edge Scale (Expert)",
+            icon="FULLSCREEN_ENTER",
         )
 
-        sme_src_geom_top = sme_grab_col.row(align=True)
-        if not addon_data.quick_scale_match_edge_auto_grab_src:
-            if not addon_data.quick_sme_show_src_geom:
-                sme_src_geom_top.operator(
-                        "maplus.showhidequicksmesrcgeom",
+        if addon_data.quick_scale_match_edge_show:
+
+            sme_gui = layout.box()
+            sme_grab_col = sme_gui.column()
+            sme_grab_col.prop(
+                addon_data,
+                'quick_scale_match_edge_auto_grab_src',
+                text='Auto Grab Source from Selected Vertices'
+            )
+
+            sme_src_geom_top = sme_grab_col.row(align=True)
+            if not addon_data.quick_scale_match_edge_auto_grab_src:
+                if not addon_data.quick_sme_show_src_geom:
+                    sme_src_geom_top.operator(
+                            "maplus.showhidequicksmesrcgeom",
+                            icon='TRIA_RIGHT',
+                            text="",
+                            emboss=False
+                    )
+                    preserve_button_roundedge = sme_src_geom_top.row()
+                    preserve_button_roundedge.operator(
+                            "maplus.quickscalematchedgegrabsrc",
+                            icon='CURVE_PATH',
+                            text="Grab Source"
+                    )
+                else:
+                    sme_src_geom_top.operator(
+                            "maplus.showhidequicksmesrcgeom",
+                            icon='TRIA_DOWN',
+                            text="",
+                            emboss=False
+                    )
+                    sme_src_geom_top.label(
+                        text="Source Coordinates",
+                        icon="CURVE_PATH"
+                    )
+
+                    sme_src_geom_editor = sme_grab_col.box()
+                    ln_grab_all = sme_src_geom_editor.row(align=True)
+                    ln_grab_all.operator(
+                        "maplus.quickscalematchedgegrabsrcloc",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    ln_grab_all.operator(
+                        "maplus.quickscalematchedgegrabsrc",
+                        icon='WORLD',
+                        text="Grab All Global"
+                    )
+
+                    special_grabs = sme_src_geom_editor.row(align=True)
+                    special_grabs.operator(
+                        "maplus.quicksmegrabnormalsrc",
+                        icon='LIGHT_HEMI',
+                        text="Grab Normal"
+                    )
+                    special_grabs_extra = sme_src_geom_editor.row(align=True)
+                    special_grabs_extra.operator(
+                        "maplus.copyfromsmesrc",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs_extra.operator(
+                        "maplus.pasteintosmesrc",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
+
+                    modifier_header = sme_src_geom_editor.row()
+                    modifier_header.label(text="Line Modifiers:")
+                    apply_mods = modifier_header.row()
+                    apply_mods.alignment = 'RIGHT'
+
+                    item_mods_box = sme_src_geom_editor.box()
+                    mods_row_1 = item_mods_box.row()
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                        'ln_make_unit_vec',
+                        text="Set Length Equal to One"
+                    )
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                        'ln_flip_direction',
+                        text="Flip Direction"
+                    )
+                    mods_row_2 = item_mods_box.row()
+                    mods_row_2.prop(
+                        bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                        'ln_multiplier',
+                        text="Multiplier"
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=sme_src_geom_editor,
+                        coordvec_label="Start:",
+                        op_id_cursor_grab=(
+                            "maplus.quicksmesrcgrablinestartfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quicksmegrabavgsrclinestart"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quicksmesrcgrablinestartfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quicksmesrcgrablinestartfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_scale_match_edge_src,
+                        coord_attribute="line_start",
+                        op_id_cursor_send=(
+                            "maplus.quicksmesrcsendlinestarttocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quicksmesrcswaplinepoints",
+                            "End"
+                        )
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=sme_src_geom_editor,
+                        coordvec_label="End:",
+                        op_id_cursor_grab=(
+                            "maplus.quicksmesrcgrablineendfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quicksmegrabavgsrclineend"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quicksmesrcgrablineendfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quicksmesrcgrablineendfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_scale_match_edge_src,
+                        coord_attribute="line_end",
+                        op_id_cursor_send=(
+                            "maplus.quicksmesrcsendlineendtocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quicksmesrcswaplinepoints",
+                            "Start"
+                        )
+                    )
+
+            if addon_data.quick_sme_show_src_geom:
+                sme_grab_col.separator()
+
+            sme_dest_geom_top = sme_grab_col.row(align=True)
+            if not addon_data.quick_sme_show_dest_geom:
+                sme_dest_geom_top.operator(
+                        "maplus.showhidequicksmedestgeom",
                         icon='TRIA_RIGHT',
                         text="",
                         emboss=False
                 )
-                preserve_button_roundedge = sme_src_geom_top.row()
+                preserve_button_roundedge = sme_dest_geom_top.row()
                 preserve_button_roundedge.operator(
-                        "maplus.quickscalematchedgegrabsrc",
+                        "maplus.quickscalematchedgegrabdest",
                         icon='CURVE_PATH',
-                        text="Grab Source"
+                        text="Grab Destination"
                 )
             else:
-                sme_src_geom_top.operator(
-                        "maplus.showhidequicksmesrcgeom",
+                sme_dest_geom_top.operator(
+                        "maplus.showhidequicksmedestgeom",
                         icon='TRIA_DOWN',
                         text="",
                         emboss=False
                 )
-                sme_src_geom_top.label(
-                    text="Source Coordinates",
+                sme_dest_geom_top.label(
+                    text="Destination Coordinates",
                     icon="CURVE_PATH"
                 )
 
-                sme_src_geom_editor = sme_grab_col.box()
-                ln_grab_all = sme_src_geom_editor.row(align=True)
+                sme_dest_geom_editor = sme_grab_col.box()
+                ln_grab_all = sme_dest_geom_editor.row(align=True)
                 ln_grab_all.operator(
-                    "maplus.quickscalematchedgegrabsrcloc",
+                    "maplus.quickscalematchedgegrabdestloc",
                     icon='VERTEXSEL',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
-                    "maplus.quickscalematchedgegrabsrc",
+                    "maplus.quickscalematchedgegrabdest",
                     icon='WORLD',
                     text="Grab All Global"
                 )
-
-                special_grabs = sme_src_geom_editor.row(align=True)
+                special_grabs = sme_dest_geom_editor.row(align=True)
                 special_grabs.operator(
-                    "maplus.quicksmegrabnormalsrc",
+                    "maplus.quicksmegrabnormaldest",
                     icon='LIGHT_HEMI',
                     text="Grab Normal"
                 )
-                special_grabs_extra = sme_src_geom_editor.row(align=True)
+                special_grabs_extra = sme_dest_geom_editor.row(align=True)
                 special_grabs_extra.operator(
-                    "maplus.copyfromsmesrc",
+                    "maplus.copyfromsmedest",
                     icon='COPYDOWN',
                     text="Copy (To Clipboard)"
                 )
                 special_grabs_extra.operator(
-                    "maplus.pasteintosmesrc",
+                    "maplus.pasteintosmedest",
                     icon='PASTEDOWN',
                     text="Paste (From Clipboard)"
                 )
 
-                modifier_header = sme_src_geom_editor.row()
+                modifier_header = sme_dest_geom_editor.row()
                 modifier_header.label(text="Line Modifiers:")
                 apply_mods = modifier_header.row()
                 apply_mods.alignment = 'RIGHT'
 
-                item_mods_box = sme_src_geom_editor.box()
+                item_mods_box = sme_dest_geom_editor.box()
                 mods_row_1 = item_mods_box.row()
                 mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                     'ln_make_unit_vec',
                     text="Set Length Equal to One"
                 )
                 mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                     'ln_flip_direction',
                     text="Flip Direction"
                 )
                 mods_row_2 = item_mods_box.row()
                 mods_row_2.prop(
-                    bpy.types.AnyType(addon_data.quick_scale_match_edge_src),
+                    bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
                     'ln_multiplier',
                     text="Multiplier"
                 )
 
                 maplus_guitools.layout_coordvec(
-                    parent_layout=sme_src_geom_editor,
+                    parent_layout=sme_dest_geom_editor,
                     coordvec_label="Start:",
                     op_id_cursor_grab=(
-                        "maplus.quicksmesrcgrablinestartfromcursor"
+                        "maplus.quicksmedestgrablinestartfromcursor"
                     ),
                     op_id_avg_grab=(
-                        "maplus.quicksmegrabavgsrclinestart"
+                        "maplus.quicksmegrabavgdestlinestart"
                     ),
                     op_id_local_grab=(
-                        "maplus.quicksmesrcgrablinestartfromactivelocal"
+                        "maplus.quicksmedestgrablinestartfromactivelocal"
                     ),
                     op_id_global_grab=(
-                        "maplus.quicksmesrcgrablinestartfromactiveglobal"
+                        "maplus.quicksmedestgrablinestartfromactiveglobal"
                     ),
-                    coord_container=addon_data.quick_scale_match_edge_src,
+                    coord_container=addon_data.quick_scale_match_edge_dest,
                     coord_attribute="line_start",
                     op_id_cursor_send=(
-                        "maplus.quicksmesrcsendlinestarttocursor"
+                        "maplus.quicksmedestsendlinestarttocursor"
                     ),
                     op_id_text_tuple_swap_first=(
-                        "maplus.quicksmesrcswaplinepoints",
+                        "maplus.quicksmedestswaplinepoints",
                         "End"
                     )
                 )
 
                 maplus_guitools.layout_coordvec(
-                    parent_layout=sme_src_geom_editor,
+                    parent_layout=sme_dest_geom_editor,
                     coordvec_label="End:",
                     op_id_cursor_grab=(
-                        "maplus.quicksmesrcgrablineendfromcursor"
+                        "maplus.quicksmedestgrablineendfromcursor"
                     ),
                     op_id_avg_grab=(
-                        "maplus.quicksmegrabavgsrclineend"
+                        "maplus.quicksmegrabavgdestlineend"
                     ),
                     op_id_local_grab=(
-                        "maplus.quicksmesrcgrablineendfromactivelocal"
+                        "maplus.quicksmedestgrablineendfromactivelocal"
                     ),
                     op_id_global_grab=(
-                        "maplus.quicksmesrcgrablineendfromactiveglobal"
+                        "maplus.quicksmedestgrablineendfromactiveglobal"
                     ),
-                    coord_container=addon_data.quick_scale_match_edge_src,
+                    coord_container=addon_data.quick_scale_match_edge_dest,
                     coord_attribute="line_end",
                     op_id_cursor_send=(
-                        "maplus.quicksmesrcsendlineendtocursor"
+                        "maplus.quicksmedestsendlineendtocursor"
                     ),
                     op_id_text_tuple_swap_first=(
-                        "maplus.quicksmesrcswaplinepoints",
+                        "maplus.quicksmedestswaplinepoints",
                         "Start"
                     )
                 )
 
-        if addon_data.quick_sme_show_src_geom:
-            sme_grab_col.separator()
-
-        sme_dest_geom_top = sme_grab_col.row(align=True)
-        if not addon_data.quick_sme_show_dest_geom:
-            sme_dest_geom_top.operator(
-                    "maplus.showhidequicksmedestgeom",
-                    icon='TRIA_RIGHT',
-                    text="",
-                    emboss=False
+            numeric_gui = sme_gui.column()
+            numeric_gui.prop(
+                addon_data,
+                'quick_sme_numeric_mode',
+                text='Numeric Input Mode'
             )
-            preserve_button_roundedge = sme_dest_geom_top.row()
-            preserve_button_roundedge.operator(
-                    "maplus.quickscalematchedgegrabdest",
-                    icon='CURVE_PATH',
-                    text="Grab Destination"
+            numeric_settings = numeric_gui.box()
+            numeric_grabs = numeric_settings.row()
+            numeric_grabs.prop(
+                addon_data,
+                'quick_sme_numeric_auto',
+                text='Auto Grab Target'
             )
-        else:
-            sme_dest_geom_top.operator(
-                    "maplus.showhidequicksmedestgeom",
-                    icon='TRIA_DOWN',
-                    text="",
-                    emboss=False
-            )
-            sme_dest_geom_top.label(
-                text="Destination Coordinates",
-                icon="CURVE_PATH"
-            )
-
-            sme_dest_geom_editor = sme_grab_col.box()
-            ln_grab_all = sme_dest_geom_editor.row(align=True)
-            ln_grab_all.operator(
-                "maplus.quickscalematchedgegrabdestloc",
-                icon='VERTEXSEL',
-                text="Grab All Local"
-            )
-            ln_grab_all.operator(
-                "maplus.quickscalematchedgegrabdest",
-                icon='WORLD',
-                text="Grab All Global"
-            )
-            special_grabs = sme_dest_geom_editor.row(align=True)
-            special_grabs.operator(
-                "maplus.quicksmegrabnormaldest",
-                icon='LIGHT_HEMI',
-                text="Grab Normal"
-            )
-            special_grabs_extra = sme_dest_geom_editor.row(align=True)
-            special_grabs_extra.operator(
-                "maplus.copyfromsmedest",
-                icon='COPYDOWN',
-                text="Copy (To Clipboard)"
-            )
-            special_grabs_extra.operator(
-                "maplus.pasteintosmedest",
-                icon='PASTEDOWN',
-                text="Paste (From Clipboard)"
-            )
-
-            modifier_header = sme_dest_geom_editor.row()
-            modifier_header.label(text="Line Modifiers:")
-            apply_mods = modifier_header.row()
-            apply_mods.alignment = 'RIGHT'
-
-            item_mods_box = sme_dest_geom_editor.box()
-            mods_row_1 = item_mods_box.row()
-            mods_row_1.prop(
-                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
-                'ln_make_unit_vec',
-                text="Set Length Equal to One"
-            )
-            mods_row_1.prop(
-                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
-                'ln_flip_direction',
-                text="Flip Direction"
-            )
-            mods_row_2 = item_mods_box.row()
-            mods_row_2.prop(
-                bpy.types.AnyType(addon_data.quick_scale_match_edge_dest),
-                'ln_multiplier',
-                text="Multiplier"
-            )
-
-            maplus_guitools.layout_coordvec(
-                parent_layout=sme_dest_geom_editor,
-                coordvec_label="Start:",
-                op_id_cursor_grab=(
-                    "maplus.quicksmedestgrablinestartfromcursor"
-                ),
-                op_id_avg_grab=(
-                    "maplus.quicksmegrabavgdestlinestart"
-                ),
-                op_id_local_grab=(
-                    "maplus.quicksmedestgrablinestartfromactivelocal"
-                ),
-                op_id_global_grab=(
-                    "maplus.quicksmedestgrablinestartfromactiveglobal"
-                ),
-                coord_container=addon_data.quick_scale_match_edge_dest,
-                coord_attribute="line_start",
-                op_id_cursor_send=(
-                    "maplus.quicksmedestsendlinestarttocursor"
-                ),
-                op_id_text_tuple_swap_first=(
-                    "maplus.quicksmedestswaplinepoints",
-                    "End"
+            if not addon_data.quick_sme_numeric_auto:
+                numeric_grabs.operator(
+                    "maplus.grabsmenumeric"
                 )
+            numeric_settings.prop(
+                addon_data,
+                'quick_sme_numeric_length',
+                text='Target Length'
             )
 
-            maplus_guitools.layout_coordvec(
-                parent_layout=sme_dest_geom_editor,
-                coordvec_label="End:",
-                op_id_cursor_grab=(
-                    "maplus.quicksmedestgrablineendfromcursor"
-                ),
-                op_id_avg_grab=(
-                    "maplus.quicksmegrabavgdestlineend"
-                ),
-                op_id_local_grab=(
-                    "maplus.quicksmedestgrablineendfromactivelocal"
-                ),
-                op_id_global_grab=(
-                    "maplus.quicksmedestgrablineendfromactiveglobal"
-                ),
-                coord_container=addon_data.quick_scale_match_edge_dest,
-                coord_attribute="line_end",
-                op_id_cursor_send=(
-                    "maplus.quicksmedestsendlineendtocursor"
-                ),
-                op_id_text_tuple_swap_first=(
-                    "maplus.quicksmedestswaplinepoints",
-                    "Start"
-                )
+            # Disable relevant items depending on whether numeric mode
+            # is enabled or not
+            if addon_data.quick_sme_numeric_mode:
+                sme_grab_col.enabled = False
+            else:
+                numeric_settings.enabled = False
+
+            sme_apply_header = sme_gui.row()
+            sme_apply_header.label(text="Apply to:")
+            sme_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                text='Enable Experimental Mesh Ops.'
             )
-
-        numeric_gui = sme_gui.column()
-        numeric_gui.prop(
-            addon_data,
-            'quick_sme_numeric_mode',
-            text='Numeric Input Mode'
-        )
-        numeric_settings = numeric_gui.box()
-        numeric_grabs = numeric_settings.row()
-        numeric_grabs.prop(
-            addon_data,
-            'quick_sme_numeric_auto',
-            text='Auto Grab Target'
-        )
-        if not addon_data.quick_sme_numeric_auto:
-            numeric_grabs.operator(
-                "maplus.grabsmenumeric"
+            sme_apply_items = sme_gui.row()
+            sme_to_object_and_origin = sme_apply_items.column()
+            sme_to_object_and_origin.operator(
+                "maplus.quickscalematchedgeobject",
+                text="Object"
             )
-        numeric_settings.prop(
-            addon_data,
-            'quick_sme_numeric_length',
-            text='Target Length'
-        )
-
-        # Disable relevant items depending on whether numeric mode
-        # is enabled or not
-        if addon_data.quick_sme_numeric_mode:
-            sme_grab_col.enabled = False
-        else:
-            numeric_settings.enabled = False
-
-        sme_apply_header = sme_gui.row()
-        sme_apply_header.label(text="Apply to:")
-        sme_apply_header.prop(
-            addon_data,
-            'use_experimental',
-            text='Enable Experimental Mesh Ops.'
-        )
-        sme_apply_items = sme_gui.row()
-        sme_to_object_and_origin = sme_apply_items.column()
-        sme_to_object_and_origin.operator(
-            "maplus.quickscalematchedgeobject",
-            text="Object"
-        )
-        sme_to_object_and_origin.operator(
-            "maplus.quickscalematchedgeobjectorigin",
-            text="Obj. Origin"
-        )
-        sme_mesh_apply_items = sme_apply_items.column(align=True)
-        sme_mesh_apply_items.operator(
-            "maplus.quickscalematchedgemeshselected",
-            text="Mesh Piece"
-        )
-        sme_mesh_apply_items.operator(
-            "maplus.quickscalematchedgewholemesh",
-            text="Whole Mesh"
-        )
+            sme_to_object_and_origin.operator(
+                "maplus.quickscalematchedgeobjectorigin",
+                text="Obj. Origin"
+            )
+            sme_mesh_apply_items = sme_apply_items.column(align=True)
+            sme_mesh_apply_items.operator(
+                "maplus.quickscalematchedgemeshselected",
+                text="Mesh Piece"
+            )
+            sme_mesh_apply_items.operator(
+                "maplus.quickscalematchedgewholemesh",
+                text="Whole Mesh"
+            )
