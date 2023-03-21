@@ -681,11 +681,13 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
                 easy_apt_controls.operator(
                     "maplus.easyalignpoints",
                     text="Start Alignment",
+                    icon="PIVOT_INDIVIDUAL",
                 )
             else:
                 easy_apt_controls.operator(
                     "maplus.easyalignpoints",
                     text="Align to Active",
+                    icon="PIVOT_INDIVIDUAL",
                 )
             easy_apt_controls.operator(
                 "maplus.cleareasyalignpoints",

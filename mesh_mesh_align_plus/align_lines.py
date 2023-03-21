@@ -778,11 +778,13 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
                 easy_aln_controls.operator(
                     "maplus.easyalignlines",
                     text="Start Alignment",
+                    icon="SNAP_EDGE",
                 )
             else:
                 easy_aln_controls.operator(
                     "maplus.easyalignlines",
                     text="Align to Active",
+                    icon="SNAP_EDGE",
                 )
             easy_aln_controls.operator(
                 "maplus.cleareasyalignlines",

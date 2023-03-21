@@ -1194,11 +1194,13 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
                 easy_apl_controls.operator(
                     "maplus.easyalignplanes",
                     text="Start Alignment",
+                    icon="FACESEL",
                 )
             else:
                 easy_apl_controls.operator(
                     "maplus.easyalignplanes",
                     text="Align to Active",
+                    icon="FACESEL",
                 )
             easy_apl_controls.operator(
                 "maplus.cleareasyalignplanes",
