@@ -1,4 +1,25 @@
-"""Legacy tools system (A unified list-style GUI with geometry/transforms)."""
+"""Geometry manager module (repurposed from the legacy advanced tools).
+
+TODO: This module has been repurposed into the geometry manager.
+      Refactor to rename and remove references to advanced tools, etc.
+
+Formerly the legacy tools (AKA advanced tools) system (A unified list-style
+GUI with geometry/transforms). The legacy tools have been working, but
+abandoned and removed from the documentation for some time. The union-style data
+structure, and unified list GUI with items that point-to/reference other items,
+stem from this legacy design from the very first releases of Mesh Align Plus,
+explained in more detail below.
+
+The legacy tools system used a unified list of MAPlusPrimitive items (a
+union of all the types: Point, Line, Plane, Calculation and Transformation),
+where users would create point/line/plane items, along with a transformation
+item, in the same list (which would point to the geometry items)...this is
+how they would construct their transformations. This turned out to be a
+terrible design! :) So it has now been repurposed into something else that
+uses many of the same capabilities, but serves a different purpose: to allow
+users to store geometry references that they may need to re-use for their
+transformations or calculations.
+"""
 
 
 import bpy
@@ -676,47 +697,23 @@ class MAPLUS_OT_AddReferenceGeometry(bpy.types.Operator):
         new_item.kind = 'POINT'
         new_item.point = mathutils.Vector((0, 0, 0))
 
-        # try:
-        #     vert_data = maplus_geom.return_selected_verts(
-        #         maplus_geom.get_active_object(),
-        #         len(self.vert_attribs_to_set),
-        #         maplus_geom.get_active_object().matrix_world
-        #     )
-        # except maplus_except.InsufficientSelectionError:
-        #     self.report({'ERROR'}, 'Not enough vertices selected.')
-        #     return {'CANCELLED'}
-        # except maplus_except.NonMeshGrabError:
-        #     self.report(
-        #         {'ERROR'},
-        #         'Cannot grab coords: non-mesh or no active object.'
-        #     )
-        #     return {'CANCELLED'}
-        #
-        # target_data = dict(zip(self.vert_attribs_to_set, vert_data))
-        # try:
-        #     new_item = MAPLUS_OT_AddListItemBase.add_new_named(self)
-        # except maplus_except.UniqueNameError:
-        #     self.report({'ERROR'}, 'Cannot add item, unique name error.')
-        #     return {'CANCELLED'}
-        # new_item.kind = self.new_kind
-        #
-        # for key, val in target_data.items():
-        #     setattr(new_item, key, val)
-
         return {'FINISHED'}
 
 
-# Advanced Tools panel
+# TODO: Code refactoring and cleanup...this WAS
+# the legacy version of Mesh Align Plus, now
+# repurposed into a geometry manager list that
+# users can use to store persistent geometry that
+# they need to reference in their  transformations
+# or calculations.
+# ................
+# Geometry manager UI (formerly the Advanced Tools panel)
 class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_MAPlusGui"
-    bl_label = "MAPlus Geometry"
+    bl_label = "Geometry Mgr. (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
-    # bl_space_type = "PROPERTIES"
-    # bl_region_type = "WINDOW"
-    # bl_category = "Mesh Align Plus"
-    # bl_context = "scene"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -758,16 +755,6 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
             icon='OUTLINER_OB_MESH',
             text=""
         )
-        # add_new_items.operator(
-        #     "maplus.addnewcalculation",
-        #     icon='NODETREE',
-        #     text=""
-        # )
-        # add_new_items.operator(
-        #     "maplus.addnewtransformation",
-        #     icon='GRAPH',
-        #     text=""
-        # )
         add_remove_data_col.operator(
             "maplus.addreferencegeometry",
             icon='AXIS_TOP',
@@ -796,11 +783,6 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                 'name',
                 text=""
             )
-            # item_name_and_types.prop(
-            #     bpy.types.AnyType(active_item),
-            #     'kind',
-            #     text=""
-            # )
             basic_item_attribs_col.separator()
 
             # Item-specific UI elements (primitive-specific data like coords
