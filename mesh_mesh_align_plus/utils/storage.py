@@ -853,7 +853,6 @@ class MAPLUS_OT_CopyToOtherBase(bpy.types.Operator):
         return {'FINISHED'}
 
 
-
 class MAPLUS_OT_PasteIntoAdvToolsActive(MAPLUS_OT_CopyToOtherBase):
     bl_idname = "maplus.pasteintoadvtoolsactive"
     bl_label = "Paste into this item"

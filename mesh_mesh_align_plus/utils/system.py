@@ -555,6 +555,7 @@ classes = (
     maplus_adv_tools.MAPLUS_OT_AddNewPlane,
     maplus_adv_tools.MAPLUS_OT_AddNewCalculation,
     maplus_adv_tools.MAPLUS_OT_AddNewTransformation,
+    maplus_adv_tools.MAPLUS_OT_AddReferenceGeometry,
 
     maplus_adv_tools.MAPLUS_OT_ChangeTypeBaseClass,
     maplus_adv_tools.MAPLUS_OT_ChangeTypeToPointPrim,

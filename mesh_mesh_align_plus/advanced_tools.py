@@ -2,6 +2,7 @@
 
 
 import bpy
+import mathutils
 
 import mesh_mesh_align_plus.utils.exceptions as maplus_except
 import mesh_mesh_align_plus.utils.geom as maplus_geom
@@ -577,14 +578,146 @@ class MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal(MAPLUS_OT_SpecialsAddFromActive
     multiply_by_world_matrix = True
 
 
+class MAPLUS_OT_AddReferenceGeometry(bpy.types.Operator):
+    bl_idname = "maplus.addreferencegeometry"
+    bl_label = (
+        "Adds reference planes (XY, XZ, YZ),"
+        " axis unit vectors (X, Y, Z) and"
+        " origin pt. (0, 0, 0) to the geometry"
+        " manager list."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+
+        def get_unique_name(name):
+            # TODO: Refactor/deduplicate/remove this
+            # Add Name.001 or Name.002 (numbers at the end if the name is
+            # already in use)
+            name_list = {n.name for n in prims}
+            name_counter = 0
+            num_postfix_group = 1
+            base_name = name
+            cur_item_name = base_name
+            num_format = '.{0:0>3}'
+            keep_naming = True
+            while keep_naming:
+                name_counter += 1
+                cur_item_name = base_name + num_format.format(str(name_counter))
+                if num_postfix_group > 16:
+                    raise maplus_except.UniqueNameError('Cannot add, unique name error.')
+                if name_counter == 999:
+                    name_counter = 0
+                    base_name += num_format.format('1')
+                    num_postfix_group += 1
+
+                if not (base_name in name_list):
+                    cur_item_name = base_name
+                    keep_naming = False
+                    continue
+                elif cur_item_name in name_list:
+                    continue
+                else:
+                    keep_naming = False
+                    continue
+
+            return cur_item_name
+
+        # Add reference planes
+        # ....................
+        # Plane XY
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane XY')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((1, 0, 0))
+        new_item.plane_pt_c = mathutils.Vector((1, 1, 0))
+        # Plane XZ
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane XZ')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((0, 0, 1))
+        new_item.plane_pt_c = mathutils.Vector((1, 0, 1))
+        # Plane YZ
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane YZ')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((0, 1, 0))
+        new_item.plane_pt_c = mathutils.Vector((0, 1, 1))
+
+        # Add reference axis unit vectors (X hat, Y hat, Z hat)
+        # .....................................................
+        # X Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis X (X Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((1, 0, 0))
+        # Y Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis Y (Y Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((0, 1, 0))
+        # Z Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis Z (Z Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((0, 0, 1))
+
+        # Add reference origin point (0, 0, 0)
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Origin')
+        new_item.kind = 'POINT'
+        new_item.point = mathutils.Vector((0, 0, 0))
+
+        # try:
+        #     vert_data = maplus_geom.return_selected_verts(
+        #         maplus_geom.get_active_object(),
+        #         len(self.vert_attribs_to_set),
+        #         maplus_geom.get_active_object().matrix_world
+        #     )
+        # except maplus_except.InsufficientSelectionError:
+        #     self.report({'ERROR'}, 'Not enough vertices selected.')
+        #     return {'CANCELLED'}
+        # except maplus_except.NonMeshGrabError:
+        #     self.report(
+        #         {'ERROR'},
+        #         'Cannot grab coords: non-mesh or no active object.'
+        #     )
+        #     return {'CANCELLED'}
+        #
+        # target_data = dict(zip(self.vert_attribs_to_set, vert_data))
+        # try:
+        #     new_item = MAPLUS_OT_AddListItemBase.add_new_named(self)
+        # except maplus_except.UniqueNameError:
+        #     self.report({'ERROR'}, 'Cannot add item, unique name error.')
+        #     return {'CANCELLED'}
+        # new_item.kind = self.new_kind
+        #
+        # for key, val in target_data.items():
+        #     setattr(new_item, key, val)
+
+        return {'FINISHED'}
+
+
 # Advanced Tools panel
 class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_MAPlusGui"
-    bl_label = "Mesh Align Plus Advanced Tools"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
+    bl_label = "MAPlus Geometry"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mesh Align Plus"
+    # bl_space_type = "PROPERTIES"
+    # bl_region_type = "WINDOW"
     # bl_category = "Mesh Align Plus"
-    bl_context = "scene"
+    # bl_context = "scene"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
@@ -625,14 +758,19 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
             icon='OUTLINER_OB_MESH',
             text=""
         )
-        add_new_items.operator(
-            "maplus.addnewcalculation",
-            icon='NODETREE',
-            text=""
-        )
-        add_new_items.operator(
-            "maplus.addnewtransformation",
-            icon='GRAPH',
+        # add_new_items.operator(
+        #     "maplus.addnewcalculation",
+        #     icon='NODETREE',
+        #     text=""
+        # )
+        # add_new_items.operator(
+        #     "maplus.addnewtransformation",
+        #     icon='GRAPH',
+        #     text=""
+        # )
+        add_remove_data_col.operator(
+            "maplus.addreferencegeometry",
+            icon='AXIS_TOP',
             text=""
         )
         add_remove_data_col.operator(
@@ -650,20 +788,19 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         else:
             basic_item_attribs_col = layout.column()
             basic_item_attribs_col.label(text="Item Name and Type:")
-            item_name_and_types = basic_item_attribs_col.split(
+            item_name_and_types = basic_item_attribs_col.row(
                 align=True,
-                factor=.8
             )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
                 'name',
                 text=""
             )
-            item_name_and_types.prop(
-                bpy.types.AnyType(active_item),
-                'kind',
-                text=""
-            )
+            # item_name_and_types.prop(
+            #     bpy.types.AnyType(active_item),
+            #     'kind',
+            #     text=""
+            # )
             basic_item_attribs_col.separator()
 
             # Item-specific UI elements (primitive-specific data like coords
