@@ -67,6 +67,9 @@ classes = (
     maplus_ds.MAPLUS_OT_DirectionalSlideWholeMesh,
     maplus_ds.MAPLUS_OT_QuickDirectionalSlideMeshSelected,
     maplus_ds.MAPLUS_OT_QuickDirectionalSlideWholeMesh,
+    maplus_ds.MAPLUS_OT_EasyDirectionalSlide,
+    maplus_ds.MAPLUS_OT_ShowHideEasyDs,
+    # maplus_ds.MAPLUS_OT_ShowHideQuickDs,
 
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeBase,
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeObject,

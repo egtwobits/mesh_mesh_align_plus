@@ -317,6 +317,202 @@ class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
         return True
 
 
+class MAPLUS_OT_EasyDirectionalSlide(bpy.types.Operator):
+    bl_idname = "maplus.easydirectionalslide"
+    bl_label = "Easy Directional Slide"
+    bl_description = (
+        # TODO fix
+        "Easy two-stage"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """TODO fix"""
+        addon_data = bpy.context.scene.maplus_data
+        previous_mode = maplus_geom.get_active_object().mode
+        # Get/store the objects selected during the first press, these
+        # are used later during stage two, where the alignment will be run
+        # against all of these objects
+        selected = [
+            item
+            for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+        ]
+        multi_edit_targets = selected
+        # Check prerequisites for mesh level transforms, need an active/selected object
+        if (addon_data.easy_ds_transf_type != 'OBJECT'
+                and not (maplus_geom.get_active_object()
+                         and maplus_geom.get_select_state(maplus_geom.get_active_object()))):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot perform mesh-level transform'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        # Easy mode MUST auto-grab on first and second click: check auto grab prerequisites
+        if not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        if maplus_geom.get_active_object().type != 'MESH':
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' from a non-mesh object.')
+            )
+            return {'CANCELLED'}
+
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (addon_data.easy_ds_transf_type in {'WHOLE_MESH'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
+
+            # Make sure we're in edit mode with no stale data for proper vert-grabbing
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
+
+            # Auto-grab the SOURCE key from selected verts on the active obj
+            vert_attribs_to_set = (
+                'line_start',
+                'line_end'
+            )
+            try:
+                vert_data = maplus_geom.return_selected_verts(
+                    maplus_geom.get_active_object(),
+                    len(vert_attribs_to_set),
+                    maplus_geom.get_active_object().matrix_world
+                )
+            except maplus_except.InsufficientSelectionError:
+                self.report({'ERROR'}, 'Not enough vertices selected.')
+                return {'CANCELLED'}
+            except maplus_except.NonMeshGrabError:
+                self.report(
+                    {'ERROR'},
+                    'Cannot grab coords: non-mesh or no active object.'
+                )
+                return {'CANCELLED'}
+
+            # Store the obtained vert data
+            maplus_geom.set_item_coords(
+                addon_data.easy_directional_slide_src,
+                vert_attribs_to_set,
+                vert_data
+            )
+
+            # Go back to whatever mode we were in before doing this
+            bpy.ops.object.mode_set(mode=previous_mode)
+
+            src_global_data = maplus_geom.get_modified_global_coords(
+                geometry=addon_data.easy_directional_slide_src,
+                kind='LINE'
+            )
+
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            dir_start = src_global_data[0]
+            dir_end = src_global_data[1]
+
+            if addon_data.easy_ds_transf_type in {'OBJECT'}:
+                for item in multi_edit_targets:
+                    # Make the vector specifying the direction and
+                    # magnitude to slide in
+                    direction = dir_end - dir_start
+
+                    # Take modifiers on the transformation item into account,
+                    # in global (object) space
+                    if addon_data.easy_ds_transform_settings.ds_make_unit_vec:
+                        direction.normalize()
+                    if addon_data.easy_ds_transform_settings.ds_flip_direction:
+                        direction.negate()
+                    direction *= addon_data.easy_ds_transform_settings.ds_multiplier
+
+                    item.location += direction
+
+            if addon_data.easy_ds_transf_type in {'WHOLE_MESH'}:
+                for item in multi_edit_targets:
+
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
+
+                    # Get the object world matrix
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
+
+                    # Stored geom data in local coords
+                    dir_start_loc = unaltered_inverse_loc @ dir_start
+                    dir_end_loc = unaltered_inverse_loc @ dir_end
+
+                    # Get translation vector in local space
+                    direction_loc = dir_end_loc - dir_start_loc
+
+                    # Take modifiers on the transformation item into account,
+                    # in local (mesh) space
+                    if addon_data.easy_ds_transform_settings.ds_make_unit_vec:
+                        # There are special considerations for this modifier
+                        # since we need to achieve a global length of
+                        # one, but can only transform it in local space
+                        # (NOTE: assumes only uniform scaling on the
+                        # active object)
+                        scaling_factor = 1.0 / item.scale[0]
+                        direction_loc.normalize()
+                        direction_loc *= scaling_factor
+                    if addon_data.easy_ds_transform_settings.ds_flip_direction:
+                        direction_loc.negate()
+                    direction_loc *= addon_data.easy_ds_transform_settings.ds_multiplier
+                    dir_slide = mathutils.Matrix.Translation(direction_loc)
+
+                    src_mesh.transform(dir_slide)
+
+                    # write and then release the mesh data
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
+
+            # Go back to whatever mode we were in before doing this
+            bpy.ops.object.mode_set(mode=previous_mode)
+
+        else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideEasyDs(bpy.types.Operator):
+    bl_idname = "maplus.showhideeasyds"
+    bl_label = "Show/hide easy directional slide"
+    bl_description = "Expands/collapses the easy directional slide UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_ds_show = (
+            not addon_data.easy_ds_show
+        )
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDirectionalSlideGUI"
     bl_label = "Quick Directional Slide"
@@ -331,6 +527,46 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
         maplus_data_ptr = bpy.types.AnyType(bpy.context.scene.maplus_data)
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
+
+        easy_ds_top = layout.row()
+        if not addon_data.easy_ds_show:
+            easy_ds_top.operator(
+                "maplus.showhideeasyds",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+        else:
+            easy_ds_top.operator(
+                "maplus.showhideeasyds",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+        easy_ds_top.label(
+            text="Easy Directional Slide",
+            icon="CURVE_PATH",
+        )
+
+        # If expanded, show the easy directional slide GUI
+        if addon_data.easy_ds_show:
+            easy_ds_layout = layout.box()
+            easy_ds_options = easy_ds_layout.box()
+            easy_ds_options.prop(
+                addon_data.easy_ds_transform_settings,
+                'ds_flip_direction',
+                text='Flip Direction'
+            )
+            transf_type_controls = easy_ds_layout.row()
+            transf_type_controls.label(text='Align Mode:')
+            transf_type_controls.prop(addon_data, 'easy_ds_transf_type', expand=True)
+            easy_ds_controls = easy_ds_layout.row()
+            easy_ds_controls.operator(
+                "maplus.easydirectionalslide",
+                text="Slide Active",
+                icon="CURVE_PATH",
+            )
+        layout.separator()
 
         ds_top = layout.row()
         ds_gui = layout.box()
