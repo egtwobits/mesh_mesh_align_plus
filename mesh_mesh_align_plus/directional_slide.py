@@ -513,6 +513,21 @@ class MAPLUS_OT_ShowHideEasyDs(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_ShowHideQuickDs(bpy.types.Operator):
+    bl_idname = "maplus.showhidequickds"
+    bl_label = "Show/hide quick directional slide"
+    bl_description = "Expands/collapses the quick directional slide UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.quick_directional_slide_show = (
+            not addon_data.quick_directional_slide_show
+        )
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDirectionalSlideGUI"
     bl_label = "Quick Directional Slide"
@@ -569,202 +584,220 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
         layout.separator()
 
         ds_top = layout.row()
-        ds_gui = layout.box()
-        ds_top.label(text=
-            "Directional Slide",
-            icon="CURVE_PATH"
-        )
-        ds_grab_col = ds_gui.column()
-        ds_grab_col.prop(
-            addon_data,
-            'quick_directional_slide_auto_grab_src',
-            text='Auto Grab Source from Selected Vertices'
+        if not addon_data.quick_directional_slide_show:
+            ds_top.operator(
+                "maplus.showhidequickds",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+        else:
+            ds_top.operator(
+                "maplus.showhidequickds",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+        ds_top.label(
+            text="Directional Slide (Expert)",
+            icon="CURVE_PATH",
         )
 
-        ds_src_geom_top = ds_grab_col.row(align=True)
-        if not addon_data.quick_directional_slide_auto_grab_src:
-            if not addon_data.quick_ds_show_src_geom:
-                ds_src_geom_top.operator(
-                        "maplus.showhidequickdssrcgeom",
-                        icon='TRIA_RIGHT',
-                        text="",
-                        emboss=False
-                )
-                preserve_button_roundedge = ds_src_geom_top.row()
-                preserve_button_roundedge.operator(
+        # If expanded, show the quick align lines GUI
+        if addon_data.quick_directional_slide_show:
+
+            ds_gui = layout.box()
+            ds_grab_col = ds_gui.column()
+            ds_grab_col.prop(
+                addon_data,
+                'quick_directional_slide_auto_grab_src',
+                text='Auto Grab Source from Selected Vertices'
+            )
+
+            ds_src_geom_top = ds_grab_col.row(align=True)
+            if not addon_data.quick_directional_slide_auto_grab_src:
+                if not addon_data.quick_ds_show_src_geom:
+                    ds_src_geom_top.operator(
+                            "maplus.showhidequickdssrcgeom",
+                            icon='TRIA_RIGHT',
+                            text="",
+                            emboss=False
+                    )
+                    preserve_button_roundedge = ds_src_geom_top.row()
+                    preserve_button_roundedge.operator(
+                            "maplus.quickdirectionalslidegrabsrc",
+                            icon='CURVE_PATH',
+                            text="Grab Source"
+                    )
+                    preserve_button_roundedge.operator(
+                        "maplus.quickdsgrabnormalsrc",
+                        icon='LIGHT_HEMI',
+                        text=""
+                    )
+
+                else:
+                    ds_src_geom_top.operator(
+                            "maplus.showhidequickdssrcgeom",
+                            icon='TRIA_DOWN',
+                            text="",
+                            emboss=False
+                    )
+                    ds_src_geom_top.label(
+                        text="Source Coordinates",
+                        icon="CURVE_PATH"
+                    )
+
+                    ds_src_geom_editor = ds_grab_col.box()
+                    ln_grab_all = ds_src_geom_editor.row(align=True)
+                    ln_grab_all.operator(
+                        "maplus.quickdirectionalslidegrabsrcloc",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    ln_grab_all.operator(
                         "maplus.quickdirectionalslidegrabsrc",
-                        icon='CURVE_PATH',
-                        text="Grab Source"
-                )
-                preserve_button_roundedge.operator(
-                    "maplus.quickdsgrabnormalsrc",
-                    icon='LIGHT_HEMI',
-                    text=""
-                )
-
-            else:
-                ds_src_geom_top.operator(
-                        "maplus.showhidequickdssrcgeom",
-                        icon='TRIA_DOWN',
-                        text="",
-                        emboss=False
-                )
-                ds_src_geom_top.label(
-                    text="Source Coordinates",
-                    icon="CURVE_PATH"
-                )
-
-                ds_src_geom_editor = ds_grab_col.box()
-                ln_grab_all = ds_src_geom_editor.row(align=True)
-                ln_grab_all.operator(
-                    "maplus.quickdirectionalslidegrabsrcloc",
-                    icon='VERTEXSEL',
-                    text="Grab All Local"
-                )
-                ln_grab_all.operator(
-                    "maplus.quickdirectionalslidegrabsrc",
-                    icon='WORLD',
-                    text="Grab All Global"
-                )
-                special_grabs = ds_src_geom_editor.row(align=True)
-                special_grabs.operator(
-                    "maplus.quickdsgrabnormalsrc",
-                    icon='LIGHT_HEMI',
-                    text="Grab Normal"
-                )
-                special_grabs_extra = ds_src_geom_editor.row(align=True)
-                special_grabs_extra.operator(
-                    "maplus.copyfromdssrc",
-                    icon='COPYDOWN',
-                    text="Copy (To Clipboard)"
-                )
-                special_grabs_extra.operator(
-                    "maplus.pasteintodssrc",
-                    icon='PASTEDOWN',
-                    text="Paste (From Clipboard)"
-                )
-
-                modifier_header = ds_src_geom_editor.row()
-                modifier_header.label(text="Line Modifiers:")
-                apply_mods = modifier_header.row()
-                apply_mods.alignment = 'RIGHT'
-
-                item_mods_box = ds_src_geom_editor.box()
-                mods_row_1 = item_mods_box.row()
-                mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
-                    'ln_make_unit_vec',
-                    text="Set Length Equal to One"
-                )
-                mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
-                    'ln_flip_direction',
-                    text="Flip Direction"
-                )
-                mods_row_2 = item_mods_box.row()
-                mods_row_2.prop(
-                    bpy.types.AnyType(addon_data.quick_directional_slide_src),
-                    'ln_multiplier',
-                    text="Multiplier"
-                )
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=ds_src_geom_editor,
-                    coordvec_label="Start:",
-                    op_id_cursor_grab=(
-                        "maplus.quickdssrcgrablinestartfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.quickdsgrabavgsrclinestart"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.quickdssrcgrablinestartfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.quickdssrcgrablinestartfromactiveglobal"
-                    ),
-                    coord_container=addon_data.quick_directional_slide_src,
-                    coord_attribute="line_start",
-                    op_id_cursor_send=(
-                        "maplus.quickdssrcsendlinestarttocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.quickdssrcswaplinepoints",
-                        "End"
+                        icon='WORLD',
+                        text="Grab All Global"
                     )
-                )
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=ds_src_geom_editor,
-                    coordvec_label="End:",
-                    op_id_cursor_grab=(
-                        "maplus.quickdssrcgrablineendfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.quickdsgrabavgsrclineend"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.quickdssrcgrablineendfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.quickdssrcgrablineendfromactiveglobal"
-                    ),
-                    coord_container=addon_data.quick_directional_slide_src,
-                    coord_attribute="line_end",
-                    op_id_cursor_send=(
-                        "maplus.quickdssrcsendlineendtocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.quickdssrcswaplinepoints",
-                        "Start"
+                    special_grabs = ds_src_geom_editor.row(align=True)
+                    special_grabs.operator(
+                        "maplus.quickdsgrabnormalsrc",
+                        icon='LIGHT_HEMI',
+                        text="Grab Normal"
                     )
-                )
+                    special_grabs_extra = ds_src_geom_editor.row(align=True)
+                    special_grabs_extra.operator(
+                        "maplus.copyfromdssrc",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs_extra.operator(
+                        "maplus.pasteintodssrc",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
 
-        if addon_data.quick_ds_show_src_geom:
-            ds_grab_col.separator()
+                    modifier_header = ds_src_geom_editor.row()
+                    modifier_header.label(text="Line Modifiers:")
+                    apply_mods = modifier_header.row()
+                    apply_mods.alignment = 'RIGHT'
 
-        ds_gui.label(text="Operator settings:", icon="PREFERENCES")
-        ds_mods = ds_gui.box()
-        ds_box_row1 = ds_mods.row()
-        ds_box_row1.prop(
-            addon_data.quick_directional_slide_transf,
-            'ds_make_unit_vec',
-            text='Set Length to 1'
-        )
-        ds_box_row1.prop(
-            addon_data.quick_directional_slide_transf,
-            'ds_flip_direction',
-            text='Flip Direction'
-        )
-        ds_box_row2 = ds_mods.row()
-        ds_box_row2.prop(
-            addon_data.quick_directional_slide_transf,
-            'ds_multiplier',
-            text='Multiplier'
-        )
-        ds_apply_header = ds_gui.row()
-        ds_apply_header.label(text="Apply to:")
-        ds_apply_header.prop(
-            addon_data,
-            'use_experimental',
-            text='Enable Experimental Mesh Ops.'
-        )
-        ds_apply_items = ds_gui.row()
-        ds_to_object_and_origin = ds_apply_items.column()
-        ds_to_object_and_origin.operator(
-            "maplus.quickdirectionalslideobject",
-            text="Object"
-        )
-        ds_to_object_and_origin.operator(
-            "maplus.quickdirectionalslideobjectorigin",
-            text="Obj. Origin"
-        )
-        ds_mesh_apply_items = ds_apply_items.column(align=True)
-        ds_mesh_apply_items.operator(
-            "maplus.quickdirectionalslidemeshselected",
-            text="Mesh Piece"
-        )
-        ds_mesh_apply_items.operator(
-            "maplus.quickdirectionalslidewholemesh",
-            text="Whole Mesh"
-        )
+                    item_mods_box = ds_src_geom_editor.box()
+                    mods_row_1 = item_mods_box.row()
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                        'ln_make_unit_vec',
+                        text="Set Length Equal to One"
+                    )
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                        'ln_flip_direction',
+                        text="Flip Direction"
+                    )
+                    mods_row_2 = item_mods_box.row()
+                    mods_row_2.prop(
+                        bpy.types.AnyType(addon_data.quick_directional_slide_src),
+                        'ln_multiplier',
+                        text="Multiplier"
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=ds_src_geom_editor,
+                        coordvec_label="Start:",
+                        op_id_cursor_grab=(
+                            "maplus.quickdssrcgrablinestartfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quickdsgrabavgsrclinestart"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quickdssrcgrablinestartfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quickdssrcgrablinestartfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_directional_slide_src,
+                        coord_attribute="line_start",
+                        op_id_cursor_send=(
+                            "maplus.quickdssrcsendlinestarttocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quickdssrcswaplinepoints",
+                            "End"
+                        )
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=ds_src_geom_editor,
+                        coordvec_label="End:",
+                        op_id_cursor_grab=(
+                            "maplus.quickdssrcgrablineendfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quickdsgrabavgsrclineend"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quickdssrcgrablineendfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quickdssrcgrablineendfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_directional_slide_src,
+                        coord_attribute="line_end",
+                        op_id_cursor_send=(
+                            "maplus.quickdssrcsendlineendtocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quickdssrcswaplinepoints",
+                            "Start"
+                        )
+                    )
+
+            if addon_data.quick_ds_show_src_geom:
+                ds_grab_col.separator()
+
+            ds_gui.label(text="Operator settings:", icon="PREFERENCES")
+            ds_mods = ds_gui.box()
+            ds_box_row1 = ds_mods.row()
+            ds_box_row1.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_make_unit_vec',
+                text='Set Length to 1'
+            )
+            ds_box_row1.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_flip_direction',
+                text='Flip Direction'
+            )
+            ds_box_row2 = ds_mods.row()
+            ds_box_row2.prop(
+                addon_data.quick_directional_slide_transf,
+                'ds_multiplier',
+                text='Multiplier'
+            )
+            ds_apply_header = ds_gui.row()
+            ds_apply_header.label(text="Apply to:")
+            ds_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                text='Enable Experimental Mesh Ops.'
+            )
+            ds_apply_items = ds_gui.row()
+            ds_to_object_and_origin = ds_apply_items.column()
+            ds_to_object_and_origin.operator(
+                "maplus.quickdirectionalslideobject",
+                text="Object"
+            )
+            ds_to_object_and_origin.operator(
+                "maplus.quickdirectionalslideobjectorigin",
+                text="Obj. Origin"
+            )
+            ds_mesh_apply_items = ds_apply_items.column(align=True)
+            ds_mesh_apply_items.operator(
+                "maplus.quickdirectionalslidemeshselected",
+                text="Mesh Piece"
+            )
+            ds_mesh_apply_items.operator(
+                "maplus.quickdirectionalslidewholemesh",
+                text="Whole Mesh"
+            )
