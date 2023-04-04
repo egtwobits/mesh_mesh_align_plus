@@ -720,6 +720,21 @@ class MAPLUS_OT_ShowHideEasyAxr(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_ShowHideQuickAxr(bpy.types.Operator):
+    bl_idname = "maplus.showhidequickaxr"
+    bl_label = "Show/hide quick axis rotate"
+    bl_description = "Expands/collapses the quick axis rotate UI"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.quick_axis_rotate_show = (
+            not addon_data.quick_axis_rotate_show
+        )
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAxisRotateGUI"
     bl_label = "Quick Axis Rotate"
@@ -755,7 +770,7 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             icon="FORCE_MAGNETIC",
         )
 
-        # If expanded, show the easy directional slide GUI
+        # If expanded, show the easy axis rotate GUI
         if addon_data.easy_axr_show:
             easy_axr_layout = layout.box()
             transf_type_controls = easy_axr_layout.row()
@@ -788,191 +803,210 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
         layout.separator()
 
         axr_top = layout.row()
-        axr_gui = layout.box()
-        axr_top.label(text=
-            "Axis Rotate",
+        if not addon_data.quick_axis_rotate_show:
+            axr_top.operator(
+                "maplus.showhidequickaxr",
+                icon='TRIA_RIGHT',
+                text="",
+                emboss=False
+            )
+        else:
+            axr_top.operator(
+                "maplus.showhidequickaxr",
+                icon='TRIA_DOWN',
+                text="",
+                emboss=False
+            )
+        axr_top.label(
+            text="Axis Rotate (Expert)",
             icon="FORCE_MAGNETIC"
         )
-        axr_grab_col = axr_gui.column()
-        axr_grab_col.prop(
-            addon_data,
-            'quick_axis_rotate_auto_grab_src',
-            text='Auto Grab Axis from Selected Vertices'
-        )
 
-        axr_src_geom_top = axr_grab_col.row(align=True)
-        if not addon_data.quick_axis_rotate_auto_grab_src:
-            if not addon_data.quick_axr_show_src_geom:
-                axr_src_geom_top.operator(
-                        "maplus.showhidequickaxrsrcgeom",
-                        icon='TRIA_RIGHT',
-                        text="",
-                        emboss=False
-                )
-                preserve_button_roundedge = axr_src_geom_top.row()
-                preserve_button_roundedge.operator(
+        # If expanded, show the quick axis rotate GUI
+        if addon_data.quick_axis_rotate_show:
+
+            axr_gui = layout.box()
+
+            axr_grab_col = axr_gui.column()
+            axr_grab_col.prop(
+                addon_data,
+                'quick_axis_rotate_auto_grab_src',
+                text='Auto Grab Axis from Selected Vertices'
+            )
+
+            axr_src_geom_top = axr_grab_col.row(align=True)
+            if not addon_data.quick_axis_rotate_auto_grab_src:
+                if not addon_data.quick_axr_show_src_geom:
+                    axr_src_geom_top.operator(
+                            "maplus.showhidequickaxrsrcgeom",
+                            icon='TRIA_RIGHT',
+                            text="",
+                            emboss=False
+                    )
+                    preserve_button_roundedge = axr_src_geom_top.row()
+                    preserve_button_roundedge.operator(
+                            "maplus.quickaxisrotategrabsrc",
+                            icon='CURVE_PATH',
+                            text="Grab Axis"
+                    )
+                    preserve_button_roundedge.operator(
+                        "maplus.quickaxrgrabnormalsrc",
+                        icon='LIGHT_HEMI',
+                        text=""
+                    )
+                else:
+                    axr_src_geom_top.operator(
+                            "maplus.showhidequickaxrsrcgeom",
+                            icon='TRIA_DOWN',
+                            text="",
+                            emboss=False
+                    )
+                    axr_src_geom_top.label(
+                        text="Source Coordinates",
+                        icon="CURVE_PATH"
+                    )
+
+                    axr_src_geom_editor = axr_grab_col.box()
+                    ln_grab_all = axr_src_geom_editor.row(align=True)
+                    ln_grab_all.operator(
+                        "maplus.quickaxisrotategrabsrcloc",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    ln_grab_all.operator(
                         "maplus.quickaxisrotategrabsrc",
-                        icon='CURVE_PATH',
-                        text="Grab Axis"
-                )
-                preserve_button_roundedge.operator(
-                    "maplus.quickaxrgrabnormalsrc",
-                    icon='LIGHT_HEMI',
-                    text=""
-                )
-            else:
-                axr_src_geom_top.operator(
-                        "maplus.showhidequickaxrsrcgeom",
-                        icon='TRIA_DOWN',
-                        text="",
-                        emboss=False
-                )
-                axr_src_geom_top.label(
-                    text="Source Coordinates",
-                    icon="CURVE_PATH"
-                )
-
-                axr_src_geom_editor = axr_grab_col.box()
-                ln_grab_all = axr_src_geom_editor.row(align=True)
-                ln_grab_all.operator(
-                    "maplus.quickaxisrotategrabsrcloc",
-                    icon='VERTEXSEL',
-                    text="Grab All Local"
-                )
-                ln_grab_all.operator(
-                    "maplus.quickaxisrotategrabsrc",
-                    icon='WORLD',
-                    text="Grab All Global"
-                )
-
-                special_grabs = axr_src_geom_editor.row(align=True)
-                special_grabs.operator(
-                    "maplus.quickaxrgrabnormalsrc",
-                    icon='LIGHT_HEMI',
-                    text="Grab Normal"
-                )
-                special_grabs_extra = axr_src_geom_editor.row(align=True)
-                special_grabs_extra.operator(
-                    "maplus.copyfromaxrsrc",
-                    icon='COPYDOWN',
-                    text="Copy (To Clipboard)"
-                )
-                special_grabs_extra.operator(
-                    "maplus.pasteintoaxrsrc",
-                    icon='PASTEDOWN',
-                    text="Paste (From Clipboard)"
-                )
-
-                modifier_header = axr_src_geom_editor.row()
-                modifier_header.label(text="Line Modifiers:")
-                apply_mods = modifier_header.row()
-                apply_mods.alignment = 'RIGHT'
-
-                item_mods_box = axr_src_geom_editor.box()
-                mods_row_1 = item_mods_box.row()
-                mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
-                    'ln_make_unit_vec',
-                    text="Set Length Equal to One"
-                )
-                mods_row_1.prop(
-                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
-                    'ln_flip_direction',
-                    text="Flip Direction"
-                )
-                mods_row_2 = item_mods_box.row()
-                mods_row_2.prop(
-                    bpy.types.AnyType(addon_data.quick_axis_rotate_src),
-                    'ln_multiplier',
-                    text="Multiplier"
-                )
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=axr_src_geom_editor,
-                    coordvec_label="Start:",
-                    op_id_cursor_grab=(
-                        "maplus.quickaxrsrcgrablinestartfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.quickaxrgrabavgsrclinestart"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.quickaxrsrcgrablinestartfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.quickaxrsrcgrablinestartfromactiveglobal"
-                    ),
-                    coord_container=addon_data.quick_axis_rotate_src,
-                    coord_attribute="line_start",
-                    op_id_cursor_send=(
-                        "maplus.quickaxrsrcsendlinestarttocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.quickaxrsrcswaplinepoints",
-                        "End"
+                        icon='WORLD',
+                        text="Grab All Global"
                     )
-                )
 
-                maplus_guitools.layout_coordvec(
-                    parent_layout=axr_src_geom_editor,
-                    coordvec_label="End:",
-                    op_id_cursor_grab=(
-                        "maplus.quickaxrsrcgrablineendfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.quickaxrgrabavgsrclineend"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.quickaxrsrcgrablineendfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.quickaxrsrcgrablineendfromactiveglobal"
-                    ),
-                    coord_container=addon_data.quick_axis_rotate_src,
-                    coord_attribute="line_end",
-                    op_id_cursor_send=(
-                        "maplus.quickaxrsrcsendlineendtocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.quickaxrsrcswaplinepoints",
-                        "Start"
+                    special_grabs = axr_src_geom_editor.row(align=True)
+                    special_grabs.operator(
+                        "maplus.quickaxrgrabnormalsrc",
+                        icon='LIGHT_HEMI',
+                        text="Grab Normal"
                     )
-                )
+                    special_grabs_extra = axr_src_geom_editor.row(align=True)
+                    special_grabs_extra.operator(
+                        "maplus.copyfromaxrsrc",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs_extra.operator(
+                        "maplus.pasteintoaxrsrc",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
 
-        if addon_data.quick_axr_show_src_geom:
-            axr_grab_col.separator()
+                    modifier_header = axr_src_geom_editor.row()
+                    modifier_header.label(text="Line Modifiers:")
+                    apply_mods = modifier_header.row()
+                    apply_mods.alignment = 'RIGHT'
 
-        axr_gui.label(text="Operator settings:", icon="PREFERENCES")
-        axr_mods = axr_gui.box()
-        axr_mods_row1 = axr_mods.row()
-        axr_mods_row1.prop(
-            addon_data.quick_axis_rotate_transf,
-            'axr_amount',
-            text='Amount'
-        )
-        axr_apply_header = axr_gui.row()
-        axr_apply_header.label(text="Apply to:")
-        axr_apply_header.prop(
-            addon_data,
-            'use_experimental',
-            text='Enable Experimental Mesh Ops.'
-        )
-        axr_apply_items = axr_gui.row()
-        axr_to_object_and_origin = axr_apply_items.column()
-        axr_to_object_and_origin.operator(
-            "maplus.quickaxisrotateobject",
-            text="Object"
-        )
-        axr_to_object_and_origin.operator(
-            "maplus.quickaxisrotateobjectorigin",
-            text="Obj. Origin"
-        )
-        axr_mesh_apply_items = axr_apply_items.column(align=True)
-        axr_mesh_apply_items.operator(
-            "maplus.quickaxisrotatemeshselected",
-            text="Mesh Piece"
-        )
-        axr_mesh_apply_items.operator(
-            "maplus.quickaxisrotatewholemesh",
-            text="Whole Mesh"
-        )
+                    item_mods_box = axr_src_geom_editor.box()
+                    mods_row_1 = item_mods_box.row()
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                        'ln_make_unit_vec',
+                        text="Set Length Equal to One"
+                    )
+                    mods_row_1.prop(
+                        bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                        'ln_flip_direction',
+                        text="Flip Direction"
+                    )
+                    mods_row_2 = item_mods_box.row()
+                    mods_row_2.prop(
+                        bpy.types.AnyType(addon_data.quick_axis_rotate_src),
+                        'ln_multiplier',
+                        text="Multiplier"
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=axr_src_geom_editor,
+                        coordvec_label="Start:",
+                        op_id_cursor_grab=(
+                            "maplus.quickaxrsrcgrablinestartfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quickaxrgrabavgsrclinestart"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quickaxrsrcgrablinestartfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quickaxrsrcgrablinestartfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_axis_rotate_src,
+                        coord_attribute="line_start",
+                        op_id_cursor_send=(
+                            "maplus.quickaxrsrcsendlinestarttocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quickaxrsrcswaplinepoints",
+                            "End"
+                        )
+                    )
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=axr_src_geom_editor,
+                        coordvec_label="End:",
+                        op_id_cursor_grab=(
+                            "maplus.quickaxrsrcgrablineendfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.quickaxrgrabavgsrclineend"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.quickaxrsrcgrablineendfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.quickaxrsrcgrablineendfromactiveglobal"
+                        ),
+                        coord_container=addon_data.quick_axis_rotate_src,
+                        coord_attribute="line_end",
+                        op_id_cursor_send=(
+                            "maplus.quickaxrsrcsendlineendtocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.quickaxrsrcswaplinepoints",
+                            "Start"
+                        )
+                    )
+
+            if addon_data.quick_axr_show_src_geom:
+                axr_grab_col.separator()
+
+            axr_gui.label(text="Operator settings:", icon="PREFERENCES")
+            axr_mods = axr_gui.box()
+            axr_mods_row1 = axr_mods.row()
+            axr_mods_row1.prop(
+                addon_data.quick_axis_rotate_transf,
+                'axr_amount',
+                text='Amount'
+            )
+            axr_apply_header = axr_gui.row()
+            axr_apply_header.label(text="Apply to:")
+            axr_apply_header.prop(
+                addon_data,
+                'use_experimental',
+                text='Enable Experimental Mesh Ops.'
+            )
+            axr_apply_items = axr_gui.row()
+            axr_to_object_and_origin = axr_apply_items.column()
+            axr_to_object_and_origin.operator(
+                "maplus.quickaxisrotateobject",
+                text="Object"
+            )
+            axr_to_object_and_origin.operator(
+                "maplus.quickaxisrotateobjectorigin",
+                text="Obj. Origin"
+            )
+            axr_mesh_apply_items = axr_apply_items.column(align=True)
+            axr_mesh_apply_items.operator(
+                "maplus.quickaxisrotatemeshselected",
+                text="Mesh Piece"
+            )
+            axr_mesh_apply_items.operator(
+                "maplus.quickaxisrotatewholemesh",
+                text="Whole Mesh"
+            )

@@ -95,6 +95,7 @@ classes = (
     maplus_axr.MAPLUS_OT_EasyAxisRotate,
     maplus_axr.MAPLUS_OT_ClearEasyAxisRotate,
     maplus_axr.MAPLUS_OT_ShowHideEasyAxr,
+    maplus_axr.MAPLUS_OT_ShowHideQuickAxr,
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
     maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsBetween,
