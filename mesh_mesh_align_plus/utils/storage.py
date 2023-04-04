@@ -654,6 +654,10 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=1
     )
+    easy_angle_diff_axr_is_first_press: bpy.props.BoolProperty(
+        description="Stage flag for easy angle finder",
+        default=True
+    )
 
     quick_align_planes_show: bpy.props.BoolProperty(
         description=(

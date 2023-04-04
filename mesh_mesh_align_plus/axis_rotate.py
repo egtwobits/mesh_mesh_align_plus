@@ -379,6 +379,152 @@ class MAPLUS_OT_ClearEasyAxisRotate(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_ClearEasyAngleDiffAxr(bpy.types.Operator):
+    bl_idname = "maplus.cleareasyanglediffaxr"
+    bl_label = "Reset Easy Angle Diff"
+    bl_description = "Clear/Restart Easy Angle Diff (Line angle/rotational diff finder)"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """Set the Easy Axis Rotate operator back to stage one, reset data"""
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.easy_angle_diff_axr_is_first_press = True
+
+        maplus_geom.set_item_coords(
+            addon_data.easy_axr_angle_guide1,
+            ('line_start', 'line_end'),
+            [[0, 0, 0], [0, 0, 0]],
+        )
+        maplus_geom.set_item_coords(
+            addon_data.easy_axr_angle_guide2,
+            ('line_start', 'line_end'),
+            [[0, 0, 0], [0, 0, 0]],
+        )
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_EasyAngleDiffAxr(bpy.types.Operator):
+    bl_idname = "maplus.easyanglediffaxr"
+    bl_label = "Easy angle between lines"
+    bl_description = bl_description = (
+        "Two stage operator. Select 2 verts and press (line1),\n"
+        " select another 2 verts (line2), get the angle and store in\n"
+        " Easy Axis Rotate amount field"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """Multi-stage operator, grabs a line, another line, then gets angle between and sets amount"""
+        addon_data = bpy.context.scene.maplus_data
+        # Check auto grab prerequisites
+        if not (maplus_geom.get_active_object()
+                and maplus_geom.get_select_state(maplus_geom.get_active_object())):
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' without an active (and selected) object.')
+            )
+            return {'CANCELLED'}
+        if maplus_geom.get_active_object().type != 'MESH':
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: cannot auto-grab vert data'
+                 ' from a non-mesh object.')
+            )
+            return {'CANCELLED'}
+
+        # Stage one (first-press) behavior: Grab first line
+        if addon_data.easy_angle_diff_axr_is_first_press:
+
+            # Auto-grab from selected verts on the active obj
+            vert_attribs_to_set = (
+                'line_start',
+                'line_end'
+            )
+            try:
+                vert_data = maplus_geom.return_selected_verts(
+                    maplus_geom.get_active_object(),
+                    len(vert_attribs_to_set),
+                    maplus_geom.get_active_object().matrix_world
+                )
+            except maplus_except.InsufficientSelectionError:
+                self.report({'ERROR'}, 'Not enough vertices selected.')
+                return {'CANCELLED'}
+            except maplus_except.NonMeshGrabError:
+                self.report(
+                    {'ERROR'},
+                    'Cannot grab coords: non-mesh or no active object.'
+                )
+                return {'CANCELLED'}
+
+            # Store the obtained vert data
+            maplus_geom.set_item_coords(
+                addon_data.easy_axr_angle_guide1,
+                vert_attribs_to_set,
+                vert_data
+            )
+
+            addon_data.easy_angle_diff_axr_is_first_press = False
+
+        # Stage two (second-press) behavior: Grab second line and calc/populate angle
+        else:
+
+            # Auto-grab from selected verts on the active obj
+            vert_attribs_to_set = (
+                'line_start',
+                'line_end'
+            )
+            try:
+                vert_data = maplus_geom.return_selected_verts(
+                    maplus_geom.get_active_object(),
+                    len(vert_attribs_to_set),
+                    maplus_geom.get_active_object().matrix_world
+                )
+            except maplus_except.InsufficientSelectionError:
+                self.report({'ERROR'}, 'Not enough vertices selected.')
+                return {'CANCELLED'}
+            except maplus_except.NonMeshGrabError:
+                self.report(
+                    {'ERROR'},
+                    'Cannot grab coords: non-mesh or no active object.'
+                )
+                return {'CANCELLED'}
+
+            # Store the obtained vert data
+            maplus_geom.set_item_coords(
+                addon_data.easy_axr_angle_guide2,
+                vert_attribs_to_set,
+                vert_data
+            )
+
+            angle_g1_global_data = maplus_geom.get_modified_global_coords(
+                geometry=addon_data.easy_axr_angle_guide1,
+                kind='LINE'
+            )
+            angle_g2_global_data = maplus_geom.get_modified_global_coords(
+                geometry=addon_data.easy_axr_angle_guide2,
+                kind='LINE'
+            )
+            angle_g1_line = angle_g1_global_data[1] - angle_g1_global_data[0]
+            angle_g2_line = angle_g2_global_data[1] - angle_g2_global_data[0]
+
+            axis, angle = (
+                angle_g1_line.rotation_difference(angle_g2_line).to_axis_angle()
+            )
+
+            # Set the easy axr amount to the calculated value
+            if (bpy.context.scene.unit_settings.system_rotation == 'RADIANS'):
+                addon_data.easy_axr_transform_settings.axr_amount = angle
+            else:
+                addon_data.easy_axr_transform_settings.axr_amount = math.degrees(angle)
+
+            # Reset operator to first-click stage
+            addon_data.easy_angle_diff_axr_is_first_press = True
+
+        return {'FINISHED'}
+
+
 class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
     bl_idname = "maplus.easyaxisrotate"
     bl_label = "Easy Axis Rotate"
@@ -418,11 +564,6 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
                  ' from a non-mesh object.')
             )
             return {'CANCELLED'}
-
-        # # Proceed only if selected Blender objects are compatible with the transform target
-        # # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-        # if not (addon_data.easy_axr_transf_type in {'WHOLE_MESH'}
-        #         and [item for item in multi_edit_targets if item.type != 'MESH']):
 
         # Make sure we're in edit mode with no stale data for proper vert-grabbing
         if maplus_geom.get_active_object().type == 'MESH':
@@ -741,7 +882,6 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
-    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -773,6 +913,31 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
         # If expanded, show the easy axis rotate GUI
         if addon_data.easy_axr_show:
             easy_axr_layout = layout.box()
+            angle_finder_area = easy_axr_layout.box()
+            angle_finder_squeeze = angle_finder_area.column(align=True)
+            angle_finder_squeeze.label(text='Easy Angle Finder')
+            angle_finder_row = angle_finder_squeeze.row()
+            if addon_data.easy_angle_diff_axr_is_first_press:
+                angle_finder_row.operator(
+                    "maplus.easyanglediffaxr",
+                    text="Start: Line1"
+                )
+            else:
+                angle_finder_row.operator(
+                    "maplus.easyanglediffaxr",
+                    text="End: Line2/Store"
+                )
+            angle_finder_row.operator(
+                "maplus.cleareasyanglediffaxr",
+                text="",
+                icon="PANEL_CLOSE",
+            )
+            easy_axr_options = easy_axr_layout.box()
+            easy_axr_options.prop(
+                addon_data.easy_axr_transform_settings,
+                'axr_amount',
+                text='Angle:'
+            )
             transf_type_controls = easy_axr_layout.row()
             transf_type_controls.label(text='Align Mode:')
             transf_type_controls.prop(addon_data, 'easy_axr_transf_type', expand=True)
