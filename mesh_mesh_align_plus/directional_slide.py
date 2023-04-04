@@ -330,9 +330,6 @@ class MAPLUS_OT_EasyDirectionalSlide(bpy.types.Operator):
         """TODO fix"""
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
-        # Get/store the objects selected during the first press, these
-        # are used later during stage two, where the alignment will be run
-        # against all of these objects
         selected = [
             item
             for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)

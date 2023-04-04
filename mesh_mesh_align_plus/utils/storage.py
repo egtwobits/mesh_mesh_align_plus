@@ -628,6 +628,32 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_axis_rotate_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    # Easy Axis Rotate settings
+    easy_axr_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy axis rotate operator.",
+        default=True
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Axis Rotate (axr) settings already defined above
+    easy_axr_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_angle_guide1: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_angle_guide2: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_axr_stage: bpy.props.IntProperty(
+        description=(
+            "Stage indicator for Easy Axis Rotate"
+        ),
+        default=1
+    )
 
     quick_align_planes_show: bpy.props.BoolProperty(
         description=(
