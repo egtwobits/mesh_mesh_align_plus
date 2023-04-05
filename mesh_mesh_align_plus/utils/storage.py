@@ -360,7 +360,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source point from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_align_pts_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_pts_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
@@ -415,7 +415,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_directional_slide_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
@@ -476,7 +476,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_scale_match_edge_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
@@ -569,7 +569,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_align_lines_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_lines_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
@@ -624,7 +624,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source axis from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_axis_rotate_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
@@ -689,7 +689,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source plane from selected geometry."
         ),
-        default=True
+        default=False
     )
     quick_align_planes_set_origin_mode: bpy.props.BoolProperty(
         description=(
