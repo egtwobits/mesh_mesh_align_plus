@@ -607,8 +607,6 @@ classes = (
     maplus_adv_tools.MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal,
 
     # GUI registration
-    maplus_adv_tools.MAPLUS_UL_MAPlusList,
-    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     maplus_apt.MAPLUS_PT_QuickAlignPointsGUI,
     maplus_aln.MAPLUS_PT_QuickAlignLinesGUI,
@@ -619,6 +617,9 @@ classes = (
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
+
+    maplus_adv_tools.MAPLUS_UL_MAPlusList,
+    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,
