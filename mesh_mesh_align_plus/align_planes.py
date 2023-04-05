@@ -1146,7 +1146,7 @@ class MAPLUS_OT_ShowHideQuickApl(bpy.types.Operator):
 
 class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAlignPlanesGUI"
-    bl_label = "Quick Align Planes"
+    bl_label = "Align Planes (Maplus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"

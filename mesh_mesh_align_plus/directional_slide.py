@@ -526,7 +526,7 @@ class MAPLUS_OT_ShowHideQuickDs(bpy.types.Operator):
 
 class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDirectionalSlideGUI"
-    bl_label = "Quick Directional Slide"
+    bl_label = "Directional Slide (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"

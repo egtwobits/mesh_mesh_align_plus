@@ -740,7 +740,7 @@ class MAPLUS_OT_ShowHideQuickAln(bpy.types.Operator):
 
 class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickAlignLinesGUI"
-    bl_label = "Quick Align Lines"
+    bl_label = "Align Lines (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
