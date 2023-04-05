@@ -368,7 +368,6 @@ class MAPLUS_OT_ClearEasyAxisRotate(bpy.types.Operator):
     def execute(self, context):
         """Set the Easy Axis Rotate operator back to stage one, reset data"""
         addon_data = bpy.context.scene.maplus_data
-        addon_data.easy_axr_stage = 1
 
         maplus_geom.set_item_coords(
             addon_data.easy_axis_rotate_src,
@@ -407,10 +406,11 @@ class MAPLUS_OT_ClearEasyAngleDiffAxr(bpy.types.Operator):
 class MAPLUS_OT_EasyAngleDiffAxr(bpy.types.Operator):
     bl_idname = "maplus.easyanglediffaxr"
     bl_label = "Easy angle between lines"
-    bl_description = bl_description = (
-        "Two stage operator. Select 2 verts and press (line1),\n"
-        " select another 2 verts (line2), get the angle and store in\n"
-        " Easy Axis Rotate amount field"
+    bl_description = (
+        "Helper for Easy Axis Rotate, finds the angle between two\n"
+        "lines. Two-stage operator: First click grabs line1 (from\n"
+        "any 2 verts), second click grabs line 2 (from any 2 verts) and\n"
+        "stores the angle in the Easy Axis Rotate 'Angle' field"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -529,8 +529,8 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
     bl_idname = "maplus.easyaxisrotate"
     bl_label = "Easy Axis Rotate"
     bl_description = (
-        # TODO fix
-        "Easy two-stage"
+        "Rotate around an axis specified by any two selected verts.\n"
+        "Use the Easy Angle Finder above to get line/angle differences"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -538,6 +538,11 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
         """TODO fix"""
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
+        selected = [
+            item
+            for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
+        ]
+        multi_edit_targets = selected
         # Check prerequisites for mesh level transforms, need an active/selected object
         if (addon_data.easy_axr_transf_type != 'OBJECT'
                 and not (maplus_geom.get_active_object()
@@ -548,7 +553,7 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
                  ' without an active (and selected) object.')
             )
             return {'CANCELLED'}
-        # Easy mode MUST auto-grab on stage 1/2/3 click: check auto grab prerequisites
+        # Easy mode MUST auto-grab, check auto grab prerequisites
         if not (maplus_geom.get_active_object()
                 and maplus_geom.get_select_state(maplus_geom.get_active_object())):
             self.report(
@@ -565,19 +570,21 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
             )
             return {'CANCELLED'}
 
-        # Make sure we're in edit mode with no stale data for proper vert-grabbing
-        if maplus_geom.get_active_object().type == 'MESH':
-            # a bmesh can only be initialized in edit mode...
-            if previous_mode != 'EDIT':
-                bpy.ops.object.editmode_toggle()
-            else:
-                # else we could already be in edit mode with some stale
-                # updates, exiting and reentering forces an update
-                bpy.ops.object.editmode_toggle()
-                bpy.ops.object.editmode_toggle()
+        # Proceed only if selected Blender objects are compatible with the transform target
+        # (Do not allow mesh-level transforms when there are non-mesh objects selected)
+        if not (addon_data.easy_axr_transf_type in {'WHOLE_MESH'}
+                and [item for item in multi_edit_targets if item.type != 'MESH']):
 
-        # Stage one (first-press) behavior: Get angle start line
-        if addon_data.easy_axr_stage == 1:
+            # Make sure we're in edit mode with no stale data for proper vert-grabbing
+            if maplus_geom.get_active_object().type == 'MESH':
+                # a bmesh can only be initialized in edit mode...
+                if previous_mode != 'EDIT':
+                    bpy.ops.object.editmode_toggle()
+                else:
+                    # else we could already be in edit mode with some stale
+                    # updates, exiting and reentering forces an update
+                    bpy.ops.object.editmode_toggle()
+                    bpy.ops.object.editmode_toggle()
 
             # Auto-grab the SOURCE key from selected verts on the active obj
             vert_attribs_to_set = (
@@ -602,246 +609,136 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
 
             # Store the obtained vert data
             maplus_geom.set_item_coords(
-                addon_data.easy_axr_angle_guide1,
+                addon_data.easy_axis_rotate_src,
                 vert_attribs_to_set,
                 vert_data
             )
 
-            # Go back to whatever mode we were in before doing this
-            bpy.ops.object.mode_set(mode=previous_mode)
-
-            # Stage one has finished, set the stage value so that the
-            # next run will follow step 2 behavior
-            addon_data.easy_axr_stage = 2
-
-            return {'FINISHED'}
-
-        # Stage two (second-press) behavior: Get angle end line
-        if addon_data.easy_axr_stage == 2:
-
-            # Auto-grab the DESTINATION key from selected verts on the active obj
-            vert_attribs_to_set = (
-                'line_start',
-                'line_end'
-            )
-            try:
-                vert_data = maplus_geom.return_selected_verts(
-                    maplus_geom.get_active_object(),
-                    len(vert_attribs_to_set),
-                    maplus_geom.get_active_object().matrix_world
-                )
-            except maplus_except.InsufficientSelectionError:
-                self.report({'ERROR'}, 'Not enough vertices selected.')
-                return {'CANCELLED'}
-            except maplus_except.NonMeshGrabError:
-                self.report(
-                    {'ERROR'},
-                    'Cannot grab coords: non-mesh or no active object.'
-                )
-                return {'CANCELLED'}
-
-            # Store the obtained vert data
-            maplus_geom.set_item_coords(
-                addon_data.easy_axr_angle_guide2,
-                vert_attribs_to_set,
-                vert_data
+            src_global_data = maplus_geom.get_modified_global_coords(
+                geometry=addon_data.easy_axis_rotate_src,
+                kind='LINE'
             )
 
-            # Go back to whatever mode we were in before doing this
-            bpy.ops.object.mode_set(mode=previous_mode)
+            # These global point coordinate vectors will be used to construct
+            # geometry and transformations in both object (global) space
+            # and mesh (local) space
+            axis_start = src_global_data[0]
+            axis_end = src_global_data[1]
 
-            # Stage one has finished, set the stage value so that the
-            # next run will follow step 3 behavior
-            addon_data.easy_axr_stage = 3
-
-            return {'FINISHED'}
-
-        # Stage three (third-press) behavior (apply the rotation)
-        if addon_data.easy_axr_stage == 3:
-
-            # This step is the apply step, get selected objedcts here
-            selected = [
-                item
-                for item in bpy.context.scene.objects if maplus_geom.get_select_state(item)
-            ]
-            multi_edit_targets = selected
-
-            # Proceed only if selected Blender objects are compatible with the transform target
-            # (Do not allow mesh-level transforms when there are non-mesh objects selected)
-            if not (addon_data.easy_axr_transf_type in {'WHOLE_MESH'}
-                    and [item for item in multi_edit_targets if item.type != 'MESH']):
-
-                # Auto-grab the DESTINATION key from selected verts on the active obj
-                vert_attribs_to_set = (
-                    'line_start',
-                    'line_end'
-                )
-                try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
-                except maplus_except.InsufficientSelectionError:
-                    self.report({'ERROR'}, 'Not enough vertices selected.')
-                    return {'CANCELLED'}
-                except maplus_except.NonMeshGrabError:
-                    self.report(
-                        {'ERROR'},
-                        'Cannot grab coords: non-mesh or no active object.'
-                    )
-                    return {'CANCELLED'}
-
-                # Store the obtained vert data
-                maplus_geom.set_item_coords(
-                    addon_data.easy_axis_rotate_src,
-                    vert_attribs_to_set,
-                    vert_data
-                )
-
-                angle_g1_global_data = maplus_geom.get_modified_global_coords(
-                    geometry=addon_data.easy_axr_angle_guide1,
-                    kind='LINE'
-                )
-                angle_g2_global_data = maplus_geom.get_modified_global_coords(
-                    geometry=addon_data.easy_axr_angle_guide2,
-                    kind='LINE'
-                )
-                angle_g1_line = angle_g1_global_data[1] - angle_g1_global_data[0]
-                angle_g2_line = angle_g2_global_data[1] - angle_g2_global_data[0]
-
-                axis, angle = (
-                    angle_g1_line.rotation_difference(angle_g2_line).to_axis_angle()
-                )
-
-                src_global_data = maplus_geom.get_modified_global_coords(
-                    geometry=addon_data.easy_axis_rotate_src,
-                    kind='LINE'
-                )
-
-                # These global point coordinate vectors will be used to construct
-                # geometry and transformations in both object (global) space
-                # and mesh (local) space
-                axis_start = src_global_data[0]
-                axis_end = src_global_data[1]
-
-                # The rotation amount here comes from the angle guides
-                converted_rot_amount = angle
-
-                if addon_data.easy_axr_transf_type in {'OBJECT'}:
-                    for item in multi_edit_targets:
-                        # (Note that there are no transformation modifiers for this
-                        # transformation type, so that section is omitted here)
-
-                        # Get the object world matrix before we modify it here
-                        item_matrix_unaltered = item.matrix_world.copy()
-                        unaltered_inverse = item_matrix_unaltered.copy()
-                        unaltered_inverse.invert()
-
-                        # Construct the axis vector and corresponding matrix
-                        axis = axis_end - axis_start
-                        axis_rot = mathutils.Matrix.Rotation(
-                            converted_rot_amount,
-                            4,
-                            axis
-                        )
-
-                        # Perform the rotation (axis will be realigned later)
-                        item.rotation_euler.rotate(axis_rot)
-                        bpy.context.view_layer.update()
-
-                        # put the original line starting point (before the object
-                        # was rotated) into the local object space
-                        src_pivot_location_local = unaltered_inverse @ axis_start
-
-                        # Calculate the new pivot location (after the
-                        # first rotation), so that the axis can be moved
-                        # back into place
-                        new_pivot_loc_global = (
-                                item.matrix_world @
-                                src_pivot_location_local
-                        )
-                        pivot_to_dest = axis_start - new_pivot_loc_global
-
-                        item.location += pivot_to_dest
-                        bpy.context.view_layer.update()
-
-                if addon_data.easy_axr_transf_type in {'WHOLE_MESH'}:
-                    for item in multi_edit_targets:
-                        self.report(
-                            {'WARNING'},
-                            ('Warning/Experimental: mesh transforms'
-                             ' on objects with non-uniform scaling'
-                             ' are not currently supported.')
-                        )
-                        # (Note that there are no transformation modifiers for this
-                        # transformation type, so that section is omitted here)
-
-                        # Init source mesh
-                        src_mesh = bmesh.new()
-                        src_mesh.from_mesh(item.data)
-
-                        # Get the object world matrix
-                        item_matrix_unaltered_loc = item.matrix_world.copy()
-                        unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
-                        unaltered_inverse_loc.invert()
-
-                        # Stored geom data in local coords
-                        axis_start_loc = unaltered_inverse_loc @ axis_start
-                        axis_end_loc = unaltered_inverse_loc @ axis_end
-
-                        # Get axis vector in local space
-                        axis_loc = axis_end_loc - axis_start_loc
-
-                        # Get translation, pivot to local origin
-                        axis_start_inv = axis_start_loc.copy()
-                        axis_start_inv.negate()
-                        src_pivot_to_loc_origin = mathutils.Matrix.Translation(
-                            axis_start_inv
-                        )
-                        src_pivot_to_loc_origin.resize_4x4()
-
-                        # Get local axis rotation
-                        axis_rot_at_loc_origin = mathutils.Matrix.Rotation(
-                            converted_rot_amount,
-                            4,
-                            axis_loc
-                        )
-
-                        # Get translation, pivot to dest
-                        pivot_to_dest = mathutils.Matrix.Translation(
-                            axis_start_loc
-                        )
-                        pivot_to_dest.resize_4x4()
-
-                        axis_rotate_loc = (
-                                pivot_to_dest @
-                                axis_rot_at_loc_origin @
-                                src_pivot_to_loc_origin
-                        )
-
-                        src_mesh.transform(axis_rotate_loc)
-
-                        bpy.ops.object.mode_set(mode='OBJECT')
-                        src_mesh.to_mesh(item.data)
-                        src_mesh.free()
-
-                # Clear stored source data once the transform is applied
-                addon_data.easy_axr_stage = 1
-
-                # Go back to whatever mode we were in before doing this
-                bpy.ops.object.mode_set(mode=previous_mode)
-
+            # Get rotation in proper units (radians)
+            if (bpy.context.scene.unit_settings.system_rotation == 'RADIANS'):
+                converted_rot_amount = addon_data.easy_axr_transform_settings.axr_amount
             else:
-                # The selected Blender objects are not compatible with the
-                # requested transformation type (we can't apply a transform
-                # to mesh data when there are non-mesh objects selected)
-                self.report(
-                    {'ERROR'},
-                    ('Cannot complete: Cannot apply mesh-level'
-                     ' transformations to selected non-mesh objects.')
-                )
-                return {'CANCELLED'}
+                converted_rot_amount = math.radians(addon_data.easy_axr_transform_settings.axr_amount)
+            if addon_data.easy_axr_flip_dir:
+                converted_rot_amount *= -1
+
+            if addon_data.easy_axr_transf_type in {'OBJECT'}:
+                for item in multi_edit_targets:
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
+
+                    # Get the object world matrix before we modify it here
+                    item_matrix_unaltered = item.matrix_world.copy()
+                    unaltered_inverse = item_matrix_unaltered.copy()
+                    unaltered_inverse.invert()
+
+                    # Construct the axis vector and corresponding matrix
+                    axis = axis_end - axis_start
+                    axis_rot = mathutils.Matrix.Rotation(
+                        converted_rot_amount,
+                        4,
+                        axis
+                    )
+
+                    # Perform the rotation (axis will be realigned later)
+                    item.rotation_euler.rotate(axis_rot)
+                    bpy.context.view_layer.update()
+
+                    # put the original line starting point (before the object
+                    # was rotated) into the local object space
+                    src_pivot_location_local = unaltered_inverse @ axis_start
+
+                    # Calculate the new pivot location (after the
+                    # first rotation), so that the axis can be moved
+                    # back into place
+                    new_pivot_loc_global = (
+                            item.matrix_world @
+                            src_pivot_location_local
+                    )
+                    pivot_to_dest = axis_start - new_pivot_loc_global
+
+                    item.location += pivot_to_dest
+                    bpy.context.view_layer.update()
+
+            if addon_data.easy_axr_transf_type in {'WHOLE_MESH'}:
+                for item in multi_edit_targets:
+
+                    # (Note that there are no transformation modifiers for this
+                    # transformation type, so that section is omitted here)
+
+                    # Init source mesh
+                    src_mesh = bmesh.new()
+                    src_mesh.from_mesh(item.data)
+
+                    # Get the object world matrix
+                    item_matrix_unaltered_loc = item.matrix_world.copy()
+                    unaltered_inverse_loc = item_matrix_unaltered_loc.copy()
+                    unaltered_inverse_loc.invert()
+
+                    # Stored geom data in local coords
+                    axis_start_loc = unaltered_inverse_loc @ axis_start
+                    axis_end_loc = unaltered_inverse_loc @ axis_end
+
+                    # Get axis vector in local space
+                    axis_loc = axis_end_loc - axis_start_loc
+
+                    # Get translation, pivot to local origin
+                    axis_start_inv = axis_start_loc.copy()
+                    axis_start_inv.negate()
+                    src_pivot_to_loc_origin = mathutils.Matrix.Translation(
+                        axis_start_inv
+                    )
+                    src_pivot_to_loc_origin.resize_4x4()
+
+                    # Get local axis rotation
+                    axis_rot_at_loc_origin = mathutils.Matrix.Rotation(
+                        converted_rot_amount,
+                        4,
+                        axis_loc
+                    )
+
+                    # Get translation, pivot to dest
+                    pivot_to_dest = mathutils.Matrix.Translation(
+                        axis_start_loc
+                    )
+                    pivot_to_dest.resize_4x4()
+
+                    axis_rotate_loc = (
+                            pivot_to_dest @
+                            axis_rot_at_loc_origin @
+                            src_pivot_to_loc_origin
+                    )
+
+                    src_mesh.transform(axis_rotate_loc)
+
+                    bpy.ops.object.mode_set(mode='OBJECT')
+                    src_mesh.to_mesh(item.data)
+                    src_mesh.free()
+
+            # Go back to whatever mode we were in before doing this
+            bpy.ops.object.mode_set(mode=previous_mode)
+
+        else:
+            # The selected Blender objects are not compatible with the
+            # requested transformation type (we can't apply a transform
+            # to mesh data when there are non-mesh objects selected)
+            self.report(
+                {'ERROR'},
+                ('Cannot complete: Cannot apply mesh-level'
+                 ' transformations to selected non-mesh objects.')
+            )
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 
@@ -914,25 +811,30 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
         if addon_data.easy_axr_show:
             easy_axr_layout = layout.box()
             angle_finder_area = easy_axr_layout.box()
+            easy_axr_options = easy_axr_layout.box()
             angle_finder_squeeze = angle_finder_area.column(align=True)
             angle_finder_squeeze.label(text='Easy Angle Finder')
             angle_finder_row = angle_finder_squeeze.row()
             if addon_data.easy_angle_diff_axr_is_first_press:
                 angle_finder_row.operator(
                     "maplus.easyanglediffaxr",
-                    text="Start: Line1"
+                    text="Grab Line1"
                 )
             else:
                 angle_finder_row.operator(
                     "maplus.easyanglediffaxr",
-                    text="End: Line2/Store"
+                    text="Grab Line2/Store"
                 )
             angle_finder_row.operator(
                 "maplus.cleareasyanglediffaxr",
                 text="",
                 icon="PANEL_CLOSE",
             )
-            easy_axr_options = easy_axr_layout.box()
+            easy_axr_options.prop(
+                addon_data,
+                'easy_axr_flip_dir',
+                text='Flip Direction'
+            )
             easy_axr_options.prop(
                 addon_data.easy_axr_transform_settings,
                 'axr_amount',
@@ -942,28 +844,10 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             transf_type_controls.label(text='Align Mode:')
             transf_type_controls.prop(addon_data, 'easy_axr_transf_type', expand=True)
             easy_axr_controls = easy_axr_layout.row()
-            if addon_data.easy_axr_stage == 1:
-                easy_axr_controls.operator(
-                    "maplus.easyaxisrotate",
-                    text="1: Get Angle Start",
-                    icon="FORCE_MAGNETIC",
-                )
-            elif addon_data.easy_axr_stage == 2:
-                easy_axr_controls.operator(
-                    "maplus.easyaxisrotate",
-                    text="2: Get Angle End",
-                    icon="FORCE_MAGNETIC",
-                )
-            else:
-                easy_axr_controls.operator(
-                    "maplus.easyaxisrotate",
-                    text="3: Rotate on Active",
-                    icon="FORCE_MAGNETIC",
-                )
             easy_axr_controls.operator(
-                "maplus.cleareasyaxisrotate",
-                text="",
-                icon="PANEL_CLOSE",
+                "maplus.easyaxisrotate",
+                text="Rotate Active",
+                icon="FORCE_MAGNETIC",
             )
         layout.separator()
 
@@ -1147,7 +1031,7 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             axr_mods_row1.prop(
                 addon_data.quick_axis_rotate_transf,
                 'axr_amount',
-                text='Amount'
+                text='Angle'
             )
             axr_apply_header = axr_gui.row()
             axr_apply_header.label(text="Apply to:")

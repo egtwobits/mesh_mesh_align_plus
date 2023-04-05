@@ -648,15 +648,13 @@ class MAPlusData(bpy.types.PropertyGroup):
         default='OBJECT',
         description="The alignment mode (how to apply the alignment)"
     )
-    easy_axr_stage: bpy.props.IntProperty(
-        description=(
-            "Stage indicator for Easy Axis Rotate"
-        ),
-        default=1
-    )
     easy_angle_diff_axr_is_first_press: bpy.props.BoolProperty(
         description="Stage flag for easy angle finder",
         default=True
+    )
+    easy_axr_flip_dir: bpy.props.BoolProperty(
+        description="Flip the rotation direction for Easy Axis Rotate",
+        default=False
     )
 
     quick_align_planes_show: bpy.props.BoolProperty(
