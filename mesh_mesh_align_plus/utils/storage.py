@@ -333,6 +333,10 @@ class MAPlusData(bpy.types.PropertyGroup):
             ' until non-uniform scaling is supported.'
         )
     )
+    show_list_item_info: bpy.props.BoolProperty(
+        description="Show/hide list item info",
+        default=True
+    )
 
     # Items for the quick operators
     quick_align_pts_show: bpy.props.BoolProperty(

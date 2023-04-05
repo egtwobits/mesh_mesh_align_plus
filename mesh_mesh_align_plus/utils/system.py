@@ -574,6 +574,7 @@ classes = (
     maplus_storage.MAPLUS_OT_PasteIntoSmeDest,
     maplus_storage.MAPLUS_OT_CopyFromSmeDest,
 
+    maplus_adv_tools.MAPLUS_OT_ShowHideListItemInfo,
     maplus_adv_tools.MAPLUS_OT_AddListItemBase,
     maplus_adv_tools.MAPLUS_OT_AddNewPoint,
     maplus_adv_tools.MAPLUS_OT_AddNewLine,
