@@ -732,10 +732,11 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
     bl_idname = "maplus.easyalignplanes"
     bl_label = "Easy Align Planes"
     bl_description = (
-        "Easy two-stage surface to surface (mating) alignment."
-        " Select some object(s) + a face (3+ verts) in edit mode,"
-        " then click start alignment. Next, pick another face (3+ verts)"
-        " in edit mode to align your objects TO, and hit apply."
+        "Easy two-stage surface to surface (mating) alignment.\n"
+        " Select any 3 verts (plane1) and press, then select\n"
+        " any other 3 verts (plane2) and press to align\n"
+        " the first plane to the second (all objects selected\n"
+        " during first press move)"
     )
     bl_options = {'REGISTER', 'UNDO'}
 

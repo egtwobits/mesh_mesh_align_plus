@@ -787,7 +787,7 @@ class MAPLUS_OT_ShowHideQuickSme(bpy.types.Operator):
 
 class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickSMEGUI"
-    bl_label = "Quick Scale Match Edge"
+    bl_label = "Quick Match Edge Scale"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"

@@ -369,13 +369,23 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
     bl_idname = "maplus.easyalignpoints"
     bl_label = "Easy Align Points"
     bl_description = (
-        # TODO fix
-        "Easy two-stage"
+        "Easy align points (location match) operator. Select\n"
+        " any vert and press, then select another vert and press\n"
+        " again to align the first point to the second (all\n"
+        " objects selected during first press will move)"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        """TODO fix"""
+        """Simplified two-stage operator:
+
+        On first push (stage 1):
+            - Grab src pt geometry from active and store selected object names
+        On second push (stage 2):
+            - Grab dest pt geometry from active, calculate alignment, and apply to
+              selected objects stored in stage 1
+            - Reset to stage 1
+        """
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
         # Get valid objects from the target list

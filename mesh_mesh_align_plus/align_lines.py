@@ -407,13 +407,25 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
     bl_idname = "maplus.easyalignlines"
     bl_label = "Easy Align Lines"
     bl_description = (
-        # TODO fix
-        "Easy two-stage"
+        "Easy two-stage align lines (make-collinear) operator.\n"
+        " Select any 2 verts (first line) and press, then select\n"
+        " any other 2 verts (second line) and press to align\n"
+        " the first line to the second (all objects selected\n"
+        " during first press move). Line1 and Line2 verts\n"
+        " can come from separate objects"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        """TODO fix"""
+        """Simplified two-stage operator:
+
+        On first push (stage 1):
+            - Grab src line geometry from active and store selected object names
+        On second push (stage 2):
+            - Grab dest line geometry from active, calculate alignment, and apply to
+              selected objects stored in stage 1
+            - Reset to stage 1
+        """
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
         # Get valid objects from the target list
@@ -731,7 +743,6 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
     bl_label = "Quick Align Lines"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
     bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 

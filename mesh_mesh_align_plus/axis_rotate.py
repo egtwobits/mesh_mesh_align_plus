@@ -530,12 +530,12 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
     bl_label = "Easy Axis Rotate"
     bl_description = (
         "Rotate around an axis specified by any two selected verts.\n"
-        "Use the Easy Angle Finder above to get line/angle differences"
+        " Use the Easy Angle Finder above to get line/angle differences"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        """TODO fix"""
+        """Simplified operator, does geom grab and axis rotation together."""
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
         selected = [
@@ -787,6 +787,8 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
+        # The easy AXR operator/GUI is similar to quick AXR, with some
+        # additional helper functionality and a simplified layout.
         easy_axr_top = layout.row()
         if not addon_data.easy_axr_show:
             easy_axr_top.operator(

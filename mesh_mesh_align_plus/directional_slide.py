@@ -321,13 +321,12 @@ class MAPLUS_OT_EasyDirectionalSlide(bpy.types.Operator):
     bl_idname = "maplus.easydirectionalslide"
     bl_label = "Easy Directional Slide"
     bl_description = (
-        # TODO fix
-        "Easy two-stage"
+        "Easy move-in-a-direction operator, specify direction with any 2 verts"
     )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        """TODO fix"""
+        """Simplified operator, does geom grab and translate operation together."""
         addon_data = bpy.context.scene.maplus_data
         previous_mode = maplus_geom.get_active_object().mode
         selected = [
@@ -531,7 +530,6 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
-    bl_category = "Mesh Align Plus"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -540,6 +538,8 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
         prims = addon_data.prim_list
 
+        # The Easy DS operator/GUI is similar to Quick DS,
+        # but with a simplified layout
         easy_ds_top = layout.row()
         if not addon_data.easy_ds_show:
             easy_ds_top.operator(
@@ -600,7 +600,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             icon="CURVE_PATH",
         )
 
-        # If expanded, show the quick align lines GUI
+        # If expanded, show the quick directional slide GUI
         if addon_data.quick_directional_slide_show:
 
             ds_gui = layout.box()
