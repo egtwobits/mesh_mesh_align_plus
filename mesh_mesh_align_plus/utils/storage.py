@@ -360,11 +360,42 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source point from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_align_pts_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_pts_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_pts_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    # Easy Align Points settings
+    easy_apt_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy align points operator.",
+        default=True
+    )
+    easy_apt_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Align Points to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Align Points (apt) settings already defined above
+    easy_apt_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_points_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_points_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_apt_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_apt_is_first_press: bpy.props.BoolProperty(
+        description=(
+            "Stage indicator flag for Easy Align Points"
+        ),
+        default=True
+    )
 
     quick_directional_slide_show: bpy.props.BoolProperty(
         description=(
@@ -384,7 +415,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_directional_slide_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
@@ -394,6 +425,30 @@ class MAPlusData(bpy.types.PropertyGroup):
     )
     quick_directional_slide_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
+    )
+    # Easy Directional Slide settings
+    easy_ds_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy directional slide operator.",
+        default=True
+    )
+    easy_ds_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Directional Slide to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Directional Slide (ds) settings already defined above
+    easy_ds_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_directional_slide_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_ds_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
     )
 
     quick_scale_match_edge_show: bpy.props.BoolProperty(
@@ -421,7 +476,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_scale_match_edge_src: bpy.props.PointerProperty(
         type=MAPlusPrimitive
@@ -457,6 +512,37 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_sme_numeric_dest: bpy.props.PointerProperty(
         type=MAPlusPrimitive
     )
+    # Easy Scale Match Edge settings
+    easy_sme_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy scale match edge operator.",
+        default=True
+    )
+    easy_sme_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Scale Match Edge to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Scale Match Edge (apt) settings already defined above
+    easy_sme_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)  # TODO remove
+    easy_scale_match_edge_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_scale_match_edge_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_sme_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_sme_is_first_press: bpy.props.BoolProperty(
+        description=(
+            "Stage indicator flag for Easy Scale Match Edge"
+        ),
+        default=True
+    )
 
     quick_align_lines_show: bpy.props.BoolProperty(
         description=(
@@ -483,11 +569,42 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source line from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_align_lines_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_lines_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_lines_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    # Easy Align Lines settings
+    easy_aln_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy align lines operator.",
+        default=True
+    )
+    easy_aln_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Align Lines to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Align Lines (aln) settings already defined above
+    easy_aln_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_lines_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_lines_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_aln_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_aln_is_first_press: bpy.props.BoolProperty(
+        description=(
+            "Stage indicator flag for Easy Align Lines"
+        ),
+        default=True
+    )
 
     quick_axis_rotate_show: bpy.props.BoolProperty(
         description=(
@@ -507,10 +624,38 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source axis from selected geometry"
         ),
-        default=True
+        default=False
     )
     quick_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_axis_rotate_transf: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    # Easy Axis Rotate settings
+    easy_axr_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy axis rotate operator.",
+        default=True
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Axis Rotate (axr) settings already defined above
+    easy_axr_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_angle_guide1: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_angle_guide2: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axis_rotate_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_axr_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_angle_diff_axr_is_first_press: bpy.props.BoolProperty(
+        description="Stage flag for easy angle finder",
+        default=True
+    )
+    easy_axr_flip_dir: bpy.props.BoolProperty(
+        description="Flip the rotation direction for Easy Axis Rotate",
+        default=False
+    )
 
     quick_align_planes_show: bpy.props.BoolProperty(
         description=(
@@ -544,7 +689,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         description=(
             "Automatically grab source plane from selected geometry."
         ),
-        default=True
+        default=False
     )
     quick_align_planes_set_origin_mode: bpy.props.BoolProperty(
         description=(
@@ -566,6 +711,37 @@ class MAPlusData(bpy.types.PropertyGroup):
     quick_align_planes_set_origin_mode_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
     quick_align_planes_transf: bpy.props.PointerProperty(
         type=MAPlusPrimitive
+    )
+    # Easy Align Planes settings
+    easy_apl_show: bpy.props.BoolProperty(
+        description="Expand/collapse the easy align planes operator.",
+        default=True
+    )
+    easy_apl_designated_objects: bpy.props.CollectionProperty(
+        type=BasicVariant,
+        description=(
+            "A list of objects to apply Easy Align Planes to."
+        )
+    )
+    # Use an MAPlusPrimitive to store transformation settings for the operation,
+    # corresponding to typical Align Planes (apl) settings already defined above
+    easy_apl_transform_settings: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_planes_src: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_align_planes_dest: bpy.props.PointerProperty(type=MAPlusPrimitive)
+    easy_apl_transf_type: bpy.props.EnumProperty(
+        items=[
+            ('OBJECT', 'Object', 'Apply the alignment to specified object(s)'),
+            ('WHOLE_MESH', 'Whole Mesh', 'Apply the alignment to the whole mesh (all verts/mesh data)'),
+        ],
+        name="Transformation Type",
+        default='OBJECT',
+        description="The alignment mode (how to apply the alignment)"
+    )
+    easy_apl_is_first_press: bpy.props.BoolProperty(
+        description=(
+            "Stage indicator flag for Easy Align Planes"
+        ),
+        default=True
     )
 
     # Quick distribute objects between settings

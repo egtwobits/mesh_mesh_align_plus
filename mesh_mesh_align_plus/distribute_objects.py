@@ -214,7 +214,7 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
 
 class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDistributeObjectsGUI"
-    bl_label = "Quick Distribute Objects"
+    bl_label = "Distribute Objects (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Mesh Align Plus"
