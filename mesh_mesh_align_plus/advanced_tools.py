@@ -607,6 +607,7 @@ class MAPLUS_OT_AddReferenceGeometry(bpy.types.Operator):
         " origin pt. (0, 0, 0) to the geometry"
         " manager list."
     )
+    bl_description = "Adds commonly used reference geometry to the geometry manager"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -739,6 +740,18 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         if len(prims) > 0:
             active_item = prims[addon_data.active_list_item]
 
+        quick_copy_paste = layout.row()
+        quick_copy_paste.operator(
+            "maplus.copyfromadvtoolsactive",
+            icon='COPYDOWN',
+            text="Copy (To Clipboard)"
+        )
+        quick_copy_paste.operator(
+            "maplus.pasteintoadvtoolsactive",
+            icon='PASTEDOWN',
+            text="Paste (From Clipboard)"
+        )
+
         # We start with a row that holds the prim list and buttons
         # for adding/subtracting prims (the data management section
         # of the interface)
@@ -804,7 +817,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                     text="",
                     emboss=False
                 )
-            item_basics_collapsible.label(text="Item Name:")
+            item_basics_collapsible.label(text="Item Name & Settings:")
             item_name_and_types = basic_item_attribs_col.row(
                 align=True,
             )
