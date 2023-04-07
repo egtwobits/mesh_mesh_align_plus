@@ -729,7 +729,7 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
     bl_label = "Geom. Manager (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
+    bl_category = "Align"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):

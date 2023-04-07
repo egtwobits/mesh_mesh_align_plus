@@ -1149,7 +1149,7 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
     bl_label = "Align Planes (Maplus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
+    bl_category = "Align"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
