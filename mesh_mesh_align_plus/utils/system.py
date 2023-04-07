@@ -574,12 +574,14 @@ classes = (
     maplus_storage.MAPLUS_OT_PasteIntoSmeDest,
     maplus_storage.MAPLUS_OT_CopyFromSmeDest,
 
+    maplus_adv_tools.MAPLUS_OT_ShowHideListItemInfo,
     maplus_adv_tools.MAPLUS_OT_AddListItemBase,
     maplus_adv_tools.MAPLUS_OT_AddNewPoint,
     maplus_adv_tools.MAPLUS_OT_AddNewLine,
     maplus_adv_tools.MAPLUS_OT_AddNewPlane,
     maplus_adv_tools.MAPLUS_OT_AddNewCalculation,
     maplus_adv_tools.MAPLUS_OT_AddNewTransformation,
+    maplus_adv_tools.MAPLUS_OT_AddReferenceGeometry,
 
     maplus_adv_tools.MAPLUS_OT_ChangeTypeBaseClass,
     maplus_adv_tools.MAPLUS_OT_ChangeTypeToPointPrim,
@@ -606,8 +608,6 @@ classes = (
     maplus_adv_tools.MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal,
 
     # GUI registration
-    maplus_adv_tools.MAPLUS_UL_MAPlusList,
-    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     maplus_apt.MAPLUS_PT_QuickAlignPointsGUI,
     maplus_aln.MAPLUS_PT_QuickAlignLinesGUI,
@@ -618,6 +618,9 @@ classes = (
     maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
+
+    maplus_adv_tools.MAPLUS_UL_MAPlusList,
+    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,

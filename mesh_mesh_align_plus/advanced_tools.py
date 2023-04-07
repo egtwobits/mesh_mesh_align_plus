@@ -1,7 +1,29 @@
-"""Legacy tools system (A unified list-style GUI with geometry/transforms)."""
+"""Geometry manager module (repurposed from the legacy advanced tools).
+
+TODO: This module has been repurposed into the geometry manager.
+      Refactor to rename and remove references to advanced tools, etc.
+
+Formerly the legacy tools (AKA advanced tools) system (A unified list-style
+GUI with geometry/transforms). The legacy tools have been working, but
+abandoned and removed from the documentation for some time. The union-style data
+structure, and unified list GUI with items that point-to/reference other items,
+stem from this legacy design from the very first releases of Mesh Align Plus,
+explained in more detail below.
+
+The legacy tools system used a unified list of MAPlusPrimitive items (a
+union of all the types: Point, Line, Plane, Calculation and Transformation),
+where users would create point/line/plane items, along with a transformation
+item, in the same list (which would point to the geometry items)...this is
+how they would construct their transformations. This turned out to be a
+terrible design! :) So it has now been repurposed into something else that
+uses many of the same capabilities, but serves a different purpose: to allow
+users to store geometry references that they may need to re-use for their
+transformations or calculations.
+"""
 
 
 import bpy
+import mathutils
 
 import mesh_mesh_align_plus.utils.exceptions as maplus_except
 import mesh_mesh_align_plus.utils.geom as maplus_geom
@@ -577,14 +599,138 @@ class MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal(MAPLUS_OT_SpecialsAddFromActive
     multiply_by_world_matrix = True
 
 
-# Advanced Tools panel
+class MAPLUS_OT_AddReferenceGeometry(bpy.types.Operator):
+    bl_idname = "maplus.addreferencegeometry"
+    bl_label = (
+        "Adds reference planes (XY, XZ, YZ),"
+        " axis unit vectors (X, Y, Z) and"
+        " origin pt. (0, 0, 0) to the geometry"
+        " manager list."
+    )
+    bl_description = "Adds commonly used reference geometry to the geometry manager"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+
+        def get_unique_name(name):
+            # TODO: Refactor/deduplicate/remove this
+            # Add Name.001 or Name.002 (numbers at the end if the name is
+            # already in use)
+            name_list = {n.name for n in prims}
+            name_counter = 0
+            num_postfix_group = 1
+            base_name = name
+            cur_item_name = base_name
+            num_format = '.{0:0>3}'
+            keep_naming = True
+            while keep_naming:
+                name_counter += 1
+                cur_item_name = base_name + num_format.format(str(name_counter))
+                if num_postfix_group > 16:
+                    raise maplus_except.UniqueNameError('Cannot add, unique name error.')
+                if name_counter == 999:
+                    name_counter = 0
+                    base_name += num_format.format('1')
+                    num_postfix_group += 1
+
+                if not (base_name in name_list):
+                    cur_item_name = base_name
+                    keep_naming = False
+                    continue
+                elif cur_item_name in name_list:
+                    continue
+                else:
+                    keep_naming = False
+                    continue
+
+            return cur_item_name
+
+        # Add reference planes
+        # ....................
+        # Plane XY
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane XY')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((1, 0, 0))
+        new_item.plane_pt_c = mathutils.Vector((1, 1, 0))
+        # Plane XZ
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane XZ')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((0, 0, 1))
+        new_item.plane_pt_c = mathutils.Vector((1, 0, 1))
+        # Plane YZ
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Plane YZ')
+        new_item.kind = 'PLANE'
+        new_item.plane_pt_a = mathutils.Vector((0, 0, 0))
+        new_item.plane_pt_b = mathutils.Vector((0, 1, 0))
+        new_item.plane_pt_c = mathutils.Vector((0, 1, 1))
+
+        # Add reference axis unit vectors (X hat, Y hat, Z hat)
+        # .....................................................
+        # X Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis X (X Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((1, 0, 0))
+        # Y Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis Y (Y Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((0, 1, 0))
+        # Z Hat
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Axis Z (Z Hat)')
+        new_item.kind = 'LINE'
+        new_item.line_start = mathutils.Vector((0, 0, 0))
+        new_item.line_end = mathutils.Vector((0, 0, 1))
+
+        # Add reference origin point (0, 0, 0)
+        new_item = addon_data.prim_list.add()
+        new_item.name = get_unique_name('Ref. Origin')
+        new_item.kind = 'POINT'
+        new_item.point = mathutils.Vector((0, 0, 0))
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_ShowHideListItemInfo(bpy.types.Operator):
+    bl_idname = "maplus.showhidelistiteminfo"
+    bl_label = "Show/hide list item info"
+    bl_description = "Expands/collapses item info in the geometry manager"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        addon_data.show_list_item_info = (
+            not addon_data.show_list_item_info
+        )
+
+        return {'FINISHED'}
+
+
+# TODO: Code refactoring and cleanup...this WAS
+# the legacy version of Mesh Align Plus, now
+# repurposed into a geometry manager list that
+# users can use to store persistent geometry that
+# they need to reference in their transformations
+# or calculations.
+# ................
+# Geometry manager UI (formerly the Advanced Tools panel)
 class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_MAPlusGui"
-    bl_label = "Mesh Align Plus Advanced Tools"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    # bl_category = "Mesh Align Plus"
-    bl_context = "scene"
+    bl_label = "Geom. Manager (MAPlus)"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Align"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
         layout = self.layout
@@ -593,6 +739,18 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         prims = addon_data.prim_list
         if len(prims) > 0:
             active_item = prims[addon_data.active_list_item]
+
+        quick_copy_paste = layout.row()
+        quick_copy_paste.operator(
+            "maplus.copyfromadvtoolsactive",
+            icon='COPYDOWN',
+            text="Copy (To Clipboard)"
+        )
+        quick_copy_paste.operator(
+            "maplus.pasteintoadvtoolsactive",
+            icon='PASTEDOWN',
+            text="Paste (From Clipboard)"
+        )
 
         # We start with a row that holds the prim list and buttons
         # for adding/subtracting prims (the data management section
@@ -625,14 +783,9 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
             icon='OUTLINER_OB_MESH',
             text=""
         )
-        add_new_items.operator(
-            "maplus.addnewcalculation",
-            icon='NODETREE',
-            text=""
-        )
-        add_new_items.operator(
-            "maplus.addnewtransformation",
-            icon='GRAPH',
+        add_remove_data_col.operator(
+            "maplus.addreferencegeometry",
+            icon='AXIS_TOP',
             text=""
         )
         add_remove_data_col.operator(
@@ -649,870 +802,908 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
             layout.label(text="Add items above")
         else:
             basic_item_attribs_col = layout.column()
-            basic_item_attribs_col.label(text="Item Name and Type:")
-            item_name_and_types = basic_item_attribs_col.split(
+            item_basics_collapsible = basic_item_attribs_col.row()
+            if not addon_data.show_list_item_info:
+                item_basics_collapsible.operator(
+                    "maplus.showhidelistiteminfo",
+                    icon='TRIA_RIGHT',
+                    text="",
+                    emboss=False
+                )
+            else:
+                item_basics_collapsible.operator(
+                    "maplus.showhidelistiteminfo",
+                    icon='TRIA_DOWN',
+                    text="",
+                    emboss=False
+                )
+            item_basics_collapsible.label(text="Item Name & Settings:")
+            item_name_and_types = basic_item_attribs_col.row(
                 align=True,
-                factor=.8
             )
             item_name_and_types.prop(
                 bpy.types.AnyType(active_item),
                 'name',
                 text=""
             )
-            item_name_and_types.prop(
-                bpy.types.AnyType(active_item),
-                'kind',
-                text=""
-            )
-            basic_item_attribs_col.separator()
+            layout.separator()
 
-            # Item-specific UI elements (primitive-specific data like coords
-            # for plane points, transformation type etc.)
-            item_info_col = layout.column()
+            # item_info_header = layout.row()
+            # if not addon_data.show_list_item_info:
+            #     item_info_header.operator(
+            #         "maplus.showhidelistiteminfo",
+            #         icon='TRIA_RIGHT',
+            #         text="",
+            #         emboss=False
+            #     )
+            # else:
+            #     item_info_header.operator(
+            #         "maplus.showhidelistiteminfo",
+            #         icon='TRIA_DOWN',
+            #         text="",
+            #         emboss=False
+            #     )
+            # item_info_header.label(
+            #     text="Details",
+            # )
+            # if not addon_data.show_list_item_info:
+            #     item_info_header.label(
+            #         text="(See More)",
+            #     )
+            # else:
+            #     item_info_header.label(
+            #         text="(See Less)",
+            #     )
 
-            if active_item.kind == 'POINT':
-                modifier_header = item_info_col.row()
-                modifier_header.label(text="Point Modifiers:")
-                apply_mods = modifier_header.row()
-                apply_mods.alignment = 'RIGHT'
-                apply_mods.operator(
-                    "maplus.applygeommodifiers",
-                    text="Apply Modifiers"
-                )
-                item_mods_box = item_info_col.box()
-                mods_row_1 = item_mods_box.row()
-                mods_row_1.prop(
-                    bpy.types.AnyType(active_item),
-                    'pt_make_unit_vec',
-                    text="Set Length Equal to One"
-                )
-                mods_row_1.prop(
-                    bpy.types.AnyType(active_item),
-                    'pt_flip_direction',
-                    text="Flip Direction"
-                )
-                mods_row_2 = item_mods_box.row()
-                mods_row_2.prop(
-                    bpy.types.AnyType(active_item),
-                    'pt_multiplier',
-                    text="Multiplier"
-                )
-                item_info_col.separator()
+            if addon_data.show_list_item_info:
 
-                item_info_col.label(text="Point Coordinates:")
-                pt_grab_all = item_info_col.row(align=True)
-                pt_grab_all.operator(
-                    "maplus.grabpointfromcursor",
-                    icon='PIVOT_CURSOR',
-                    text="Grab Cursor"
-                )
-                pt_grab_all.operator(
-                    "maplus.grabpointfromactivelocal",
-                    icon='VERTEXSEL',
-                    text="Grab All Local"
-                )
-                pt_grab_all.operator(
-                    "maplus.grabpointfromactiveglobal",
-                    icon='WORLD',
-                    text="Grab All Global"
-                )
-                item_info_col.separator()
-                special_grabs = item_info_col.row(align=True)
-                special_grabs.operator(
-                    "maplus.copyfromadvtoolsactive",
-                    icon='COPYDOWN',
-                    text="Copy (To Clipboard)"
-                )
-                special_grabs.operator(
-                    "maplus.pasteintoadvtoolsactive",
-                    icon='PASTEDOWN',
-                    text="Paste (From Clipboard)"
-                )
-                item_info_col.separator()
+                # Item-specific UI elements (primitive-specific data like coords
+                # for plane points, transformation type etc.)
+                item_info_col = layout.column()
 
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="Point Coordinates:",
-                    op_id_cursor_grab=(
-                        "maplus.grabpointfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.pointgrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grabpointfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grabpointfromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="point",
-                    op_id_cursor_send=(
-                        "maplus.sendpointtocursor"
+                if active_item.kind == 'POINT':
+                    modifier_header = item_info_col.row()
+                    modifier_header.label(text="Point Modifiers:")
+                    apply_mods = modifier_header.row()
+                    apply_mods.alignment = 'RIGHT'
+                    apply_mods.operator(
+                        "maplus.applygeommodifiers",
+                        text="Apply Modifiers"
                     )
-                )
-
-                item_info_col.separator()
-                item_info_col.operator(
-                    "maplus.duplicateitembase",
-                    text="Duplicate Item"
-                )
-
-            elif active_item.kind == 'LINE':
-                modifier_header = item_info_col.row()
-                modifier_header.label(text="Line Modifiers:")
-                apply_mods = modifier_header.row()
-                apply_mods.alignment = 'RIGHT'
-                apply_mods.operator(
-                    "maplus.applygeommodifiers",
-                    text="Apply Modifiers"
-                )
-                item_mods_box = item_info_col.box()
-                mods_row_1 = item_mods_box.row()
-                mods_row_1.prop(
-                    bpy.types.AnyType(active_item),
-                    'ln_make_unit_vec',
-                    text="Set Length Equal to One"
-                )
-                mods_row_1.prop(
-                    bpy.types.AnyType(active_item),
-                    'ln_flip_direction',
-                    text="Flip Direction"
-                )
-                mods_row_2 = item_mods_box.row()
-                mods_row_2.prop(
-                    bpy.types.AnyType(active_item),
-                    'ln_multiplier',
-                    text="Multiplier"
-                )
-                item_info_col.separator()
-
-                item_info_col.label(text="Line Coordinates:")
-                ln_grab_all = item_info_col.row(align=True)
-                ln_grab_all.operator(
-                    "maplus.graballvertslinelocal",
-                    icon='VERTEXSEL',
-                    text="Grab All Local"
-                )
-                ln_grab_all.operator(
-                    "maplus.graballvertslineglobal",
-                    icon='WORLD',
-                    text="Grab All Global"
-                )
-                item_info_col.separator()
-                special_grabs = item_info_col.row(align=True)
-                special_grabs.operator(
-                    "maplus.grabnormal",
-                    icon='LIGHT_HEMI',
-                    text="Grab Normal"
-                )
-                item_info_col.separator()
-                special_grabs_extra = item_info_col.row(align=True)
-                special_grabs_extra.operator(
-                    "maplus.copyfromadvtoolsactive",
-                    icon='COPYDOWN',
-                    text="Copy (To Clipboard)"
-                )
-                special_grabs_extra.operator(
-                    "maplus.pasteintoadvtoolsactive",
-                    icon='PASTEDOWN',
-                    text="Paste (From Clipboard)"
-                )
-                item_info_col.separator()
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="Start:",
-                    op_id_cursor_grab=(
-                        "maplus.grablinestartfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.linestartgrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grablinestartfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grablinestartfromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="line_start",
-                    op_id_cursor_send=(
-                        "maplus.sendlinestarttocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.swaplinepoints",
-                        "End"
-                    )
-                )
-                item_info_col.separator()
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="End:",
-                    op_id_cursor_grab=(
-                        "maplus.grablineendfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.lineendgrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grablineendfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grablineendfromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="line_end",
-                    op_id_cursor_send=(
-                        "maplus.sendlineendtocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.swaplinepoints",
-                        "Start"
-                    )
-                )
-
-                item_info_col.separator()
-                item_info_col.operator(
-                    "maplus.duplicateitembase",
-                    text="Duplicate Item"
-                )
-
-            elif active_item.kind == 'PLANE':
-                item_info_col.label(text="Plane Coordinates:")
-                plane_grab_all = item_info_col.row(align=True)
-                plane_grab_all.operator(
-                    "maplus.graballvertsplanelocal",
-                    icon='VERTEXSEL',
-                    text="Grab All Local"
-                )
-                plane_grab_all.operator(
-                    "maplus.graballvertsplaneglobal",
-                    icon='WORLD',
-                    text="Grab All Global"
-                )
-                item_info_col.separator()
-                special_grabs = item_info_col.row(align=True)
-                special_grabs.operator(
-                    "maplus.copyfromadvtoolsactive",
-                    icon='COPYDOWN',
-                    text="Copy (To Clipboard)"
-                )
-                special_grabs.operator(
-                    "maplus.pasteintoadvtoolsactive",
-                    icon='PASTEDOWN',
-                    text="Paste (From Clipboard)"
-                )
-                item_info_col.separator()
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="Pt. A:",
-                    op_id_cursor_grab=(
-                        "maplus.grabplaneafromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.planeagrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grabplaneafromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grabplaneafromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="plane_pt_a",
-                    op_id_cursor_send=(
-                        "maplus.sendplaneatocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.swapplaneaplaneb",
-                        "B"
-                    ),
-                    op_id_text_tuple_swap_second=(
-                        "maplus.swapplaneaplanec",
-                        "C"
-                    )
-                )
-                item_info_col.separator()
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="Pt. B:",
-                    op_id_cursor_grab=(
-                        "maplus.grabplanebfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.planebgrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grabplanebfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grabplanebfromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="plane_pt_b",
-                    op_id_cursor_send=(
-                        "maplus.sendplanebtocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.swapplaneaplaneb",
-                        "A"
-                    ),
-                    op_id_text_tuple_swap_second=(
-                        "maplus.swapplanebplanec",
-                        "C"
-                    )
-                )
-                item_info_col.separator()
-
-                maplus_guitools.layout_coordvec(
-                    parent_layout=item_info_col,
-                    coordvec_label="Pt. C:",
-                    op_id_cursor_grab=(
-                        "maplus.grabplanecfromcursor"
-                    ),
-                    op_id_avg_grab=(
-                        "maplus.planecgrabavg"
-                    ),
-                    op_id_local_grab=(
-                        "maplus.grabplanecfromactivelocal"
-                    ),
-                    op_id_global_grab=(
-                        "maplus.grabplanecfromactiveglobal"
-                    ),
-                    coord_container=active_item,
-                    coord_attribute="plane_pt_c",
-                    op_id_cursor_send=(
-                        "maplus.sendplanectocursor"
-                    ),
-                    op_id_text_tuple_swap_first=(
-                        "maplus.swapplaneaplanec",
-                        "A"
-                    ),
-                    op_id_text_tuple_swap_second=(
-                        "maplus.swapplanebplanec",
-                        "B"
-                    )
-                )
-
-                item_info_col.separator()
-                item_info_col.operator(
-                    "maplus.duplicateitembase",
-                    text="Duplicate Item"
-                )
-
-            elif active_item.kind == 'CALCULATION':
-                item_info_col.label(text="Calculation Type:")
-                calc_type_switcher = item_info_col.row()
-                calc_type_switcher.operator(
-                    "maplus.changecalctosingle",
-                    # icon='PIVOT_INDIVIDUAL',
-                    text="Single Item"
-                )
-                calc_type_switcher.operator(
-                    "maplus.changecalctomulti",
-                    # icon='PIVOT_INDIVIDUAL',
-                    text="Multi-Item"
-                )
-                item_info_col.separator()
-                if active_item.calc_type == 'SINGLEITEM':
-                    item_info_col.label(text="Target:")
-                    item_info_col.template_list(
-                        "MAPLUS_UL_MAPlusList",
-                        "single_calc_target_list",
-                        maplus_data_ptr,
-                        "prim_list",
-                        active_item,
-                        "single_calc_target",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    calcs_and_results_header = item_info_col.row()
-                    calcs_and_results_header.label(text=
-                        "Available Calc.'s and Result:"
-                    )
-                    clipboard_row_right = calcs_and_results_header.row()
-                    clipboard_row_right.alignment = 'RIGHT'
-                    clipboard_row_right.prop(
-                        bpy.types.AnyType(maplus_data_ptr),
-                        'calc_result_to_clipboard',
-                        text="Copy to Clipboard"
-                    )
-                    item_info_col.prop(
+                    item_mods_box = item_info_col.box()
+                    mods_row_1 = item_mods_box.row()
+                    mods_row_1.prop(
                         bpy.types.AnyType(active_item),
-                        'single_calc_result',
-                        text="Result"
+                        'pt_make_unit_vec',
+                        text="Set Length Equal to One"
                     )
-                    # Check if the target pointer is valid, since we attempt
-                    # to access that index in prims at the beginning here.
-                    if active_item.single_calc_target < len(prims):
-                        calc_target = prims[active_item.single_calc_target]
-                        if calc_target.kind == 'POINT':
-                            item_info_col.operator(
-                                "maplus.composenewlinefrompoint",
-                                icon='CURVE_PATH',
-                                text="New Line from Point"
-                            )
-                        elif calc_target.kind == 'LINE':
-                            item_info_col.operator(
-                                "maplus.calclinelength",
-                                text="Line Length"
-                            )
-                            item_info_col.operator(
-                                "maplus.composenewlinefromorigin",
-                                icon='CURVE_PATH',
-                                text="New Line from Origin"
-                            )
-                        elif calc_target.kind == 'PLANE':
-                            item_info_col.operator(
-                                "maplus.composenormalfromplane",
-                                icon='CURVE_PATH',
-                                text="Get Plane Normal (Normalized)"
-                            )
-                elif active_item.calc_type == 'MULTIITEM':
-
-                    item_info_col.label(text="Targets:")
-                    calc_targets = item_info_col.row()
-                    calc_targets.template_list(
-                        "MAPLUS_UL_MAPlusList",
-                        "multi_calc_target_one_list",
-                        maplus_data_ptr,
-                        "prim_list",
-                        active_item,
-                        "multi_calc_target_one",
-                        type='DEFAULT'
-                    )
-                    calc_targets.template_list(
-                        "MAPLUS_UL_MAPlusList",
-                        "multi_calc_target_two_list",
-                        maplus_data_ptr,
-                        "prim_list",
-                        active_item,
-                        "multi_calc_target_two",
-                        type='DEFAULT'
-                    )
-                    item_info_col.separator()
-                    calcs_and_results_header = item_info_col.row()
-                    calcs_and_results_header.label(text=
-                        "Available Calc.'s and Result:"
-                    )
-                    clipboard_row_right = calcs_and_results_header.row()
-                    clipboard_row_right.alignment = 'RIGHT'
-                    clipboard_row_right.prop(
-                        bpy.types.AnyType(maplus_data_ptr),
-                        'calc_result_to_clipboard',
-                        text="Copy to Clipboard"
-                    )
-                    item_info_col.prop(
+                    mods_row_1.prop(
                         bpy.types.AnyType(active_item),
-                        'multi_calc_result',
-                        text="Result"
+                        'pt_flip_direction',
+                        text="Flip Direction"
                     )
-                    # Check if the target pointers are valid, since we attempt
-                    # to access those indices in prims at the beginning here.
-                    if (active_item.multi_calc_target_one < len(prims) and
-                            active_item.multi_calc_target_two < len(prims)):
-                        calc_target_one = prims[
-                            active_item.multi_calc_target_one
-                        ]
-                        calc_target_two = prims[
-                            active_item.multi_calc_target_two
-                        ]
-                        type_combo = {
-                            calc_target_one.kind,
-                            calc_target_two.kind
-                        }
-                        if (calc_target_one.kind == 'POINT' and
-                                calc_target_two.kind == 'POINT'):
-                            item_info_col.operator(
-                                "maplus.composenewlinefrompoints",
-                                icon='CURVE_PATH',
-                                text="New Line from Points"
-                            )
-                            item_info_col.operator(
-                                "maplus.calcdistancebetweenpoints",
-                                text="Distance Between Points"
-                            )
-                        elif (calc_target_one.kind == 'LINE' and
-                                calc_target_two.kind == 'LINE'):
-                            item_info_col.operator(
-                                "maplus.calcrotationaldiff",
-                                text="Angle of Lines"
-                            )
-                            item_info_col.operator(
-                                "maplus.composenewlinevectoraddition",
-                                icon='CURVE_PATH',
-                                text="Add Lines"
-                            )
-                            item_info_col.operator(
-                                "maplus.composenewlinevectorsubtraction",
-                                icon='CURVE_PATH',
-                                text="Subtract Lines"
-                            )
-                        elif 'POINT' in type_combo and 'LINE' in type_combo:
-                            item_info_col.operator(
-                                "maplus.composenewlineatpointlocation",
-                                icon='CURVE_PATH',
-                                text="New Line at Point"
-                            )
-                        elif 'LINE' in type_combo and 'PLANE' in type_combo:
-                            item_info_col.operator(
-                                "maplus.composepointintersectinglineplane",
-                                icon='LAYER_ACTIVE',
-                                text="Intersect Line/Plane"
-                            )
-
-            elif active_item.kind == 'TRANSFORMATION':
-                item_info_col.label(text="Transformation Type Selectors:")
-                transf_types = item_info_col.row(align=True)
-                transf_types.operator(
-                    "maplus.changetransftoalignpoints",
-                    icon='PIVOT_INDIVIDUAL',
-                    text="Align Points"
-                )
-                transf_types.operator(
-                    "maplus.changetransftoalignlines",
-                    icon='SNAP_EDGE',
-                    text="Align Lines"
-                )
-                transf_types.operator(
-                    "maplus.changetransftoalignplanes",
-                    icon='FACESEL',
-                    text="Align Planes"
-                )
-                transf_types.operator(
-                    "maplus.changetransftodirectionalslide",
-                    icon='CURVE_PATH',
-                    text="Directional Slide"
-                )
-                transf_types.operator(
-                    "maplus.changetransftoscalematchedge",
-                    icon='FULLSCREEN_ENTER',
-                    text="Scale Match Edge"
-                )
-                transf_types.operator(
-                    "maplus.changetransftoaxisrotate",
-                    icon='FORCE_MAGNETIC',
-                    text="Axis Rotate"
-                )
-                item_info_col.separator()
-
-                if active_item.transf_type == "UNDEFINED":
-                    item_info_col.label(text="Select a transformation above")
-                else:
-                    apply_buttons_header = item_info_col.row()
-                    if active_item.transf_type == 'ALIGNPOINTS':
-                        apply_buttons_header.label(
-                            text='Apply Align Points to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.alignpointsobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.alignpointsmeshselected",
-                            icon='NONE',
-                            text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.alignpointswholemesh",
-                            icon='NONE',
-                            text=" Whole Mesh"
-                        )
-                    elif active_item.transf_type == 'DIRECTIONALSLIDE':
-                        apply_buttons_header.label(text=
-                            'Apply Directional Slide to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.directionalslideobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.directionalslidemeshselected",
-                            icon='NONE', text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.directionalslidewholemesh",
-                            icon='NONE',
-                            text="Whole Mesh"
-                        )
-                    elif active_item.transf_type == 'SCALEMATCHEDGE':
-                        apply_buttons_header.label(text=
-                            'Apply Scale Match Edge to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.scalematchedgeobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.scalematchedgemeshselected",
-                            icon='NONE', text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.scalematchedgewholemesh",
-                            icon='NONE',
-                            text="Whole Mesh"
-                        )
-                    elif active_item.transf_type == 'AXISROTATE':
-                        apply_buttons_header.label(
-                            text='Apply Axis Rotate to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.axisrotateobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.axisrotatemeshselected",
-                            icon='NONE', text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.axisrotatewholemesh",
-                            icon='NONE',
-                            text="Whole Mesh"
-                        )
-                    elif active_item.transf_type == 'ALIGNLINES':
-                        apply_buttons_header.label(
-                            text='Apply Align Lines to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.alignlinesobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.alignlinesmeshselected",
-                            icon='NONE',
-                            text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.alignlineswholemesh",
-                            icon='NONE',
-                            text="Whole Mesh"
-                        )
-                    elif active_item.transf_type == 'ALIGNPLANES':
-                        apply_buttons_header.label(
-                            text='Apply Align Planes to:'
-                        )
-                        apply_buttons = item_info_col.split(factor=.33)
-                        apply_buttons.operator(
-                            "maplus.alignplanesobject",
-                            icon='NONE',
-                            text="Object"
-                        )
-                        mesh_appliers = apply_buttons.row(align=True)
-                        mesh_appliers.operator(
-                            "maplus.alignplanesmeshselected",
-                            icon='NONE',
-                            text="Mesh Piece"
-                        )
-                        mesh_appliers.operator(
-                            "maplus.alignplaneswholemesh",
-                            icon='NONE',
-                            text="Whole Mesh"
-                        )
-                    item_info_col.separator()
-                    experiment_toggle = apply_buttons_header.column()
-                    experiment_toggle.prop(
-                            addon_data,
-                            'use_experimental',
-                            text='Enable Experimental Mesh Ops.'
+                    mods_row_2 = item_mods_box.row()
+                    mods_row_2.prop(
+                        bpy.types.AnyType(active_item),
+                        'pt_multiplier',
+                        text="Multiplier"
                     )
-
-                    active_transf = bpy.types.AnyType(active_item)
-
-                    if (active_item.transf_type != 'SCALEMATCHEDGE' and
-                            active_item.transf_type != 'AXISROTATE'):
-                        item_info_col.label(text='Transformation Modifiers:')
-                        item_mods_box = item_info_col.box()
-                        mods_row_1 = item_mods_box.row()
-                        mods_row_2 = item_mods_box.row()
-                    if active_item.transf_type == "ALIGNPOINTS":
-                        mods_row_1.prop(
-                            active_transf,
-                            'apt_make_unit_vector',
-                            text='Set Length Equal to One'
-                        )
-                        mods_row_1.prop(
-                            active_transf,
-                            'apt_flip_direction',
-                            text='Flip Direction'
-                        )
-                        mods_row_2.prop(
-                            active_transf,
-                            'apt_multiplier',
-                            text='Multiplier'
-                        )
-                    if active_item.transf_type == "DIRECTIONALSLIDE":
-                        item_info_col.label(text='Item Modifiers:')
-                        mods_row_1.prop(
-                            active_transf,
-                            'ds_make_unit_vec',
-                            text="Set Length Equal to One"
-                        )
-                        mods_row_1.prop(
-                            active_transf,
-                            'ds_flip_direction',
-                            text="Flip Direction"
-                        )
-                        mods_row_2.prop(
-                            active_transf,
-                            'ds_multiplier',
-                            text="Multiplier"
-                        )
-                    if active_item.transf_type == "ALIGNLINES":
-                        mods_row_1.prop(
-                            active_transf,
-                            'aln_flip_direction',
-                            text="Flip Direction"
-                        )
-                    if active_item.transf_type == "ALIGNPLANES":
-                        mods_row_1.prop(
-                            active_transf,
-                            'apl_flip_normal',
-                            text="Flip Source Normal"
-                        )
-                        # Todo: determine how to handle this from Adv. Tools
-                        # ('use' arg only valid from a 3d view editor/context)
-                        # mods_row_1.prop(
-                        #    active_transf,
-                        #    'apl_use_custom_orientation',
-                        #    text="Use Transf. Orientation"
-                        # )
                     item_info_col.separator()
 
-                    # Designate operands for the transformation by pointing to
-                    # other primitive items in the main list. The indices are
-                    # stored on each primitive item
-                    if active_item.transf_type == "ALIGNPOINTS":
-                        item_info_col.label(text="Source Point")
+                    item_info_col.label(text="Point Coordinates:")
+                    pt_grab_all = item_info_col.row(align=True)
+                    pt_grab_all.operator(
+                        "maplus.grabpointfromcursor",
+                        icon='PIVOT_CURSOR',
+                        text="Grab Cursor"
+                    )
+                    pt_grab_all.operator(
+                        "maplus.grabpointfromactivelocal",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    pt_grab_all.operator(
+                        "maplus.grabpointfromactiveglobal",
+                        icon='WORLD',
+                        text="Grab All Global"
+                    )
+                    item_info_col.separator()
+                    special_grabs = item_info_col.row(align=True)
+                    special_grabs.operator(
+                        "maplus.copyfromadvtoolsactive",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs.operator(
+                        "maplus.pasteintoadvtoolsactive",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="Point Coordinates:",
+                        op_id_cursor_grab=(
+                            "maplus.grabpointfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.pointgrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grabpointfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grabpointfromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="point",
+                        op_id_cursor_send=(
+                            "maplus.sendpointtocursor"
+                        )
+                    )
+
+                    item_info_col.separator()
+                    item_info_col.operator(
+                        "maplus.duplicateitembase",
+                        text="Duplicate Item"
+                    )
+
+                elif active_item.kind == 'LINE':
+                    modifier_header = item_info_col.row()
+                    modifier_header.label(text="Line Modifiers:")
+                    apply_mods = modifier_header.row()
+                    apply_mods.alignment = 'RIGHT'
+                    apply_mods.operator(
+                        "maplus.applygeommodifiers",
+                        text="Apply Modifiers"
+                    )
+                    item_mods_box = item_info_col.box()
+                    mods_row_1 = item_mods_box.row()
+                    mods_row_1.prop(
+                        bpy.types.AnyType(active_item),
+                        'ln_make_unit_vec',
+                        text="Set Length Equal to One"
+                    )
+                    mods_row_1.prop(
+                        bpy.types.AnyType(active_item),
+                        'ln_flip_direction',
+                        text="Flip Direction"
+                    )
+                    mods_row_2 = item_mods_box.row()
+                    mods_row_2.prop(
+                        bpy.types.AnyType(active_item),
+                        'ln_multiplier',
+                        text="Multiplier"
+                    )
+                    item_info_col.separator()
+
+                    item_info_col.label(text="Line Coordinates:")
+                    ln_grab_all = item_info_col.row(align=True)
+                    ln_grab_all.operator(
+                        "maplus.graballvertslinelocal",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    ln_grab_all.operator(
+                        "maplus.graballvertslineglobal",
+                        icon='WORLD',
+                        text="Grab All Global"
+                    )
+                    item_info_col.separator()
+                    special_grabs = item_info_col.row(align=True)
+                    special_grabs.operator(
+                        "maplus.grabnormal",
+                        icon='LIGHT_HEMI',
+                        text="Grab Normal"
+                    )
+                    item_info_col.separator()
+                    special_grabs_extra = item_info_col.row(align=True)
+                    special_grabs_extra.operator(
+                        "maplus.copyfromadvtoolsactive",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs_extra.operator(
+                        "maplus.pasteintoadvtoolsactive",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="Start:",
+                        op_id_cursor_grab=(
+                            "maplus.grablinestartfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.linestartgrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grablinestartfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grablinestartfromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="line_start",
+                        op_id_cursor_send=(
+                            "maplus.sendlinestarttocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.swaplinepoints",
+                            "End"
+                        )
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="End:",
+                        op_id_cursor_grab=(
+                            "maplus.grablineendfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.lineendgrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grablineendfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grablineendfromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="line_end",
+                        op_id_cursor_send=(
+                            "maplus.sendlineendtocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.swaplinepoints",
+                            "Start"
+                        )
+                    )
+
+                    item_info_col.separator()
+                    item_info_col.operator(
+                        "maplus.duplicateitembase",
+                        text="Duplicate Item"
+                    )
+
+                elif active_item.kind == 'PLANE':
+                    item_info_col.label(text="Plane Coordinates:")
+                    plane_grab_all = item_info_col.row(align=True)
+                    plane_grab_all.operator(
+                        "maplus.graballvertsplanelocal",
+                        icon='VERTEXSEL',
+                        text="Grab All Local"
+                    )
+                    plane_grab_all.operator(
+                        "maplus.graballvertsplaneglobal",
+                        icon='WORLD',
+                        text="Grab All Global"
+                    )
+                    item_info_col.separator()
+                    special_grabs = item_info_col.row(align=True)
+                    special_grabs.operator(
+                        "maplus.copyfromadvtoolsactive",
+                        icon='COPYDOWN',
+                        text="Copy (To Clipboard)"
+                    )
+                    special_grabs.operator(
+                        "maplus.pasteintoadvtoolsactive",
+                        icon='PASTEDOWN',
+                        text="Paste (From Clipboard)"
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="Pt. A:",
+                        op_id_cursor_grab=(
+                            "maplus.grabplaneafromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.planeagrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grabplaneafromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grabplaneafromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="plane_pt_a",
+                        op_id_cursor_send=(
+                            "maplus.sendplaneatocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.swapplaneaplaneb",
+                            "B"
+                        ),
+                        op_id_text_tuple_swap_second=(
+                            "maplus.swapplaneaplanec",
+                            "C"
+                        )
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="Pt. B:",
+                        op_id_cursor_grab=(
+                            "maplus.grabplanebfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.planebgrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grabplanebfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grabplanebfromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="plane_pt_b",
+                        op_id_cursor_send=(
+                            "maplus.sendplanebtocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.swapplaneaplaneb",
+                            "A"
+                        ),
+                        op_id_text_tuple_swap_second=(
+                            "maplus.swapplanebplanec",
+                            "C"
+                        )
+                    )
+                    item_info_col.separator()
+
+                    maplus_guitools.layout_coordvec(
+                        parent_layout=item_info_col,
+                        coordvec_label="Pt. C:",
+                        op_id_cursor_grab=(
+                            "maplus.grabplanecfromcursor"
+                        ),
+                        op_id_avg_grab=(
+                            "maplus.planecgrabavg"
+                        ),
+                        op_id_local_grab=(
+                            "maplus.grabplanecfromactivelocal"
+                        ),
+                        op_id_global_grab=(
+                            "maplus.grabplanecfromactiveglobal"
+                        ),
+                        coord_container=active_item,
+                        coord_attribute="plane_pt_c",
+                        op_id_cursor_send=(
+                            "maplus.sendplanectocursor"
+                        ),
+                        op_id_text_tuple_swap_first=(
+                            "maplus.swapplaneaplanec",
+                            "A"
+                        ),
+                        op_id_text_tuple_swap_second=(
+                            "maplus.swapplanebplanec",
+                            "B"
+                        )
+                    )
+
+                    item_info_col.separator()
+                    item_info_col.operator(
+                        "maplus.duplicateitembase",
+                        text="Duplicate Item"
+                    )
+
+                elif active_item.kind == 'CALCULATION':
+                    item_info_col.label(text="Calculation Type:")
+                    calc_type_switcher = item_info_col.row()
+                    calc_type_switcher.operator(
+                        "maplus.changecalctosingle",
+                        # icon='PIVOT_INDIVIDUAL',
+                        text="Single Item"
+                    )
+                    calc_type_switcher.operator(
+                        "maplus.changecalctomulti",
+                        # icon='PIVOT_INDIVIDUAL',
+                        text="Multi-Item"
+                    )
+                    item_info_col.separator()
+                    if active_item.calc_type == 'SINGLEITEM':
+                        item_info_col.label(text="Target:")
                         item_info_col.template_list(
                             "MAPLUS_UL_MAPlusList",
-                            "apt_pt_one_list",
+                            "single_calc_target_list",
                             maplus_data_ptr,
                             "prim_list",
-                            active_transf,
-                            "apt_pt_one",
+                            active_item,
+                            "single_calc_target",
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label(text="Destination Point")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "apt_pt_two_list",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "apt_pt_two",
-                            type='DEFAULT'
+                        calcs_and_results_header = item_info_col.row()
+                        calcs_and_results_header.label(text=
+                            "Available Calc.'s and Result:"
                         )
-                    if active_item.transf_type == "DIRECTIONALSLIDE":
-                        item_info_col.label(text="Source Line")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "vs_targetLineList",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "ds_direction",
-                            type='DEFAULT'
+                        clipboard_row_right = calcs_and_results_header.row()
+                        clipboard_row_right.alignment = 'RIGHT'
+                        clipboard_row_right.prop(
+                            bpy.types.AnyType(maplus_data_ptr),
+                            'calc_result_to_clipboard',
+                            text="Copy to Clipboard"
                         )
-                    if active_item.transf_type == "SCALEMATCHEDGE":
-                        item_info_col.label(text="Source Edge")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "sme_src_edgelist",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "sme_edge_one",
-                            type='DEFAULT'
-                        )
-                        item_info_col.separator()
-                        item_info_col.label(text="Destination Edge")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "sme_dest_edgelist",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "sme_edge_two",
-                            type='DEFAULT'
-                        )
-                    if active_item.transf_type == "AXISROTATE":
-                        item_info_col.label(text="Axis")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "axr_src_axis",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "axr_axis",
-                            type='DEFAULT'
-                        )
-                        item_info_col.separator()
                         item_info_col.prop(
-                            active_transf,
-                            'axr_amount',
-                            text='Amount'
+                            bpy.types.AnyType(active_item),
+                            'single_calc_result',
+                            text="Result"
                         )
-                    if active_item.transf_type == "ALIGNLINES":
-                        item_info_col.label(text="Source Line")
-                        item_info_col.template_list(
+                        # Check if the target pointer is valid, since we attempt
+                        # to access that index in prims at the beginning here.
+                        if active_item.single_calc_target < len(prims):
+                            calc_target = prims[active_item.single_calc_target]
+                            if calc_target.kind == 'POINT':
+                                item_info_col.operator(
+                                    "maplus.composenewlinefrompoint",
+                                    icon='CURVE_PATH',
+                                    text="New Line from Point"
+                                )
+                            elif calc_target.kind == 'LINE':
+                                item_info_col.operator(
+                                    "maplus.calclinelength",
+                                    text="Line Length"
+                                )
+                                item_info_col.operator(
+                                    "maplus.composenewlinefromorigin",
+                                    icon='CURVE_PATH',
+                                    text="New Line from Origin"
+                                )
+                            elif calc_target.kind == 'PLANE':
+                                item_info_col.operator(
+                                    "maplus.composenormalfromplane",
+                                    icon='CURVE_PATH',
+                                    text="Get Plane Normal (Normalized)"
+                                )
+                    elif active_item.calc_type == 'MULTIITEM':
+
+                        item_info_col.label(text="Targets:")
+                        calc_targets = item_info_col.row()
+                        calc_targets.template_list(
                             "MAPLUS_UL_MAPlusList",
-                            "aln_src_linelist",
+                            "multi_calc_target_one_list",
                             maplus_data_ptr,
                             "prim_list",
-                            active_transf,
-                            "aln_src_line",
+                            active_item,
+                            "multi_calc_target_one",
+                            type='DEFAULT'
+                        )
+                        calc_targets.template_list(
+                            "MAPLUS_UL_MAPlusList",
+                            "multi_calc_target_two_list",
+                            maplus_data_ptr,
+                            "prim_list",
+                            active_item,
+                            "multi_calc_target_two",
                             type='DEFAULT'
                         )
                         item_info_col.separator()
-                        item_info_col.label(text="Destination Line")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "aln_dest_linelist",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "aln_dest_line",
-                            type='DEFAULT'
+                        calcs_and_results_header = item_info_col.row()
+                        calcs_and_results_header.label(text=
+                            "Available Calc.'s and Result:"
                         )
-                    if active_item.transf_type == "ALIGNPLANES":
-                        item_info_col.label(text="Source Plane")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "apl_src_planelist",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "apl_src_plane",
-                            type='DEFAULT'
+                        clipboard_row_right = calcs_and_results_header.row()
+                        clipboard_row_right.alignment = 'RIGHT'
+                        clipboard_row_right.prop(
+                            bpy.types.AnyType(maplus_data_ptr),
+                            'calc_result_to_clipboard',
+                            text="Copy to Clipboard"
                         )
+                        item_info_col.prop(
+                            bpy.types.AnyType(active_item),
+                            'multi_calc_result',
+                            text="Result"
+                        )
+                        # Check if the target pointers are valid, since we attempt
+                        # to access those indices in prims at the beginning here.
+                        if (active_item.multi_calc_target_one < len(prims) and
+                                active_item.multi_calc_target_two < len(prims)):
+                            calc_target_one = prims[
+                                active_item.multi_calc_target_one
+                            ]
+                            calc_target_two = prims[
+                                active_item.multi_calc_target_two
+                            ]
+                            type_combo = {
+                                calc_target_one.kind,
+                                calc_target_two.kind
+                            }
+                            if (calc_target_one.kind == 'POINT' and
+                                    calc_target_two.kind == 'POINT'):
+                                item_info_col.operator(
+                                    "maplus.composenewlinefrompoints",
+                                    icon='CURVE_PATH',
+                                    text="New Line from Points"
+                                )
+                                item_info_col.operator(
+                                    "maplus.calcdistancebetweenpoints",
+                                    text="Distance Between Points"
+                                )
+                            elif (calc_target_one.kind == 'LINE' and
+                                    calc_target_two.kind == 'LINE'):
+                                item_info_col.operator(
+                                    "maplus.calcrotationaldiff",
+                                    text="Angle of Lines"
+                                )
+                                item_info_col.operator(
+                                    "maplus.composenewlinevectoraddition",
+                                    icon='CURVE_PATH',
+                                    text="Add Lines"
+                                )
+                                item_info_col.operator(
+                                    "maplus.composenewlinevectorsubtraction",
+                                    icon='CURVE_PATH',
+                                    text="Subtract Lines"
+                                )
+                            elif 'POINT' in type_combo and 'LINE' in type_combo:
+                                item_info_col.operator(
+                                    "maplus.composenewlineatpointlocation",
+                                    icon='CURVE_PATH',
+                                    text="New Line at Point"
+                                )
+                            elif 'LINE' in type_combo and 'PLANE' in type_combo:
+                                item_info_col.operator(
+                                    "maplus.composepointintersectinglineplane",
+                                    icon='LAYER_ACTIVE',
+                                    text="Intersect Line/Plane"
+                                )
+
+                elif active_item.kind == 'TRANSFORMATION':
+                    item_info_col.label(text="Transformation Type Selectors:")
+                    transf_types = item_info_col.row(align=True)
+                    transf_types.operator(
+                        "maplus.changetransftoalignpoints",
+                        icon='PIVOT_INDIVIDUAL',
+                        text="Align Points"
+                    )
+                    transf_types.operator(
+                        "maplus.changetransftoalignlines",
+                        icon='SNAP_EDGE',
+                        text="Align Lines"
+                    )
+                    transf_types.operator(
+                        "maplus.changetransftoalignplanes",
+                        icon='FACESEL',
+                        text="Align Planes"
+                    )
+                    transf_types.operator(
+                        "maplus.changetransftodirectionalslide",
+                        icon='CURVE_PATH',
+                        text="Directional Slide"
+                    )
+                    transf_types.operator(
+                        "maplus.changetransftoscalematchedge",
+                        icon='FULLSCREEN_ENTER',
+                        text="Scale Match Edge"
+                    )
+                    transf_types.operator(
+                        "maplus.changetransftoaxisrotate",
+                        icon='FORCE_MAGNETIC',
+                        text="Axis Rotate"
+                    )
+                    item_info_col.separator()
+
+                    if active_item.transf_type == "UNDEFINED":
+                        item_info_col.label(text="Select a transformation above")
+                    else:
+                        apply_buttons_header = item_info_col.row()
+                        if active_item.transf_type == 'ALIGNPOINTS':
+                            apply_buttons_header.label(
+                                text='Apply Align Points to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.alignpointsobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.alignpointsmeshselected",
+                                icon='NONE',
+                                text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.alignpointswholemesh",
+                                icon='NONE',
+                                text=" Whole Mesh"
+                            )
+                        elif active_item.transf_type == 'DIRECTIONALSLIDE':
+                            apply_buttons_header.label(text=
+                                'Apply Directional Slide to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.directionalslideobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.directionalslidemeshselected",
+                                icon='NONE', text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.directionalslidewholemesh",
+                                icon='NONE',
+                                text="Whole Mesh"
+                            )
+                        elif active_item.transf_type == 'SCALEMATCHEDGE':
+                            apply_buttons_header.label(text=
+                                'Apply Scale Match Edge to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.scalematchedgeobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.scalematchedgemeshselected",
+                                icon='NONE', text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.scalematchedgewholemesh",
+                                icon='NONE',
+                                text="Whole Mesh"
+                            )
+                        elif active_item.transf_type == 'AXISROTATE':
+                            apply_buttons_header.label(
+                                text='Apply Axis Rotate to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.axisrotateobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.axisrotatemeshselected",
+                                icon='NONE', text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.axisrotatewholemesh",
+                                icon='NONE',
+                                text="Whole Mesh"
+                            )
+                        elif active_item.transf_type == 'ALIGNLINES':
+                            apply_buttons_header.label(
+                                text='Apply Align Lines to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.alignlinesobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.alignlinesmeshselected",
+                                icon='NONE',
+                                text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.alignlineswholemesh",
+                                icon='NONE',
+                                text="Whole Mesh"
+                            )
+                        elif active_item.transf_type == 'ALIGNPLANES':
+                            apply_buttons_header.label(
+                                text='Apply Align Planes to:'
+                            )
+                            apply_buttons = item_info_col.split(factor=.33)
+                            apply_buttons.operator(
+                                "maplus.alignplanesobject",
+                                icon='NONE',
+                                text="Object"
+                            )
+                            mesh_appliers = apply_buttons.row(align=True)
+                            mesh_appliers.operator(
+                                "maplus.alignplanesmeshselected",
+                                icon='NONE',
+                                text="Mesh Piece"
+                            )
+                            mesh_appliers.operator(
+                                "maplus.alignplaneswholemesh",
+                                icon='NONE',
+                                text="Whole Mesh"
+                            )
                         item_info_col.separator()
-                        item_info_col.label(text="Destination Plane")
-                        item_info_col.template_list(
-                            "MAPLUS_UL_MAPlusList",
-                            "apl_dest_planelist",
-                            maplus_data_ptr,
-                            "prim_list",
-                            active_transf,
-                            "apl_dest_plane",
-                            type='DEFAULT'
+                        experiment_toggle = apply_buttons_header.column()
+                        experiment_toggle.prop(
+                                addon_data,
+                                'use_experimental',
+                                text='Enable Experimental Mesh Ops.'
                         )
+
+                        active_transf = bpy.types.AnyType(active_item)
+
+                        if (active_item.transf_type != 'SCALEMATCHEDGE' and
+                                active_item.transf_type != 'AXISROTATE'):
+                            item_info_col.label(text='Transformation Modifiers:')
+                            item_mods_box = item_info_col.box()
+                            mods_row_1 = item_mods_box.row()
+                            mods_row_2 = item_mods_box.row()
+                        if active_item.transf_type == "ALIGNPOINTS":
+                            mods_row_1.prop(
+                                active_transf,
+                                'apt_make_unit_vector',
+                                text='Set Length Equal to One'
+                            )
+                            mods_row_1.prop(
+                                active_transf,
+                                'apt_flip_direction',
+                                text='Flip Direction'
+                            )
+                            mods_row_2.prop(
+                                active_transf,
+                                'apt_multiplier',
+                                text='Multiplier'
+                            )
+                        if active_item.transf_type == "DIRECTIONALSLIDE":
+                            item_info_col.label(text='Item Modifiers:')
+                            mods_row_1.prop(
+                                active_transf,
+                                'ds_make_unit_vec',
+                                text="Set Length Equal to One"
+                            )
+                            mods_row_1.prop(
+                                active_transf,
+                                'ds_flip_direction',
+                                text="Flip Direction"
+                            )
+                            mods_row_2.prop(
+                                active_transf,
+                                'ds_multiplier',
+                                text="Multiplier"
+                            )
+                        if active_item.transf_type == "ALIGNLINES":
+                            mods_row_1.prop(
+                                active_transf,
+                                'aln_flip_direction',
+                                text="Flip Direction"
+                            )
+                        if active_item.transf_type == "ALIGNPLANES":
+                            mods_row_1.prop(
+                                active_transf,
+                                'apl_flip_normal',
+                                text="Flip Source Normal"
+                            )
+                            # Todo: determine how to handle this from Adv. Tools
+                            # ('use' arg only valid from a 3d view editor/context)
+                            # mods_row_1.prop(
+                            #    active_transf,
+                            #    'apl_use_custom_orientation',
+                            #    text="Use Transf. Orientation"
+                            # )
+                        item_info_col.separator()
+
+                        # Designate operands for the transformation by pointing to
+                        # other primitive items in the main list. The indices are
+                        # stored on each primitive item
+                        if active_item.transf_type == "ALIGNPOINTS":
+                            item_info_col.label(text="Source Point")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "apt_pt_one_list",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "apt_pt_one",
+                                type='DEFAULT'
+                            )
+                            item_info_col.separator()
+                            item_info_col.label(text="Destination Point")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "apt_pt_two_list",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "apt_pt_two",
+                                type='DEFAULT'
+                            )
+                        if active_item.transf_type == "DIRECTIONALSLIDE":
+                            item_info_col.label(text="Source Line")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "vs_targetLineList",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "ds_direction",
+                                type='DEFAULT'
+                            )
+                        if active_item.transf_type == "SCALEMATCHEDGE":
+                            item_info_col.label(text="Source Edge")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "sme_src_edgelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "sme_edge_one",
+                                type='DEFAULT'
+                            )
+                            item_info_col.separator()
+                            item_info_col.label(text="Destination Edge")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "sme_dest_edgelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "sme_edge_two",
+                                type='DEFAULT'
+                            )
+                        if active_item.transf_type == "AXISROTATE":
+                            item_info_col.label(text="Axis")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "axr_src_axis",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "axr_axis",
+                                type='DEFAULT'
+                            )
+                            item_info_col.separator()
+                            item_info_col.prop(
+                                active_transf,
+                                'axr_amount',
+                                text='Amount'
+                            )
+                        if active_item.transf_type == "ALIGNLINES":
+                            item_info_col.label(text="Source Line")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "aln_src_linelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "aln_src_line",
+                                type='DEFAULT'
+                            )
+                            item_info_col.separator()
+                            item_info_col.label(text="Destination Line")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "aln_dest_linelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "aln_dest_line",
+                                type='DEFAULT'
+                            )
+                        if active_item.transf_type == "ALIGNPLANES":
+                            item_info_col.label(text="Source Plane")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "apl_src_planelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "apl_src_plane",
+                                type='DEFAULT'
+                            )
+                            item_info_col.separator()
+                            item_info_col.label(text="Destination Plane")
+                            item_info_col.template_list(
+                                "MAPLUS_UL_MAPlusList",
+                                "apl_dest_planelist",
+                                maplus_data_ptr,
+                                "prim_list",
+                                active_transf,
+                                "apl_dest_plane",
+                                type='DEFAULT'
+                            )
