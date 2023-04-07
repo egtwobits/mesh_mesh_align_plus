@@ -63,6 +63,9 @@ class MAPLUS_UL_MAPlusList(bpy.types.UIList):
 class MAPLUS_OT_AddListItemBase(bpy.types.Operator):
     bl_idname = "maplus.addlistitembase"
     bl_label = "Add a new item"
+    bl_description = (
+        "Adds geometry to store/save in the geometry manager list"
+    )
     bl_options = {'REGISTER', 'UNDO'}
 
     def add_new_named(self):
@@ -607,7 +610,9 @@ class MAPLUS_OT_AddReferenceGeometry(bpy.types.Operator):
         " origin pt. (0, 0, 0) to the geometry"
         " manager list."
     )
-    bl_description = "Adds commonly used reference geometry to the geometry manager"
+    bl_description = (
+        "Adds commonly used reference geometry (XY, XZ,\n YZ planes, axis lines, etc.) to the geometry manager"
+    )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -740,16 +745,22 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         if len(prims) > 0:
             active_item = prims[addon_data.active_list_item]
 
-        quick_copy_paste = layout.row()
-        quick_copy_paste.operator(
+        easy_mode_quick_items = layout.row()
+        easy_copy_paste_row = easy_mode_quick_items.row(align=True)
+        easy_copy_paste_row.operator(
             "maplus.copyfromadvtoolsactive",
             icon='COPYDOWN',
             text="Copy (To Clipboard)"
         )
-        quick_copy_paste.operator(
+        easy_copy_paste_row.operator(
             "maplus.pasteintoadvtoolsactive",
             icon='PASTEDOWN',
             text="Paste (From Clipboard)"
+        )
+        easy_mode_quick_items.operator(
+            "maplus.addreferencegeometry",
+            icon='AXIS_TOP',
+            text="+Ref."
         )
 
         # We start with a row that holds the prim list and buttons
@@ -781,11 +792,6 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
         add_new_items.operator(
             "maplus.addnewplane",
             icon='OUTLINER_OB_MESH',
-            text=""
-        )
-        add_remove_data_col.operator(
-            "maplus.addreferencegeometry",
-            icon='AXIS_TOP',
             text=""
         )
         add_remove_data_col.operator(
