@@ -487,11 +487,18 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                     'line_end'
                 )
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_normal_coords(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -540,11 +547,18 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                     'line_end'
                 )
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_normal_coords(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -775,7 +789,26 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
         # If expanded, show the easy align lines GUI
         if addon_data.easy_aln_show:
             easy_aln_layout = layout.box()
-            easy_aln_options = easy_aln_layout.box()
+            opts_box = easy_aln_layout.box()
+            easy_aln_options = opts_box.column()
+            grab_mode_row = easy_aln_options.row()
+            grab_mode_row = easy_aln_options.row()
+            grab_mode_row.label(
+                text='Grab Mode:'
+            )
+            grab_mode_enums = grab_mode_row.row(align=True)
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_aln_grab_mode',
+                'GLOBAL_VERTS',
+                text='',
+            )
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_aln_grab_mode',
+                'NORMAL',
+                text='',
+            )
             easy_aln_options.prop(
                 addon_data.easy_aln_transform_settings,
                 'aln_flip_direction',

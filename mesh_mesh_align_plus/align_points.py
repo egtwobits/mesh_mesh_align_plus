@@ -444,11 +444,18 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                 # Auto-grab the SOURCE key from selected verts on the active obj
                 vert_attribs_to_set = ('point',)
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_apt_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_avg_vert_pos(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -494,11 +501,18 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                 # Auto-grab the DESTINATION key from selected verts on the active obj
                 vert_attribs_to_set = ('point',)
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_apt_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_avg_vert_pos(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -677,7 +691,25 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
         # If expanded, show the easy align points GUI
         if addon_data.easy_apt_show:
             easy_apt_layout = layout.box()
-            easy_apt_options = easy_apt_layout.box()
+            opts_box = easy_apt_layout.box()
+            easy_apt_options = opts_box.column()
+            grab_mode_row = easy_apt_options.row(align=True)
+            grab_mode_row.label(
+                text='Grab Mode:'
+            )
+            grab_mode_enums = grab_mode_row.row(align=True)
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_apt_grab_mode',
+                'GLOBAL_VERTS',
+                text='',
+            )
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_apt_grab_mode',
+                'AVERAGE',
+                text='',
+            )
             easy_apt_options.prop(
                 addon_data.easy_apt_transform_settings,
                 'apt_flip_direction',

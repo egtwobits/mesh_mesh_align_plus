@@ -400,6 +400,15 @@ class MAPlusData(bpy.types.PropertyGroup):
         ),
         default=True
     )
+    easy_apt_grab_mode: bpy.props.EnumProperty(
+        items=[
+            ('GLOBAL_VERTS', 'Verts', 'Grab vertex coordinates', 'DOT', 1),
+            ('AVERAGE', 'Average', 'Grab the average position of multiple vertices', 'GROUP_VERTEX', 2),
+        ],
+        name="Grab Mode",
+        default='GLOBAL_VERTS',
+        description="Grab mode for selected vertices (for grabbing alignment keys)"
+    )
 
     quick_directional_slide_show: bpy.props.BoolProperty(
         description=(
@@ -608,6 +617,15 @@ class MAPlusData(bpy.types.PropertyGroup):
             "Stage indicator flag for Easy Align Lines"
         ),
         default=True
+    )
+    easy_aln_grab_mode: bpy.props.EnumProperty(
+        items=[
+            ('GLOBAL_VERTS', 'Verts', 'Grab vertex coordinates', 'DOT', 1),
+            ('NORMAL', 'Normal', 'Grab face normal', 'LIGHT_HEMI', 2),
+        ],
+        name="Grab Mode",
+        default='GLOBAL_VERTS',
+        description="Grab mode for selected vertices (for grabbing alignment keys)"
     )
 
     quick_axis_rotate_show: bpy.props.BoolProperty(
