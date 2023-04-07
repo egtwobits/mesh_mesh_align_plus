@@ -407,7 +407,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         ],
         name="Grab Mode",
         default='GLOBAL_VERTS',
-        description="Grab mode for selected vertices (for grabbing alignment keys)"
+        description="How to grab verts/geometry for alignment keys"
     )
 
     quick_directional_slide_show: bpy.props.BoolProperty(
@@ -625,7 +625,7 @@ class MAPlusData(bpy.types.PropertyGroup):
         ],
         name="Grab Mode",
         default='GLOBAL_VERTS',
-        description="Grab mode for selected vertices (for grabbing alignment keys)"
+        description="How to grab verts/geometry for alignment keys"
     )
 
     quick_axis_rotate_show: bpy.props.BoolProperty(
