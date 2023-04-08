@@ -120,6 +120,9 @@ class MAPLUS_OT_AddListItemBase(bpy.types.Operator):
 class MAPLUS_OT_RemoveListItem(bpy.types.Operator):
     bl_idname = "maplus.removelistitem"
     bl_label = "Remove an item"
+    bl_description = (
+        "Delete an item from the geometry manager list"
+    )
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -130,6 +133,14 @@ class MAPLUS_OT_RemoveListItem(bpy.types.Operator):
             self.report({'WARNING'}, "Nothing to remove")
             return {'CANCELLED'}
         else:
+            if addon_data.confirm_delete_all_list_items:
+                # Users check a box to confirm delete all,
+                # then the box is unchecked after clearing
+                prims.clear()
+                addon_data.confirm_delete_all_list_items = False
+
+                return {'FINISHED'}
+
             prims.remove(addon_data.active_list_item)
             if len(prims) == 0 or addon_data.active_list_item == 0:
                 # ^ The extra or prevents act=0 from going to the else below
@@ -793,6 +804,14 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
             "maplus.addnewplane",
             icon='OUTLINER_OB_MESH',
             text=""
+        )
+        remove_all_opts = add_remove_data_col.row()
+        remove_all_opts.alignment = 'CENTER'
+        remove_all_opts.prop(
+            addon_data,
+            'confirm_delete_all_list_items',
+            text="",
+            expand=True
         )
         add_remove_data_col.operator(
             "maplus.removelistitem",

@@ -337,6 +337,10 @@ class MAPlusData(bpy.types.PropertyGroup):
         description="Show/hide list item info",
         default=True
     )
+    confirm_delete_all_list_items: bpy.props.BoolProperty(
+        description="Check this box, then the X to delete all list items",
+        default=False
+    )
 
     # Items for the quick operators
     quick_align_pts_show: bpy.props.BoolProperty(
