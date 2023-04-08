@@ -401,6 +401,14 @@ class MAPLUS_OT_EasyDirectionalSlide(bpy.types.Operator):
                     item.location += direction
 
             if addon_data.easy_ds_transf_type in {'WHOLE_MESH'}:
+
+                self.report(
+                    {'WARNING'},
+                    ('Warning: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.')
+                )
+
                 for item in multi_edit_targets:
 
                     # Init source mesh

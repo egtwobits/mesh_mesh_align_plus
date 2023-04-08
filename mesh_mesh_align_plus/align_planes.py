@@ -355,7 +355,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     ######## MESH ########
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -490,7 +490,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     for item in multi_edit_targets:
                         self.report(
                             {'WARNING'},
-                            ('Warning/Experimental: mesh transforms'
+                            ('Warning: mesh transforms'
                              ' on objects with non-uniform scaling'
                              ' are not currently supported.')
                         )
@@ -994,6 +994,14 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                         bpy.context.view_layer.update()
 
                 if addon_data.easy_apl_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
 
                         src_mesh = bmesh.new()

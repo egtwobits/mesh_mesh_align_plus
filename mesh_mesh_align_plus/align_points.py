@@ -157,7 +157,7 @@ class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -525,6 +525,14 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                         item.location += align_points
 
                 if addon_data.easy_apt_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
 
                         # Init source mesh

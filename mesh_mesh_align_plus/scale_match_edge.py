@@ -253,7 +253,7 @@ class MAPLUS_OT_ScaleMatchEdgeBase(bpy.types.Operator):
                     # transformation type, so that section is omitted here)
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -652,6 +652,14 @@ class MAPLUS_OT_EasyScaleMatchEdge(bpy.types.Operator):
                         bpy.context.view_layer.update()
 
                 if addon_data.easy_sme_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
                         # Init source mesh
                         src_mesh = bmesh.new()
