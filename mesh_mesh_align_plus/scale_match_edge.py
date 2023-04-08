@@ -365,13 +365,6 @@ class MAPLUS_OT_QuickScaleMatchEdgeObjectOrigin(MAPLUS_OT_ScaleMatchEdgeBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgemeshselected"
@@ -382,13 +375,6 @@ class MAPLUS_OT_ScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     )
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
@@ -402,13 +388,6 @@ class MAPLUS_OT_QuickScaleMatchEdgeMeshSelected(MAPLUS_OT_ScaleMatchEdgeBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_ScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_idname = "maplus.scalematchedgewholemesh"
@@ -419,13 +398,6 @@ class MAPLUS_OT_ScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
     )
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
@@ -438,13 +410,6 @@ class MAPLUS_OT_QuickScaleMatchEdgeWholeMesh(MAPLUS_OT_ScaleMatchEdgeBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyScaleMatchEdge(bpy.types.Operator):
@@ -1183,11 +1148,6 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
 
             sme_apply_header = sme_gui.row()
             sme_apply_header.label(text="Apply to:")
-            sme_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             sme_apply_items = sme_gui.row()
             sme_to_object_and_origin = sme_apply_items.column()
             sme_to_object_and_origin.operator(

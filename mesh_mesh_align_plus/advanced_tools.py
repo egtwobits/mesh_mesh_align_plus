@@ -1544,12 +1544,6 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                                 text="Whole Mesh"
                             )
                         item_info_col.separator()
-                        experiment_toggle = apply_buttons_header.column()
-                        experiment_toggle.prop(
-                                addon_data,
-                                'use_experimental',
-                                text='Enable Experimental Mesh Ops.'
-                        )
 
                         active_transf = bpy.types.AnyType(active_item)
 

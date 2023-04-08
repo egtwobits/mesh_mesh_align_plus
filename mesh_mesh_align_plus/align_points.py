@@ -263,13 +263,6 @@ class MAPLUS_OT_QuickAlignPointsObjectOrigin(MAPLUS_OT_AlignPointsBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointsmeshselected"
@@ -280,13 +273,6 @@ class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     )
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
@@ -300,13 +286,6 @@ class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointswholemesh"
@@ -314,13 +293,6 @@ class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
@@ -330,13 +302,6 @@ class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyAlignPoints(bpy.types.Operator):
@@ -997,11 +962,6 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
             )
             apt_apply_header = align_pts_gui.row()
             apt_apply_header.label(text="Apply to:")
-            apt_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             apt_apply_items = align_pts_gui.row()
             apt_to_object_and_origin = apt_apply_items.column()
             apt_to_object_and_origin.operator(

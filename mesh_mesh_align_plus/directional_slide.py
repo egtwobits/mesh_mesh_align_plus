@@ -147,7 +147,7 @@ class MAPLUS_OT_DirectionalSlideBase(bpy.types.Operator):
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -245,13 +245,6 @@ class MAPLUS_OT_QuickDirectionalSlideObjectOrigin(MAPLUS_OT_DirectionalSlideBase
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_DirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslidemeshselected"
@@ -262,13 +255,6 @@ class MAPLUS_OT_DirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_DirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.directionalslidewholemesh"
@@ -276,13 +262,6 @@ class MAPLUS_OT_DirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_description = "Translates a target mesh (moves mesh in a direction)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickDirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase):
@@ -293,13 +272,6 @@ class MAPLUS_OT_QuickDirectionalSlideMeshSelected(MAPLUS_OT_DirectionalSlideBase
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_idname = "maplus.quickdirectionalslidewholemesh"
@@ -308,13 +280,6 @@ class MAPLUS_OT_QuickDirectionalSlideWholeMesh(MAPLUS_OT_DirectionalSlideBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_EasyDirectionalSlide(bpy.types.Operator):
@@ -774,11 +739,6 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             )
             ds_apply_header = ds_gui.row()
             ds_apply_header.label(text="Apply to:")
-            ds_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             ds_apply_items = ds_gui.row()
             ds_to_object_and_origin = ds_apply_items.column()
             ds_to_object_and_origin.operator(

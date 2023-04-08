@@ -307,13 +307,6 @@ class MAPLUS_OT_QuickAlignLinesObjectOrigin(MAPLUS_OT_AlignLinesBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesmeshselected"
@@ -322,13 +315,6 @@ class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlineswholemesh"
@@ -336,13 +322,6 @@ class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
@@ -353,13 +332,6 @@ class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.quickalignlineswholemesh"
@@ -368,13 +340,6 @@ class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyAlignLines(bpy.types.Operator):
@@ -792,7 +757,6 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             opts_box = easy_aln_layout.box()
             easy_aln_options = opts_box.column()
             grab_mode_row = easy_aln_options.row()
-            grab_mode_row = easy_aln_options.row()
             grab_mode_row.label(
                 text='Grab Mode:'
             )
@@ -1156,11 +1120,6 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             )
             aln_apply_header = aln_gui.row()
             aln_apply_header.label(text="Apply to:")
-            aln_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             aln_apply_items = aln_gui.row()
             aln_to_object_and_origin = aln_apply_items.column()
             aln_to_object_and_origin.operator(
