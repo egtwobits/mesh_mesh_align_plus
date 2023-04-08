@@ -225,7 +225,7 @@ class MAPlusPrimitive(bpy.types.PropertyGroup):
         default=0
     )
     apl_flip_normal: bpy.props.BoolProperty(
-        description="Flips the normal of the source plane",
+        description="Flips the direction (normal) of the source plane during alignment",
         default=False
     )
     apl_use_custom_orientation: bpy.props.BoolProperty(
