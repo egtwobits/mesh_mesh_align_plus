@@ -192,7 +192,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -307,13 +307,6 @@ class MAPLUS_OT_QuickAlignLinesObjectOrigin(MAPLUS_OT_AlignLinesBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlinesmeshselected"
@@ -322,13 +315,6 @@ class MAPLUS_OT_AlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.alignlineswholemesh"
@@ -336,13 +322,6 @@ class MAPLUS_OT_AlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_description = "Makes lines collinear (in line with each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
@@ -353,13 +332,6 @@ class MAPLUS_OT_QuickAlignLinesMeshSelected(MAPLUS_OT_AlignLinesBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_idname = "maplus.quickalignlineswholemesh"
@@ -368,13 +340,6 @@ class MAPLUS_OT_QuickAlignLinesWholeMesh(MAPLUS_OT_AlignLinesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyAlignLines(bpy.types.Operator):
@@ -487,11 +452,18 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                     'line_end'
                 )
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_normal_coords(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -540,11 +512,18 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                     'line_end'
                 )
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_normal_coords(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -629,6 +608,14 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                         bpy.context.view_layer.update()
 
                 if addon_data.easy_aln_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
 
                         # Init source mesh
@@ -775,7 +762,25 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
         # If expanded, show the easy align lines GUI
         if addon_data.easy_aln_show:
             easy_aln_layout = layout.box()
-            easy_aln_options = easy_aln_layout.box()
+            opts_box = easy_aln_layout.box()
+            easy_aln_options = opts_box.column()
+            grab_mode_row = easy_aln_options.row()
+            grab_mode_row.label(
+                text='Grab Mode:'
+            )
+            grab_mode_enums = grab_mode_row.row(align=True)
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_aln_grab_mode',
+                'GLOBAL_VERTS',
+                text='',
+            )
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_aln_grab_mode',
+                'NORMAL',
+                text='',
+            )
             easy_aln_options.prop(
                 addon_data.easy_aln_transform_settings,
                 'aln_flip_direction',
@@ -1123,11 +1128,6 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             )
             aln_apply_header = aln_gui.row()
             aln_apply_header.label(text="Apply to:")
-            aln_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             aln_apply_items = aln_gui.row()
             aln_to_object_and_origin = aln_apply_items.column()
             aln_to_object_and_origin.operator(

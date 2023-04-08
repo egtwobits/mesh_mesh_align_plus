@@ -178,7 +178,7 @@ class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -289,13 +289,6 @@ class MAPLUS_OT_QuickAxisRotateObjectOrigin(MAPLUS_OT_AxisRotateBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatemeshselected"
@@ -304,13 +297,6 @@ class MAPLUS_OT_AxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.axisrotatewholemesh"
@@ -318,13 +304,6 @@ class MAPLUS_OT_AxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_description = "Rotates around an axis"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
@@ -335,13 +314,6 @@ class MAPLUS_OT_QuickAxisRotateMeshSelected(MAPLUS_OT_AxisRotateBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_idname = "maplus.quickaxisrotatewholemesh"
@@ -350,13 +322,6 @@ class MAPLUS_OT_QuickAxisRotateWholeMesh(MAPLUS_OT_AxisRotateBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyAxisRotate(bpy.types.Operator):
@@ -672,6 +637,14 @@ class MAPLUS_OT_EasyAxisRotate(bpy.types.Operator):
                     bpy.context.view_layer.update()
 
             if addon_data.easy_axr_transf_type in {'WHOLE_MESH'}:
+
+                self.report(
+                    {'WARNING'},
+                    ('Warning: mesh transforms'
+                     ' on objects with non-uniform scaling'
+                     ' are not currently supported.')
+                )
+
                 for item in multi_edit_targets:
 
                     # (Note that there are no transformation modifiers for this
@@ -1037,11 +1010,6 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             )
             axr_apply_header = axr_gui.row()
             axr_apply_header.label(text="Apply to:")
-            axr_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             axr_apply_items = axr_gui.row()
             axr_to_object_and_origin = axr_apply_items.column()
             axr_to_object_and_origin.operator(

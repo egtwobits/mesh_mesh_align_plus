@@ -324,18 +324,23 @@ class MAPlusData(bpy.types.PropertyGroup):
     prim_list: bpy.props.CollectionProperty(type=MAPlusPrimitive)
     # stores index of active primitive in my UIList
     active_list_item: bpy.props.IntProperty()
-    use_experimental: bpy.props.BoolProperty(
-        description=(
-            'Use experimental:'
-            ' Mesh transformations are not currently'
-            ' supported on objects with non-uniform'
-            ' scaling. These are designated experimental'
-            ' until non-uniform scaling is supported.'
-        )
-    )
+    # TODO: Remove use_experimental completely, just warn on mesh ops
+    # use_experimental: bpy.props.BoolProperty(
+    #     description=(
+    #         'Use experimental:'
+    #         ' Mesh transformations are not currently'
+    #         ' supported on objects with non-uniform'
+    #         ' scaling. These are designated experimental'
+    #         ' until non-uniform scaling is supported.'
+    #     )
+    # )
     show_list_item_info: bpy.props.BoolProperty(
         description="Show/hide list item info",
         default=True
+    )
+    confirm_delete_all_list_items: bpy.props.BoolProperty(
+        description="Check this box, then the X to delete all list items",
+        default=False
     )
 
     # Items for the quick operators
@@ -399,6 +404,15 @@ class MAPlusData(bpy.types.PropertyGroup):
             "Stage indicator flag for Easy Align Points"
         ),
         default=True
+    )
+    easy_apt_grab_mode: bpy.props.EnumProperty(
+        items=[
+            ('GLOBAL_VERTS', 'Verts', 'Grab vertex coordinates', 'DOT', 1),
+            ('AVERAGE', 'Average', 'Grab the average position of multiple vertices', 'GROUP_VERTEX', 2),
+        ],
+        name="Grab Mode",
+        default='GLOBAL_VERTS',
+        description="How to grab verts/geometry for alignment keys"
     )
 
     quick_directional_slide_show: bpy.props.BoolProperty(
@@ -608,6 +622,15 @@ class MAPlusData(bpy.types.PropertyGroup):
             "Stage indicator flag for Easy Align Lines"
         ),
         default=True
+    )
+    easy_aln_grab_mode: bpy.props.EnumProperty(
+        items=[
+            ('GLOBAL_VERTS', 'Verts', 'Grab vertex coordinates', 'DOT', 1),
+            ('NORMAL', 'Normal', 'Grab face normal', 'LIGHT_HEMI', 2),
+        ],
+        name="Grab Mode",
+        default='GLOBAL_VERTS',
+        description="How to grab verts/geometry for alignment keys"
     )
 
     quick_axis_rotate_show: bpy.props.BoolProperty(

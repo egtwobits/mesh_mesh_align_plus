@@ -157,7 +157,7 @@ class MAPLUS_OT_AlignPointsBase(bpy.types.Operator):
                 for item in multi_edit_targets:
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -263,13 +263,6 @@ class MAPLUS_OT_QuickAlignPointsObjectOrigin(MAPLUS_OT_AlignPointsBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointsmeshselected"
@@ -280,13 +273,6 @@ class MAPLUS_OT_AlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     )
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
@@ -300,13 +286,6 @@ class MAPLUS_OT_QuickAlignPointsMeshSelected(MAPLUS_OT_AlignPointsBase):
     target = 'MESH_SELECTED'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_idname = "maplus.alignpointswholemesh"
@@ -314,13 +293,6 @@ class MAPLUS_OT_AlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_description = "Match the location of one vertex on a mesh to another"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
@@ -330,13 +302,6 @@ class MAPLUS_OT_QuickAlignPointsWholeMesh(MAPLUS_OT_AlignPointsBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
     quick_op_target = True
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_ClearEasyAlignPoints(bpy.types.Operator):
@@ -444,11 +409,18 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                 # Auto-grab the SOURCE key from selected verts on the active obj
                 vert_attribs_to_set = ('point',)
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_apt_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_avg_vert_pos(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -494,11 +466,18 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                 # Auto-grab the DESTINATION key from selected verts on the active obj
                 vert_attribs_to_set = ('point',)
                 try:
-                    vert_data = maplus_geom.return_selected_verts(
-                        maplus_geom.get_active_object(),
-                        len(vert_attribs_to_set),
-                        maplus_geom.get_active_object().matrix_world
-                    )
+                    if addon_data.easy_apt_grab_mode == 'GLOBAL_VERTS':
+                        vert_data = maplus_geom.return_selected_verts(
+                            maplus_geom.get_active_object(),
+                            len(vert_attribs_to_set),
+                            maplus_geom.get_active_object().matrix_world
+                        )
+                    else:
+                        # Only other option
+                        vert_data = maplus_geom.return_avg_vert_pos(
+                            maplus_geom.get_active_object(),
+                            maplus_geom.get_active_object().matrix_world
+                        )
                 except maplus_except.InsufficientSelectionError:
                     self.report({'ERROR'}, 'Not enough vertices selected.')
                     return {'CANCELLED'}
@@ -546,6 +525,14 @@ class MAPLUS_OT_EasyAlignPoints(bpy.types.Operator):
                         item.location += align_points
 
                 if addon_data.easy_apt_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
 
                         # Init source mesh
@@ -677,7 +664,25 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
         # If expanded, show the easy align points GUI
         if addon_data.easy_apt_show:
             easy_apt_layout = layout.box()
-            easy_apt_options = easy_apt_layout.box()
+            opts_box = easy_apt_layout.box()
+            easy_apt_options = opts_box.column()
+            grab_mode_row = easy_apt_options.row(align=True)
+            grab_mode_row.label(
+                text='Grab Mode:'
+            )
+            grab_mode_enums = grab_mode_row.row(align=True)
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_apt_grab_mode',
+                'GLOBAL_VERTS',
+                text='',
+            )
+            grab_mode_enums.prop_enum(
+                addon_data,
+                'easy_apt_grab_mode',
+                'AVERAGE',
+                text='',
+            )
             easy_apt_options.prop(
                 addon_data.easy_apt_transform_settings,
                 'apt_flip_direction',
@@ -965,11 +970,6 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
             )
             apt_apply_header = align_pts_gui.row()
             apt_apply_header.label(text="Apply to:")
-            apt_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             apt_apply_items = align_pts_gui.row()
             apt_to_object_and_origin = apt_apply_items.column()
             apt_to_object_and_origin.operator(

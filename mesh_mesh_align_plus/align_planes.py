@@ -355,7 +355,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     ######## MESH ########
                     self.report(
                         {'WARNING'},
-                        ('Warning/Experimental: mesh transforms'
+                        ('Warning: mesh transforms'
                          ' on objects with non-uniform scaling'
                          ' are not currently supported.')
                     )
@@ -490,7 +490,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     for item in multi_edit_targets:
                         self.report(
                             {'WARNING'},
-                            ('Warning/Experimental: mesh transforms'
+                            ('Warning: mesh transforms'
                              ' on objects with non-uniform scaling'
                              ' are not currently supported.')
                         )
@@ -628,13 +628,6 @@ class MAPLUS_OT_QuickAlignPlanesObjectOrigin(MAPLUS_OT_AlignPlanesBase):
     target = 'OBJECT_ORIGIN'
     quick_op_target = True
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplanesmeshselected"
@@ -643,13 +636,6 @@ class MAPLUS_OT_AlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     bl_options = {'REGISTER', 'UNDO'}
     target = 'MESH_SELECTED'
 
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
-
 
 class MAPLUS_OT_AlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_idname = "maplus.alignplaneswholemesh"
@@ -657,13 +643,6 @@ class MAPLUS_OT_AlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     bl_description = "Makes planes coplanar (flat against each other)"
     bl_options = {'REGISTER', 'UNDO'}
     target = 'WHOLE_MESH'
-
-    @classmethod
-    def poll(cls, context):
-        addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
-        return True
 
 
 class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
@@ -677,8 +656,6 @@ class MAPLUS_OT_QuickAlignPlanesMeshSelected(MAPLUS_OT_AlignPlanesBase):
     @classmethod
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
         if addon_data.quick_align_planes_set_origin_mode:
             return False
         return True
@@ -695,8 +672,6 @@ class MAPLUS_OT_QuickAlignPlanesWholeMesh(MAPLUS_OT_AlignPlanesBase):
     @classmethod
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
-        if not addon_data.use_experimental:
-            return False
         if addon_data.quick_align_planes_set_origin_mode:
             return False
         return True
@@ -1019,6 +994,14 @@ class MAPLUS_OT_EasyAlignPlanes(bpy.types.Operator):
                         bpy.context.view_layer.update()
 
                 if addon_data.easy_apl_transf_type in {'WHOLE_MESH'}:
+
+                    self.report(
+                        {'WARNING'},
+                        ('Warning: mesh transforms'
+                         ' on objects with non-uniform scaling'
+                         ' are not currently supported.')
+                    )
+
                     for item in multi_edit_targets:
 
                         src_mesh = bmesh.new()
@@ -1705,11 +1688,6 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
 
             apl_apply_header = apl_gui.row()
             apl_apply_header.label(text="Apply to:")
-            apl_apply_header.prop(
-                addon_data,
-                'use_experimental',
-                text='Enable Experimental Mesh Ops.'
-            )
             apl_apply_items = apl_gui.row()
             apl_to_object_and_origin = apl_apply_items.column()
             apl_to_object_and_origin.operator(
