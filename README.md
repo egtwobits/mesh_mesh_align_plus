@@ -1,18 +1,10 @@
 # Mesh Align Plus (Blender Addon)
-Mesh Align Plus helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models.
 
-In short: You choose from a basic set of operations, pick reference points, and apply custom transformations to a variety of targets. Flexible reference picking and a depth of customization enable sophisticated results.
+Mesh Align Plus helps you place geometry precisely where it needs to go in your scene. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
 
-Some real world examples of things you can do with the addon:
+Mesh Align Plus can move objects and leave the underlying mesh data unmodified, or it can move mesh fragments during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry like an implicit axis, projected points of intersection, etc.
 
-* Align objects by their faces
-* Measure and match angles, distances, and lengths for parts of your models
-* Rotate an object around an edge
-* Move in the direction of an edge, face normal or set of verts
-* Directly set the dimension/length/scale of arbitrary sub-features of your model
-* Tons of other things...
-
-Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorial on <a href="https://youtu.be/VBoic2MIC8U">YouTube</a>.
+Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorials on <a href="https://youtu.be/VBoic2MIC8U">YouTube</a>.
 
 ![alt](https://i.imgur.com/r6eBnKN.gif)
 ![alt](https://i.postimg.cc/4yhvz7x2/face-align-4.gif)
