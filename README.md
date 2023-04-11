@@ -21,8 +21,8 @@ Once you have the right file, use Blender's addon installation feature to load i
 
 # Basic Usage
 
-Mesh Align Plus has both Easy Mode tools, and Expert Mode tools. Easy Mode provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. Expert mode is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
+*Note: See the [wiki (above)](https://github.com/egtwobits/mesh_mesh_align_plus/wiki) for more in-depth tutorials and reference info*
+
+Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
 
 In both cases, Mesh Align Plus tools will operate on surface features that you pick.
-
-
