@@ -30,4 +30,21 @@ Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find pa
 
 Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
 
-In both cases, Mesh Align Plus tools will operate on surface features that you pick.
+In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something like this:
+
+- Pick a surface feature by selecting some geometry as an alignment key (the source key) and hit grab
+- Pick another surface feature by selecting some other geometry (the destination key) and hit grab
+- Select some object(s) or mesh fragments to apply the motion to and hit apply
+
+Here's what aligning faces looks like with easy mode:
+
+- Select three verts on an object you want to move and hit "Start Alignment" to designate the source key
+- Select another three verts (same object, different object, whatever) and hit "Apply to Active" to designate a destination key and auto-align your source object from the first step
+
+<GIF>
+
+So, easy mode is faster and takes out some steps, but also isn't as flexible.
+
+Expert mode lets you independently define the source key, the destination key, and what the alignment gets applied to (plus additional options and controls for each of those steps). TODO
+
+TODO (because sometimes you want to move an object using a source key from a different object).
