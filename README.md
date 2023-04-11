@@ -8,10 +8,9 @@ Mesh Align Plus is designed to provide precision modeling capabilities, especial
 
 ## Quick Examples
 
-![alt](https://i.imgur.com/r6eBnKN.gif)
-![alt](https://i.postimg.cc/4yhvz7x2/face-align-4.gif)
+![easy_apl_frontpage2](https://user-images.githubusercontent.com/15041801/231297281-8ac7eca9-74a1-4e25-817c-ed612c0dc317.gif)
+![basics](https://user-images.githubusercontent.com/15041801/231297300-6877026b-0da3-4586-b259-9b5a99829c0e.gif)
 ![alt](http://i.imgur.com/JOa7Fcd.gif)
-![alt](https://i.imgur.com/dtXq2aX.gif)
 
 # Installation
 
@@ -19,13 +18,15 @@ Mesh Align Plus should only be installed from the `mesh_mesh_align_plus.zip` fil
 
 Once you have the right file, use Blender's addon installation feature to load it (`Edit` > `Preferences` > `Addons` > `Install`), and check the checkbox next to the addon name to enable and use it.
 
-Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find panels for all the Mesh Align Plus tools (each panel name has `(MAPlus)` at the end).
+Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find panels for all the Mesh Align Plus tools (each panel name has `(MAPlus)` at the end):
 
 ![The addon tab in the 3D View](https://user-images.githubusercontent.com/15041801/231289939-af304ee9-40e8-4143-bcbf-0b6c84ad6738.png)
 
 # Basic Usage
 
 *Note: See the [wiki (above)](https://github.com/egtwobits/mesh_mesh_align_plus/wiki) for more in-depth tutorials and reference info*
+
+![panelinfo2](https://user-images.githubusercontent.com/15041801/231296982-6c4c8367-c67d-4e28-a9c6-7d5cfe18b95d.png)
 
 Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
 
