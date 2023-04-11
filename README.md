@@ -14,7 +14,7 @@ Mesh Align Plus is designed to provide precision modeling capabilities, especial
 
 # Installation
 
-Mesh Align Plus should only be installed from the `mesh_mesh_align_plus.zip` files found on the [releases page](https://github.com/egtwobits/mesh_mesh_align_plus/releases), attached to the end of each post (don't zip and download the repo). These zip files are specifically formatted to work with Blender's addon system.
+Mesh Align Plus should only be installed from the `mesh_mesh_align_plus.zip` files found on the [releases page](https://github.com/egtwobits/mesh_mesh_align_plus/releases), attached to the end of each release announcement (don't zip and download the repo). These zip files are specifically formatted to work with Blender's addon system.
 
 Once you have the right file, use Blender's addon installation feature to load it (`Edit` > `Preferences` > `Addons` > `Install`), and check the checkbox next to the addon name to enable and use it.
 
