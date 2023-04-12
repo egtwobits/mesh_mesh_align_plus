@@ -51,7 +51,10 @@ With expert mode, the source key, destination key, and target can be defined ind
 
 Why would I need that?
 
-TODO
-Relative transformations, implicit geometry, etc.
+For simple cases, you don't! Just use easy mode. But for more complex cases, the extra flexibility given by expert mode is essential. For example:
 
-TODO
+- You want to center an object along an axis (an invisible/imaginary location)
+- You want to align related components so that feature A aligns to feature B, but want to maintain that object's position relative to its friends
+- You want to move a a feature some percentage of the way between two points (or two imaginary locations)
+
+So, Mesh Align Plus does alignments, but more generally it is a precision modeling tool that can help you ARRANGE objects or mesh fragments in your scenes, often by exploiting measurements and locations implicit in your scene's geometry.
