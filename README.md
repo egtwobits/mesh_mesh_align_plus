@@ -36,7 +36,7 @@ In both cases, Mesh Align Plus tools will operate on surface features that you p
 - Pick another surface feature by selecting some other geometry (the destination key) and hit grab
 - Select some object(s) or mesh fragments to apply the motion to and hit apply
 
-![usage_diagram2](https://user-images.githubusercontent.com/15041801/231454476-47e69a9f-83a2-408a-b99f-1dc39e532095.png)
+![usage_diagram3](https://user-images.githubusercontent.com/15041801/231455238-682280a1-bac6-4cc6-a9d3-74e972b82897.png)
 
 Here's what aligning faces looks like with easy mode:
 
