@@ -38,7 +38,7 @@ In both cases, Mesh Align Plus tools will operate on surface features that you p
 
 ![usage_diagram6c](https://user-images.githubusercontent.com/15041801/231546639-5e87bc98-48c2-4552-9fdc-690390dfe5ed.png)
 
-Here's what aligning faces looks like with easy mode:
+Here's what aligning faces looks like with **easy mode:**
 
 - Select three verts on an object you want to move and hit "Start Alignment" to designate the source key
 - Select another three verts (same object, different object, whatever) and hit "Apply to Active" to designate a destination key and auto-align your source object from the first step
