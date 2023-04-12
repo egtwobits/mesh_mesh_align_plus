@@ -30,13 +30,13 @@ Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find pa
 
 Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for those who need more options, flexibility and control over their transformations.
 
-In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something ROUGHLY like this:
+In both cases, Mesh Align Plus tools will operate on surface features that you pick. Even though there are several tools and multiple workflows available, you always need some kind of alignment key(s), and a target (the thing(s) you want to move). Typical workflows usually look something ROUGHLY like this:
 
 - Pick a surface feature by selecting some geometry as an alignment key (the source key) and hit grab
 - Pick another surface feature by selecting some other geometry (the destination key) and hit grab
 - Select some object(s) or mesh fragments to apply the motion to and hit apply
 
-![usage_diagram6c](https://user-images.githubusercontent.com/15041801/231546639-5e87bc98-48c2-4552-9fdc-690390dfe5ed.png)
+![usage_diagram7a](https://user-images.githubusercontent.com/15041801/231576070-e052b92e-937d-4a7f-a117-7e13df262d99.png)
 
 Here's what aligning faces looks like with **easy mode:**
 
@@ -45,12 +45,13 @@ Here's what aligning faces looks like with **easy mode:**
 
 <GIF>
 
-So, easy mode is faster and takes out some steps, but also isn't as flexible.
+So, easy mode is faster and takes out some steps, but also isn't as flexible (the same basic ingredients pictured above are still captured though).
 
-With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc.), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond objects (mesh piece, object origin, etc.).
+With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc.), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond just objects (mesh piece, object origin, etc.).
 
-Why?
+Why would I need that?
 
+TODO
 Relative transformations, implicit geometry, etc.
 
 TODO
