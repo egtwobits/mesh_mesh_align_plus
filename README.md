@@ -49,12 +49,12 @@ So, easy mode is faster and takes out some steps, but also isn't as flexible (th
 
 With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc.), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond just objects (mesh piece, object origin, etc.).
 
-Why would I need that?
+### Why would I need that?
 
 For simple cases, you don't! Just use easy mode. But for more complex cases, the extra flexibility given by expert mode is essential. For example:
 
 - You want to center an object along an axis (an invisible/imaginary location)
 - You want to align related components so that feature A aligns to feature B, but want to maintain that object's position relative to its friends
-- You want to move a a feature some percentage of the way between two points (or two imaginary locations)
+- You want to move a feature some percentage of the way between two points (or two imaginary locations)
 
 So, Mesh Align Plus does alignments, but more generally it is a precision modeling tool that can help you ARRANGE objects or mesh fragments in your scenes, often by exploiting measurements and locations implicit in your scene's geometry.
