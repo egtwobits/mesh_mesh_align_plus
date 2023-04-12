@@ -47,7 +47,7 @@ Here's what aligning faces looks like with easy mode:
 
 So, easy mode is faster and takes out some steps, but also isn't as flexible.
 
-With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond objects (mesh piece, object origin, etc.).
+With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc.), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond objects (mesh piece, object origin, etc.).
 
 Why?
 
