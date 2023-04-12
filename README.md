@@ -36,6 +36,8 @@ In both cases, Mesh Align Plus tools will operate on surface features that you p
 - Pick another surface feature by selecting some other geometry (the destination key) and hit grab
 - Select some object(s) or mesh fragments to apply the motion to and hit apply
 
+![usage_diagram2](https://user-images.githubusercontent.com/15041801/231454476-47e69a9f-83a2-408a-b99f-1dc39e532095.png)
+
 Here's what aligning faces looks like with easy mode:
 
 - Select three verts on an object you want to move and hit "Start Alignment" to designate the source key
@@ -44,6 +46,11 @@ Here's what aligning faces looks like with easy mode:
 <GIF>
 
 So, easy mode is faster and takes out some steps, but also isn't as flexible.
+
+Expert mode gives you extra options and control over all parts of the transformation.
+
+
+With expert mode, the source key and destination key can be grabbed from 
 
 Expert mode lets you independently define the source key, the destination key, and what the alignment gets applied to (plus additional options and controls for each of those steps). TODO
 
