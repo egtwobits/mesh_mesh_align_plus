@@ -28,7 +28,7 @@ Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find pa
 
 ![panelinfo2](https://user-images.githubusercontent.com/15041801/231296982-6c4c8367-c67d-4e28-a9c6-7d5cfe18b95d.png)
 
-Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
+Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for those who need more options, flexibility and control over their transformations.
 
 In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something like this:
 
