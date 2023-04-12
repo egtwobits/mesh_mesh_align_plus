@@ -30,7 +30,7 @@ Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find pa
 
 Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for those who need more options, flexibility and control over their transformations.
 
-In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something like this:
+In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something ROUGHLY like this:
 
 - Pick a surface feature by selecting some geometry as an alignment key (the source key) and hit grab
 - Pick another surface feature by selecting some other geometry (the destination key) and hit grab
