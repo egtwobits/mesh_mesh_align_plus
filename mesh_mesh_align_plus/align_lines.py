@@ -1132,7 +1132,8 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
             aln_to_object_and_origin = aln_apply_items.column()
             aln_to_object_and_origin.operator(
                 "maplus.quickalignlinesobject",
-                text="Object"
+                text="Object",
+                icon="SNAP_EDGE",
             )
             aln_to_object_and_origin.operator(
                 "maplus.quickalignlinesobjectorigin",

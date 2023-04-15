@@ -1692,7 +1692,8 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
             apl_to_object_and_origin = apl_apply_items.column()
             apl_to_object_and_origin.operator(
                 "maplus.quickalignplanesobject",
-                text="Object"
+                text="Object",
+                icon="FACESEL",
             )
             apl_to_object_and_origin.operator(
                 "maplus.jjjquickalignplanesobjectorigin",

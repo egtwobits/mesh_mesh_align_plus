@@ -324,16 +324,6 @@ class MAPlusData(bpy.types.PropertyGroup):
     prim_list: bpy.props.CollectionProperty(type=MAPlusPrimitive)
     # stores index of active primitive in my UIList
     active_list_item: bpy.props.IntProperty()
-    # TODO: Remove use_experimental completely, just warn on mesh ops
-    # use_experimental: bpy.props.BoolProperty(
-    #     description=(
-    #         'Use experimental:'
-    #         ' Mesh transformations are not currently'
-    #         ' supported on objects with non-uniform'
-    #         ' scaling. These are designated experimental'
-    #         ' until non-uniform scaling is supported.'
-    #     )
-    # )
     show_list_item_info: bpy.props.BoolProperty(
         description="Show/hide list item info",
         default=True

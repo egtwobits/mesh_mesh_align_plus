@@ -615,8 +615,8 @@ classes = (
     maplus_axr.MAPLUS_PT_QuickAxisRotateGUI,
     maplus_ds.MAPLUS_PT_QuickDirectionalSlideGUI,
     maplus_sme.MAPLUS_PT_QuickSMEGUI,
-    maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
+    maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
 
     maplus_adv_tools.MAPLUS_UL_MAPlusList,

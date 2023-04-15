@@ -974,7 +974,8 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
             apt_to_object_and_origin = apt_apply_items.column()
             apt_to_object_and_origin.operator(
                 "maplus.quickalignpointsobject",
-                text="Object"
+                text="Object",
+                icon="PIVOT_INDIVIDUAL",
             )
             apt_to_object_and_origin.operator(
                 "maplus.quickalignpointsobjectorigin",

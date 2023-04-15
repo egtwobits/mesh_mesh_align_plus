@@ -1160,7 +1160,8 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
             sme_to_object_and_origin = sme_apply_items.column()
             sme_to_object_and_origin.operator(
                 "maplus.quickscalematchedgeobject",
-                text="Object"
+                text="Object",
+                icon="FULLSCREEN_ENTER",
             )
             sme_to_object_and_origin.operator(
                 "maplus.quickscalematchedgeobjectorigin",

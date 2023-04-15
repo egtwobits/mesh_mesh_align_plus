@@ -751,7 +751,8 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             ds_to_object_and_origin = ds_apply_items.column()
             ds_to_object_and_origin.operator(
                 "maplus.quickdirectionalslideobject",
-                text="Object"
+                text="Object",
+                icon="CURVE_PATH",
             )
             ds_to_object_and_origin.operator(
                 "maplus.quickdirectionalslideobjectorigin",

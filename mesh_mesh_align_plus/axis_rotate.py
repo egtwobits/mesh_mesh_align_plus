@@ -1014,7 +1014,8 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
             axr_to_object_and_origin = axr_apply_items.column()
             axr_to_object_and_origin.operator(
                 "maplus.quickaxisrotateobject",
-                text="Object"
+                text="Object",
+                icon="FORCE_MAGNETIC",
             )
             axr_to_object_and_origin.operator(
                 "maplus.quickaxisrotateobjectorigin",
