@@ -28,23 +28,33 @@ Open the sidebar (N) in the 3D View, go to the "Align" tab, and you will find pa
 
 ![panelinfo2](https://user-images.githubusercontent.com/15041801/231296982-6c4c8367-c67d-4e28-a9c6-7d5cfe18b95d.png)
 
-Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for who need more options, flexibility and control over their transformations.
+Mesh Align Plus has both **Easy Mode** tools, and **Expert Mode** tools. **Easy Mode** provides the fastest, easiest workflows for common use cases, and as such should suit most people's needs most of the time. **Expert mode** is available for especially complex cases, and for those who need more options, flexibility and control over their transformations.
 
-In both cases, Mesh Align Plus tools will operate on surface features that you pick. Typical workflows usually look something like this:
+In both cases, Mesh Align Plus tools will operate on surface features that you pick. Even though there are several tools and multiple workflows available, you always need some kind of alignment key(s), and a target (the thing(s) you want to move). Typical workflows usually look something ROUGHLY like this:
 
 - Pick a surface feature by selecting some geometry as an alignment key (the source key) and hit grab
 - Pick another surface feature by selecting some other geometry (the destination key) and hit grab
 - Select some object(s) or mesh fragments to apply the motion to and hit apply
 
-Here's what aligning faces looks like with easy mode:
+![usage_diagram7a](https://user-images.githubusercontent.com/15041801/231576070-e052b92e-937d-4a7f-a117-7e13df262d99.png)
 
-- Select three verts on an object you want to move and hit "Start Alignment" to designate the source key
-- Select another three verts (same object, different object, whatever) and hit "Apply to Active" to designate a destination key and auto-align your source object from the first step
+Here's what aligning faces looks like with **easy mode:**
+
+- Select three verts on an object you want to move and hit "Start Alignment" to designate the **source key**
+- Select another three verts (same object, different object, whatever) and hit "Apply to Active" to designate a **destination key** and auto-align your source object from the first step (the **target**)
 
 <GIF>
 
-So, easy mode is faster and takes out some steps, but also isn't as flexible.
+So, easy mode is faster and takes out some steps, but also isn't as flexible (the same basic ingredients pictured above are still captured though).
 
-Expert mode lets you independently define the source key, the destination key, and what the alignment gets applied to (plus additional options and controls for each of those steps). TODO
+With expert mode, the source key, destination key, and target can be defined independently. The source and dest keys have alternate grab modes (average vertex position, grab normals for lines, etc.), and can use geometry from many objects. The target can also be completely independent of the source key, and there are additional target types beyond just objects (mesh piece, object origin, etc.).
 
-TODO (because sometimes you want to move an object using a source key from a different object).
+### Why would I need that?
+
+For simple cases, you don't! Just use easy mode. But for more complex cases, the extra flexibility given by expert mode is essential. For example:
+
+- You want to center an object along an axis (an invisible/imaginary location)
+- You want to align related components so that feature A aligns to feature B, but want to maintain that object's position relative to its friends
+- You want to move a feature some percentage of the way between two points (or two imaginary locations)
+
+So, Mesh Align Plus does alignments, but more generally it is a precision modeling tool that can help you ARRANGE objects or mesh fragments in your scenes, often by exploiting measurements and locations implicit in your scene's geometry.
