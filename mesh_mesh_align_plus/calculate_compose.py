@@ -1047,7 +1047,7 @@ class MAPLUS_OT_QuickComposePointIntersectingLinePlane(MAPLUS_OT_ComposePointInt
 
 class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_CalculateAndComposeGUI"
-    bl_label = "Calculate + Compose (MAPlus)"
+    bl_label = "Calculate & Compose (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Align"
