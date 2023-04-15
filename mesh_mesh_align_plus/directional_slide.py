@@ -537,10 +537,21 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
         if addon_data.easy_ds_show:
             easy_ds_layout = layout.box()
             easy_ds_options = easy_ds_layout.box()
-            easy_ds_options.prop(
+            easy_ds_options_row1 = easy_ds_options.row()
+            easy_ds_options_row1.prop(
+                addon_data.easy_ds_transform_settings,
+                'ds_make_unit_vec',
+                text='Set Length to 1'
+            )
+            easy_ds_options_row1.prop(
                 addon_data.easy_ds_transform_settings,
                 'ds_flip_direction',
                 text='Flip Direction'
+            )
+            easy_ds_options.prop(
+                addon_data.easy_ds_transform_settings,
+                'ds_multiplier',
+                text='Multiplier'
             )
             transf_type_controls = easy_ds_layout.row()
             transf_type_controls.label(text='Align Mode:')
