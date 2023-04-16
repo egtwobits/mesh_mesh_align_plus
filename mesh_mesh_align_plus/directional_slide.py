@@ -530,7 +530,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             )
         easy_ds_top.label(
             text="Easy Directional Slide",
-            icon="CURVE_PATH",
+            icon="EMPTY_SINGLE_ARROW",
         )
 
         # If expanded, show the easy directional slide GUI
@@ -560,7 +560,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             easy_ds_controls.operator(
                 "maplus.easydirectionalslide",
                 text="Slide Active",
-                icon="CURVE_PATH",
+                icon="EMPTY_SINGLE_ARROW",
             )
         layout.separator()
 
@@ -581,7 +581,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             )
         ds_top.label(
             text="Directional Slide (Expert)",
-            icon="CURVE_PATH",
+            icon="EMPTY_SINGLE_ARROW",
         )
 
         # If expanded, show the quick directional slide GUI
@@ -763,7 +763,7 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
             ds_to_object_and_origin.operator(
                 "maplus.quickdirectionalslideobject",
                 text="Object",
-                icon="CURVE_PATH",
+                icon="EMPTY_SINGLE_ARROW",
             )
             ds_to_object_and_origin.operator(
                 "maplus.quickdirectionalslideobjectorigin",

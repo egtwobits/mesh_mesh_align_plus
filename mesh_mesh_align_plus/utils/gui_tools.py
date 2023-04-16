@@ -33,12 +33,12 @@ def layout_coordvec(parent_layout,
     )
     grab_buttons.operator(
         op_id_local_grab,
-        icon='VERTEXSEL',
+        icon='MESH_GRID',
         text=""
     )
     grab_buttons.operator(
         op_id_global_grab,
-        icon='WORLD',
+        icon='VERTEXSEL',
         text=""
     )
 
