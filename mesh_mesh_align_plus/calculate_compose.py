@@ -1096,12 +1096,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 pt_grab_all = slot1_geom_editor.row(align=True)
                 pt_grab_all.operator(
                     "maplus.grabpointslot1loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 pt_grab_all.operator(
                     "maplus.grabpointslot1",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = slot1_geom_editor.row(align=True)
@@ -1166,12 +1166,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 ln_grab_all = slot1_geom_editor.row(align=True)
                 ln_grab_all.operator(
                     "maplus.grablineslot1loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
                     "maplus.grablineslot1",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
 
@@ -1273,12 +1273,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 plane_grab_all = slot1_geom_editor.row(align=True)
                 plane_grab_all.operator(
                     "maplus.grabplaneslot1loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 plane_grab_all.operator(
                     "maplus.grabplaneslot1",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = slot1_geom_editor.row(align=True)
@@ -1422,12 +1422,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 pt_grab_all = slot2_geom_editor.row(align=True)
                 pt_grab_all.operator(
                     "maplus.grabpointslot2loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 pt_grab_all.operator(
                     "maplus.grabpointslot2",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = slot2_geom_editor.row(align=True)
@@ -1491,12 +1491,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 ln_grab_all = slot2_geom_editor.row(align=True)
                 ln_grab_all.operator(
                     "maplus.grablineslot2loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
                     "maplus.grablineslot2",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
 
@@ -1597,12 +1597,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 plane_grab_all = slot2_geom_editor.row(align=True)
                 plane_grab_all.operator(
                     "maplus.grabplaneslot2loc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 plane_grab_all.operator(
                     "maplus.grabplaneslot2",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = slot2_geom_editor.row(align=True)
@@ -1763,12 +1763,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 pt_grab_all = calcresult_geom_editor.row(align=True)
                 pt_grab_all.operator(
                     "maplus.grabpointcalcresultloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 pt_grab_all.operator(
                     "maplus.grabpointcalcresult",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = calcresult_geom_editor.row(align=True)
@@ -1832,12 +1832,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 ln_grab_all = calcresult_geom_editor.row(align=True)
                 ln_grab_all.operator(
                     "maplus.grablinecalcresultloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
                     "maplus.grablinecalcresult",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
 
@@ -1938,12 +1938,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
                 plane_grab_all = calcresult_geom_editor.row(align=True)
                 plane_grab_all.operator(
                     "maplus.grabplanecalcresultloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 plane_grab_all.operator(
                     "maplus.grabplanecalcresult",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = calcresult_geom_editor.row(align=True)

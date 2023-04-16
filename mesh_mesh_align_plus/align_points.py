@@ -778,12 +778,12 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
                     pt_grab_all = apt_src_geom_editor.row(align=True)
                     pt_grab_all.operator(
                         "maplus.quickalignpointsgrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     pt_grab_all.operator(
                         "maplus.quickalignpointsgrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     special_grabs = apt_src_geom_editor.row(align=True)
@@ -883,12 +883,12 @@ class MAPLUS_PT_QuickAlignPointsGUI(bpy.types.Panel):
                 pt_grab_all = apt_dest_geom_editor.row(align=True)
                 pt_grab_all.operator(
                     "maplus.quickalignpointsgrabdestloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 pt_grab_all.operator(
                     "maplus.quickalignpointsgrabdest",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = apt_dest_geom_editor.row(align=True)

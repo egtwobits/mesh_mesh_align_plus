@@ -632,12 +632,12 @@ class MAPLUS_PT_QuickDirectionalSlideGUI(bpy.types.Panel):
                     ln_grab_all = ds_src_geom_editor.row(align=True)
                     ln_grab_all.operator(
                         "maplus.quickdirectionalslidegrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     ln_grab_all.operator(
                         "maplus.quickdirectionalslidegrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     special_grabs = ds_src_geom_editor.row(align=True)

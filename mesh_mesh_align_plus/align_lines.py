@@ -876,12 +876,12 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
                     ln_grab_all = aln_src_geom_editor.row(align=True)
                     ln_grab_all.operator(
                         "maplus.quickalignlinesgrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     ln_grab_all.operator(
                         "maplus.quickalignlinesgrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     special_grabs = aln_src_geom_editor.row(align=True)
@@ -1016,12 +1016,12 @@ class MAPLUS_PT_QuickAlignLinesGUI(bpy.types.Panel):
                 ln_grab_all = aln_dest_geom_editor.row(align=True)
                 ln_grab_all.operator(
                     "maplus.quickalignlinesgrabdestloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
                     "maplus.quickalignlinesgrabdest",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = aln_dest_geom_editor.row(align=True)

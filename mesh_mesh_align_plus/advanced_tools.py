@@ -924,12 +924,12 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                     )
                     pt_grab_all.operator(
                         "maplus.grabpointfromactivelocal",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     pt_grab_all.operator(
                         "maplus.grabpointfromactiveglobal",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     item_info_col.separator()
@@ -1007,12 +1007,12 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                     ln_grab_all = item_info_col.row(align=True)
                     ln_grab_all.operator(
                         "maplus.graballvertslinelocal",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     ln_grab_all.operator(
                         "maplus.graballvertslineglobal",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     item_info_col.separator()
@@ -1100,12 +1100,12 @@ class MAPLUS_PT_MAPlusGui(bpy.types.Panel):
                     plane_grab_all = item_info_col.row(align=True)
                     plane_grab_all.operator(
                         "maplus.graballvertsplanelocal",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     plane_grab_all.operator(
                         "maplus.graballvertsplaneglobal",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     item_info_col.separator()

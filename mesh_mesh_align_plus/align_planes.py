@@ -1254,12 +1254,12 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
                     plane_grab_all = apl_src_geom_editor.row(align=True)
                     plane_grab_all.operator(
                         "maplus.quickalignplanesgrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     plane_grab_all.operator(
                         "maplus.quickalignplanesgrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     special_grabs = apl_src_geom_editor.row(align=True)
@@ -1397,12 +1397,12 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
                 plane_grab_all = apl_dest_geom_editor.row(align=True)
                 plane_grab_all.operator(
                     "maplus.quickalignplanesgrabdestloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 plane_grab_all.operator(
                     "maplus.quickalignplanesgrabdest",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = apl_dest_geom_editor.row(align=True)
@@ -1568,12 +1568,12 @@ class MAPLUS_PT_QuickAlignPlanesGUI(bpy.types.Panel):
                     plane_grab_all = apl_set_origin_mode_dest_geom_editor.row(align=True)
                     plane_grab_all.operator(
                         "maplus.quickalignplanessetoriginmodegrabdestloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     plane_grab_all.operator(
                         "maplus.quickalignplanessetoriginmodegrabdest",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
                     special_grabs = apl_set_origin_mode_dest_geom_editor.row(align=True)

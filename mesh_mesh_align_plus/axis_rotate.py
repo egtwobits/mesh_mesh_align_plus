@@ -894,12 +894,12 @@ class MAPLUS_PT_QuickAxisRotateGUI(bpy.types.Panel):
                     ln_grab_all = axr_src_geom_editor.row(align=True)
                     ln_grab_all.operator(
                         "maplus.quickaxisrotategrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     ln_grab_all.operator(
                         "maplus.quickaxisrotategrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
 

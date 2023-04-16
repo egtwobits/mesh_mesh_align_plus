@@ -886,12 +886,12 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
                     ln_grab_all = sme_src_geom_editor.row(align=True)
                     ln_grab_all.operator(
                         "maplus.quickscalematchedgegrabsrcloc",
-                        icon='VERTEXSEL',
+                        icon='MESH_GRID',
                         text="Grab All Local"
                     )
                     ln_grab_all.operator(
                         "maplus.quickscalematchedgegrabsrc",
-                        icon='WORLD',
+                        icon='VERTEXSEL',
                         text="Grab All Global"
                     )
 
@@ -1022,12 +1022,12 @@ class MAPLUS_PT_QuickSMEGUI(bpy.types.Panel):
                 ln_grab_all = sme_dest_geom_editor.row(align=True)
                 ln_grab_all.operator(
                     "maplus.quickscalematchedgegrabdestloc",
-                    icon='VERTEXSEL',
+                    icon='MESH_GRID',
                     text="Grab All Local"
                 )
                 ln_grab_all.operator(
                     "maplus.quickscalematchedgegrabdest",
-                    icon='WORLD',
+                    icon='VERTEXSEL',
                     text="Grab All Global"
                 )
                 special_grabs = sme_dest_geom_editor.row(align=True)
