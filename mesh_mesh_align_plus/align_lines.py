@@ -92,7 +92,7 @@ class MAPLUS_OT_AlignLinesBase(bpy.types.Operator):
                     vert_attribs_to_set = ('line_start', 'line_end')
                     try:
                         vert_data = maplus_geom.return_selected_verts(
-                            maplus_geom.get_active_object(),
+                            maplus_geom.get_selected_objects_active_first(),
                             len(vert_attribs_to_set),
                             maplus_geom.get_active_object().matrix_world
                         )
@@ -454,7 +454,7 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                 try:
                     if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
                         vert_data = maplus_geom.return_selected_verts(
-                            maplus_geom.get_active_object(),
+                            maplus_geom.get_selected_objects_active_first(),
                             len(vert_attribs_to_set),
                             maplus_geom.get_active_object().matrix_world
                         )
@@ -514,7 +514,7 @@ class MAPLUS_OT_EasyAlignLines(bpy.types.Operator):
                 try:
                     if addon_data.easy_aln_grab_mode == 'GLOBAL_VERTS':
                         vert_data = maplus_geom.return_selected_verts(
-                            maplus_geom.get_active_object(),
+                            maplus_geom.get_selected_objects_active_first(),
                             len(vert_attribs_to_set),
                             maplus_geom.get_active_object().matrix_world
                         )

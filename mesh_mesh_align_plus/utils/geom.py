@@ -148,7 +148,7 @@ def return_selected_verts(source_data,
                     if len(selected_verts) == verts_to_grab:
                         break
                     if not (vert.index in vert_indices):
-                        coords = element.co
+                        coords = vert.co
                         if global_matrix_multiplier:
                             coords = mesh_object.matrix_world @ coords
 

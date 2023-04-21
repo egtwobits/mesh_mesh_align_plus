@@ -98,7 +98,7 @@ class MAPLUS_OT_AlignPlanesBase(bpy.types.Operator):
                     )
                     try:
                         vert_data = maplus_geom.return_selected_verts(
-                            maplus_geom.get_active_object(),
+                            maplus_geom.get_selected_objects_active_first(),
                             len(vert_attribs_to_set),
                             maplus_geom.get_active_object().matrix_world
                         )
