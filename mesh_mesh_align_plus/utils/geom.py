@@ -387,7 +387,7 @@ class MAPLUS_OT_GrabFromGeometryBase(bpy.types.Operator):
             matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_selected_verts(
-                get_active_object(),
+                get_selected_objects_active_first(),
                 len(self.vert_attribs_to_set),
                 matrix_multiplier
             )
@@ -488,7 +488,7 @@ class MAPLUS_OT_GrabAndSetItemKindBase(bpy.types.Operator):
             matrix_multiplier = get_active_object().matrix_world
         try:
             vert_data = return_at_least_one_selected_vert(
-                get_active_object(),
+                get_selected_objects_active_first(),
                 matrix_multiplier
             )
         except maplus_except.InsufficientSelectionError:
