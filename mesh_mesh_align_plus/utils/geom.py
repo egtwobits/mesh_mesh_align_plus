@@ -262,11 +262,35 @@ def return_avg_vert_pos(mesh_object,
 
 # For the ambiguous "internal storage slots", which can be any geom type in
 # [POINT, LINE, PLANE]. Must return at least 1 selected vert (for a point).
-def return_at_least_one_selected_vert(mesh_object,
+def return_at_least_one_selected_vert(source_data,
                                       global_matrix_multiplier=None):
-    if type(mesh_object.data) == bpy.types.Mesh:
+    source_objects = source_data
+    if type(source_data) != list:
+        source_objects = [source_data]
+
+    mesh_objects = []
+    non_mesh_objects = []
+    for obj in source_objects:
+        if type(obj.data) == bpy.types.Mesh:
+            mesh_objects.append(obj)
+        else:
+            non_mesh_objects.append(obj)
+
+    if len(non_mesh_objects) == len(source_objects):
+        raise maplus_except.NonMeshGrabError()
+
+    selected_verts = []
+
+    # Check each mesh for selected verts
+    for mesh_object in mesh_objects:
+
+        # Stop checking if we have enough verts already
+        if len(selected_verts) == 3:
+            break
 
         # Todo, check for a better way to handle/if this is needed
+        # We could already be in edit mode with some stale
+        # updates, exiting and reentering forces an update
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
@@ -275,48 +299,52 @@ def return_at_least_one_selected_vert(mesh_object,
         src_mesh.from_mesh(mesh_object.data)
         src_mesh.select_history.validate()
 
-        history_indices = []
-        history_as_verts = []
+        # Get verts from the selection history first, because
+        # we want the most recently selected verts to go first
+        # in the selected_verts result
+        vert_indices = set()
         for element in src_mesh.select_history:
-            if len(history_as_verts) == 3:
+            if len(selected_verts) == 3:
+                # Stop looking for verts if we already have enough to return results
                 break
+            # Selection history can contain verts, faces, etc
             if type(element) == bmesh.types.BMVert:
-                if not (element.index in history_indices):
-                    history_as_verts.append(element)
+                if not (element.index in vert_indices):
+                    coords = element.co
+                    if global_matrix_multiplier:
+                        coords = mesh_object.matrix_world @ coords
+
+                    selected_verts.append(coords)
+                    vert_indices.add(element.index)
             else:
-                for item in element.verts:
-                    if len(history_as_verts) == 3:
+                # This history item is a non-vert (face, edge, etc)
+                for vert in element.verts:
+                    # Go through this item's verts and save them
+                    if len(selected_verts) == 3:
                         break
-                    if not (item.index in history_indices):
-                        history_as_verts.append(item)
+                    if not (vert.index in vert_indices):
+                        coords = vert.co
+                        if global_matrix_multiplier:
+                            coords = mesh_object.matrix_world @ coords
 
-        selection = []
-        vert_indices = []
-        for vert in history_as_verts:
-            if len(selection) == 3:
-                break
-            coords = vert.co
-            if global_matrix_multiplier:
-                coords = global_matrix_multiplier @ coords
-            if not (vert.index in vert_indices):
-                vert_indices.append(vert.index)
-                selection.append(coords)
+                        selected_verts.append(coords)
+                        vert_indices.add(element.index)
+
+        # Check non-history selected verts next (could be from box/circle selection, etc)
         for vert in (v for v in src_mesh.verts if v.select):
-            if len(selection) == 3:
+            if len(selected_verts) == 3:
                 break
             coords = vert.co
             if global_matrix_multiplier:
                 coords = global_matrix_multiplier @ coords
             if not (vert.index in vert_indices):
-                vert_indices.append(vert.index)
-                selection.append(coords)
+                vert_indices.add(vert.index)
+                selected_verts.append(coords)
 
-        if len(selection) > 0:
-            return selection
-        else:
-            raise maplus_except.InsufficientSelectionError()
+    if len(selected_verts) > 0:
+        return selected_verts
     else:
-        raise maplus_except.NonMeshGrabError(mesh_object)
+        raise maplus_except.InsufficientSelectionError()
 
 
 # Coordinate grabber, present on all geometry primitives (point, line, plane)
