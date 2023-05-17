@@ -140,6 +140,7 @@ classes = (
     maplus_calc_compose.MAPLUS_OT_QuickComposePointIntersectingLinePlane,
     maplus_calc_compose.MAPLUS_OT_QuickComposePointNearestPointOnLine,
     maplus_calc_compose.MAPLUS_OT_QuickComposePointNearestLineLine,
+    maplus_calc_compose.MAPLUS_OT_QuickComposeLineIntersectPlanePlane,
 
     maplus_geom.MAPLUS_OT_GrabFromGeometryBase,
     maplus_geom.MAPLUS_OT_GrabSmeNumeric,
