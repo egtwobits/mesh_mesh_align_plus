@@ -1121,7 +1121,7 @@ class MAPLUS_OT_QuickComposePointNearestPointOnLine(bpy.types.Operator):
 
 class MAPLUS_OT_QuickComposePointNearestLineLine(bpy.types.Operator):
     bl_idname = "maplus.quickcomposepointnearestlineline"
-    bl_label = "Nearest Pt. Line/Line"
+    bl_label = "Nearest Line/Line"
     bl_description = (
         "Composes a new point by finding the closest point on two supplied lines"
     )
@@ -2221,7 +2221,7 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         calc_gui.operator(
             "maplus.quickcomposepointnearestlineline",
             icon='LAYER_ACTIVE',
-            text="Nearest Pt. Line/Line"
+            text="Nearest Line/Line"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefromorigin",
