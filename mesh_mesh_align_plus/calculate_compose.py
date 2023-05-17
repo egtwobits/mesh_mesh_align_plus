@@ -1119,6 +1119,80 @@ class MAPLUS_OT_QuickComposePointNearestPointOnLine(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_QuickComposePointNearestLineLine(bpy.types.Operator):
+    bl_idname = "maplus.quickcomposepointnearestlineline"
+    bl_label = "Nearest Pt. Line/Line"
+    bl_description = (
+        "Composes a new point by finding the closest point on two supplied lines"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.internal_storage_slot_1.kind != 'LINE'
+                or addon_data.internal_storage_slot_2.kind != 'LINE'):
+            return False
+        return True
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_calculation = addon_data
+        result_item = active_calculation.quick_calc_result_item
+        calc_target_one = addon_data.internal_storage_slot_1
+        calc_target_two = addon_data.internal_storage_slot_2
+
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'LINE'
+                or addon_data.internal_storage_slot_2.kind != 'LINE')):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Nearest Pt. Line/Line" can'
+                 ' only operate on a line and a line.')
+            )
+            return {'CANCELLED'}
+
+        line1_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_1,
+            kind='LINE'
+        )
+        line2_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_2,
+            kind='LINE'
+        )
+
+        nearest_pts = mathutils.geometry.intersect_line_line(
+            line1_global_data[0],
+            line1_global_data[1],
+            line2_global_data[0],
+            line2_global_data[1],
+        )
+
+        if nearest_pts:
+            result_item.kind = 'POINT'
+            result_item.point = nearest_pts[0]
+            if addon_data.calc_result_to_clipboard:
+                addon_data.internal_storage_clipboard.kind = 'POINT'
+                maplus_storage.copy_source_attribs_to_dest(
+                    result_item,
+                    addon_data.internal_storage_clipboard,
+                    ("point",
+                     "pt_make_unit_vec",
+                     "pt_flip_direction",
+                     "pt_multiplier")
+                )
+        else:
+            self.report(
+                {'ERROR'},
+                'No intersection: Could not find nearest point for selected line/line'
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_CalculateAndComposeGUI"
     bl_label = "Calculate & Compose (MAPlus)"
@@ -2143,6 +2217,11 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
             "maplus.quickcomposepointnearestpointonline",
             icon='LAYER_ACTIVE',
             text="Nearest Point/Line"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposepointnearestlineline",
+            icon='LAYER_ACTIVE',
+            text="Nearest Pt. Line/Line"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefromorigin",
