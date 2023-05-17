@@ -2141,6 +2141,7 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         )
         calc_gui.operator(
             "maplus.quickcomposepointnearestpointonline",
+            icon='LAYER_ACTIVE',
             text="Nearest Point/Line"
         )
         calc_gui.operator(
