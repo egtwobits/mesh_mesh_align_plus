@@ -821,7 +821,9 @@ class MAPLUS_OT_GrabAllSlot1(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot1"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
-        "Grabs global coordinates from selected vertices in edit mode"
+        "Special grab-all: Select 1 vert for a Point, 2 for a Line,\n"
+        "3 for a Plane. Grabs global coordinates from selected vertices"
+        "\nin edit mode and sets slot type"
     )
     bl_options = {'REGISTER', 'UNDO'}
     multiply_by_world_matrix = True
@@ -843,7 +845,9 @@ class MAPLUS_OT_GrabAllSlot2(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballslot2"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
-        "Grabs global coordinates from selected vertices in edit mode"
+        "Special grab-all: Select 1 vert for a Point, 2 for a Line,\n"
+        "3 for a Plane. Grabs global coordinates from selected vertices"
+        "\nin edit mode and sets slot type"
     )
     bl_options = {'REGISTER', 'UNDO'}
     multiply_by_world_matrix = True
@@ -865,7 +869,9 @@ class MAPLUS_OT_GrabAllCalcResult(MAPLUS_OT_GrabAndSetItemKindBase):
     bl_idname = "maplus.graballcalcresult"
     bl_label = "Grab Global Coordinates From Selected Vertices"
     bl_description = (
-        "Grabs global coordinates from selected vertices in edit mode"
+        "Special grab-all: Select 1 vert for a Point, 2 for a Line,\n"
+        "3 for a Plane. Grabs global coordinates from selected vertices"
+        "\nin edit mode and sets slot type"
     )
     bl_options = {'REGISTER', 'UNDO'}
     multiply_by_world_matrix = True

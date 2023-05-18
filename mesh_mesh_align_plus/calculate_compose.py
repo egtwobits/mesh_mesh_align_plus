@@ -1119,6 +1119,170 @@ class MAPLUS_OT_QuickComposePointNearestPointOnLine(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MAPLUS_OT_QuickComposePointNearestLineLine(bpy.types.Operator):
+    bl_idname = "maplus.quickcomposepointnearestlineline"
+    bl_label = "Nearest Line/Line"
+    bl_description = (
+        "Composes a new point by finding the closest point on"
+        "\nthe first line to the second line. NOTE: Works on"
+        "\nlines, not fixed length segments."
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'LINE'
+                or addon_data.internal_storage_slot_2.kind != 'LINE')):
+            return False
+        return True
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_calculation = addon_data
+        result_item = active_calculation.quick_calc_result_item
+        calc_target_one = addon_data.internal_storage_slot_1
+        calc_target_two = addon_data.internal_storage_slot_2
+
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'LINE'
+                or addon_data.internal_storage_slot_2.kind != 'LINE')):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Nearest Pt. Line/Line" can'
+                 ' only operate on a line and a line.')
+            )
+            return {'CANCELLED'}
+
+        line1_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_1,
+            kind='LINE'
+        )
+        line2_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_2,
+            kind='LINE'
+        )
+
+        nearest_pts = mathutils.geometry.intersect_line_line(
+            line1_global_data[0],
+            line1_global_data[1],
+            line2_global_data[0],
+            line2_global_data[1],
+        )
+
+        if nearest_pts:
+            result_item.kind = 'POINT'
+            result_item.point = nearest_pts[0]
+            if addon_data.calc_result_to_clipboard:
+                addon_data.internal_storage_clipboard.kind = 'POINT'
+                maplus_storage.copy_source_attribs_to_dest(
+                    result_item,
+                    addon_data.internal_storage_clipboard,
+                    ("point",
+                     "pt_make_unit_vec",
+                     "pt_flip_direction",
+                     "pt_multiplier")
+                )
+        else:
+            self.report(
+                {'ERROR'},
+                'No intersection: Could not find nearest point for selected line/line'
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
+class MAPLUS_OT_QuickComposeLineIntersectPlanePlane(bpy.types.Operator):
+    bl_idname = "maplus.quickcomposelineintersectplaneplane"
+    bl_label = "Intersect Plane/Plane"
+    bl_description = (
+        "Composes a new line by finding the intersection of two planes"
+    )
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        addon_data = bpy.context.scene.maplus_data
+
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'PLANE'
+                or addon_data.internal_storage_slot_2.kind != 'PLANE')):
+            return False
+        return True
+
+    def execute(self, context):
+        addon_data = bpy.context.scene.maplus_data
+        prims = addon_data.prim_list
+        active_calculation = addon_data
+        result_item = active_calculation.quick_calc_result_item
+        calc_target_one = addon_data.internal_storage_slot_1
+        calc_target_two = addon_data.internal_storage_slot_2
+
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'PLANE'
+                or addon_data.internal_storage_slot_2.kind != 'PLANE')):
+            self.report(
+                {'ERROR'},
+                ('Wrong operand: "Intersect plane/plane" can'
+                 ' only operate on a plane and a plane.')
+            )
+            return {'CANCELLED'}
+
+        plane1_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_1,
+            kind='PLANE'
+        )
+        plane2_global_data = maplus_geom.get_modified_global_coords(
+            geometry=addon_data.internal_storage_slot_2,
+            kind='PLANE'
+        )
+
+        src_pln_ln_BA = plane1_global_data[0] - plane1_global_data[1]
+        src_pln_ln_BC = plane1_global_data[2] - plane1_global_data[1]
+        src_normal = src_pln_ln_BA.cross(src_pln_ln_BC)
+
+        dest_pln_ln_BA = plane2_global_data[0] - plane2_global_data[1]
+        dest_pln_ln_BC = plane2_global_data[2] - plane2_global_data[1]
+        dest_normal = dest_pln_ln_BA.cross(dest_pln_ln_BC)
+
+        intersection_line = mathutils.geometry.intersect_plane_plane(
+            plane1_global_data[0],
+            src_normal,
+            plane2_global_data[0],
+            dest_normal
+        )
+
+        if intersection_line:
+            point, vect = intersection_line  # Given as a location + vector
+
+            result_item.kind = 'LINE'
+            result_item.line_start = point
+            result_item.line_end = point + vect
+            if addon_data.calc_result_to_clipboard:
+                addon_data.internal_storage_clipboard.kind = 'LINE'
+                maplus_storage.copy_source_attribs_to_dest(
+                    result_item,
+                    addon_data.internal_storage_clipboard,
+                    ("line_start",
+                     "line_end",
+                     "ln_make_unit_vec",
+                     "ln_flip_direction",
+                     "ln_multiplier")
+                )
+        else:
+            self.report(
+                {'ERROR'},
+                'No intersection: Could not find intersection line for selected plane/plane'
+            )
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_CalculateAndComposeGUI"
     bl_label = "Calculate & Compose (MAPlus)"
@@ -1133,6 +1297,9 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
 
         calc_gui = layout.column()
+        calc_gui.label(
+            text="Geom. Comparison Slots"
+        )
 
         slot1_geom_top = calc_gui.row(align=True)
         if not addon_data.quick_calc_show_slot1_geom:
@@ -1784,16 +1951,11 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         if addon_data.quick_calc_show_slot2_geom:
                 calc_gui.separator()
 
-        calcs_and_results_header = calc_gui.row()
-        calcs_and_results_header.label(text=
-            "Result:"
-        )
-        clipboard_row_right = calcs_and_results_header.row()
-        clipboard_row_right.alignment = 'RIGHT'
-        clipboard_row_right.prop(
+        calc_gui.label(text="Result Geom./Value:")
+        calc_gui.prop(
             bpy.types.AnyType(maplus_data_ptr),
             'calc_result_to_clipboard',
-            text="Copy to Clipboard"
+            text="Copy Result to Clipboard"
         )
         calc_gui.prop(
             bpy.types.AnyType(bpy.types.AnyType(addon_data)),
@@ -2124,12 +2286,12 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
 
         calc_gui.separator()
 
+        calc_gui.label(text="Tools:")
         ops_header = calc_gui.row()
-        ops_header.label(text="Available Calc.'s:")
         ops_header.prop(
             bpy.types.AnyType(addon_data),
             'quick_calc_check_types',
-            text="Check/Verify Types"
+            text="Check/Verify Slot Types"
         )
         calc_gui.operator(
             "maplus.quickcalclinelength",
@@ -2143,6 +2305,16 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
             "maplus.quickcomposepointnearestpointonline",
             icon='LAYER_ACTIVE',
             text="Nearest Point/Line"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposepointnearestlineline",
+            icon='LAYER_ACTIVE',
+            text="Nearest Line/Line"
+        )
+        calc_gui.operator(
+            "maplus.quickcomposelineintersectplaneplane",
+            icon='CURVE_PATH',
+            text="Intersect Plane/Plane"
         )
         calc_gui.operator(
             "maplus.quickcomposenewlinefromorigin",
