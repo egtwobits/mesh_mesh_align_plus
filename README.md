@@ -1,3 +1,5 @@
+![banner_placeholder1](https://github.com/egtwobits/mesh_mesh_align_plus/assets/15041801/16df986f-a736-437b-a520-9318da6bafbb)
+
 # Mesh Align Plus [Blender Addon]
 
 Mesh Align Plus helps you place geometry precisely where it needs to go in your scene. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
