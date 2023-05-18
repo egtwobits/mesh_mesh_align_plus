@@ -1949,16 +1949,11 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         if addon_data.quick_calc_show_slot2_geom:
                 calc_gui.separator()
 
-        calc_gui.label(
-            text="Result Geom./Value:"
-        )
-        calcs_and_results_header = calc_gui.row()
-        clipboard_row_right = calcs_and_results_header.row()
-        clipboard_row_right.alignment = 'RIGHT'
-        clipboard_row_right.prop(
+        calc_gui.label(text="Result Geom./Value:")
+        calc_gui.prop(
             bpy.types.AnyType(maplus_data_ptr),
             'calc_result_to_clipboard',
-            text="Copy to Clipboard"
+            text="Copy Result to Clipboard"
         )
         calc_gui.prop(
             bpy.types.AnyType(bpy.types.AnyType(addon_data)),
@@ -2294,7 +2289,7 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         ops_header.prop(
             bpy.types.AnyType(addon_data),
             'quick_calc_check_types',
-            text="Check/Verify Types"
+            text="Check/Verify Slot Types"
         )
         calc_gui.operator(
             "maplus.quickcalclinelength",
