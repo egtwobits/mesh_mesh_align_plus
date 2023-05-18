@@ -1123,7 +1123,9 @@ class MAPLUS_OT_QuickComposePointNearestLineLine(bpy.types.Operator):
     bl_idname = "maplus.quickcomposepointnearestlineline"
     bl_label = "Nearest Line/Line"
     bl_description = (
-        "Composes a new point by finding the closest point on two supplied lines"
+        "Composes a new point by finding the closest point on"
+        "\nthe first line to the second line. NOTE: Works on"
+        "\nlines, not fixed length segments."
     )
     bl_options = {'REGISTER', 'UNDO'}
 
