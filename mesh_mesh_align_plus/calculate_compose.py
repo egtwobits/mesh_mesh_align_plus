@@ -1131,8 +1131,9 @@ class MAPLUS_OT_QuickComposePointNearestLineLine(bpy.types.Operator):
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
 
-        if (addon_data.internal_storage_slot_1.kind != 'LINE'
-                or addon_data.internal_storage_slot_2.kind != 'LINE'):
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'LINE'
+                or addon_data.internal_storage_slot_2.kind != 'LINE')):
             return False
         return True
 
@@ -1205,8 +1206,9 @@ class MAPLUS_OT_QuickComposeLineIntersectPlanePlane(bpy.types.Operator):
     def poll(cls, context):
         addon_data = bpy.context.scene.maplus_data
 
-        if (addon_data.internal_storage_slot_1.kind != 'PLANE'
-                or addon_data.internal_storage_slot_2.kind != 'PLANE'):
+        if (addon_data.quick_calc_check_types
+                and (addon_data.internal_storage_slot_1.kind != 'PLANE'
+                or addon_data.internal_storage_slot_2.kind != 'PLANE')):
             return False
         return True
 
@@ -1293,6 +1295,9 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         addon_data = bpy.context.scene.maplus_data
 
         calc_gui = layout.column()
+        calc_gui.label(
+            text="Geom. Comparison Slots"
+        )
 
         slot1_geom_top = calc_gui.row(align=True)
         if not addon_data.quick_calc_show_slot1_geom:
@@ -1944,10 +1949,10 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
         if addon_data.quick_calc_show_slot2_geom:
                 calc_gui.separator()
 
-        calcs_and_results_header = calc_gui.row()
-        calcs_and_results_header.label(text=
-            "Result:"
+        calc_gui.label(
+            text="Result Geom./Value:"
         )
+        calcs_and_results_header = calc_gui.row()
         clipboard_row_right = calcs_and_results_header.row()
         clipboard_row_right.alignment = 'RIGHT'
         clipboard_row_right.prop(
@@ -2284,8 +2289,8 @@ class MAPLUS_PT_CalculateAndComposeGUI(bpy.types.Panel):
 
         calc_gui.separator()
 
+        calc_gui.label(text="Tools:")
         ops_header = calc_gui.row()
-        ops_header.label(text="Available Calc.'s:")
         ops_header.prop(
             bpy.types.AnyType(addon_data),
             'quick_calc_check_types',
