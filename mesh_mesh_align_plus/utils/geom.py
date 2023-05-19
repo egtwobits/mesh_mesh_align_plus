@@ -153,7 +153,7 @@ def return_selected_verts(source_data,
                             coords = mesh_object.matrix_world @ coords
 
                         selected_verts.append(coords)
-                        vert_indices.add(element.index)
+                        vert_indices.add(vert.index)
 
         # Check non-history selected verts next (could be from box/circle selection, etc)
         for vert in (v for v in src_mesh.verts if v.select):
@@ -328,7 +328,7 @@ def return_at_least_one_selected_vert(source_data,
                             coords = mesh_object.matrix_world @ coords
 
                         selected_verts.append(coords)
-                        vert_indices.add(element.index)
+                        vert_indices.add(vert.index)
 
         # Check non-history selected verts next (could be from box/circle selection, etc)
         for vert in (v for v in src_mesh.verts if v.select):
