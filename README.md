@@ -1,6 +1,6 @@
 # Mesh Align Plus [Blender Addon]
 
-**Mesh Align Plus** helps you place geometry precisely where it needs to go in your scene. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
+**Mesh Align Plus** helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
 
 Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry like an implicit axis, projected points of intersection, etc.
 
