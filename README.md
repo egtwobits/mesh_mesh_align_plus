@@ -2,7 +2,7 @@
 
 **Mesh Align Plus** helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
 
-Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry like an implicit axis, projected points of intersection, etc.
+Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry (like an implicit axis, projected points of intersection, etc).
 
 Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorials on <a href="https://www.youtube.com/watch?v=2wkWo512mew">YouTube</a>.
 
