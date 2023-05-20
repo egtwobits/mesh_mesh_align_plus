@@ -43,7 +43,7 @@ Here's what aligning faces looks like with **easy mode:**
 - Select three verts on an object you want to move and hit "Start Alignment" to designate the **source key**
 - Select another three verts (same object, different object, whatever) and hit "Apply to Active" to designate a **destination key** and auto-align your source object from the first step (the **target**)
 
-<GIF>
+![easy_apl_simple2](https://user-images.githubusercontent.com/15041801/232251537-ace16b1a-a10f-473a-a2f8-98be9e2249ff.gif)
 
 So, easy mode is faster and takes out some steps, but also isn't as flexible (the same basic ingredients pictured above are still captured though).
 
