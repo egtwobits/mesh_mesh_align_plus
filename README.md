@@ -8,7 +8,7 @@ Mesh Align Plus is designed to provide precision modeling capabilities, especial
 
 ## Quick Examples
 
-![easy_apl_frontpage2](https://user-images.githubusercontent.com/15041801/231297281-8ac7eca9-74a1-4e25-817c-ed612c0dc317.gif)
+![homepage_pyramid_bracket1](https://github.com/egtwobits/mesh_mesh_align_plus/assets/15041801/c8fbd782-4e83-4752-ace6-985d88466d7e)
 ![basics](https://user-images.githubusercontent.com/15041801/231297300-6877026b-0da3-4586-b259-9b5a99829c0e.gif)
 ![meshops_demo3](https://github.com/egtwobits/mesh_mesh_align_plus/assets/15041801/82985eb8-0389-427f-8bad-70a38d30a541)
 
