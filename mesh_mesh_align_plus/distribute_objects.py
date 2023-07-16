@@ -144,7 +144,7 @@ class MAPLUS_OT_QuickDistObjBetweenGrabEnd(bpy.types.Operator):
 class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
     bl_idname = "maplus.quickdistributeobjectsalongline"
     bl_label = "Distribute Objects"
-    bl_description = "Distribute Objects Randomly Along a Specified Line"
+    bl_description = "Distribute Objects Along a Specified Line"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -214,10 +214,10 @@ class MAPLUS_OT_QuickDistributeObjectsAlongLine(bpy.types.Operator):
 
 class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
     bl_idname = "MAPLUS_PT_QuickDistributeObjectsGUI"
-    bl_label = "Quick Distribute Objects"
+    bl_label = "Distribute Objects (MAPlus)"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Mesh Align Plus"
+    bl_category = "Align"
     bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
@@ -327,12 +327,12 @@ class MAPLUS_PT_QuickDistributeObjectsGUI(bpy.types.Panel):
             ln_grab_all = dist_obj_along_line_geom_editor.row(align=True)
             ln_grab_all.operator(
                 "maplus.distobjalonglinegrabsrcloc",
-                icon='VERTEXSEL',
+                icon='MESH_GRID',
                 text="Grab All Local"
             )
             ln_grab_all.operator(
                 "maplus.distobjalonglinegrabsrc",
-                icon='WORLD',
+                icon='VERTEXSEL',
                 text="Grab All Global"
             )
 

@@ -28,6 +28,10 @@ classes = (
     maplus_apt.MAPLUS_OT_QuickAlignPointsMeshSelected,
     maplus_apt.MAPLUS_OT_AlignPointsWholeMesh,
     maplus_apt.MAPLUS_OT_QuickAlignPointsWholeMesh,
+    maplus_apt.MAPLUS_OT_EasyAlignPoints,
+    maplus_apt.MAPLUS_OT_ClearEasyAlignPoints,
+    maplus_apt.MAPLUS_OT_ShowHideEasyApt,
+    maplus_apt.MAPLUS_OT_ShowHideQuickApt,
 
     maplus_aln.MAPLUS_OT_AlignLinesBase,
     maplus_aln.MAPLUS_OT_AlignLinesObject,
@@ -37,6 +41,10 @@ classes = (
     maplus_aln.MAPLUS_OT_AlignLinesWholeMesh,
     maplus_aln.MAPLUS_OT_QuickAlignLinesMeshSelected,
     maplus_aln.MAPLUS_OT_QuickAlignLinesWholeMesh,
+    maplus_aln.MAPLUS_OT_EasyAlignLines,
+    maplus_aln.MAPLUS_OT_ClearEasyAlignLines,
+    maplus_aln.MAPLUS_OT_ShowHideEasyAln,
+    maplus_aln.MAPLUS_OT_ShowHideQuickAln,
 
     maplus_apl.MAPLUS_OT_AlignPlanesBase,
     maplus_apl.MAPLUS_OT_AlignPlanesObject,
@@ -46,6 +54,10 @@ classes = (
     maplus_apl.MAPLUS_OT_AlignPlanesWholeMesh,
     maplus_apl.MAPLUS_OT_QuickAlignPlanesMeshSelected,
     maplus_apl.MAPLUS_OT_QuickAlignPlanesWholeMesh,
+    maplus_apl.MAPLUS_OT_EasyAlignPlanes,
+    maplus_apl.MAPLUS_OT_ClearEasyAlignPlanes,
+    maplus_apl.MAPLUS_OT_ShowHideEasyApl,
+    maplus_apl.MAPLUS_OT_ShowHideQuickApl,
 
     maplus_ds.MAPLUS_OT_DirectionalSlideBase,
     maplus_ds.MAPLUS_OT_DirectionalSlideObject,
@@ -55,6 +67,9 @@ classes = (
     maplus_ds.MAPLUS_OT_DirectionalSlideWholeMesh,
     maplus_ds.MAPLUS_OT_QuickDirectionalSlideMeshSelected,
     maplus_ds.MAPLUS_OT_QuickDirectionalSlideWholeMesh,
+    maplus_ds.MAPLUS_OT_EasyDirectionalSlide,
+    maplus_ds.MAPLUS_OT_ShowHideEasyDs,
+    maplus_ds.MAPLUS_OT_ShowHideQuickDs,
 
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeBase,
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeObject,
@@ -64,6 +79,10 @@ classes = (
     maplus_sme.MAPLUS_OT_QuickScaleMatchEdgeMeshSelected,
     maplus_sme.MAPLUS_OT_ScaleMatchEdgeWholeMesh,
     maplus_sme.MAPLUS_OT_QuickScaleMatchEdgeWholeMesh,
+    maplus_sme.MAPLUS_OT_EasyScaleMatchEdge,
+    maplus_sme.MAPLUS_OT_ClearEasyScaleMatchEdge,
+    maplus_sme.MAPLUS_OT_ShowHideEasySme,
+    maplus_sme.MAPLUS_OT_ShowHideQuickSme,
 
     maplus_axr.MAPLUS_OT_AxisRotateBase,
     maplus_axr.MAPLUS_OT_AxisRotateObject,
@@ -73,6 +92,12 @@ classes = (
     maplus_axr.MAPLUS_OT_AxisRotateWholeMesh,
     maplus_axr.MAPLUS_OT_QuickAxisRotateMeshSelected,
     maplus_axr.MAPLUS_OT_QuickAxisRotateWholeMesh,
+    maplus_axr.MAPLUS_OT_EasyAxisRotate,
+    maplus_axr.MAPLUS_OT_ClearEasyAxisRotate,
+    maplus_axr.MAPLUS_OT_ShowHideEasyAxr,
+    maplus_axr.MAPLUS_OT_ShowHideQuickAxr,
+    maplus_axr.MAPLUS_OT_EasyAngleDiffAxr,
+    maplus_axr.MAPLUS_OT_ClearEasyAngleDiffAxr,
 
     maplus_aobjects.MAPLUS_OT_QuickAlignObjects,
     maplus_dobjects.MAPLUS_OT_QuickDistributeObjectsBetween,
@@ -113,6 +138,9 @@ classes = (
     maplus_calc_compose.MAPLUS_OT_ComposePointIntersectingLinePlaneBase,
     maplus_calc_compose.MAPLUS_OT_ComposePointIntersectingLinePlane,
     maplus_calc_compose.MAPLUS_OT_QuickComposePointIntersectingLinePlane,
+    maplus_calc_compose.MAPLUS_OT_QuickComposePointNearestPointOnLine,
+    maplus_calc_compose.MAPLUS_OT_QuickComposePointNearestLineLine,
+    maplus_calc_compose.MAPLUS_OT_QuickComposeLineIntersectPlanePlane,
 
     maplus_geom.MAPLUS_OT_GrabFromGeometryBase,
     maplus_geom.MAPLUS_OT_GrabSmeNumeric,
@@ -549,12 +577,14 @@ classes = (
     maplus_storage.MAPLUS_OT_PasteIntoSmeDest,
     maplus_storage.MAPLUS_OT_CopyFromSmeDest,
 
+    maplus_adv_tools.MAPLUS_OT_ShowHideListItemInfo,
     maplus_adv_tools.MAPLUS_OT_AddListItemBase,
     maplus_adv_tools.MAPLUS_OT_AddNewPoint,
     maplus_adv_tools.MAPLUS_OT_AddNewLine,
     maplus_adv_tools.MAPLUS_OT_AddNewPlane,
     maplus_adv_tools.MAPLUS_OT_AddNewCalculation,
     maplus_adv_tools.MAPLUS_OT_AddNewTransformation,
+    maplus_adv_tools.MAPLUS_OT_AddReferenceGeometry,
 
     maplus_adv_tools.MAPLUS_OT_ChangeTypeBaseClass,
     maplus_adv_tools.MAPLUS_OT_ChangeTypeToPointPrim,
@@ -581,8 +611,6 @@ classes = (
     maplus_adv_tools.MAPLUS_OT_SpecialsAddPlaneFromActiveGlobal,
 
     # GUI registration
-    maplus_adv_tools.MAPLUS_UL_MAPlusList,
-    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     maplus_apt.MAPLUS_PT_QuickAlignPointsGUI,
     maplus_aln.MAPLUS_PT_QuickAlignLinesGUI,
@@ -590,9 +618,12 @@ classes = (
     maplus_axr.MAPLUS_PT_QuickAxisRotateGUI,
     maplus_ds.MAPLUS_PT_QuickDirectionalSlideGUI,
     maplus_sme.MAPLUS_PT_QuickSMEGUI,
-    maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_dobjects.MAPLUS_PT_QuickDistributeObjectsGUI,
+    maplus_aobjects.MAPLUS_PT_QuickAlignObjectsGUI,
     maplus_calc_compose.MAPLUS_PT_CalculateAndComposeGUI,
+
+    maplus_adv_tools.MAPLUS_UL_MAPlusList,
+    maplus_adv_tools.MAPLUS_PT_MAPlusGui,
 
     # maplus_except.UniqueNameError,
     # maplus_except.NonMeshGrabError,
