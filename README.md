@@ -8,6 +8,9 @@ Mesh Align Plus can **move objects** and leave the underlying mesh data unmodifi
 
 Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorials on <a href="https://www.youtube.com/watch?v=2wkWo512mew">YouTube</a>.
 
+[![Youtube Video Mesh Align Plus 1.0](https://i.postimg.cc/43wjMKYL/video-thumb-1.png)](https://www.youtube.com/watch?v=2wkWo512mew)
+https://i.postimg.cc/43wjMKYL/video-thumb-1.png
+
 ## Quick Examples
 
 ![easy_apl_frontpage2](https://user-images.githubusercontent.com/15041801/231297281-8ac7eca9-74a1-4e25-817c-ed612c0dc317.gif)
