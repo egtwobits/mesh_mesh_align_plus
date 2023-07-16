@@ -1874,9 +1874,9 @@ class MAPLUS_OT_QuickAxrSrcGrabLineStartFromActiveLocal(MAPLUS_OT_GrabFromGeomet
 class MAPLUS_OT_QuickDistObjAlongLineSrcGrabLineStartFromActiveGlobal(
         MAPLUS_OT_GrabFromGeometryBase):
     bl_idname = "maplus.quickdistobjalonglinesrcgrablinestartfromactiveglobal"
-    bl_label = "Grab Local Coordinate for Line Start From Active Point"
+    bl_label = "Grab Global Coordinate for Line Start From Active Point"
     bl_description = (
-        "Grabs local coordinates for line start from selected vertex"
+        "Grabs global coordinates for line start from selected vertex"
         "in edit mode"
     )
     bl_options = {'REGISTER', 'UNDO'}
