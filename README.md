@@ -1,4 +1,4 @@
-![maplus_banner_v3](https://github.com/egtwobits/mesh_mesh_align_plus/assets/104786633/16e67025-49cc-4138-b28c-85c44288d6fd)
+![Mesh Align Plus banner](https://github.com/user-attachments/assets/1b735e22-ef33-4537-b83a-60ad1a62e7e2)
 
 # Mesh Align Plus [Blender Addon]
 
