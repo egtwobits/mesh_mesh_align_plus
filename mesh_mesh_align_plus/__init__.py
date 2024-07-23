@@ -22,38 +22,34 @@
 # <pep8 compliant>
 
 
-import mesh_mesh_align_plus.utils.system as maplus_sys
+from .utils.system import register
 
 
-# Blender requires addons to provide this information.
-bl_info = {
-    "name": "Mesh Align Plus",
-    "description": (
-        "Precisely move mesh parts and objects around "
-        "based on geometry and measurements from your scene."
-    ),
-    "author": "Eric Gentry",
-    "version": (1, 0, 0),
-    "blender": (2, 80, 0),
-    "location": (
-        "3D View > N Panel > Mesh Align Plus tab, and"
-        " Properties -> Scene -> Mesh Align Plus"
-    ),
-    "warning": (
-        "Operations on objects with non-uniform scaling are "
-        "not currently supported."
-    ),
-    "wiki_url": (
-        "https://github.com/egtwobits/mesh_mesh_align_plus/wiki"
-    ),
-    "support": "COMMUNITY",
-    "category": "Mesh"
-}
-
-
-register = maplus_sys.register
-unregister = maplus_sys.unregister
+# # Blender requires addons to provide this information.
+# bl_info = {
+#     "name": "Mesh Align Plus",
+#     "description": (
+#         "Precisely move mesh parts and objects around "
+#         "based on geometry and measurements from your scene."
+#     ),
+#     "author": "Eric Gentry",
+#     "version": (1, 0, 0),
+#     "blender": (2, 80, 0),
+#     "location": (
+#         "3D View > N Panel > Mesh Align Plus tab, and"
+#         " Properties -> Scene -> Mesh Align Plus"
+#     ),
+#     "warning": (
+#         "Operations on objects with non-uniform scaling are "
+#         "not currently supported."
+#     ),
+#     "wiki_url": (
+#         "https://github.com/egtwobits/mesh_mesh_align_plus/wiki"
+#     ),
+#     "support": "COMMUNITY",
+#     "category": "Mesh"
+# }
 
 
 if __name__ == "__main__":
-    maplus_sys.register()
+    register()
