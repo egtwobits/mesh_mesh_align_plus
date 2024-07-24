@@ -18,7 +18,8 @@ website = "https://github.com/egtwobits/mesh_mesh_align_plus"
 # https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
 tags = ["3D View", "Mesh", "Modeling", "Object", "User Interface"]
 
-blender_version_min = "2.8.0"
+# Note: the legacy addon info in __init__.py (bl_info) has a lower min version for compatibility
+blender_version_min = "4.2.0"
 # # Optional: Blender version that the extension does not support, earlier versions are supported.
 # # This can be omitted and defined later on the extensions platform if an issue is found.
 # blender_version_max = "5.1.0"
