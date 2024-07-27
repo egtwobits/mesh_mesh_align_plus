@@ -1,4 +1,4 @@
-![mesh align plus banner](https://github.com/user-attachments/assets/daf9a1d5-2843-4ce1-b3e8-337bc529f033)
+![mesh align plus banner](https://github.com/user-attachments/assets/befc5f18-2734-4d40-b4d8-92943f2d4218)
 
 # Mesh Align Plus [Blender Addon]
 
