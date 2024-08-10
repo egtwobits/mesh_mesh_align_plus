@@ -1,4 +1,4 @@
-![maplus_banner_v3](https://github.com/egtwobits/mesh_mesh_align_plus/assets/104786633/16e67025-49cc-4138-b28c-85c44288d6fd)
+![mesh align plus banner](https://github.com/user-attachments/assets/7b793788-5535-4904-a495-7ff7487bc9dd)
 
 # Mesh Align Plus [Blender Addon]
 
@@ -7,6 +7,8 @@
 Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry (like an implicit axis, projected points of intersection, etc).
 
 Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorials on <a href="https://www.youtube.com/watch?v=2wkWo512mew">YouTube</a>.
+
+[![Youtube Video Mesh Align Plus 1.0](https://i.postimg.cc/43wjMKYL/video-thumb-1.png)](https://www.youtube.com/watch?v=2wkWo512mew)
 
 ## Quick Examples
 
