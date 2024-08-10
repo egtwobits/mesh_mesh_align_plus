@@ -6,9 +6,9 @@ import math
 import bpy
 import mathutils
 
-import mesh_mesh_align_plus.utils.geom as maplus_geom
-import mesh_mesh_align_plus.utils.storage as maplus_storage
-import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
+from .utils import geom as maplus_geom
+from .utils import storage as maplus_storage
+from .utils import gui_tools as maplus_guitools
 
 
 class MAPLUS_OT_CalcLineLengthBase(bpy.types.Operator):

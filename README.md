@@ -4,13 +4,13 @@
 
 **Mesh Align Plus** helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
 
-Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry like an implicit axis, projected points of intersection, etc.
+Mesh Align Plus can **move objects** and leave the underlying mesh data unmodified, or it can **move mesh fragments** inside a mesh during the modeling process. You can also use measurements from your scene like angle differences, lengths, average positions, normals and other imaginary geometry (like an implicit axis, projected points of intersection, etc).
 
 Mesh Align Plus is designed to provide precision modeling capabilities, especially for hard surface modelers, mechanical, architectural and CAD/CAM users. See the simple demo clips below for a general sense of what the addon can do, read the <a href="https://github.com/egtwobits/mesh_mesh_align_plus/wiki">Wiki</a> above (with tons of GIF's), or watch the video tutorials on <a href="https://www.youtube.com/watch?v=2wkWo512mew">YouTube</a>.
 
 ## Quick Examples
 
-![easy_apl_frontpage2](https://user-images.githubusercontent.com/15041801/231297281-8ac7eca9-74a1-4e25-817c-ed612c0dc317.gif)
+![homepage_pyramid_bracket1](https://github.com/egtwobits/mesh_mesh_align_plus/assets/15041801/c8fbd782-4e83-4752-ace6-985d88466d7e)
 ![basics](https://user-images.githubusercontent.com/15041801/231297300-6877026b-0da3-4586-b259-9b5a99829c0e.gif)
 ![meshops_demo3](https://github.com/egtwobits/mesh_mesh_align_plus/assets/15041801/82985eb8-0389-427f-8bad-70a38d30a541)
 

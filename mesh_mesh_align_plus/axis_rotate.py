@@ -7,9 +7,9 @@ import bmesh
 import bpy
 import mathutils
 
-import mesh_mesh_align_plus.utils.exceptions as maplus_except
-import mesh_mesh_align_plus.utils.geom as maplus_geom
-import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
+from .utils import exceptions as maplus_except
+from .utils import geom as maplus_geom
+from .utils import gui_tools as maplus_guitools
 
 
 class MAPLUS_OT_AxisRotateBase(bpy.types.Operator):

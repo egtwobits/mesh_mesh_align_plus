@@ -3,19 +3,19 @@
 
 import bpy
 
-import mesh_mesh_align_plus.advanced_tools as maplus_adv_tools
-import mesh_mesh_align_plus.align_points as maplus_apt
-import mesh_mesh_align_plus.align_lines as maplus_aln
-import mesh_mesh_align_plus.align_objects as maplus_aobjects
-import mesh_mesh_align_plus.distribute_objects as maplus_dobjects
-import mesh_mesh_align_plus.align_planes as maplus_apl
-import mesh_mesh_align_plus.axis_rotate as maplus_axr
-import mesh_mesh_align_plus.calculate_compose as maplus_calc_compose
-import mesh_mesh_align_plus.directional_slide as maplus_ds
-import mesh_mesh_align_plus.scale_match_edge as maplus_sme
-import mesh_mesh_align_plus.utils.geom as maplus_geom
-import mesh_mesh_align_plus.utils.gui_tools as maplus_guitools
-import mesh_mesh_align_plus.utils.storage as maplus_storage
+from .. import advanced_tools as maplus_adv_tools
+from .. import align_points as maplus_apt
+from .. import align_lines as maplus_aln
+from .. import align_objects as maplus_aobjects
+from .. import distribute_objects as maplus_dobjects
+from .. import align_planes as maplus_apl
+from .. import axis_rotate as maplus_axr
+from .. import calculate_compose as maplus_calc_compose
+from .. import directional_slide as maplus_ds
+from .. import scale_match_edge as maplus_sme
+from . import geom as maplus_geom
+from . import gui_tools as maplus_guitools
+from . import storage as maplus_storage
 
 
 classes = (

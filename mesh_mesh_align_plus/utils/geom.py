@@ -8,7 +8,7 @@ import bmesh
 import bpy
 import mathutils
 
-import mesh_mesh_align_plus.utils.exceptions as maplus_except
+from . import exceptions as maplus_except
 
 
 def scalar_project(vec1, other):
