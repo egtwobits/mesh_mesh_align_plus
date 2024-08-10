@@ -4,7 +4,7 @@
 import bpy
 import mathutils
 
-import mesh_mesh_align_plus.utils.geom as maplus_geom
+from .utils import geom as maplus_geom
 
 
 class MAPLUS_OT_QuickAlignObjects(bpy.types.Operator):

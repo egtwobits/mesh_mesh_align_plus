@@ -22,10 +22,11 @@
 # <pep8 compliant>
 
 
-import mesh_mesh_align_plus.utils.system as maplus_sys
+from .utils.system import register
 
 
-# Blender requires addons to provide this information.
+# Blender's LEGACY ADDON SYSTEM requires addons to provide this information.
+# This is kept here for LEGACY COMPATIBILITY.
 bl_info = {
     "name": "Mesh Align Plus",
     "description": (
@@ -33,7 +34,7 @@ bl_info = {
         "based on geometry and measurements from your scene."
     ),
     "author": "Eric Gentry",
-    "version": (0, 7, 0),
+    "version": (1, 1, 0),
     "blender": (2, 80, 0),
     "location": (
         "3D View > N Panel > Mesh Align Plus tab, and"
@@ -51,9 +52,5 @@ bl_info = {
 }
 
 
-register = maplus_sys.register
-unregister = maplus_sys.unregister
-
-
 if __name__ == "__main__":
-    maplus_sys.register()
+    register()

@@ -1,3 +1,5 @@
+![maplus_banner_v3](https://github.com/egtwobits/mesh_mesh_align_plus/assets/104786633/16e67025-49cc-4138-b28c-85c44288d6fd)
+
 # Mesh Align Plus [Blender Addon]
 
 **Mesh Align Plus** helps you move things around, precisely: arrange objects in your scene, align mesh parts to each other while you're modeling, and create complex custom transformations using measurements from your models. You pick surface features that you want to align, and the addon moves your geometry according to your specifications.
